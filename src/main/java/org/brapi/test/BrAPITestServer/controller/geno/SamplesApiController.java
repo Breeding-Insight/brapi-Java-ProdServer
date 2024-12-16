@@ -10,6 +10,7 @@ import io.swagger.model.geno.SampleSearchRequest;
 import io.swagger.model.geno.SampleSingleResponse;
 import io.swagger.api.geno.SamplesApi;
 
+import jakarta.validation.Valid;
 import org.brapi.test.BrAPITestServer.controller.core.BrAPIController;
 import org.brapi.test.BrAPITestServer.exceptions.BrAPIServerException;
 import org.brapi.test.BrAPITestServer.model.entity.SearchRequestEntity;
@@ -50,6 +51,7 @@ public class SamplesApiController extends BrAPIController implements SamplesApi 
 	@CrossOrigin
 	@Override
 	public ResponseEntity<SampleListResponse> samplesGet(
+			@Valid @RequestParam(value = "batchDeleteDbId", required = false) String batchDeleteDbId,
 			@RequestParam(value = "sampleDbId", required = false) String sampleDbId,
 			@RequestParam(value = "sampleName", required = false) String sampleName,
 			@RequestParam(value = "sampleGroupDbId", required = false) String sampleGroupDbId,
@@ -73,6 +75,13 @@ public class SamplesApiController extends BrAPIController implements SamplesApi 
 		validateSecurityContext(request, "ROLE_ANONYMOUS", "ROLE_USER");
 		validateAcceptHeader(request);
 		Metadata metadata = generateMetaDataTemplate(page, pageSize);
+
+		// If a batch delete dbId is given then get the referenced sampless, ignoring all other query params except pagination
+		if (batchDeleteDbId != null) {
+			List<Sample> batchDeleteData = sampleService.findBatchDeleteSamples(batchDeleteDbId, metadata);
+			return responseOK(new SampleListResponse(), new SampleListResponseResult(), batchDeleteData, metadata);
+		}
+
 		List<Sample> data = sampleService.findSamples(sampleDbId, sampleName, sampleGroupDbId, observationUnitDbId,
 				plateDbId, plateName, germplasmDbId, studyDbId, trialDbId, commonCropName, programDbId,
 				externalReferenceId, externalReferenceID, externalReferenceSource, metadata);
@@ -116,6 +125,25 @@ public class SamplesApiController extends BrAPIController implements SamplesApi 
 		validateAcceptHeader(request);
 		Sample data = sampleService.getSample(sampleDbId);
 		return responseOK(new SampleSingleResponse(), data);
+	}
+
+	@Override
+	public ResponseEntity<SampleSingleResponse> samplesSampleDbIdDelete(
+			@PathVariable("sampleDbId") String sampleDbId,
+			@Valid @RequestParam(value = "hardDelete", defaultValue = "false", required = false) boolean hardDelete,
+			@RequestHeader(value = "Authorization", required = false) String authorization) throws BrAPIServerException {
+
+		log.debug("Request: " + request.getRequestURI());
+		validateSecurityContext(request, "ROLE_USER");
+		validateAcceptHeader(request);
+
+		if (hardDelete) {
+			sampleService.deleteSample(sampleDbId);
+			return responseNoContent();
+		}
+
+		sampleService.softDeleteSample(sampleDbId);
+		return responseNoContent();
 	}
 
 	@CrossOrigin

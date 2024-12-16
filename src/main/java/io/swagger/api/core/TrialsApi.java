@@ -7,10 +7,7 @@ package io.swagger.api.core;
 
 import io.swagger.model.BrAPIResponse;
 import io.swagger.model.Model202AcceptedSearchResponse;
-import io.swagger.model.core.TrialListResponse;
-import io.swagger.model.core.TrialNewRequest;
-import io.swagger.model.core.TrialSearchRequest;
-import io.swagger.model.core.TrialSingleResponse;
+import io.swagger.model.core.*;
 import io.swagger.annotations.*;
 
 import org.brapi.test.BrAPITestServer.exceptions.BrAPIServerException;
@@ -37,6 +34,7 @@ public interface TrialsApi {
 			@ApiResponse(code = 403, message = "Forbidden", response = String.class) })
 	@RequestMapping(value = "/trials", produces = { "application/json" }, method = RequestMethod.GET)
 	ResponseEntity<TrialListResponse> trialsGet(
+			@ApiParam(value = "batchDeleteDbId") @Valid @RequestParam(value = "batchDeleteDbId", required = false) String batchDelete,
 			@ApiParam(value = "active") @Valid @RequestParam(value = "active", required = false) Boolean active,
 			@ApiParam(value = "commonCropName") @Valid @RequestParam(value = "commonCropName", required = false) String commonCropName,
 			@ApiParam(value = "contactDbId") @Valid @RequestParam(value = "contactDbId", required = false) String contactDbId,
@@ -80,6 +78,20 @@ public interface TrialsApi {
 	@RequestMapping(value = "/trials/{trialDbId}", produces = { "application/json" }, method = RequestMethod.GET)
 	ResponseEntity<TrialSingleResponse> trialsTrialDbIdGet(
 			@ApiParam(value = "The internal trialDbId", required = true) @PathVariable("trialDbId") String trialDbId,
+			@ApiParam(value = "HTTP HEADER - Token used for Authorization   <strong> Bearer {token_string} </strong>") @RequestHeader(value = "Authorization", required = false) String authorization)
+			throws BrAPIServerException;
+
+	@ApiOperation(value = "Delete a specific Trial", nickname = "trialsTrialDbIdDelete", notes = "Delete a specific Trial", response = TrialSingleResponse.class, authorizations = {
+			@Authorization(value = "AuthorizationToken") }, tags = { "Trials", })
+	@ApiResponses(value = { @ApiResponse(code = 200, message = "OK", response = TrialSingleResponse.class),
+			@ApiResponse(code = 400, message = "Bad Request", response = String.class),
+			@ApiResponse(code = 401, message = "Unauthorized", response = String.class),
+			@ApiResponse(code = 403, message = "Forbidden", response = String.class),
+			@ApiResponse(code = 404, message = "Not Found", response = String.class) })
+	@RequestMapping(value = "/trials/{trialDbId}", produces = { "application/json" }, method = RequestMethod.DELETE)
+	ResponseEntity<TrialSingleResponse> trialsTrialDbIdDelete(
+			@ApiParam(value = "The internal trialDbId", required = true) @PathVariable("trialDbId") String trialDbId,
+			@ApiParam(value = "hardDelete") @Valid @RequestParam(value = "hardDelete", defaultValue = "false", required = false) boolean hardDelete,
 			@ApiParam(value = "HTTP HEADER - Token used for Authorization   <strong> Bearer {token_string} </strong>") @RequestHeader(value = "Authorization", required = false) String authorization)
 			throws BrAPIServerException;
 

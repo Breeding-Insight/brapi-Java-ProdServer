@@ -7,6 +7,8 @@ import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletRequest;
 
+import io.swagger.model.core.BatchDeletesListResponse;
+import io.swagger.model.core.BatchDeletesListResponseResult;
 import org.brapi.test.BrAPITestServer.auth.AuthDetails;
 import org.brapi.test.BrAPITestServer.exceptions.BrAPIServerException;
 import org.brapi.test.BrAPITestServer.exceptions.InvalidPagingException;
@@ -171,6 +173,10 @@ public class BrAPIController {
 		return responseOK(response, result, generateEmptyMetadata());
 	}
 
+	public <T> ResponseEntity<T> responseNoContent() {
+		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+	}
+
 	public <R, T extends BrAPIResponse<R>> ResponseEntity<T> responseOK(T response, R result, Metadata metadata) {
 		response.setMetadata(metadata);
 		response.setResult(result);
@@ -187,6 +193,14 @@ public class BrAPIController {
 		response.setMetadata(metadata);
 		response.setResult(result);
 		return new ResponseEntity<T>(response, HttpStatus.OK);
+	}
+
+	public <T> ResponseEntity<BatchDeletesListResponse> responseOK(String batchDbId, List<T> data, Metadata metadata) {
+		BatchDeletesListResponseResult<T> result = new BatchDeletesListResponseResult<T>().batchDbId(batchDbId).data(data);
+		BatchDeletesListResponse response = new BatchDeletesListResponse();
+		response.setMetadata(metadata);
+		response.setResult(result);
+		return new ResponseEntity<>(response, HttpStatus.OK);
 	}
 	
 	public ResponseEntity<Model202AcceptedSearchResponse> responseAccepted(String searchReqDbId){

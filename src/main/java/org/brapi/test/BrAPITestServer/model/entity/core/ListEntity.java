@@ -1,16 +1,16 @@
 package org.brapi.test.BrAPITestServer.model.entity.core;
 
+import io.swagger.model.core.ListTypes;
+import org.brapi.test.BrAPITestServer.model.entity.BrAPIPrimaryEntity;
+import org.hibernate.annotations.Where;
+
+import javax.persistence.*;
 import java.util.Date;
 import java.util.List;
 
-import javax.persistence.*;
-
-import org.brapi.test.BrAPITestServer.model.entity.BrAPIPrimaryEntity;
-
-import io.swagger.model.core.ListTypes;
-
 @Entity
 @Table(name = "list")
+@Where(clause = "soft_deleted = false")
 public class ListEntity extends BrAPIPrimaryEntity {
 	@Column
 	private Date dateCreated;
@@ -26,10 +26,12 @@ public class ListEntity extends BrAPIPrimaryEntity {
 	private String listSource;
 	@Column
 	private ListTypes listType;
+	@Column(name = "soft_deleted")
+	private boolean softDeleted;
 
 	@ManyToOne(fetch = FetchType.LAZY)
 	private PersonEntity listOwnerPerson;
-	@OneToMany(mappedBy="list", cascade = CascadeType.ALL)
+	@OneToMany(mappedBy="list", cascade = CascadeType.ALL, orphanRemoval = true)
 	@OrderColumn(name = "position")
 	private List<ListItemEntity> data;
 
@@ -96,6 +98,10 @@ public class ListEntity extends BrAPIPrimaryEntity {
 	public void setListType(ListTypes listType) {
 		this.listType = listType;
 	}
+
+	public boolean getSoftDeleted() { return softDeleted; }
+
+	public void setSoftDeleted(boolean sofDeleted) { this.softDeleted = sofDeleted; }
 
 	public List<ListItemEntity> getData() {
 		return data;

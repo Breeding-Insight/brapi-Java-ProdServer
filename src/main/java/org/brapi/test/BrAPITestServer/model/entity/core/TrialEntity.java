@@ -8,9 +8,11 @@ import javax.persistence.*;
 import org.brapi.test.BrAPITestServer.model.entity.BrAPIPrimaryEntity;
 import org.brapi.test.BrAPITestServer.model.entity.pheno.ObservationEntity;
 import org.brapi.test.BrAPITestServer.model.entity.pheno.ObservationUnitEntity;
+import org.hibernate.annotations.Where;
 
 @Entity
 @Table(name = "trial")
+@Where(clause = "soft_deleted = false")
 public class TrialEntity extends BrAPIPrimaryEntity {
 	@Column
 	private Boolean active;
@@ -35,6 +37,8 @@ public class TrialEntity extends BrAPIPrimaryEntity {
 	private String trialName;
 	@Column
 	private String trialPUI;
+	@Column(name = "soft_deleted")
+	private boolean softDeleted;
 
 	@ManyToOne(fetch = FetchType.LAZY)
 	private CropEntity crop;
@@ -140,5 +144,6 @@ public class TrialEntity extends BrAPIPrimaryEntity {
 	public void setStudies(List<StudyEntity> studies) {
 		this.studies = studies;
 	}
-
+	public boolean getSoftDeleted() { return softDeleted; }
+	public void setSoftDeleted(boolean sofDeleted) { this.softDeleted = sofDeleted; }
 }

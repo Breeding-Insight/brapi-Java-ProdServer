@@ -1,13 +1,12 @@
 package io.swagger.model.germ;
 
-import java.util.Objects;
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-
 import io.swagger.model.SearchRequest;
+
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class GermplasmSearchRequest extends SearchRequest {
 	@JsonProperty("accessionNumbers")

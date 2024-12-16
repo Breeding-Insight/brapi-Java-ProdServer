@@ -38,6 +38,7 @@ public interface SamplesApi {
 			@ApiResponse(code = 403, message = "Forbidden", response = String.class) })
 	@RequestMapping(value = "/samples", produces = { "application/json" }, method = RequestMethod.GET)
 	ResponseEntity<SampleListResponse> samplesGet(
+			@ApiParam(value = "batchDeleteDbId") @Valid @RequestParam(value = "batchDeleteDbId", required = false) String batchDelete,
 			@ApiParam(value = "sampleDbId") @Valid @RequestParam(value = "sampleDbId", required = false) String sampleDbId,
 			@ApiParam(value = "sampleName") @Valid @RequestParam(value = "sampleName", required = false) String sampleName,
 			@ApiParam(value = "sampleGroupDbId") @Valid @RequestParam(value = "sampleGroupDbId", required = false) String sampleGroupDbId,
@@ -93,6 +94,20 @@ public interface SamplesApi {
 	@RequestMapping(value = "/samples/{sampleDbId}", produces = { "application/json" }, method = RequestMethod.GET)
 	ResponseEntity<SampleSingleResponse> samplesSampleDbIdGet(
 			@ApiParam(value = "the internal DB id for a sample", required = true) @PathVariable("sampleDbId") String sampleDbId,
+			@ApiParam(value = "HTTP HEADER - Token used for Authorization   <strong> Bearer {token_string} </strong>") @RequestHeader(value = "Authorization", required = false) String authorization)
+			throws BrAPIServerException;
+
+	@ApiOperation(value = "Delete a specific Sample", nickname = "samplesSampleDbIdDelete", notes = "Used to delete a single Sample from a Sample Tracking system.", response = SampleSingleResponse.class, authorizations = {
+			@Authorization(value = "AuthorizationToken") }, tags = { "Samples", })
+	@ApiResponses(value = { @ApiResponse(code = 200, message = "OK", response = SampleSingleResponse.class),
+			@ApiResponse(code = 400, message = "Bad Request", response = String.class),
+			@ApiResponse(code = 401, message = "Unauthorized", response = String.class),
+			@ApiResponse(code = 403, message = "Forbidden", response = String.class),
+			@ApiResponse(code = 404, message = "Not Found", response = String.class) })
+	@RequestMapping(value = "/samples/{sampleDbId}", produces = { "application/json" }, method = RequestMethod.DELETE)
+	ResponseEntity<SampleSingleResponse> samplesSampleDbIdDelete(
+			@ApiParam(value = "the internal DB id for a sample", required = true) @PathVariable("sampleDbId") String sampleDbId,
+			@ApiParam(value = "hardDelete") @Valid @RequestParam(value = "hardDelete", defaultValue = "false", required = false) boolean hardDelete,
 			@ApiParam(value = "HTTP HEADER - Token used for Authorization   <strong> Bearer {token_string} </strong>") @RequestHeader(value = "Authorization", required = false) String authorization)
 			throws BrAPIServerException;
 

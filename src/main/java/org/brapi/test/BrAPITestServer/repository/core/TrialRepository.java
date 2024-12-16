@@ -2,10 +2,14 @@ package org.brapi.test.BrAPITestServer.repository.core;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.brapi.test.BrAPITestServer.model.entity.core.TrialEntity;
 import org.brapi.test.BrAPITestServer.repository.BrAPIRepository;
 import org.springframework.data.repository.query.Param;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 public interface TrialRepository extends BrAPIRepository<TrialEntity, String> {
 
@@ -20,5 +24,15 @@ public interface TrialRepository extends BrAPIRepository<TrialEntity, String> {
 			@Param("locationDbId") String locationDbId, 
 			@Param("applyActiveFilter") boolean applyActiveFilter, 
 			@Param("active") boolean active, Pageable pageReq);
+
+	@Modifying
+	@Transactional
+	@Query("UPDATE TrialEntity t SET t.softDeleted = :softDeleted WHERE t.id = :trialId")
+	int updateSoftDeletedStatus(@Param("trialId") String trialId, @Param("softDeleted") boolean softDeleted);
+
+	@Modifying
+	@Transactional
+	@Query("UPDATE TrialEntity t SET t.softDeleted = :softDeleted WHERE t.id IN :trialIds")
+	int updateSoftDeletedStatusBatch(@Param("trialIds") List<String> trialIds, @Param("softDeleted") boolean softDeleted);
 
 }

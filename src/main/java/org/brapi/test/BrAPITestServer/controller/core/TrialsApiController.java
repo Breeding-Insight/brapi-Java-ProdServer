@@ -1,19 +1,10 @@
 package org.brapi.test.BrAPITestServer.controller.core;
 
+import io.swagger.api.core.TrialsApi;
 import io.swagger.model.BrAPIResponse;
 import io.swagger.model.Metadata;
-import io.swagger.model.core.Trial;
-import io.swagger.model.core.TrialListResponse;
-import io.swagger.model.core.TrialListResponseResult;
-import io.swagger.model.core.TrialNewRequest;
-import io.swagger.model.core.TrialSearchRequest;
-import io.swagger.model.core.TrialSingleResponse;
-import io.swagger.model.germ.Germplasm;
-import io.swagger.model.germ.GermplasmListResponse;
-import io.swagger.model.germ.GermplasmListResponseResult;
-import io.swagger.model.germ.GermplasmSearchRequest;
-import io.swagger.api.core.TrialsApi;
-
+import io.swagger.model.core.*;
+import jakarta.validation.Valid;
 import org.brapi.test.BrAPITestServer.exceptions.BrAPIServerException;
 import org.brapi.test.BrAPITestServer.model.entity.SearchRequestEntity;
 import org.brapi.test.BrAPITestServer.model.entity.SearchRequestEntity.SearchRequestTypes;
@@ -22,15 +13,10 @@ import org.brapi.test.BrAPITestServer.service.SearchService;
 import org.brapi.test.BrAPITestServer.service.core.TrialService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestParam;
-import jakarta.validation.Valid;
+import org.springframework.web.bind.annotation.*;
+
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
@@ -49,11 +35,12 @@ public class TrialsApiController extends BrAPIController implements TrialsApi {
 		this.trialService = trialService;
 		this.searchService = searchService;
 		this.request = request;
-	}
+    }
 
 	@CrossOrigin
 	@Override
 	public ResponseEntity<TrialListResponse> trialsGet(
+			@Valid @RequestParam(value = "batchDeleteDbId", required = false) String batchDeleteDbId,
 			@Valid @RequestParam(value = "active", required = false) Boolean active,
 			@Valid @RequestParam(value = "commonCropName", required = false) String commonCropName,
 			@Valid @RequestParam(value = "contactDbId", required = false) String contactDbId,
@@ -79,6 +66,13 @@ public class TrialsApiController extends BrAPIController implements TrialsApi {
 		validateSecurityContext(request, "ROLE_ANONYMOUS", "ROLE_USER");
 		validateAcceptHeader(request);
 		Metadata metadata = generateMetaDataTemplate(page, pageSize);
+
+		// If a batch delete dbId is given then get the referenced trials, ignoring all other query params except pagination
+		if (batchDeleteDbId != null) {
+			List<Trial> batchDeleteData = trialService.findBatchDeleteTrials(batchDeleteDbId, metadata);
+			return responseOK(new TrialListResponse(), new TrialListResponseResult(), batchDeleteData, metadata);
+		}
+
 		List<Trial> data = trialService.findTrials(commonCropName, contactDbId, programDbId, locationDbId,
 				DateUtility.toLocalDate(searchDateRangeStart), DateUtility.toLocalDate(searchDateRangeEnd), studyDbId, trialDbId, trialName, trialPUI,
 				externalReferenceId, externalReferenceID, externalReferenceSource, active, sortBy, sortOrder, metadata);
@@ -109,6 +103,26 @@ public class TrialsApiController extends BrAPIController implements TrialsApi {
 		validateAcceptHeader(request);
 		Trial data = trialService.getTrial(trialDbId);
 		return responseOK(new TrialSingleResponse(), data);
+	}
+
+	@CrossOrigin
+	@Override
+	public ResponseEntity<TrialSingleResponse> trialsTrialDbIdDelete(
+			@PathVariable("trialDbId") String trialDbId,
+			@Valid @RequestParam(value = "hardDelete", defaultValue = "false", required = false) boolean hardDelete,
+			@RequestHeader(value = "Authorization", required = false) String authorization) throws BrAPIServerException {
+
+		log.debug("Request: " + request.getRequestURI());
+		validateSecurityContext(request, "ROLE_USER");
+		validateAcceptHeader(request);
+
+		if (hardDelete) {
+			trialService.deleteTrial(trialDbId);
+			return responseNoContent();
+		}
+
+		trialService.softDeleteTrial(trialDbId);
+		return responseNoContent();
 	}
 
 	@CrossOrigin

@@ -10,9 +10,11 @@ import org.brapi.test.BrAPITestServer.model.entity.core.StudyEntity;
 import org.brapi.test.BrAPITestServer.model.entity.core.TrialEntity;
 import org.brapi.test.BrAPITestServer.model.entity.pheno.ObservationUnitEntity;
 import org.brapi.test.BrAPITestServer.model.entity.pheno.TaxonEntity;
+import org.hibernate.annotations.Where;
 
 @Entity
 @Table(name="sample")
+@Where(clause = "soft_deleted = false")
 public class SampleEntity extends BrAPIPrimaryEntity{
 	@Column
 	private Integer plateColumn; 
@@ -54,6 +56,8 @@ public class SampleEntity extends BrAPIPrimaryEntity{
 	private String volume;
 	@Column
 	private String well;
+	@Column(name = "soft_deleted")
+	private boolean softDeleted;
 	
 	public ProgramEntity getProgram() {
 		return program;
@@ -175,4 +179,7 @@ public class SampleEntity extends BrAPIPrimaryEntity{
 	public void setVolume(String volume) {
 		this.volume = volume;
 	}
+	public boolean getSoftDeleted() { return softDeleted; }
+	public void setSoftDeleted(boolean sofDeleted) { this.softDeleted = sofDeleted; }
+
 }

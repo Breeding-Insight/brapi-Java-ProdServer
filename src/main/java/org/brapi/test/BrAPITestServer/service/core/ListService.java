@@ -1,10 +1,9 @@
 package org.brapi.test.BrAPITestServer.service.core;
 
-import java.util.*;
-import java.util.stream.Collectors;
-
+import io.swagger.model.Metadata;
+import io.swagger.model.core.*;
 import jakarta.validation.Valid;
-
+import org.brapi.test.BrAPITestServer.exceptions.BatchDeleteWrongTypeException;
 import org.brapi.test.BrAPITestServer.exceptions.BrAPIServerDbIdNotFoundException;
 import org.brapi.test.BrAPITestServer.exceptions.BrAPIServerException;
 import org.brapi.test.BrAPITestServer.model.entity.core.ListEntity;
@@ -19,23 +18,42 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
-import io.swagger.model.Metadata;
-import io.swagger.model.core.ListBaseFieldsInterface;
-import io.swagger.model.core.ListDetails;
-import io.swagger.model.core.ListNewRequest;
-import io.swagger.model.core.ListSearchRequest;
-import io.swagger.model.core.ListSummary;
-import io.swagger.model.core.ListTypes;
+import javax.transaction.Transactional;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
+@Transactional
 public class ListService {
 
-	private ListRepository listRepository;
-	private PeopleService peopleService;
+	private final ListRepository listRepository;
+	private final PeopleService peopleService;
+	private final BatchService batchService;
 
-	public ListService(ListRepository listRepository, PeopleService peopleService) {
+	public ListService(ListRepository listRepository, PeopleService peopleService, BatchService batchService) {
 		this.listRepository = listRepository;
 		this.peopleService = peopleService;
+        this.batchService = batchService;
+    }
+
+	public List<ListSummary> findBatchDeleteLists(String batchDeleteDbId, Metadata metadata) throws BrAPIServerException {
+		// Get the batch delete
+		BatchDeleteDetails details = batchService.getBatch(batchDeleteDbId);
+
+		// Can't process if the batch does not reference lists
+		if (!BatchDeleteTypes.LISTS.equals(details.getBatchDeleteType())) {
+			throw new BatchDeleteWrongTypeException(BatchDeleteTypes.LISTS, details.getBatchDeleteType(), batchDeleteDbId, HttpStatus.BAD_REQUEST);
+		}
+
+		// Check if the batch is empty
+		if (details.getData().isEmpty()) {
+			return new ArrayList<>();
+		}
+
+		// Get the list summaries referenced in the batch delete
+		ListSearchRequest request = new ListSearchRequest();
+		details.getData().forEach(request::addListDbIdsItem);
+		return findLists(request, metadata);
 	}
 
 	public List<ListSummary> findLists(ListTypes listType, String listName, String listDbId, String listSource,
@@ -143,6 +161,29 @@ public class ListService {
 		}
 
 		return convertToDetails(savedEntity);
+	}
+
+	public void deleteListBatch(List<String> listDbIds) {
+		listRepository.deleteAllByIdInBatch(listDbIds);
+	}
+
+	public void softDeleteListBatch(List<String> listDbIds) {
+		listRepository.updateSoftDeletedStatusBatch(listDbIds, true);
+	}
+
+	public void deleteList(String listDbId) throws BrAPIServerException {
+		// Soft delete the list first since the method throws a 404 exception if the list is not found
+		softDeleteList(listDbId);
+
+		// Hard delete the list
+		listRepository.deleteAllByIdInBatch(Arrays.asList(listDbId));
+	}
+
+	public void softDeleteList(String listDbId) throws BrAPIServerDbIdNotFoundException {
+		int updatedCount = listRepository.updateSoftDeletedStatus(listDbId, true);
+		if (updatedCount == 0) {
+			throw new BrAPIServerDbIdNotFoundException("list", listDbId, "list database ID", HttpStatus.NOT_FOUND);
+		}
 	}
 
 	public List<ListSummary> saveNewList(@Valid List<ListNewRequest> requests) throws BrAPIServerException {
