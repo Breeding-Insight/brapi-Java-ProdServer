@@ -6,8 +6,7 @@ import com.fasterxml.jackson.annotation.JsonValue;
 public enum VendorServicePlatformMarkerTypeEnum {
     FIXED("FIXED"),
     DISCOVERABLE("DISCOVERABLE");
-
-    private String value;
+private String value;
 
     VendorServicePlatformMarkerTypeEnum(String value) {
       this.value = value;

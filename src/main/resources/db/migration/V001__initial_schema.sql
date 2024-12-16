@@ -18,7 +18,21 @@ SET row_security = off;
 
 SET default_tablespace = '';
 
+<<<<<<< HEAD
 SET default_with_oids = false;
+=======
+--
+-- TOC entry 220 (class 1259 OID 2108378)
+-- Name: additional_info; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE additional_info (
+    id varchar(255) NOT NULL,
+    key varchar(255),
+    value bytea
+);
+
+>>>>>>> 9eb49df (Merge pull request #76 from plantbreeding/java-21-upgrade)
 
 --
 -- Name: allele_call; Type: TABLE; Schema: public; Owner: postgres
@@ -37,12 +51,32 @@ CREATE TABLE public.allele_call (
 );
 
 
+<<<<<<< HEAD
 ALTER TABLE public.allele_call OWNER TO postgres;
+=======
+--
+-- TOC entry 221 (class 1259 OID 2108386)
+-- Name: allele_call; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE allele_call (
+    id varchar(255) NOT NULL,
+    auth_user_id varchar(255),
+    genotype varchar(255),
+    genotype_likelihood double precision,
+    phase_set varchar(255),
+    read_depth integer,
+    call_set_id varchar(255),
+    variant_id varchar(255)
+);
+
+>>>>>>> 9eb49df (Merge pull request #76 from plantbreeding/java-21-upgrade)
 
 --
 -- Name: allele_call_external_references; Type: TABLE; Schema: public; Owner: postgres
 --
 
+<<<<<<< HEAD
 CREATE TABLE public.allele_call_external_references (
                                                         call_entity_id text NOT NULL,
                                                         external_references_id text NOT NULL
@@ -50,6 +84,24 @@ CREATE TABLE public.allele_call_external_references (
 
 
 ALTER TABLE public.allele_call_external_references OWNER TO postgres;
+=======
+CREATE TABLE allele_call_additional_info (
+    call_entity_id varchar(255) NOT NULL,
+    additional_info_id varchar(255) NOT NULL
+);
+
+
+--
+-- TOC entry 223 (class 1259 OID 2108400)
+-- Name: allele_call_external_references; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE allele_call_external_references (
+    call_entity_id varchar(255) NOT NULL,
+    external_references_id varchar(255) NOT NULL
+);
+
+>>>>>>> 9eb49df (Merge pull request #76 from plantbreeding/java-21-upgrade)
 
 --
 -- Name: breeding_method; Type: TABLE; Schema: public; Owner: postgres
@@ -65,12 +117,29 @@ CREATE TABLE public.breeding_method (
 );
 
 
+<<<<<<< HEAD
 ALTER TABLE public.breeding_method OWNER TO postgres;
+=======
+--
+-- TOC entry 224 (class 1259 OID 2108406)
+-- Name: breeding_method; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE breeding_method (
+    id varchar(255) NOT NULL,
+    auth_user_id varchar(255),
+    abbreviation varchar(255),
+    description varchar(255),
+    name varchar(255)
+);
+
+>>>>>>> 9eb49df (Merge pull request #76 from plantbreeding/java-21-upgrade)
 
 --
 -- Name: breeding_method_external_references; Type: TABLE; Schema: public; Owner: postgres
 --
 
+<<<<<<< HEAD
 CREATE TABLE public.breeding_method_external_references (
                                                             breeding_method_entity_id text NOT NULL,
                                                             external_references_id text NOT NULL
@@ -78,11 +147,30 @@ CREATE TABLE public.breeding_method_external_references (
 
 
 ALTER TABLE public.breeding_method_external_references OWNER TO postgres;
+=======
+CREATE TABLE breeding_method_additional_info (
+    breeding_method_entity_id varchar(255) NOT NULL,
+    additional_info_id varchar(255) NOT NULL
+);
+
+
+--
+-- TOC entry 226 (class 1259 OID 2108420)
+-- Name: breeding_method_external_references; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE breeding_method_external_references (
+    breeding_method_entity_id varchar(255) NOT NULL,
+    external_references_id varchar(255) NOT NULL
+);
+
+>>>>>>> 9eb49df (Merge pull request #76 from plantbreeding/java-21-upgrade)
 
 --
 -- Name: callset; Type: TABLE; Schema: public; Owner: postgres
 --
 
+<<<<<<< HEAD
 CREATE TABLE public.callset (
                                 id text NOT NULL,
                                 additional_info jsonb,
@@ -95,11 +183,34 @@ CREATE TABLE public.callset (
 
 
 ALTER TABLE public.callset OWNER TO postgres;
+=======
+CREATE TABLE callset (
+    id varchar(255) NOT NULL,
+    auth_user_id varchar(255),
+    call_set_name varchar(255),
+    created timestamp without time zone,
+    updated timestamp without time zone,
+    sample_id varchar(255)
+);
+
+
+--
+-- TOC entry 228 (class 1259 OID 2108434)
+-- Name: callset_additional_info; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE callset_additional_info (
+    call_set_entity_id varchar(255) NOT NULL,
+    additional_info_id varchar(255) NOT NULL
+);
+
+>>>>>>> 9eb49df (Merge pull request #76 from plantbreeding/java-21-upgrade)
 
 --
 -- Name: callset_external_references; Type: TABLE; Schema: public; Owner: postgres
 --
 
+<<<<<<< HEAD
 CREATE TABLE public.callset_external_references (
                                                     call_set_entity_id text NOT NULL,
                                                     external_references_id text NOT NULL
@@ -107,11 +218,30 @@ CREATE TABLE public.callset_external_references (
 
 
 ALTER TABLE public.callset_external_references OWNER TO postgres;
+=======
+CREATE TABLE callset_external_references (
+    call_set_entity_id varchar(255) NOT NULL,
+    external_references_id varchar(255) NOT NULL
+);
+
+
+--
+-- TOC entry 230 (class 1259 OID 2108446)
+-- Name: callset_variant_sets; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE callset_variant_sets (
+    call_sets_id varchar(255) NOT NULL,
+    variant_sets_id varchar(255) NOT NULL
+);
+
+>>>>>>> 9eb49df (Merge pull request #76 from plantbreeding/java-21-upgrade)
 
 --
 -- Name: callset_variant_sets; Type: TABLE; Schema: public; Owner: postgres
 --
 
+<<<<<<< HEAD
 CREATE TABLE public.callset_variant_sets (
                                              call_sets_id text NOT NULL,
                                              variant_sets_id text NOT NULL
@@ -119,11 +249,39 @@ CREATE TABLE public.callset_variant_sets (
 
 
 ALTER TABLE public.callset_variant_sets OWNER TO postgres;
+=======
+CREATE TABLE contact (
+    id varchar(255) NOT NULL,
+    email varchar(255),
+    institute_name varchar(255),
+    name varchar(255),
+    orcid varchar(255),
+    study_db_id varchar(255),
+    trial_db_id varchar(255),
+    type varchar(255)
+);
+
+
+--
+-- TOC entry 232 (class 1259 OID 2108460)
+-- Name: coordinate; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE coordinate (
+    id varchar(255) NOT NULL,
+    altitude numeric(9,6),
+    latitude numeric(9,6),
+    longitude numeric(9,6),
+    geojson_id varchar(255)
+);
+
+>>>>>>> 9eb49df (Merge pull request #76 from plantbreeding/java-21-upgrade)
 
 --
 -- Name: contact; Type: TABLE; Schema: public; Owner: postgres
 --
 
+<<<<<<< HEAD
 CREATE TABLE public.contact (
                                 id text NOT NULL,
                                 email text,
@@ -137,11 +295,31 @@ CREATE TABLE public.contact (
 
 
 ALTER TABLE public.contact OWNER TO postgres;
+=======
+CREATE TABLE crop (
+    id varchar(255) NOT NULL,
+    auth_user_id varchar(255),
+    crop_name varchar(255)
+);
+
+
+--
+-- TOC entry 234 (class 1259 OID 2108476)
+-- Name: crop_additional_info; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE crop_additional_info (
+    crop_entity_id varchar(255) NOT NULL,
+    additional_info_id varchar(255) NOT NULL
+);
+
+>>>>>>> 9eb49df (Merge pull request #76 from plantbreeding/java-21-upgrade)
 
 --
 -- Name: coordinate; Type: TABLE; Schema: public; Owner: postgres
 --
 
+<<<<<<< HEAD
 CREATE TABLE public.coordinate (
                                    id text NOT NULL,
                                    altitude numeric(9,6),
@@ -152,11 +330,36 @@ CREATE TABLE public.coordinate (
 
 
 ALTER TABLE public.coordinate OWNER TO postgres;
+=======
+CREATE TABLE crop_external_references (
+    crop_entity_id varchar(255) NOT NULL,
+    external_references_id varchar(255) NOT NULL
+);
+
+
+--
+-- TOC entry 236 (class 1259 OID 2108488)
+-- Name: cross_entity; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE cross_entity (
+    id varchar(255) NOT NULL,
+    auth_user_id varchar(255),
+    cross_type integer,
+    name varchar(255),
+    planned boolean,
+    status integer,
+    crossing_project_id varchar(255),
+    planned_cross_id varchar(255)
+);
+
+>>>>>>> 9eb49df (Merge pull request #76 from plantbreeding/java-21-upgrade)
 
 --
 -- Name: crop; Type: TABLE; Schema: public; Owner: postgres
 --
 
+<<<<<<< HEAD
 CREATE TABLE public.crop (
                              id text NOT NULL,
                              additional_info jsonb,
@@ -166,11 +369,30 @@ CREATE TABLE public.crop (
 
 
 ALTER TABLE public.crop OWNER TO postgres;
+=======
+CREATE TABLE cross_entity_additional_info (
+    cross_entity_id varchar(255) NOT NULL,
+    additional_info_id varchar(255) NOT NULL
+);
+
+
+--
+-- TOC entry 241 (class 1259 OID 2108524)
+-- Name: cross_entity_cross_attributes; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE cross_entity_cross_attributes (
+    cross_entity_id varchar(255) NOT NULL,
+    cross_attributes varchar(255)
+);
+
+>>>>>>> 9eb49df (Merge pull request #76 from plantbreeding/java-21-upgrade)
 
 --
 -- Name: crop_external_references; Type: TABLE; Schema: public; Owner: postgres
 --
 
+<<<<<<< HEAD
 CREATE TABLE public.crop_external_references (
                                                  crop_entity_id text NOT NULL,
                                                  external_references_id text NOT NULL
@@ -178,11 +400,34 @@ CREATE TABLE public.crop_external_references (
 
 
 ALTER TABLE public.crop_external_references OWNER TO postgres;
+=======
+CREATE TABLE cross_entity_external_references (
+    cross_entity_id varchar(255) NOT NULL,
+    external_references_id varchar(255) NOT NULL
+);
+
+
+--
+-- TOC entry 239 (class 1259 OID 2108508)
+-- Name: cross_parent; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE cross_parent (
+    id varchar(255) NOT NULL,
+    parent_type integer,
+    cross_id varchar(255),
+    crossing_project_id varchar(255),
+    germplasm_id varchar(255),
+    observation_unit_id varchar(255)
+);
+
+>>>>>>> 9eb49df (Merge pull request #76 from plantbreeding/java-21-upgrade)
 
 --
 -- Name: cross_entity; Type: TABLE; Schema: public; Owner: postgres
 --
 
+<<<<<<< HEAD
 CREATE TABLE public.cross_entity (
                                      id text NOT NULL,
                                      additional_info jsonb,
@@ -197,11 +442,36 @@ CREATE TABLE public.cross_entity (
 
 
 ALTER TABLE public.cross_entity OWNER TO postgres;
+=======
+CREATE TABLE cross_pollination_event (
+    id varchar(255) NOT NULL,
+    pollination_number varchar(255),
+    pollination_successful boolean,
+    pollination_time_stamp timestamp without time zone,
+    cross_id varchar(255)
+);
+
+
+--
+-- TOC entry 242 (class 1259 OID 2108530)
+-- Name: crossing_project; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE crossing_project (
+    id varchar(255) NOT NULL,
+    auth_user_id varchar(255),
+    description varchar(255),
+    name varchar(255),
+    program_id varchar(255)
+);
+
+>>>>>>> 9eb49df (Merge pull request #76 from plantbreeding/java-21-upgrade)
 
 --
 -- Name: cross_entity_cross_attributes; Type: TABLE; Schema: public; Owner: postgres
 --
 
+<<<<<<< HEAD
 CREATE TABLE public.cross_entity_cross_attributes (
                                                       cross_entity_id text NOT NULL,
                                                       cross_attributes text
@@ -209,6 +479,24 @@ CREATE TABLE public.cross_entity_cross_attributes (
 
 
 ALTER TABLE public.cross_entity_cross_attributes OWNER TO postgres;
+=======
+CREATE TABLE crossing_project_additional_info (
+    crossing_project_entity_id varchar(255) NOT NULL,
+    additional_info_id varchar(255) NOT NULL
+);
+
+
+--
+-- TOC entry 244 (class 1259 OID 2108544)
+-- Name: crossing_project_external_references; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE crossing_project_external_references (
+    crossing_project_entity_id varchar(255) NOT NULL,
+    external_references_id varchar(255) NOT NULL
+);
+
+>>>>>>> 9eb49df (Merge pull request #76 from plantbreeding/java-21-upgrade)
 
 --
 -- Name: cross_entity_external_references; Type: TABLE; Schema: public; Owner: postgres
@@ -226,6 +514,7 @@ ALTER TABLE public.cross_entity_external_references OWNER TO postgres;
 -- Name: cross_parent; Type: TABLE; Schema: public; Owner: postgres
 --
 
+<<<<<<< HEAD
 CREATE TABLE public.cross_parent (
                                      id text NOT NULL,
                                      parent_type integer,
@@ -237,11 +526,34 @@ CREATE TABLE public.cross_parent (
 
 
 ALTER TABLE public.cross_parent OWNER TO postgres;
+=======
+CREATE TABLE event (
+    id varchar(255) NOT NULL,
+    auth_user_id varchar(255),
+    event_description varchar(255),
+    event_type varchar(255),
+    event_type_db_id varchar(255),
+    study_id varchar(255)
+);
+
+
+--
+-- TOC entry 246 (class 1259 OID 2108558)
+-- Name: event_additional_info; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE event_additional_info (
+    event_entity_id varchar(255) NOT NULL,
+    additional_info_id varchar(255) NOT NULL
+);
+
+>>>>>>> 9eb49df (Merge pull request #76 from plantbreeding/java-21-upgrade)
 
 --
 -- Name: cross_pollination_event; Type: TABLE; Schema: public; Owner: postgres
 --
 
+<<<<<<< HEAD
 CREATE TABLE public.cross_pollination_event (
                                                 id text NOT NULL,
                                                 pollination_number text,
@@ -252,11 +564,30 @@ CREATE TABLE public.cross_pollination_event (
 
 
 ALTER TABLE public.cross_pollination_event OWNER TO postgres;
+=======
+CREATE TABLE event_entity_dates (
+    event_entity_id varchar(255) NOT NULL,
+    dates timestamp without time zone
+);
+
+
+--
+-- TOC entry 247 (class 1259 OID 2108564)
+-- Name: event_external_references; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE event_external_references (
+    event_entity_id varchar(255) NOT NULL,
+    external_references_id varchar(255) NOT NULL
+);
+
+>>>>>>> 9eb49df (Merge pull request #76 from plantbreeding/java-21-upgrade)
 
 --
 -- Name: crossing_project; Type: TABLE; Schema: public; Owner: postgres
 --
 
+<<<<<<< HEAD
 CREATE TABLE public.crossing_project (
                                          id text NOT NULL,
                                          additional_info jsonb,
@@ -268,11 +599,38 @@ CREATE TABLE public.crossing_project (
 
 
 ALTER TABLE public.crossing_project OWNER TO postgres;
+=======
+CREATE TABLE event_observation_units (
+    event_entity_id varchar(255) NOT NULL,
+    observation_units_id varchar(255) NOT NULL
+);
+
+
+--
+-- TOC entry 249 (class 1259 OID 2108576)
+-- Name: event_param; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE event_param (
+    id varchar(255) NOT NULL,
+    code varchar(255),
+    description varchar(255),
+    key varchar(255),
+    name varchar(255),
+    rdf_value varchar(255),
+    units varchar(255),
+    value varchar(255),
+    value_description varchar(255),
+    event_id varchar(255)
+);
+
+>>>>>>> 9eb49df (Merge pull request #76 from plantbreeding/java-21-upgrade)
 
 --
 -- Name: crossing_project_external_references; Type: TABLE; Schema: public; Owner: postgres
 --
 
+<<<<<<< HEAD
 CREATE TABLE public.crossing_project_external_references (
                                                              crossing_project_entity_id text NOT NULL,
                                                              external_references_id text NOT NULL
@@ -280,11 +638,31 @@ CREATE TABLE public.crossing_project_external_references (
 
 
 ALTER TABLE public.crossing_project_external_references OWNER TO postgres;
+=======
+CREATE TABLE event_parameter_entity_values_by_date (
+    event_parameter_entity_id varchar(255) NOT NULL,
+    values_by_date varchar(255)
+);
+
+
+--
+-- TOC entry 252 (class 1259 OID 2108596)
+-- Name: external_reference; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE external_reference (
+    id varchar(255) NOT NULL,
+    external_reference_id varchar(255),
+    external_reference_source varchar(255)
+);
+
+>>>>>>> 9eb49df (Merge pull request #76 from plantbreeding/java-21-upgrade)
 
 --
 -- Name: event; Type: TABLE; Schema: public; Owner: postgres
 --
 
+<<<<<<< HEAD
 CREATE TABLE public.event (
                               id text NOT NULL,
                               additional_info jsonb,
@@ -297,11 +675,39 @@ CREATE TABLE public.event (
 
 
 ALTER TABLE public.event OWNER TO postgres;
+=======
+CREATE TABLE genome_map (
+    id varchar(255) NOT NULL,
+    auth_user_id varchar(255),
+    comments varchar(255),
+    documentationurl varchar(255),
+    map_name varchar(255),
+    mappui varchar(255),
+    published_date timestamp without time zone,
+    scientific_name varchar(255),
+    type varchar(255),
+    unit varchar(255),
+    crop_id varchar(255)
+);
+
+
+--
+-- TOC entry 254 (class 1259 OID 2108612)
+-- Name: genome_map_additional_info; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE genome_map_additional_info (
+    genome_map_entity_id varchar(255) NOT NULL,
+    additional_info_id varchar(255) NOT NULL
+);
+
+>>>>>>> 9eb49df (Merge pull request #76 from plantbreeding/java-21-upgrade)
 
 --
 -- Name: event_entity_dates; Type: TABLE; Schema: public; Owner: postgres
 --
 
+<<<<<<< HEAD
 CREATE TABLE public.event_entity_dates (
                                            event_entity_id text NOT NULL,
                                            dates timestamp without time zone
@@ -309,11 +715,30 @@ CREATE TABLE public.event_entity_dates (
 
 
 ALTER TABLE public.event_entity_dates OWNER TO postgres;
+=======
+CREATE TABLE genome_map_external_references (
+    genome_map_entity_id varchar(255) NOT NULL,
+    external_references_id varchar(255) NOT NULL
+);
+
+
+--
+-- TOC entry 256 (class 1259 OID 2108624)
+-- Name: genome_map_studies; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE genome_map_studies (
+    genome_map_entity_id varchar(255) NOT NULL,
+    studies_id varchar(255) NOT NULL
+);
+
+>>>>>>> 9eb49df (Merge pull request #76 from plantbreeding/java-21-upgrade)
 
 --
 -- Name: event_external_references; Type: TABLE; Schema: public; Owner: postgres
 --
 
+<<<<<<< HEAD
 CREATE TABLE public.event_external_references (
                                                   event_entity_id text NOT NULL,
                                                   external_references_id text NOT NULL
@@ -321,14 +746,59 @@ CREATE TABLE public.event_external_references (
 
 
 ALTER TABLE public.event_external_references OWNER TO postgres;
+=======
+CREATE TABLE geojson (
+    id varchar(255) NOT NULL,
+    type varchar(255)
+);
+
+
+--
+-- TOC entry 258 (class 1259 OID 2108638)
+-- Name: germplasm; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE germplasm (
+    id varchar(255) NOT NULL,
+    auth_user_id varchar(255),
+    accession_number varchar(255),
+    acquisition_date timestamp without time zone,
+    acquisition_source_code integer,
+    biological_status_of_accession_code integer,
+    collection varchar(255),
+    country_of_origin_code varchar(255),
+    default_display_name varchar(255),
+    documentationurl varchar(255),
+    genus varchar(255),
+    germplasm_name varchar(255),
+    germplasmpui varchar(255),
+    germplasm_preprocessing varchar(255),
+    mls_status integer,
+    seed_source varchar(255),
+    seed_source_description varchar(255),
+    species varchar(255),
+    species_authority varchar(255),
+    subtaxa varchar(255),
+    subtaxa_authority varchar(255),
+    breeding_method_id varchar(255),
+    crop_id varchar(255)
+);
+
+>>>>>>> 9eb49df (Merge pull request #76 from plantbreeding/java-21-upgrade)
 
 --
 -- Name: event_observation_units; Type: TABLE; Schema: public; Owner: postgres
 --
 
+<<<<<<< HEAD
 CREATE TABLE public.event_observation_units (
                                                 event_entity_id text NOT NULL,
                                                 observation_units_id text NOT NULL
+=======
+CREATE TABLE germplasm_additional_info (
+    germplasm_entity_id varchar(255) NOT NULL,
+    additional_info_id varchar(255) NOT NULL
+>>>>>>> 9eb49df (Merge pull request #76 from plantbreeding/java-21-upgrade)
 );
 
 
@@ -338,6 +808,7 @@ ALTER TABLE public.event_observation_units OWNER TO postgres;
 -- Name: event_param; Type: TABLE; Schema: public; Owner: postgres
 --
 
+<<<<<<< HEAD
 CREATE TABLE public.event_param (
                                     id text NOT NULL,
                                     code text,
@@ -353,11 +824,54 @@ CREATE TABLE public.event_param (
 
 
 ALTER TABLE public.event_param OWNER TO postgres;
+=======
+CREATE TABLE germplasm_attribute_definition (
+    id varchar(255) NOT NULL,
+    auth_user_id varchar(255),
+    default_value varchar(255),
+    documentationurl varchar(255),
+    growth_stage varchar(255),
+    institution varchar(255),
+    language varchar(255),
+    scientist varchar(255),
+    status varchar(255),
+    submission_timestamp timestamp without time zone,
+    crop_id varchar(255),
+    method_id varchar(255),
+    ontology_id varchar(255),
+    scale_id varchar(255),
+    trait_id varchar(255),
+    attribute_category varchar(255),
+    code varchar(255),
+    datatype varchar(255),
+    description varchar(255),
+    name varchar(255),
+    pui varchar(255),
+    uri varchar(255)
+);
+
+
+--
+-- TOC entry 261 (class 1259 OID 2108660)
+-- Name: germplasm_attribute_value; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE germplasm_attribute_value (
+    id varchar(255) NOT NULL,
+    auth_user_id varchar(255),
+    determined_date timestamp without time zone,
+    value varchar(255),
+    attribute_id varchar(255),
+    germplasm_id varchar(255)
+);
+
+>>>>>>> 9eb49df (Merge pull request #76 from plantbreeding/java-21-upgrade)
 
 --
 -- Name: event_parameter_entity_values_by_date; Type: TABLE; Schema: public; Owner: postgres
 --
 
+<<<<<<< HEAD
 CREATE TABLE public.event_parameter_entity_values_by_date (
                                                               event_parameter_entity_id text NOT NULL,
                                                               values_by_date text
@@ -365,11 +879,30 @@ CREATE TABLE public.event_parameter_entity_values_by_date (
 
 
 ALTER TABLE public.event_parameter_entity_values_by_date OWNER TO postgres;
+=======
+CREATE TABLE germplasm_attribute_value_additional_info (
+    germplasm_attribute_value_entity_id varchar(255) NOT NULL,
+    additional_info_id varchar(255) NOT NULL
+);
+
+
+--
+-- TOC entry 263 (class 1259 OID 2108674)
+-- Name: germplasm_attribute_value_external_references; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE germplasm_attribute_value_external_references (
+    germplasm_attribute_value_entity_id varchar(255) NOT NULL,
+    external_references_id varchar(255) NOT NULL
+);
+
+>>>>>>> 9eb49df (Merge pull request #76 from plantbreeding/java-21-upgrade)
 
 --
 -- Name: external_reference; Type: TABLE; Schema: public; Owner: postgres
 --
 
+<<<<<<< HEAD
 CREATE TABLE public.external_reference (
                                            id text NOT NULL,
                                            external_reference_id text,
@@ -378,11 +911,35 @@ CREATE TABLE public.external_reference (
 
 
 ALTER TABLE public.external_reference OWNER TO postgres;
+=======
+CREATE TABLE germplasm_donor (
+    id varchar(255) NOT NULL,
+    auth_user_id varchar(255),
+    donor_accession_number varchar(255),
+    donor_institute_code varchar(255),
+    donor_institute_name varchar(255),
+    germplasmpui varchar(255),
+    germplasm_id varchar(255)
+);
+
+
+--
+-- TOC entry 265 (class 1259 OID 2108688)
+-- Name: germplasm_donor_additional_info; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE germplasm_donor_additional_info (
+    donor_entity_id varchar(255) NOT NULL,
+    additional_info_id varchar(255) NOT NULL
+);
+
+>>>>>>> 9eb49df (Merge pull request #76 from plantbreeding/java-21-upgrade)
 
 --
 -- Name: genome_map; Type: TABLE; Schema: public; Owner: postgres
 --
 
+<<<<<<< HEAD
 CREATE TABLE public.genome_map (
                                    id text NOT NULL,
                                    additional_info jsonb,
@@ -400,14 +957,38 @@ CREATE TABLE public.genome_map (
 
 
 ALTER TABLE public.genome_map OWNER TO postgres;
+=======
+CREATE TABLE germplasm_donor_external_references (
+    donor_entity_id varchar(255) NOT NULL,
+    external_references_id varchar(255) NOT NULL
+);
+
+
+--
+-- TOC entry 273 (class 1259 OID 2108744)
+-- Name: germplasm_entity_type_of_germplasm_storage_code; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE germplasm_entity_type_of_germplasm_storage_code (
+    germplasm_entity_id varchar(255) NOT NULL,
+    type_of_germplasm_storage_code integer
+);
+
+>>>>>>> 9eb49df (Merge pull request #76 from plantbreeding/java-21-upgrade)
 
 --
 -- Name: genome_map_external_references; Type: TABLE; Schema: public; Owner: postgres
 --
 
+<<<<<<< HEAD
 CREATE TABLE public.genome_map_external_references (
                                                        genome_map_entity_id text NOT NULL,
                                                        external_references_id text NOT NULL
+=======
+CREATE TABLE germplasm_external_references (
+    germplasm_entity_id varchar(255) NOT NULL,
+    external_references_id varchar(255) NOT NULL
+>>>>>>> 9eb49df (Merge pull request #76 from plantbreeding/java-21-upgrade)
 );
 
 
@@ -417,6 +998,7 @@ ALTER TABLE public.genome_map_external_references OWNER TO postgres;
 -- Name: genome_map_studies; Type: TABLE; Schema: public; Owner: postgres
 --
 
+<<<<<<< HEAD
 CREATE TABLE public.genome_map_studies (
                                            genome_map_entity_id text NOT NULL,
                                            studies_id text NOT NULL
@@ -424,11 +1006,36 @@ CREATE TABLE public.genome_map_studies (
 
 
 ALTER TABLE public.genome_map_studies OWNER TO postgres;
+=======
+CREATE TABLE germplasm_institute (
+    id varchar(255) NOT NULL,
+    institute_address varchar(255),
+    institute_code varchar(255),
+    institute_name varchar(255),
+    institute_type integer,
+    germplasm_id varchar(255)
+);
+
+
+--
+-- TOC entry 269 (class 1259 OID 2108714)
+-- Name: germplasm_origin; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE germplasm_origin (
+    id varchar(255) NOT NULL,
+    coordinate_uncertainty varchar(255),
+    coordinates_id varchar(255),
+    germplasm_id varchar(255)
+);
+
+>>>>>>> 9eb49df (Merge pull request #76 from plantbreeding/java-21-upgrade)
 
 --
 -- Name: geojson; Type: TABLE; Schema: public; Owner: postgres
 --
 
+<<<<<<< HEAD
 CREATE TABLE public.geojson (
                                 id text NOT NULL,
                                 type text
@@ -436,11 +1043,32 @@ CREATE TABLE public.geojson (
 
 
 ALTER TABLE public.geojson OWNER TO postgres;
+=======
+CREATE TABLE germplasm_search_results (
+    germplasm_entity_id varchar(255) NOT NULL,
+    search_results_id varchar(255) NOT NULL
+);
+
+
+--
+-- TOC entry 271 (class 1259 OID 2108728)
+-- Name: germplasm_synonym; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE germplasm_synonym (
+    id varchar(255) NOT NULL,
+    synonym varchar(255),
+    type varchar(255),
+    germplasm_id varchar(255)
+);
+
+>>>>>>> 9eb49df (Merge pull request #76 from plantbreeding/java-21-upgrade)
 
 --
 -- Name: germplasm; Type: TABLE; Schema: public; Owner: postgres
 --
 
+<<<<<<< HEAD
 CREATE TABLE public.germplasm (
                                   id text NOT NULL,
                                   additional_info jsonb,
@@ -466,6 +1094,13 @@ CREATE TABLE public.germplasm (
                                   subtaxa_authority text,
                                   breeding_method_id text,
                                   crop_id text
+=======
+CREATE TABLE germplasm_taxon (
+    id varchar(255) NOT NULL,
+    source_name varchar(255),
+    taxon_id varchar(255),
+    germplasm_id varchar(255)
+>>>>>>> 9eb49df (Merge pull request #76 from plantbreeding/java-21-upgrade)
 );
 
 
@@ -508,6 +1143,7 @@ ALTER TABLE public.germplasm_attribute_definition OWNER TO postgres;
 -- Name: germplasm_attribute_value; Type: TABLE; Schema: public; Owner: postgres
 --
 
+<<<<<<< HEAD
 CREATE TABLE public.germplasm_attribute_value (
                                                   id text NOT NULL,
                                                   additional_info jsonb,
@@ -520,6 +1156,37 @@ CREATE TABLE public.germplasm_attribute_value (
 
 
 ALTER TABLE public.germplasm_attribute_value OWNER TO postgres;
+=======
+CREATE TABLE image (
+    id varchar(255) NOT NULL,
+    auth_user_id varchar(255),
+    copyright varchar(255),
+    description varchar(255),
+    image_data bytea,
+    image_file_name varchar(255),
+    image_file_size integer,
+    image_height integer,
+    imagemimetype varchar(255),
+    imageurl varchar(255),
+    image_width integer,
+    name varchar(255),
+    time_stamp timestamp without time zone,
+    coordinates_id varchar(255),
+    observation_unit_id varchar(255)
+);
+
+
+--
+-- TOC entry 275 (class 1259 OID 2108758)
+-- Name: image_additional_info; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE image_additional_info (
+    image_entity_id varchar(255) NOT NULL,
+    additional_info_id varchar(255) NOT NULL
+);
+
+>>>>>>> 9eb49df (Merge pull request #76 from plantbreeding/java-21-upgrade)
 
 --
 -- Name: germplasm_attribute_value_external_references; Type: TABLE; Schema: public; Owner: postgres
@@ -531,12 +1198,26 @@ CREATE TABLE public.germplasm_attribute_value_external_references (
 );
 
 
+<<<<<<< HEAD
 ALTER TABLE public.germplasm_attribute_value_external_references OWNER TO postgres;
+=======
+--
+-- TOC entry 278 (class 1259 OID 2108776)
+-- Name: image_entity_descriptive_ontology_terms; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE image_entity_descriptive_ontology_terms (
+    image_entity_id varchar(255) NOT NULL,
+    descriptive_ontology_terms varchar(255)
+);
+
+>>>>>>> 9eb49df (Merge pull request #76 from plantbreeding/java-21-upgrade)
 
 --
 -- Name: germplasm_donor; Type: TABLE; Schema: public; Owner: postgres
 --
 
+<<<<<<< HEAD
 CREATE TABLE public.germplasm_donor (
                                         id text NOT NULL,
                                         additional_info jsonb,
@@ -550,11 +1231,30 @@ CREATE TABLE public.germplasm_donor (
 
 
 ALTER TABLE public.germplasm_donor OWNER TO postgres;
+=======
+CREATE TABLE image_external_references (
+    image_entity_id varchar(255) NOT NULL,
+    external_references_id varchar(255) NOT NULL
+);
+
+
+--
+-- TOC entry 277 (class 1259 OID 2108770)
+-- Name: image_observations; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE image_observations (
+    image_entity_id varchar(255) NOT NULL,
+    observations_id varchar(255) NOT NULL
+);
+
+>>>>>>> 9eb49df (Merge pull request #76 from plantbreeding/java-21-upgrade)
 
 --
 -- Name: germplasm_donor_external_references; Type: TABLE; Schema: public; Owner: postgres
 --
 
+<<<<<<< HEAD
 CREATE TABLE public.germplasm_donor_external_references (
                                                             donor_entity_id text NOT NULL,
                                                             external_references_id text NOT NULL
@@ -562,11 +1262,33 @@ CREATE TABLE public.germplasm_donor_external_references (
 
 
 ALTER TABLE public.germplasm_donor_external_references OWNER TO postgres;
+=======
+CREATE TABLE linkage_group (
+    id varchar(255) NOT NULL,
+    auth_user_id varchar(255),
+    linkage_group_name varchar(255),
+    max_marker_position integer,
+    genome_map_id varchar(255)
+);
+
+
+--
+-- TOC entry 280 (class 1259 OID 2108790)
+-- Name: linkage_group_additional_info; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE linkage_group_additional_info (
+    linkage_group_entity_id varchar(255) NOT NULL,
+    additional_info_id varchar(255) NOT NULL
+);
+
+>>>>>>> 9eb49df (Merge pull request #76 from plantbreeding/java-21-upgrade)
 
 --
 -- Name: germplasm_entity_type_of_germplasm_storage_code; Type: TABLE; Schema: public; Owner: postgres
 --
 
+<<<<<<< HEAD
 CREATE TABLE public.germplasm_entity_type_of_germplasm_storage_code (
                                                                         germplasm_entity_id text NOT NULL,
                                                                         type_of_germplasm_storage_code integer
@@ -574,11 +1296,38 @@ CREATE TABLE public.germplasm_entity_type_of_germplasm_storage_code (
 
 
 ALTER TABLE public.germplasm_entity_type_of_germplasm_storage_code OWNER TO postgres;
+=======
+CREATE TABLE linkage_group_external_references (
+    linkage_group_entity_id varchar(255) NOT NULL,
+    external_references_id varchar(255) NOT NULL
+);
+
+
+--
+-- TOC entry 282 (class 1259 OID 2108802)
+-- Name: list; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE list (
+    id varchar(255) NOT NULL,
+    auth_user_id varchar(255),
+    date_created timestamp without time zone,
+    date_modified timestamp without time zone,
+    description varchar(255),
+    list_name varchar(255),
+    list_owner_name varchar(255),
+    list_source varchar(255),
+    list_type integer,
+    list_owner_person_id varchar(255)
+);
+
+>>>>>>> 9eb49df (Merge pull request #76 from plantbreeding/java-21-upgrade)
 
 --
 -- Name: germplasm_external_references; Type: TABLE; Schema: public; Owner: postgres
 --
 
+<<<<<<< HEAD
 CREATE TABLE public.germplasm_external_references (
                                                       germplasm_entity_id text NOT NULL,
                                                       external_references_id text NOT NULL
@@ -586,11 +1335,30 @@ CREATE TABLE public.germplasm_external_references (
 
 
 ALTER TABLE public.germplasm_external_references OWNER TO postgres;
+=======
+CREATE TABLE list_additional_info (
+    list_entity_id varchar(255) NOT NULL,
+    additional_info_id varchar(255) NOT NULL
+);
+
+
+--
+-- TOC entry 284 (class 1259 OID 2108816)
+-- Name: list_external_references; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE list_external_references (
+    list_entity_id varchar(255) NOT NULL,
+    external_references_id varchar(255) NOT NULL
+);
+
+>>>>>>> 9eb49df (Merge pull request #76 from plantbreeding/java-21-upgrade)
 
 --
 -- Name: germplasm_institute; Type: TABLE; Schema: public; Owner: postgres
 --
 
+<<<<<<< HEAD
 CREATE TABLE public.germplasm_institute (
                                             id text NOT NULL,
                                             institute_address text,
@@ -602,11 +1370,50 @@ CREATE TABLE public.germplasm_institute (
 
 
 ALTER TABLE public.germplasm_institute OWNER TO postgres;
+=======
+CREATE TABLE list_item (
+    id varchar(255) NOT NULL,
+    item varchar(255),
+    list_id varchar(255)
+);
+
+
+--
+-- TOC entry 286 (class 1259 OID 2108830)
+-- Name: location; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE location (
+    id varchar(255) NOT NULL,
+    auth_user_id varchar(255),
+    abbreviation varchar(255),
+    coordinate_description varchar(255),
+    coordinate_uncertainty varchar(255),
+    country_code varchar(255),
+    country_name varchar(255),
+    documentationurl varchar(255),
+    environment_type varchar(255),
+    exposure varchar(255),
+    institute_address varchar(255),
+    institute_name varchar(255),
+    location_name varchar(255),
+    location_type varchar(255),
+    site_status varchar(255),
+    slope varchar(255),
+    topography varchar(255),
+    coordinates_id varchar(255),
+    crop_id varchar(255),
+    parent_location_id varchar(255),
+    program_id varchar(255)
+);
+
+>>>>>>> 9eb49df (Merge pull request #76 from plantbreeding/java-21-upgrade)
 
 --
 -- Name: germplasm_origin; Type: TABLE; Schema: public; Owner: postgres
 --
 
+<<<<<<< HEAD
 CREATE TABLE public.germplasm_origin (
                                          id text NOT NULL,
                                          coordinate_uncertainty text,
@@ -616,6 +1423,24 @@ CREATE TABLE public.germplasm_origin (
 
 
 ALTER TABLE public.germplasm_origin OWNER TO postgres;
+=======
+CREATE TABLE location_additional_info (
+    location_entity_id varchar(255) NOT NULL,
+    additional_info_id varchar(255) NOT NULL
+);
+
+
+--
+-- TOC entry 288 (class 1259 OID 2108844)
+-- Name: location_external_references; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE location_external_references (
+    location_entity_id varchar(255) NOT NULL,
+    external_references_id varchar(255) NOT NULL
+);
+
+>>>>>>> 9eb49df (Merge pull request #76 from plantbreeding/java-21-upgrade)
 
 --
 -- Name: germplasm_search_results; Type: TABLE; Schema: public; Owner: postgres
@@ -641,12 +1466,29 @@ CREATE TABLE public.germplasm_synonym (
 );
 
 
+<<<<<<< HEAD
 ALTER TABLE public.germplasm_synonym OWNER TO postgres;
+=======
+--
+-- TOC entry 289 (class 1259 OID 2108850)
+-- Name: marker_position; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE marker_position (
+    id varchar(255) NOT NULL,
+    auth_user_id varchar(255),
+    "position" integer,
+    linkage_group_id varchar(255),
+    variant_id varchar(255)
+);
+
+>>>>>>> 9eb49df (Merge pull request #76 from plantbreeding/java-21-upgrade)
 
 --
 -- Name: germplasm_taxon; Type: TABLE; Schema: public; Owner: postgres
 --
 
+<<<<<<< HEAD
 CREATE TABLE public.germplasm_taxon (
                                         id text NOT NULL,
                                         source_name text,
@@ -656,6 +1498,24 @@ CREATE TABLE public.germplasm_taxon (
 
 
 ALTER TABLE public.germplasm_taxon OWNER TO postgres;
+=======
+CREATE TABLE marker_position_additional_info (
+    marker_position_entity_id varchar(255) NOT NULL,
+    additional_info_id varchar(255) NOT NULL
+);
+
+
+--
+-- TOC entry 291 (class 1259 OID 2108864)
+-- Name: marker_position_external_references; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE marker_position_external_references (
+    marker_position_entity_id varchar(255) NOT NULL,
+    external_references_id varchar(255) NOT NULL
+);
+
+>>>>>>> 9eb49df (Merge pull request #76 from plantbreeding/java-21-upgrade)
 
 --
 -- Name: image; Type: TABLE; Schema: public; Owner: postgres
@@ -693,12 +1553,33 @@ CREATE TABLE public.image_entity_descriptive_ontology_terms (
 );
 
 
+<<<<<<< HEAD
 ALTER TABLE public.image_entity_descriptive_ontology_terms OWNER TO postgres;
+=======
+--
+-- TOC entry 292 (class 1259 OID 2108870)
+-- Name: method; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE method (
+    id varchar(255) NOT NULL,
+    auth_user_id varchar(255),
+    description varchar(255),
+    formula varchar(255),
+    method_class varchar(255),
+    methodpui varchar(255),
+    name varchar(255),
+    reference varchar(255),
+    ontology_id varchar(255)
+);
+
+>>>>>>> 9eb49df (Merge pull request #76 from plantbreeding/java-21-upgrade)
 
 --
 -- Name: image_external_references; Type: TABLE; Schema: public; Owner: postgres
 --
 
+<<<<<<< HEAD
 CREATE TABLE public.image_external_references (
                                                   image_entity_id text NOT NULL,
                                                   external_references_id text NOT NULL
@@ -706,11 +1587,30 @@ CREATE TABLE public.image_external_references (
 
 
 ALTER TABLE public.image_external_references OWNER TO postgres;
+=======
+CREATE TABLE method_additional_info (
+    method_entity_id varchar(255) NOT NULL,
+    additional_info_id varchar(255) NOT NULL
+);
+
+
+--
+-- TOC entry 294 (class 1259 OID 2108884)
+-- Name: method_external_references; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE method_external_references (
+    method_entity_id varchar(255) NOT NULL,
+    external_references_id varchar(255) NOT NULL
+);
+
+>>>>>>> 9eb49df (Merge pull request #76 from plantbreeding/java-21-upgrade)
 
 --
 -- Name: image_observations; Type: TABLE; Schema: public; Owner: postgres
 --
 
+<<<<<<< HEAD
 CREATE TABLE public.image_observations (
                                            image_entity_id text NOT NULL,
                                            observations_id text NOT NULL
@@ -718,11 +1618,42 @@ CREATE TABLE public.image_observations (
 
 
 ALTER TABLE public.image_observations OWNER TO postgres;
+=======
+CREATE TABLE method_ontology_reference (
+    method_entity_id varchar(255) NOT NULL,
+    ontology_reference_id varchar(255) NOT NULL
+);
+
+
+--
+-- TOC entry 296 (class 1259 OID 2108896)
+-- Name: observation; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE observation (
+    id varchar(255) NOT NULL,
+    auth_user_id varchar(255),
+    collector varchar(255),
+    observation_time_stamp timestamp without time zone,
+    uploaded_by varchar(255),
+    value varchar(255),
+    crop_id varchar(255),
+    geo_coordinates_id varchar(255),
+    observation_unit_id varchar(255),
+    observation_variable_id varchar(255),
+    program_id varchar(255),
+    season_id varchar(255),
+    study_id varchar(255),
+    trial_id varchar(255)
+);
+
+>>>>>>> 9eb49df (Merge pull request #76 from plantbreeding/java-21-upgrade)
 
 --
 -- Name: linkage_group; Type: TABLE; Schema: public; Owner: postgres
 --
 
+<<<<<<< HEAD
 CREATE TABLE public.linkage_group (
                                       id text NOT NULL,
                                       additional_info jsonb,
@@ -734,11 +1665,30 @@ CREATE TABLE public.linkage_group (
 
 
 ALTER TABLE public.linkage_group OWNER TO postgres;
+=======
+CREATE TABLE observation_additional_info (
+    observation_entity_id varchar(255) NOT NULL,
+    additional_info_id varchar(255) NOT NULL
+);
+
+
+--
+-- TOC entry 298 (class 1259 OID 2108910)
+-- Name: observation_external_references; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE observation_external_references (
+    observation_entity_id varchar(255) NOT NULL,
+    external_references_id varchar(255) NOT NULL
+);
+
+>>>>>>> 9eb49df (Merge pull request #76 from plantbreeding/java-21-upgrade)
 
 --
 -- Name: linkage_group_external_references; Type: TABLE; Schema: public; Owner: postgres
 --
 
+<<<<<<< HEAD
 CREATE TABLE public.linkage_group_external_references (
                                                           linkage_group_entity_id text NOT NULL,
                                                           external_references_id text NOT NULL
@@ -746,11 +1696,39 @@ CREATE TABLE public.linkage_group_external_references (
 
 
 ALTER TABLE public.linkage_group_external_references OWNER TO postgres;
+=======
+CREATE TABLE observation_unit (
+    id varchar(255) NOT NULL,
+    auth_user_id varchar(255),
+    observation_unit_name varchar(255),
+    observation_unitpui varchar(255),
+    crop_id varchar(255),
+    cross_id varchar(255),
+    germplasm_id varchar(255),
+    program_id varchar(255),
+    seed_lot_id varchar(255),
+    study_id varchar(255),
+    trial_id varchar(255)
+);
+
+
+--
+-- TOC entry 300 (class 1259 OID 2108924)
+-- Name: observation_unit_additional_info; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE observation_unit_additional_info (
+    observation_unit_entity_id varchar(255) NOT NULL,
+    additional_info_id varchar(255) NOT NULL
+);
+
+>>>>>>> 9eb49df (Merge pull request #76 from plantbreeding/java-21-upgrade)
 
 --
 -- Name: list; Type: TABLE; Schema: public; Owner: postgres
 --
 
+<<<<<<< HEAD
 CREATE TABLE public.list (
                              id text NOT NULL,
                              additional_info jsonb,
@@ -767,11 +1745,34 @@ CREATE TABLE public.list (
 
 
 ALTER TABLE public.list OWNER TO postgres;
+=======
+CREATE TABLE observation_unit_external_references (
+    observation_unit_entity_id varchar(255) NOT NULL,
+    external_references_id varchar(255) NOT NULL
+);
+
+
+--
+-- TOC entry 302 (class 1259 OID 2108936)
+-- Name: observation_unit_level; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE observation_unit_level (
+    id varchar(255) NOT NULL,
+    level_code varchar(255),
+    level_name integer,
+    level_order integer,
+    observation_unit_id varchar(255),
+    position_id varchar(255)
+);
+
+>>>>>>> 9eb49df (Merge pull request #76 from plantbreeding/java-21-upgrade)
 
 --
 -- Name: list_external_references; Type: TABLE; Schema: public; Owner: postgres
 --
 
+<<<<<<< HEAD
 CREATE TABLE public.list_external_references (
                                                  list_entity_id text NOT NULL,
                                                  external_references_id text NOT NULL
@@ -779,6 +1780,35 @@ CREATE TABLE public.list_external_references (
 
 
 ALTER TABLE public.list_external_references OWNER TO postgres;
+=======
+CREATE TABLE observation_unit_position (
+    id varchar(255) NOT NULL,
+    entry_type integer,
+    level_code varchar(255),
+    level_name integer,
+    level_order integer,
+    position_coordinatex varchar(255),
+    position_coordinatextype integer,
+    position_coordinatey varchar(255),
+    position_coordinateytype integer,
+    geo_coordinates_id varchar(255),
+    observation_unit_id varchar(255)
+);
+
+
+--
+-- TOC entry 304 (class 1259 OID 2108952)
+-- Name: observation_unit_treatment; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE observation_unit_treatment (
+    id varchar(255) NOT NULL,
+    factor varchar(255),
+    modality varchar(255),
+    observation_unit_id varchar(255)
+);
+
+>>>>>>> 9eb49df (Merge pull request #76 from plantbreeding/java-21-upgrade)
 
 --
 -- Name: list_item; Type: TABLE; Schema: public; Owner: postgres
@@ -791,7 +1821,35 @@ CREATE TABLE public.list_item (
 );
 
 
+<<<<<<< HEAD
 ALTER TABLE public.list_item OWNER TO postgres;
+=======
+--
+-- TOC entry 305 (class 1259 OID 2108960)
+-- Name: observation_variable; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE observation_variable (
+    id varchar(255) NOT NULL,
+    auth_user_id varchar(255),
+    default_value varchar(255),
+    documentationurl varchar(255),
+    growth_stage varchar(255),
+    institution varchar(255),
+    language varchar(255),
+    scientist varchar(255),
+    status varchar(255),
+    submission_timestamp timestamp without time zone,
+    crop_id varchar(255),
+    method_id varchar(255),
+    ontology_id varchar(255),
+    scale_id varchar(255),
+    trait_id varchar(255),
+    name varchar(255),
+    pui varchar(255)
+);
+
+>>>>>>> 9eb49df (Merge pull request #76 from plantbreeding/java-21-upgrade)
 
 --
 -- Name: location; Type: TABLE; Schema: public; Owner: postgres
@@ -829,6 +1887,7 @@ ALTER TABLE public.location OWNER TO postgres;
 -- Name: location_external_references; Type: TABLE; Schema: public; Owner: postgres
 --
 
+<<<<<<< HEAD
 CREATE TABLE public.location_external_references (
                                                      location_entity_id text NOT NULL,
                                                      external_references_id text NOT NULL
@@ -836,11 +1895,37 @@ CREATE TABLE public.location_external_references (
 
 
 ALTER TABLE public.location_external_references OWNER TO postgres;
+=======
+CREATE TABLE ontology (
+    id varchar(255) NOT NULL,
+    auth_user_id varchar(255),
+    authors varchar(255),
+    copyright varchar(255),
+    description varchar(255),
+    documentationurl varchar(255),
+    licence varchar(255),
+    ontology_name varchar(255),
+    version varchar(255)
+);
+
+
+--
+-- TOC entry 307 (class 1259 OID 2108976)
+-- Name: ontology_additional_info; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE ontology_additional_info (
+    ontology_entity_id varchar(255) NOT NULL,
+    additional_info_id varchar(255) NOT NULL
+);
+
+>>>>>>> 9eb49df (Merge pull request #76 from plantbreeding/java-21-upgrade)
 
 --
 -- Name: marker_position; Type: TABLE; Schema: public; Owner: postgres
 --
 
+<<<<<<< HEAD
 CREATE TABLE public.marker_position (
                                         id text NOT NULL,
                                         additional_info jsonb,
@@ -852,14 +1937,39 @@ CREATE TABLE public.marker_position (
 
 
 ALTER TABLE public.marker_position OWNER TO postgres;
+=======
+CREATE TABLE ontology_entity_documentation_links (
+    ontology_entity_id varchar(255) NOT NULL,
+    documentation_links varchar(255)
+);
+
+
+--
+-- TOC entry 308 (class 1259 OID 2108982)
+-- Name: ontology_external_references; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE ontology_external_references (
+    ontology_entity_id varchar(255) NOT NULL,
+    external_references_id varchar(255) NOT NULL
+);
+
+>>>>>>> 9eb49df (Merge pull request #76 from plantbreeding/java-21-upgrade)
 
 --
 -- Name: marker_position_external_references; Type: TABLE; Schema: public; Owner: postgres
 --
 
+<<<<<<< HEAD
 CREATE TABLE public.marker_position_external_references (
                                                             marker_position_entity_id text NOT NULL,
                                                             external_references_id text NOT NULL
+=======
+CREATE TABLE ontology_ref (
+    id varchar(255) NOT NULL,
+    url varchar(255),
+    type integer
+>>>>>>> 9eb49df (Merge pull request #76 from plantbreeding/java-21-upgrade)
 );
 
 
@@ -869,6 +1979,7 @@ ALTER TABLE public.marker_position_external_references OWNER TO postgres;
 -- Name: method; Type: TABLE; Schema: public; Owner: postgres
 --
 
+<<<<<<< HEAD
 CREATE TABLE public.method (
                                id text NOT NULL,
                                additional_info jsonb,
@@ -884,11 +1995,34 @@ CREATE TABLE public.method (
 
 
 ALTER TABLE public.method OWNER TO postgres;
+=======
+CREATE TABLE pedigree_edge (
+    id varchar(255) NOT NULL,
+    auth_user_id varchar(255),
+    edge_type integer,
+    parent_type integer,
+    connceted_node_id varchar(255),
+    this_node_id varchar(255)
+);
+
+
+--
+-- TOC entry 312 (class 1259 OID 2109010)
+-- Name: pedigree_edge_additional_info; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE pedigree_edge_additional_info (
+    pedigree_edge_entity_id varchar(255) NOT NULL,
+    additional_info_id varchar(255) NOT NULL
+);
+
+>>>>>>> 9eb49df (Merge pull request #76 from plantbreeding/java-21-upgrade)
 
 --
 -- Name: method_external_references; Type: TABLE; Schema: public; Owner: postgres
 --
 
+<<<<<<< HEAD
 CREATE TABLE public.method_external_references (
                                                    method_entity_id text NOT NULL,
                                                    external_references_id text NOT NULL
@@ -896,11 +2030,35 @@ CREATE TABLE public.method_external_references (
 
 
 ALTER TABLE public.method_external_references OWNER TO postgres;
+=======
+CREATE TABLE pedigree_edge_external_references (
+    pedigree_edge_entity_id varchar(255) NOT NULL,
+    external_references_id varchar(255) NOT NULL
+);
+
+
+--
+-- TOC entry 314 (class 1259 OID 2109022)
+-- Name: pedigree_node; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE pedigree_node (
+    id varchar(255) NOT NULL,
+    auth_user_id varchar(255),
+    crossing_year integer,
+    family_code varchar(255),
+    pedigree_string varchar(255),
+    crossing_project_id varchar(255),
+    germplasm_id varchar(255)
+);
+
+>>>>>>> 9eb49df (Merge pull request #76 from plantbreeding/java-21-upgrade)
 
 --
 -- Name: method_ontology_reference; Type: TABLE; Schema: public; Owner: postgres
 --
 
+<<<<<<< HEAD
 CREATE TABLE public.method_ontology_reference (
                                                   method_entity_id text NOT NULL,
                                                   ontology_reference_id text NOT NULL
@@ -908,11 +2066,30 @@ CREATE TABLE public.method_ontology_reference (
 
 
 ALTER TABLE public.method_ontology_reference OWNER TO postgres;
+=======
+CREATE TABLE pedigree_node_additional_info (
+    pedigree_node_entity_id varchar(255) NOT NULL,
+    additional_info_id varchar(255) NOT NULL
+);
+
+
+--
+-- TOC entry 316 (class 1259 OID 2109036)
+-- Name: pedigree_node_external_references; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE pedigree_node_external_references (
+    pedigree_node_entity_id varchar(255) NOT NULL,
+    external_references_id varchar(255) NOT NULL
+);
+
+>>>>>>> 9eb49df (Merge pull request #76 from plantbreeding/java-21-upgrade)
 
 --
 -- Name: observation; Type: TABLE; Schema: public; Owner: postgres
 --
 
+<<<<<<< HEAD
 CREATE TABLE public.observation (
                                     id text NOT NULL,
                                     additional_info jsonb,
@@ -933,11 +2110,39 @@ CREATE TABLE public.observation (
 
 
 ALTER TABLE public.observation OWNER TO postgres;
+=======
+CREATE TABLE person (
+    id varchar(255) NOT NULL,
+    auth_user_id varchar(255),
+    description varchar(255),
+    email_address varchar(255),
+    first_name varchar(255),
+    institute_name varchar(255),
+    last_name varchar(255),
+    mailing_address varchar(255),
+    middle_name varchar(255),
+    phone_number varchar(255),
+    userid varchar(255)
+);
+
+
+--
+-- TOC entry 318 (class 1259 OID 2109050)
+-- Name: person_additional_info; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE person_additional_info (
+    person_entity_id varchar(255) NOT NULL,
+    additional_info_id varchar(255) NOT NULL
+);
+
+>>>>>>> 9eb49df (Merge pull request #76 from plantbreeding/java-21-upgrade)
 
 --
 -- Name: observation_external_references; Type: TABLE; Schema: public; Owner: postgres
 --
 
+<<<<<<< HEAD
 CREATE TABLE public.observation_external_references (
                                                         observation_entity_id text NOT NULL,
                                                         external_references_id text NOT NULL
@@ -945,11 +2150,42 @@ CREATE TABLE public.observation_external_references (
 
 
 ALTER TABLE public.observation_external_references OWNER TO postgres;
+=======
+CREATE TABLE person_external_references (
+    person_entity_id varchar(255) NOT NULL,
+    external_references_id varchar(255) NOT NULL
+);
+
+
+--
+-- TOC entry 320 (class 1259 OID 2109062)
+-- Name: plate; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE plate (
+    id varchar(255) NOT NULL,
+    auth_user_id varchar(255),
+    client_plate_barcode varchar(255),
+    client_plate_db_id varchar(255),
+    plate_barcode varchar(255),
+    plate_format integer,
+    plate_name varchar(255),
+    sample_submission_format integer,
+    sample_type integer,
+    status_time_stamp timestamp without time zone,
+    program_id varchar(255),
+    study_id varchar(255),
+    submission_id varchar(255),
+    trial_id varchar(255)
+);
+
+>>>>>>> 9eb49df (Merge pull request #76 from plantbreeding/java-21-upgrade)
 
 --
 -- Name: observation_unit; Type: TABLE; Schema: public; Owner: postgres
 --
 
+<<<<<<< HEAD
 CREATE TABLE public.observation_unit (
                                          id text NOT NULL,
                                          additional_info jsonb,
@@ -967,11 +2203,30 @@ CREATE TABLE public.observation_unit (
 
 
 ALTER TABLE public.observation_unit OWNER TO postgres;
+=======
+CREATE TABLE plate_additional_info (
+    plate_entity_id varchar(255) NOT NULL,
+    additional_info_id varchar(255) NOT NULL
+);
+
+
+--
+-- TOC entry 322 (class 1259 OID 2109076)
+-- Name: plate_external_references; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE plate_external_references (
+    plate_entity_id varchar(255) NOT NULL,
+    external_references_id varchar(255) NOT NULL
+);
+
+>>>>>>> 9eb49df (Merge pull request #76 from plantbreeding/java-21-upgrade)
 
 --
 -- Name: observation_unit_external_references; Type: TABLE; Schema: public; Owner: postgres
 --
 
+<<<<<<< HEAD
 CREATE TABLE public.observation_unit_external_references (
                                                              observation_unit_entity_id text NOT NULL,
                                                              external_references_id text NOT NULL
@@ -979,11 +2234,34 @@ CREATE TABLE public.observation_unit_external_references (
 
 
 ALTER TABLE public.observation_unit_external_references OWNER TO postgres;
+=======
+CREATE TABLE plate_submission (
+    id varchar(255) NOT NULL,
+    auth_user_id varchar(255),
+    client_id varchar(255),
+    number_of_samples integer,
+    sample_type integer,
+    order_id varchar(255)
+);
+
+
+--
+-- TOC entry 324 (class 1259 OID 2109090)
+-- Name: plate_submission_additional_info; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE plate_submission_additional_info (
+    vendor_plate_submission_entity_id varchar(255) NOT NULL,
+    additional_info_id varchar(255) NOT NULL
+);
+
+>>>>>>> 9eb49df (Merge pull request #76 from plantbreeding/java-21-upgrade)
 
 --
 -- Name: observation_unit_level; Type: TABLE; Schema: public; Owner: postgres
 --
 
+<<<<<<< HEAD
 CREATE TABLE public.observation_unit_level (
                                                id text NOT NULL,
                                                level_code text,
@@ -995,11 +2273,38 @@ CREATE TABLE public.observation_unit_level (
 
 
 ALTER TABLE public.observation_unit_level OWNER TO postgres;
+=======
+CREATE TABLE plate_submission_external_references (
+    vendor_plate_submission_entity_id varchar(255) NOT NULL,
+    external_references_id varchar(255) NOT NULL
+);
+
+
+--
+-- TOC entry 326 (class 1259 OID 2109102)
+-- Name: program; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE program (
+    id varchar(255) NOT NULL,
+    auth_user_id varchar(255),
+    abbreviation varchar(255),
+    documentationurl varchar(255),
+    funding_information varchar(255),
+    name varchar(255),
+    objective varchar(255),
+    program_type integer,
+    crop_id varchar(255),
+    lead_person_id varchar(255)
+);
+
+>>>>>>> 9eb49df (Merge pull request #76 from plantbreeding/java-21-upgrade)
 
 --
 -- Name: observation_unit_position; Type: TABLE; Schema: public; Owner: postgres
 --
 
+<<<<<<< HEAD
 CREATE TABLE public.observation_unit_position (
                                                   id text NOT NULL,
                                                   entry_type integer,
@@ -1016,11 +2321,30 @@ CREATE TABLE public.observation_unit_position (
 
 
 ALTER TABLE public.observation_unit_position OWNER TO postgres;
+=======
+CREATE TABLE program_additional_info (
+    program_entity_id varchar(255) NOT NULL,
+    additional_info_id varchar(255) NOT NULL
+);
+
+
+--
+-- TOC entry 328 (class 1259 OID 2109116)
+-- Name: program_external_references; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE program_external_references (
+    program_entity_id varchar(255) NOT NULL,
+    external_references_id varchar(255) NOT NULL
+);
+
+>>>>>>> 9eb49df (Merge pull request #76 from plantbreeding/java-21-upgrade)
 
 --
 -- Name: observation_unit_treatment; Type: TABLE; Schema: public; Owner: postgres
 --
 
+<<<<<<< HEAD
 CREATE TABLE public.observation_unit_treatment (
                                                    id text NOT NULL,
                                                    factor text,
@@ -1030,11 +2354,35 @@ CREATE TABLE public.observation_unit_treatment (
 
 
 ALTER TABLE public.observation_unit_treatment OWNER TO postgres;
+=======
+CREATE TABLE reference (
+    id varchar(255) NOT NULL,
+    auth_user_id varchar(255),
+    length integer,
+    md5checksum varchar(255),
+    reference_name varchar(255),
+    source_divergence numeric(19,2),
+    reference_set_id varchar(255)
+);
+
+
+--
+-- TOC entry 330 (class 1259 OID 2109130)
+-- Name: reference_additional_info; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE reference_additional_info (
+    reference_entity_id varchar(255) NOT NULL,
+    additional_info_id varchar(255) NOT NULL
+);
+
+>>>>>>> 9eb49df (Merge pull request #76 from plantbreeding/java-21-upgrade)
 
 --
 -- Name: observation_variable; Type: TABLE; Schema: public; Owner: postgres
 --
 
+<<<<<<< HEAD
 CREATE TABLE public.observation_variable (
                                              id text NOT NULL,
                                              additional_info jsonb,
@@ -1058,11 +2406,33 @@ CREATE TABLE public.observation_variable (
 
 
 ALTER TABLE public.observation_variable OWNER TO postgres;
+=======
+CREATE TABLE reference_bases (
+    id varchar(255) NOT NULL,
+    auth_user_id varchar(255),
+    bases varchar(2048),
+    page_number integer,
+    reference_id varchar(255)
+);
+
+
+--
+-- TOC entry 332 (class 1259 OID 2109144)
+-- Name: reference_bases_additional_info; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE reference_bases_additional_info (
+    reference_bases_page_entity_id varchar(255) NOT NULL,
+    additional_info_id varchar(255) NOT NULL
+);
+
+>>>>>>> 9eb49df (Merge pull request #76 from plantbreeding/java-21-upgrade)
 
 --
 -- Name: ontology; Type: TABLE; Schema: public; Owner: postgres
 --
 
+<<<<<<< HEAD
 CREATE TABLE public.ontology (
                                  id text NOT NULL,
                                  additional_info jsonb,
@@ -1078,11 +2448,30 @@ CREATE TABLE public.ontology (
 
 
 ALTER TABLE public.ontology OWNER TO postgres;
+=======
+CREATE TABLE reference_bases_external_references (
+    reference_bases_page_entity_id varchar(255) NOT NULL,
+    external_references_id varchar(255) NOT NULL
+);
+
+
+--
+-- TOC entry 334 (class 1259 OID 2109156)
+-- Name: reference_external_references; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE reference_external_references (
+    reference_entity_id varchar(255) NOT NULL,
+    external_references_id varchar(255) NOT NULL
+);
+
+>>>>>>> 9eb49df (Merge pull request #76 from plantbreeding/java-21-upgrade)
 
 --
 -- Name: ontology_entity_documentation_links; Type: TABLE; Schema: public; Owner: postgres
 --
 
+<<<<<<< HEAD
 CREATE TABLE public.ontology_entity_documentation_links (
                                                             ontology_entity_id text NOT NULL,
                                                             documentation_links text
@@ -1090,11 +2479,39 @@ CREATE TABLE public.ontology_entity_documentation_links (
 
 
 ALTER TABLE public.ontology_entity_documentation_links OWNER TO postgres;
+=======
+CREATE TABLE reference_set (
+    id varchar(255) NOT NULL,
+    auth_user_id varchar(255),
+    assemblypui varchar(255),
+    description varchar(255),
+    is_derived boolean,
+    md5checksum varchar(255),
+    reference_set_name varchar(255),
+    sourceuri varchar(255),
+    species_ontology_term varchar(255),
+    species_ontology_termuri varchar(255),
+    source_germplasm_id varchar(255)
+);
+
+
+--
+-- TOC entry 336 (class 1259 OID 2109170)
+-- Name: reference_set_additional_info; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE reference_set_additional_info (
+    reference_set_entity_id varchar(255) NOT NULL,
+    additional_info_id varchar(255) NOT NULL
+);
+
+>>>>>>> 9eb49df (Merge pull request #76 from plantbreeding/java-21-upgrade)
 
 --
 -- Name: ontology_external_references; Type: TABLE; Schema: public; Owner: postgres
 --
 
+<<<<<<< HEAD
 CREATE TABLE public.ontology_external_references (
                                                      ontology_entity_id text NOT NULL,
                                                      external_references_id text NOT NULL
@@ -1102,15 +2519,59 @@ CREATE TABLE public.ontology_external_references (
 
 
 ALTER TABLE public.ontology_external_references OWNER TO postgres;
+=======
+CREATE TABLE reference_set_external_references (
+    reference_set_entity_id varchar(255) NOT NULL,
+    external_references_id varchar(255) NOT NULL
+);
+
+
+--
+-- TOC entry 338 (class 1259 OID 2109182)
+-- Name: sample; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE sample (
+    id varchar(255) NOT NULL,
+    auth_user_id varchar(255),
+    concentration varchar(255),
+    plate_column integer,
+    plate_row varchar(255),
+    sample_barcode varchar(255),
+    sample_description varchar(255),
+    sample_group_db_id varchar(255),
+    sample_name varchar(255),
+    samplepui varchar(255),
+    sample_timestamp timestamp without time zone,
+    sample_type varchar(255),
+    taken_by varchar(255),
+    tissue_type varchar(255),
+    volume varchar(255),
+    well varchar(255),
+    observation_unit_id varchar(255),
+    plate_id varchar(255),
+    program_id varchar(255),
+    study_id varchar(255),
+    taxon_id_id varchar(255),
+    trial_id varchar(255)
+);
+
+>>>>>>> 9eb49df (Merge pull request #76 from plantbreeding/java-21-upgrade)
 
 --
 -- Name: ontology_ref; Type: TABLE; Schema: public; Owner: postgres
 --
 
+<<<<<<< HEAD
 CREATE TABLE public.ontology_ref (
                                      id text NOT NULL,
                                      url text,
                                      type integer
+=======
+CREATE TABLE sample_additional_info (
+    sample_entity_id varchar(255) NOT NULL,
+    additional_info_id varchar(255) NOT NULL
+>>>>>>> 9eb49df (Merge pull request #76 from plantbreeding/java-21-upgrade)
 );
 
 
@@ -1120,6 +2581,7 @@ ALTER TABLE public.ontology_ref OWNER TO postgres;
 -- Name: pedigree_edge; Type: TABLE; Schema: public; Owner: postgres
 --
 
+<<<<<<< HEAD
 CREATE TABLE public.pedigree_edge (
                                       id text NOT NULL,
                                       additional_info jsonb,
@@ -1128,6 +2590,11 @@ CREATE TABLE public.pedigree_edge (
                                       parent_type integer,
                                       connceted_node_id text,
                                       this_node_id text
+=======
+CREATE TABLE sample_external_references (
+    sample_entity_id varchar(255) NOT NULL,
+    external_references_id varchar(255) NOT NULL
+>>>>>>> 9eb49df (Merge pull request #76 from plantbreeding/java-21-upgrade)
 );
 
 
@@ -1137,9 +2604,23 @@ ALTER TABLE public.pedigree_edge OWNER TO postgres;
 -- Name: pedigree_edge_external_references; Type: TABLE; Schema: public; Owner: postgres
 --
 
+<<<<<<< HEAD
 CREATE TABLE public.pedigree_edge_external_references (
                                                           pedigree_edge_entity_id text NOT NULL,
                                                           external_references_id text NOT NULL
+=======
+CREATE TABLE scale (
+    id varchar(255) NOT NULL,
+    auth_user_id varchar(255),
+    data_type integer,
+    decimal_places integer,
+    scale_name varchar(255),
+    scalepui varchar(255),
+    units varchar(255),
+    valid_value_max varchar(255),
+    valid_value_min varchar(255),
+    ontology_id varchar(255)
+>>>>>>> 9eb49df (Merge pull request #76 from plantbreeding/java-21-upgrade)
 );
 
 
@@ -1149,6 +2630,7 @@ ALTER TABLE public.pedigree_edge_external_references OWNER TO postgres;
 -- Name: pedigree_node; Type: TABLE; Schema: public; Owner: postgres
 --
 
+<<<<<<< HEAD
 CREATE TABLE public.pedigree_node (
                                       id text NOT NULL,
                                       additional_info jsonb,
@@ -1158,6 +2640,11 @@ CREATE TABLE public.pedigree_node (
                                       pedigree_string text,
                                       crossing_project_id text,
                                       germplasm_id text
+=======
+CREATE TABLE scale_additional_info (
+    scale_entity_id varchar(255) NOT NULL,
+    additional_info_id varchar(255) NOT NULL
+>>>>>>> 9eb49df (Merge pull request #76 from plantbreeding/java-21-upgrade)
 );
 
 
@@ -1179,6 +2666,7 @@ ALTER TABLE public.pedigree_node_external_references OWNER TO postgres;
 -- Name: person; Type: TABLE; Schema: public; Owner: postgres
 --
 
+<<<<<<< HEAD
 CREATE TABLE public.person (
                                id text NOT NULL,
                                additional_info jsonb,
@@ -1192,6 +2680,11 @@ CREATE TABLE public.person (
                                middle_name text,
                                phone_number text,
                                userid text
+=======
+CREATE TABLE scale_external_references (
+    scale_entity_id varchar(255) NOT NULL,
+    external_references_id varchar(255) NOT NULL
+>>>>>>> 9eb49df (Merge pull request #76 from plantbreeding/java-21-upgrade)
 );
 
 
@@ -1201,9 +2694,15 @@ ALTER TABLE public.person OWNER TO postgres;
 -- Name: person_external_references; Type: TABLE; Schema: public; Owner: postgres
 --
 
+<<<<<<< HEAD
 CREATE TABLE public.person_external_references (
                                                    person_entity_id text NOT NULL,
                                                    external_references_id text NOT NULL
+=======
+CREATE TABLE scale_ontology_reference (
+    scale_entity_id varchar(255) NOT NULL,
+    ontology_reference_id varchar(255) NOT NULL
+>>>>>>> 9eb49df (Merge pull request #76 from plantbreeding/java-21-upgrade)
 );
 
 
@@ -1213,6 +2712,7 @@ ALTER TABLE public.person_external_references OWNER TO postgres;
 -- Name: plate; Type: TABLE; Schema: public; Owner: postgres
 --
 
+<<<<<<< HEAD
 CREATE TABLE public.plate (
                               id text NOT NULL,
                               additional_info jsonb,
@@ -1229,6 +2729,13 @@ CREATE TABLE public.plate (
                               study_id text,
                               submission_id text,
                               trial_id text
+=======
+CREATE TABLE scale_valid_value_category (
+    id varchar(255) NOT NULL,
+    label varchar(255),
+    value varchar(255),
+    scale_id varchar(255)
+>>>>>>> 9eb49df (Merge pull request #76 from plantbreeding/java-21-upgrade)
 );
 
 
@@ -1238,9 +2745,18 @@ ALTER TABLE public.plate OWNER TO postgres;
 -- Name: plate_external_references; Type: TABLE; Schema: public; Owner: postgres
 --
 
+<<<<<<< HEAD
 CREATE TABLE public.plate_external_references (
                                                   plate_entity_id text NOT NULL,
                                                   external_references_id text NOT NULL
+=======
+CREATE TABLE search (
+    id varchar(255) NOT NULL,
+    auth_user_id varchar(255),
+    parameters text,
+    request_type integer,
+    response_countdown integer
+>>>>>>> 9eb49df (Merge pull request #76 from plantbreeding/java-21-upgrade)
 );
 
 
@@ -1250,6 +2766,7 @@ ALTER TABLE public.plate_external_references OWNER TO postgres;
 -- Name: plate_submission; Type: TABLE; Schema: public; Owner: postgres
 --
 
+<<<<<<< HEAD
 CREATE TABLE public.plate_submission (
                                          id text NOT NULL,
                                          additional_info jsonb,
@@ -1258,6 +2775,11 @@ CREATE TABLE public.plate_submission (
                                          number_of_samples integer,
                                          sample_type integer,
                                          order_id text
+=======
+CREATE TABLE search_additional_info (
+    search_request_entity_id varchar(255) NOT NULL,
+    additional_info_id varchar(255) NOT NULL
+>>>>>>> 9eb49df (Merge pull request #76 from plantbreeding/java-21-upgrade)
 );
 
 
@@ -1267,9 +2789,15 @@ ALTER TABLE public.plate_submission OWNER TO postgres;
 -- Name: plate_submission_external_references; Type: TABLE; Schema: public; Owner: postgres
 --
 
+<<<<<<< HEAD
 CREATE TABLE public.plate_submission_external_references (
                                                              vendor_plate_submission_entity_id text NOT NULL,
                                                              external_references_id text NOT NULL
+=======
+CREATE TABLE search_external_references (
+    search_request_entity_id varchar(255) NOT NULL,
+    external_references_id varchar(255) NOT NULL
+>>>>>>> 9eb49df (Merge pull request #76 from plantbreeding/java-21-upgrade)
 );
 
 
@@ -1279,6 +2807,7 @@ ALTER TABLE public.plate_submission_external_references OWNER TO postgres;
 -- Name: program; Type: TABLE; Schema: public; Owner: postgres
 --
 
+<<<<<<< HEAD
 CREATE TABLE public.program (
                                 id text NOT NULL,
                                 additional_info jsonb,
@@ -1291,6 +2820,13 @@ CREATE TABLE public.program (
                                 program_type integer,
                                 crop_id text,
                                 lead_person_id text
+=======
+CREATE TABLE season (
+    id varchar(255) NOT NULL,
+    auth_user_id varchar(255),
+    season varchar(255),
+    year integer
+>>>>>>> 9eb49df (Merge pull request #76 from plantbreeding/java-21-upgrade)
 );
 
 
@@ -1300,9 +2836,15 @@ ALTER TABLE public.program OWNER TO postgres;
 -- Name: program_external_references; Type: TABLE; Schema: public; Owner: postgres
 --
 
+<<<<<<< HEAD
 CREATE TABLE public.program_external_references (
                                                     program_entity_id text NOT NULL,
                                                     external_references_id text NOT NULL
+=======
+CREATE TABLE season_additional_info (
+    season_entity_id varchar(255) NOT NULL,
+    additional_info_id varchar(255) NOT NULL
+>>>>>>> 9eb49df (Merge pull request #76 from plantbreeding/java-21-upgrade)
 );
 
 
@@ -1312,6 +2854,7 @@ ALTER TABLE public.program_external_references OWNER TO postgres;
 -- Name: reference; Type: TABLE; Schema: public; Owner: postgres
 --
 
+<<<<<<< HEAD
 CREATE TABLE public.reference (
                                   id text NOT NULL,
                                   additional_info jsonb,
@@ -1321,6 +2864,11 @@ CREATE TABLE public.reference (
                                   reference_name text,
                                   source_divergence numeric(19,2),
                                   reference_set_id text
+=======
+CREATE TABLE season_external_references (
+    season_entity_id varchar(255) NOT NULL,
+    external_references_id varchar(255) NOT NULL
+>>>>>>> 9eb49df (Merge pull request #76 from plantbreeding/java-21-upgrade)
 );
 
 
@@ -1330,6 +2878,7 @@ ALTER TABLE public.reference OWNER TO postgres;
 -- Name: reference_bases; Type: TABLE; Schema: public; Owner: postgres
 --
 
+<<<<<<< HEAD
 CREATE TABLE public.reference_bases (
                                         id text NOT NULL,
                                         additional_info jsonb,
@@ -1337,6 +2886,21 @@ CREATE TABLE public.reference_bases (
                                         bases text,
                                         page_number integer,
                                         reference_id text
+=======
+CREATE TABLE seed_lot (
+    id varchar(255) NOT NULL,
+    auth_user_id varchar(255),
+    amount numeric(19,2),
+    created_date timestamp without time zone,
+    description varchar(255),
+    last_updated timestamp without time zone,
+    name varchar(255),
+    source_collection varchar(255),
+    storage_location varchar(255),
+    units varchar(255),
+    location_id varchar(255),
+    program_id varchar(255)
+>>>>>>> 9eb49df (Merge pull request #76 from plantbreeding/java-21-upgrade)
 );
 
 
@@ -1346,9 +2910,15 @@ ALTER TABLE public.reference_bases OWNER TO postgres;
 -- Name: reference_bases_external_references; Type: TABLE; Schema: public; Owner: postgres
 --
 
+<<<<<<< HEAD
 CREATE TABLE public.reference_bases_external_references (
                                                             reference_bases_page_entity_id text NOT NULL,
                                                             external_references_id text NOT NULL
+=======
+CREATE TABLE seed_lot_additional_info (
+    seed_lot_entity_id varchar(255) NOT NULL,
+    additional_info_id varchar(255) NOT NULL
+>>>>>>> 9eb49df (Merge pull request #76 from plantbreeding/java-21-upgrade)
 );
 
 
@@ -1358,9 +2928,18 @@ ALTER TABLE public.reference_bases_external_references OWNER TO postgres;
 -- Name: reference_external_references; Type: TABLE; Schema: public; Owner: postgres
 --
 
+<<<<<<< HEAD
 CREATE TABLE public.reference_external_references (
                                                       reference_entity_id text NOT NULL,
                                                       external_references_id text NOT NULL
+=======
+CREATE TABLE seed_lot_content_mixture (
+    id varchar(255) NOT NULL,
+    mixture_percentage integer,
+    cross_id varchar(255),
+    germplasm_id varchar(255),
+    seed_lot_id varchar(255)
+>>>>>>> 9eb49df (Merge pull request #76 from plantbreeding/java-21-upgrade)
 );
 
 
@@ -1370,6 +2949,7 @@ ALTER TABLE public.reference_external_references OWNER TO postgres;
 -- Name: reference_set; Type: TABLE; Schema: public; Owner: postgres
 --
 
+<<<<<<< HEAD
 CREATE TABLE public.reference_set (
                                       id text NOT NULL,
                                       additional_info jsonb,
@@ -1383,6 +2963,11 @@ CREATE TABLE public.reference_set (
                                       species_ontology_term text,
                                       species_ontology_termuri text,
                                       source_germplasm_id text
+=======
+CREATE TABLE seed_lot_external_references (
+    seed_lot_entity_id varchar(255) NOT NULL,
+    external_references_id varchar(255) NOT NULL
+>>>>>>> 9eb49df (Merge pull request #76 from plantbreeding/java-21-upgrade)
 );
 
 
@@ -1392,9 +2977,21 @@ ALTER TABLE public.reference_set OWNER TO postgres;
 -- Name: reference_set_external_references; Type: TABLE; Schema: public; Owner: postgres
 --
 
+<<<<<<< HEAD
 CREATE TABLE public.reference_set_external_references (
                                                           reference_set_entity_id text NOT NULL,
                                                           external_references_id text NOT NULL
+=======
+CREATE TABLE seed_lot_transaction (
+    id varchar(255) NOT NULL,
+    auth_user_id varchar(255),
+    amount numeric(19,2),
+    description varchar(255),
+    "timestamp" timestamp without time zone,
+    units varchar(255),
+    from_seed_lot_id varchar(255),
+    to_seed_lot_id varchar(255)
+>>>>>>> 9eb49df (Merge pull request #76 from plantbreeding/java-21-upgrade)
 );
 
 
@@ -1404,6 +3001,7 @@ ALTER TABLE public.reference_set_external_references OWNER TO postgres;
 -- Name: sample; Type: TABLE; Schema: public; Owner: postgres
 --
 
+<<<<<<< HEAD
 CREATE TABLE public.sample (
                                id text NOT NULL,
                                additional_info jsonb,
@@ -1428,6 +3026,11 @@ CREATE TABLE public.sample (
                                study_id text,
                                taxon_id_id text,
                                trial_id text
+=======
+CREATE TABLE seed_lot_transaction_additional_info (
+    seed_lot_transaction_entity_id varchar(255) NOT NULL,
+    additional_info_id varchar(255) NOT NULL
+>>>>>>> 9eb49df (Merge pull request #76 from plantbreeding/java-21-upgrade)
 );
 
 
@@ -1437,9 +3040,15 @@ ALTER TABLE public.sample OWNER TO postgres;
 -- Name: sample_external_references; Type: TABLE; Schema: public; Owner: postgres
 --
 
+<<<<<<< HEAD
 CREATE TABLE public.sample_external_references (
                                                    sample_entity_id text NOT NULL,
                                                    external_references_id text NOT NULL
+=======
+CREATE TABLE seed_lot_transaction_external_references (
+    seed_lot_transaction_entity_id varchar(255) NOT NULL,
+    external_references_id varchar(255) NOT NULL
+>>>>>>> 9eb49df (Merge pull request #76 from plantbreeding/java-21-upgrade)
 );
 
 
@@ -1449,6 +3058,7 @@ ALTER TABLE public.sample_external_references OWNER TO postgres;
 -- Name: scale; Type: TABLE; Schema: public; Owner: postgres
 --
 
+<<<<<<< HEAD
 CREATE TABLE public.scale (
                               id text NOT NULL,
                               additional_info jsonb,
@@ -1461,6 +3071,27 @@ CREATE TABLE public.scale (
                               valid_value_max text,
                               valid_value_min text,
                               ontology_id text
+=======
+CREATE TABLE study (
+    id varchar(255) NOT NULL,
+    auth_user_id varchar(255),
+    active boolean,
+    cultural_practices varchar(255),
+    documentationurl varchar(255),
+    end_date timestamp without time zone,
+    license varchar(255),
+    observation_units_description varchar(255),
+    start_date timestamp without time zone,
+    study_code varchar(255),
+    study_description varchar(255),
+    study_name varchar(255),
+    studypui varchar(255),
+    study_type varchar(255),
+    crop_id varchar(255),
+    location_id varchar(255),
+    program_id varchar(255),
+    trial_id varchar(255)
+>>>>>>> 9eb49df (Merge pull request #76 from plantbreeding/java-21-upgrade)
 );
 
 
@@ -1470,9 +3101,15 @@ ALTER TABLE public.scale OWNER TO postgres;
 -- Name: scale_external_references; Type: TABLE; Schema: public; Owner: postgres
 --
 
+<<<<<<< HEAD
 CREATE TABLE public.scale_external_references (
                                                   scale_entity_id text NOT NULL,
                                                   external_references_id text NOT NULL
+=======
+CREATE TABLE study_additional_info (
+    study_entity_id varchar(255) NOT NULL,
+    additional_info_id varchar(255) NOT NULL
+>>>>>>> 9eb49df (Merge pull request #76 from plantbreeding/java-21-upgrade)
 );
 
 
@@ -1482,9 +3119,15 @@ ALTER TABLE public.scale_external_references OWNER TO postgres;
 -- Name: scale_ontology_reference; Type: TABLE; Schema: public; Owner: postgres
 --
 
+<<<<<<< HEAD
 CREATE TABLE public.scale_ontology_reference (
                                                  scale_entity_id text NOT NULL,
                                                  ontology_reference_id text NOT NULL
+=======
+CREATE TABLE study_contact (
+    study_db_id varchar(255) NOT NULL,
+    person_db_id varchar(255) NOT NULL
+>>>>>>> 9eb49df (Merge pull request #76 from plantbreeding/java-21-upgrade)
 );
 
 
@@ -1494,11 +3137,25 @@ ALTER TABLE public.scale_ontology_reference OWNER TO postgres;
 -- Name: scale_valid_value_category; Type: TABLE; Schema: public; Owner: postgres
 --
 
+<<<<<<< HEAD
 CREATE TABLE public.scale_valid_value_category (
                                                    id text NOT NULL,
                                                    label text,
                                                    value text,
                                                    scale_id text
+=======
+CREATE TABLE study_data_link (
+    id varchar(255) NOT NULL,
+    data_format varchar(255),
+    description varchar(255),
+    file_format varchar(255),
+    name varchar(255),
+    provenance varchar(255),
+    scientific_type varchar(255),
+    url varchar(255),
+    version varchar(255),
+    study_id varchar(255)
+>>>>>>> 9eb49df (Merge pull request #76 from plantbreeding/java-21-upgrade)
 );
 
 
@@ -1508,6 +3165,7 @@ ALTER TABLE public.scale_valid_value_category OWNER TO postgres;
 -- Name: search; Type: TABLE; Schema: public; Owner: postgres
 --
 
+<<<<<<< HEAD
 CREATE TABLE public.search (
                                id text NOT NULL,
                                additional_info jsonb,
@@ -1515,6 +3173,18 @@ CREATE TABLE public.search (
                                parameters text,
                                request_type integer,
                                response_countdown integer
+=======
+CREATE TABLE study_environment_parameter (
+    id varchar(255) NOT NULL,
+    description varchar(255),
+    parameter_name varchar(255),
+    parameterpui varchar(255),
+    unit varchar(255),
+    unitpui varchar(255),
+    value varchar(255),
+    valuepui varchar(255),
+    study_id varchar(255)
+>>>>>>> 9eb49df (Merge pull request #76 from plantbreeding/java-21-upgrade)
 );
 
 
@@ -1524,9 +3194,17 @@ ALTER TABLE public.search OWNER TO postgres;
 -- Name: search_external_references; Type: TABLE; Schema: public; Owner: postgres
 --
 
+<<<<<<< HEAD
 CREATE TABLE public.search_external_references (
                                                    search_request_entity_id text NOT NULL,
                                                    external_references_id text NOT NULL
+=======
+CREATE TABLE study_experimental_design (
+    id varchar(255) NOT NULL,
+    pui varchar(255),
+    description varchar(255),
+    study_id varchar(255)
+>>>>>>> 9eb49df (Merge pull request #76 from plantbreeding/java-21-upgrade)
 );
 
 
@@ -1536,12 +3214,18 @@ ALTER TABLE public.search_external_references OWNER TO postgres;
 -- Name: season; Type: TABLE; Schema: public; Owner: postgres
 --
 
+<<<<<<< HEAD
 CREATE TABLE public.season (
                                id text NOT NULL,
                                additional_info jsonb,
                                auth_user_id text,
                                season text,
                                year integer
+=======
+CREATE TABLE study_external_references (
+    study_entity_id varchar(255) NOT NULL,
+    external_references_id varchar(255) NOT NULL
+>>>>>>> 9eb49df (Merge pull request #76 from plantbreeding/java-21-upgrade)
 );
 
 
@@ -1551,9 +3235,17 @@ ALTER TABLE public.season OWNER TO postgres;
 -- Name: season_external_references; Type: TABLE; Schema: public; Owner: postgres
 --
 
+<<<<<<< HEAD
 CREATE TABLE public.season_external_references (
                                                    season_entity_id text NOT NULL,
                                                    external_references_id text NOT NULL
+=======
+CREATE TABLE study_growth_facility (
+    id varchar(255) NOT NULL,
+    pui varchar(255),
+    description varchar(255),
+    study_id varchar(255)
+>>>>>>> 9eb49df (Merge pull request #76 from plantbreeding/java-21-upgrade)
 );
 
 
@@ -1563,6 +3255,7 @@ ALTER TABLE public.season_external_references OWNER TO postgres;
 -- Name: seed_lot; Type: TABLE; Schema: public; Owner: postgres
 --
 
+<<<<<<< HEAD
 CREATE TABLE public.seed_lot (
                                  id text NOT NULL,
                                  additional_info jsonb,
@@ -1577,6 +3270,13 @@ CREATE TABLE public.seed_lot (
                                  units text,
                                  location_id text,
                                  program_id text
+=======
+CREATE TABLE study_last_update (
+    id varchar(255) NOT NULL,
+    "timestamp" timestamp without time zone,
+    version varchar(255),
+    study_id varchar(255)
+>>>>>>> 9eb49df (Merge pull request #76 from plantbreeding/java-21-upgrade)
 );
 
 
@@ -1601,9 +3301,17 @@ ALTER TABLE public.seed_lot_content_mixture OWNER TO postgres;
 -- Name: seed_lot_external_references; Type: TABLE; Schema: public; Owner: postgres
 --
 
+<<<<<<< HEAD
 CREATE TABLE public.seed_lot_external_references (
                                                      seed_lot_entity_id text NOT NULL,
                                                      external_references_id text NOT NULL
+=======
+CREATE TABLE study_observation_level (
+    id varchar(255) NOT NULL,
+    level_name varchar(255),
+    level_order integer,
+    study_id varchar(255)
+>>>>>>> 9eb49df (Merge pull request #76 from plantbreeding/java-21-upgrade)
 );
 
 
@@ -1613,6 +3321,7 @@ ALTER TABLE public.seed_lot_external_references OWNER TO postgres;
 -- Name: seed_lot_transaction; Type: TABLE; Schema: public; Owner: postgres
 --
 
+<<<<<<< HEAD
 CREATE TABLE public.seed_lot_transaction (
                                              id text NOT NULL,
                                              additional_info jsonb,
@@ -1623,6 +3332,11 @@ CREATE TABLE public.seed_lot_transaction (
                                              units text,
                                              from_seed_lot_id text,
                                              to_seed_lot_id text
+=======
+CREATE TABLE study_season (
+    study_db_id varchar(255) NOT NULL,
+    season_db_id varchar(255) NOT NULL
+>>>>>>> 9eb49df (Merge pull request #76 from plantbreeding/java-21-upgrade)
 );
 
 
@@ -1644,6 +3358,7 @@ ALTER TABLE public.seed_lot_transaction_external_references OWNER TO postgres;
 -- Name: study; Type: TABLE; Schema: public; Owner: postgres
 --
 
+<<<<<<< HEAD
 CREATE TABLE public.study (
                               id text NOT NULL,
                               additional_info jsonb,
@@ -1664,6 +3379,11 @@ CREATE TABLE public.study (
                               location_id text,
                               program_id text,
                               trial_id text
+=======
+CREATE TABLE study_variable (
+    study_db_id varchar(255) NOT NULL,
+    variable_db_id varchar(255) NOT NULL
+>>>>>>> 9eb49df (Merge pull request #76 from plantbreeding/java-21-upgrade)
 );
 
 
@@ -1685,6 +3405,7 @@ ALTER TABLE public.study_contact OWNER TO postgres;
 -- Name: study_data_link; Type: TABLE; Schema: public; Owner: postgres
 --
 
+<<<<<<< HEAD
 CREATE TABLE public.study_data_link (
                                         id text NOT NULL,
                                         data_format text,
@@ -1696,6 +3417,22 @@ CREATE TABLE public.study_data_link (
                                         url text,
                                         version text,
                                         study_id text
+=======
+CREATE TABLE trait (
+    id varchar(255) NOT NULL,
+    auth_user_id varchar(255),
+    attribute varchar(255),
+    attributepui varchar(255),
+    entity varchar(255),
+    entitypui varchar(255),
+    main_abbreviation varchar(255),
+    status varchar(255),
+    trait_class varchar(255),
+    trait_description varchar(255),
+    trait_name varchar(255),
+    traitpui varchar(255),
+    ontology_id varchar(255)
+>>>>>>> 9eb49df (Merge pull request #76 from plantbreeding/java-21-upgrade)
 );
 
 
@@ -1705,6 +3442,7 @@ ALTER TABLE public.study_data_link OWNER TO postgres;
 -- Name: study_environment_parameter; Type: TABLE; Schema: public; Owner: postgres
 --
 
+<<<<<<< HEAD
 CREATE TABLE public.study_environment_parameter (
                                                     id text NOT NULL,
                                                     description text,
@@ -1715,6 +3453,12 @@ CREATE TABLE public.study_environment_parameter (
                                                     value text,
                                                     valuepui text,
                                                     study_id text
+=======
+CREATE TABLE trait_abbreviation (
+    id varchar(255) NOT NULL,
+    abbreviation varchar(255),
+    trait_id varchar(255)
+>>>>>>> 9eb49df (Merge pull request #76 from plantbreeding/java-21-upgrade)
 );
 
 
@@ -1724,11 +3468,17 @@ ALTER TABLE public.study_environment_parameter OWNER TO postgres;
 -- Name: study_experimental_design; Type: TABLE; Schema: public; Owner: postgres
 --
 
+<<<<<<< HEAD
 CREATE TABLE public.study_experimental_design (
                                                   id text NOT NULL,
                                                   pui text,
                                                   description text,
                                                   study_id text
+=======
+CREATE TABLE trait_additional_info (
+    trait_entity_id varchar(255) NOT NULL,
+    additional_info_id varchar(255) NOT NULL
+>>>>>>> 9eb49df (Merge pull request #76 from plantbreeding/java-21-upgrade)
 );
 
 
@@ -1738,9 +3488,15 @@ ALTER TABLE public.study_experimental_design OWNER TO postgres;
 -- Name: study_external_references; Type: TABLE; Schema: public; Owner: postgres
 --
 
+<<<<<<< HEAD
 CREATE TABLE public.study_external_references (
                                                   study_entity_id text NOT NULL,
                                                   external_references_id text NOT NULL
+=======
+CREATE TABLE trait_entity_alternative_abbreviations (
+    trait_entity_id varchar(255) NOT NULL,
+    alternative_abbreviations varchar(255)
+>>>>>>> 9eb49df (Merge pull request #76 from plantbreeding/java-21-upgrade)
 );
 
 
@@ -1750,11 +3506,17 @@ ALTER TABLE public.study_external_references OWNER TO postgres;
 -- Name: study_growth_facility; Type: TABLE; Schema: public; Owner: postgres
 --
 
+<<<<<<< HEAD
 CREATE TABLE public.study_growth_facility (
                                               id text NOT NULL,
                                               pui text,
                                               description text,
                                               study_id text
+=======
+CREATE TABLE trait_entity_synonyms (
+    trait_entity_id varchar(255) NOT NULL,
+    synonyms varchar(255)
+>>>>>>> 9eb49df (Merge pull request #76 from plantbreeding/java-21-upgrade)
 );
 
 
@@ -1764,11 +3526,17 @@ ALTER TABLE public.study_growth_facility OWNER TO postgres;
 -- Name: study_last_update; Type: TABLE; Schema: public; Owner: postgres
 --
 
+<<<<<<< HEAD
 CREATE TABLE public.study_last_update (
                                           id text NOT NULL,
                                           "timestamp" timestamp without time zone,
                                           version text,
                                           study_id text
+=======
+CREATE TABLE trait_external_references (
+    trait_entity_id varchar(255) NOT NULL,
+    external_references_id varchar(255) NOT NULL
+>>>>>>> 9eb49df (Merge pull request #76 from plantbreeding/java-21-upgrade)
 );
 
 
@@ -1778,11 +3546,17 @@ ALTER TABLE public.study_last_update OWNER TO postgres;
 -- Name: study_observation_level; Type: TABLE; Schema: public; Owner: postgres
 --
 
+<<<<<<< HEAD
 CREATE TABLE public.study_observation_level (
                                                 id text NOT NULL,
                                                 level_name text,
                                                 level_order integer,
                                                 study_id text
+=======
+CREATE TABLE trait_ontology_reference (
+    trait_entity_id varchar(255) NOT NULL,
+    ontology_reference_id varchar(255) NOT NULL
+>>>>>>> 9eb49df (Merge pull request #76 from plantbreeding/java-21-upgrade)
 );
 
 
@@ -1792,9 +3566,16 @@ ALTER TABLE public.study_observation_level OWNER TO postgres;
 -- Name: study_season; Type: TABLE; Schema: public; Owner: postgres
 --
 
+<<<<<<< HEAD
 CREATE TABLE public.study_season (
                                      study_db_id text NOT NULL,
                                      season_db_id text NOT NULL
+=======
+CREATE TABLE trait_synonym (
+    id varchar(255) NOT NULL,
+    synonym varchar(255),
+    trait_id varchar(255)
+>>>>>>> 9eb49df (Merge pull request #76 from plantbreeding/java-21-upgrade)
 );
 
 
@@ -1816,6 +3597,7 @@ ALTER TABLE public.study_variable OWNER TO postgres;
 -- Name: trait; Type: TABLE; Schema: public; Owner: postgres
 --
 
+<<<<<<< HEAD
 CREATE TABLE public.trait (
                               id text NOT NULL,
                               additional_info jsonb,
@@ -1831,6 +3613,20 @@ CREATE TABLE public.trait (
                               trait_name text,
                               traitpui text,
                               ontology_id text
+=======
+CREATE TABLE trial (
+    id varchar(255) NOT NULL,
+    auth_user_id varchar(255),
+    active boolean,
+    documentationurl varchar(255),
+    end_date timestamp without time zone,
+    start_date timestamp without time zone,
+    trial_description varchar(255),
+    trial_name varchar(255),
+    trialpui varchar(255),
+    crop_id varchar(255),
+    program_id varchar(255)
+>>>>>>> 9eb49df (Merge pull request #76 from plantbreeding/java-21-upgrade)
 );
 
 
@@ -1840,10 +3636,16 @@ ALTER TABLE public.trait OWNER TO postgres;
 -- Name: trait_abbreviation; Type: TABLE; Schema: public; Owner: postgres
 --
 
+<<<<<<< HEAD
 CREATE TABLE public.trait_abbreviation (
                                            id text NOT NULL,
                                            abbreviation text,
                                            trait_id text
+=======
+CREATE TABLE trial_additional_info (
+    trial_entity_id varchar(255) NOT NULL,
+    additional_info_id varchar(255) NOT NULL
+>>>>>>> 9eb49df (Merge pull request #76 from plantbreeding/java-21-upgrade)
 );
 
 
@@ -1853,9 +3655,15 @@ ALTER TABLE public.trait_abbreviation OWNER TO postgres;
 -- Name: trait_entity_alternative_abbreviations; Type: TABLE; Schema: public; Owner: postgres
 --
 
+<<<<<<< HEAD
 CREATE TABLE public.trait_entity_alternative_abbreviations (
                                                                trait_entity_id text NOT NULL,
                                                                alternative_abbreviations text
+=======
+CREATE TABLE trial_contact (
+    trial_db_id varchar(255) NOT NULL,
+    person_db_id varchar(255) NOT NULL
+>>>>>>> 9eb49df (Merge pull request #76 from plantbreeding/java-21-upgrade)
 );
 
 
@@ -1865,9 +3673,19 @@ ALTER TABLE public.trait_entity_alternative_abbreviations OWNER TO postgres;
 -- Name: trait_entity_synonyms; Type: TABLE; Schema: public; Owner: postgres
 --
 
+<<<<<<< HEAD
 CREATE TABLE public.trait_entity_synonyms (
                                               trait_entity_id text NOT NULL,
                                               synonyms text
+=======
+CREATE TABLE trial_dataset_authorship (
+    id varchar(255) NOT NULL,
+    datasetpui varchar(255),
+    license varchar(255),
+    public_release_date timestamp without time zone,
+    submission_date timestamp without time zone,
+    trial_id varchar(255)
+>>>>>>> 9eb49df (Merge pull request #76 from plantbreeding/java-21-upgrade)
 );
 
 
@@ -1877,9 +3695,15 @@ ALTER TABLE public.trait_entity_synonyms OWNER TO postgres;
 -- Name: trait_external_references; Type: TABLE; Schema: public; Owner: postgres
 --
 
+<<<<<<< HEAD
 CREATE TABLE public.trait_external_references (
                                                   trait_entity_id text NOT NULL,
                                                   external_references_id text NOT NULL
+=======
+CREATE TABLE trial_external_references (
+    trial_entity_id varchar(255) NOT NULL,
+    external_references_id varchar(255) NOT NULL
+>>>>>>> 9eb49df (Merge pull request #76 from plantbreeding/java-21-upgrade)
 );
 
 
@@ -1889,9 +3713,17 @@ ALTER TABLE public.trait_external_references OWNER TO postgres;
 -- Name: trait_ontology_reference; Type: TABLE; Schema: public; Owner: postgres
 --
 
+<<<<<<< HEAD
 CREATE TABLE public.trait_ontology_reference (
                                                  trait_entity_id text NOT NULL,
                                                  ontology_reference_id text NOT NULL
+=======
+CREATE TABLE trial_publication (
+    id varchar(255) NOT NULL,
+    publicationpui varchar(255),
+    publication_reference varchar(255),
+    trial_id varchar(255)
+>>>>>>> 9eb49df (Merge pull request #76 from plantbreeding/java-21-upgrade)
 );
 
 
@@ -1901,10 +3733,29 @@ ALTER TABLE public.trait_ontology_reference OWNER TO postgres;
 -- Name: trait_synonym; Type: TABLE; Schema: public; Owner: postgres
 --
 
+<<<<<<< HEAD
 CREATE TABLE public.trait_synonym (
                                       id text NOT NULL,
                                       synonym text,
                                       trait_id text
+=======
+CREATE TABLE variable_base_entity (
+    id varchar(255) NOT NULL,
+    auth_user_id varchar(255),
+    default_value varchar(255),
+    documentationurl varchar(255),
+    growth_stage varchar(255),
+    institution varchar(255),
+    language varchar(255),
+    scientist varchar(255),
+    status varchar(255),
+    submission_timestamp timestamp without time zone,
+    crop_id varchar(255),
+    method_id varchar(255),
+    ontology_id varchar(255),
+    scale_id varchar(255),
+    trait_id varchar(255)
+>>>>>>> 9eb49df (Merge pull request #76 from plantbreeding/java-21-upgrade)
 );
 
 
@@ -1914,6 +3765,7 @@ ALTER TABLE public.trait_synonym OWNER TO postgres;
 -- Name: trial; Type: TABLE; Schema: public; Owner: postgres
 --
 
+<<<<<<< HEAD
 CREATE TABLE public.trial (
                               id text NOT NULL,
                               additional_info jsonb,
@@ -1927,6 +3779,11 @@ CREATE TABLE public.trial (
                               trialpui text,
                               crop_id text,
                               program_id text
+=======
+CREATE TABLE variable_base_entity_additional_info (
+    variable_base_entity_id varchar(255) NOT NULL,
+    additional_info_id varchar(255) NOT NULL
+>>>>>>> 9eb49df (Merge pull request #76 from plantbreeding/java-21-upgrade)
 );
 
 
@@ -1936,9 +3793,15 @@ ALTER TABLE public.trial OWNER TO postgres;
 -- Name: trial_contact; Type: TABLE; Schema: public; Owner: postgres
 --
 
+<<<<<<< HEAD
 CREATE TABLE public.trial_contact (
                                       trial_db_id text NOT NULL,
                                       person_db_id text NOT NULL
+=======
+CREATE TABLE variable_base_entity_context_of_use (
+    variable_base_entity_id varchar(255) NOT NULL,
+    context_of_use varchar(255)
+>>>>>>> 9eb49df (Merge pull request #76 from plantbreeding/java-21-upgrade)
 );
 
 
@@ -1948,6 +3811,7 @@ ALTER TABLE public.trial_contact OWNER TO postgres;
 -- Name: trial_dataset_authorship; Type: TABLE; Schema: public; Owner: postgres
 --
 
+<<<<<<< HEAD
 CREATE TABLE public.trial_dataset_authorship (
                                                  id text NOT NULL,
                                                  datasetpui text,
@@ -1955,6 +3819,11 @@ CREATE TABLE public.trial_dataset_authorship (
                                                  public_release_date timestamp without time zone,
                                                  submission_date timestamp without time zone,
                                                  trial_id text
+=======
+CREATE TABLE variable_base_entity_external_references (
+    variable_base_entity_id varchar(255) NOT NULL,
+    external_references_id varchar(255) NOT NULL
+>>>>>>> 9eb49df (Merge pull request #76 from plantbreeding/java-21-upgrade)
 );
 
 
@@ -1964,9 +3833,15 @@ ALTER TABLE public.trial_dataset_authorship OWNER TO postgres;
 -- Name: trial_external_references; Type: TABLE; Schema: public; Owner: postgres
 --
 
+<<<<<<< HEAD
 CREATE TABLE public.trial_external_references (
                                                   trial_entity_id text NOT NULL,
                                                   external_references_id text NOT NULL
+=======
+CREATE TABLE variable_base_entity_ontology_reference (
+    variable_base_entity_id varchar(255) NOT NULL,
+    ontology_reference_id varchar(255) NOT NULL
+>>>>>>> 9eb49df (Merge pull request #76 from plantbreeding/java-21-upgrade)
 );
 
 
@@ -1976,11 +3851,17 @@ ALTER TABLE public.trial_external_references OWNER TO postgres;
 -- Name: trial_publication; Type: TABLE; Schema: public; Owner: postgres
 --
 
+<<<<<<< HEAD
 CREATE TABLE public.trial_publication (
                                           id text NOT NULL,
                                           publicationpui text,
                                           publication_reference text,
                                           trial_id text
+=======
+CREATE TABLE variable_base_entity_synonyms (
+    variable_base_entity_id varchar(255) NOT NULL,
+    synonyms varchar(255)
+>>>>>>> 9eb49df (Merge pull request #76 from plantbreeding/java-21-upgrade)
 );
 
 
@@ -1990,6 +3871,7 @@ ALTER TABLE public.trial_publication OWNER TO postgres;
 -- Name: variable_base_entity; Type: TABLE; Schema: public; Owner: postgres
 --
 
+<<<<<<< HEAD
 CREATE TABLE public.variable_base_entity (
                                              id text NOT NULL,
                                              additional_info jsonb,
@@ -2007,6 +3889,23 @@ CREATE TABLE public.variable_base_entity (
                                              ontology_id text,
                                              scale_id text,
                                              trait_id text
+=======
+CREATE TABLE variant (
+    id varchar(255) NOT NULL,
+    auth_user_id varchar(255),
+    created timestamp without time zone,
+    variant_end integer,
+    filters_applied boolean,
+    filters_passed boolean,
+    reference_bases varchar(255),
+    variant_start integer,
+    svlen integer,
+    updated timestamp without time zone,
+    variant_name varchar(255),
+    variant_type varchar(255),
+    reference_set_id varchar(255),
+    variant_set_id varchar(255)
+>>>>>>> 9eb49df (Merge pull request #76 from plantbreeding/java-21-upgrade)
 );
 
 
@@ -2016,9 +3915,15 @@ ALTER TABLE public.variable_base_entity OWNER TO postgres;
 -- Name: variable_base_entity_context_of_use; Type: TABLE; Schema: public; Owner: postgres
 --
 
+<<<<<<< HEAD
 CREATE TABLE public.variable_base_entity_context_of_use (
                                                             variable_base_entity_id text NOT NULL,
                                                             context_of_use text
+=======
+CREATE TABLE variant_additional_info (
+    variant_entity_id varchar(255) NOT NULL,
+    additional_info_id varchar(255) NOT NULL
+>>>>>>> 9eb49df (Merge pull request #76 from plantbreeding/java-21-upgrade)
 );
 
 
@@ -2028,9 +3933,15 @@ ALTER TABLE public.variable_base_entity_context_of_use OWNER TO postgres;
 -- Name: variable_base_entity_external_references; Type: TABLE; Schema: public; Owner: postgres
 --
 
+<<<<<<< HEAD
 CREATE TABLE public.variable_base_entity_external_references (
                                                                  variable_base_entity_id text NOT NULL,
                                                                  external_references_id text NOT NULL
+=======
+CREATE TABLE variant_entity_alternate_bases (
+    variant_entity_id varchar(255) NOT NULL,
+    alternate_bases varchar(255)
+>>>>>>> 9eb49df (Merge pull request #76 from plantbreeding/java-21-upgrade)
 );
 
 
@@ -2040,9 +3951,15 @@ ALTER TABLE public.variable_base_entity_external_references OWNER TO postgres;
 -- Name: variable_base_entity_ontology_reference; Type: TABLE; Schema: public; Owner: postgres
 --
 
+<<<<<<< HEAD
 CREATE TABLE public.variable_base_entity_ontology_reference (
                                                                 variable_base_entity_id text NOT NULL,
                                                                 ontology_reference_id text NOT NULL
+=======
+CREATE TABLE variant_entity_ciend (
+    variant_entity_id varchar(255) NOT NULL,
+    ciend integer
+>>>>>>> 9eb49df (Merge pull request #76 from plantbreeding/java-21-upgrade)
 );
 
 
@@ -2052,9 +3969,15 @@ ALTER TABLE public.variable_base_entity_ontology_reference OWNER TO postgres;
 -- Name: variable_base_entity_synonyms; Type: TABLE; Schema: public; Owner: postgres
 --
 
+<<<<<<< HEAD
 CREATE TABLE public.variable_base_entity_synonyms (
                                                       variable_base_entity_id text NOT NULL,
                                                       synonyms text
+=======
+CREATE TABLE variant_entity_cipos (
+    variant_entity_id varchar(255) NOT NULL,
+    cipos integer
+>>>>>>> 9eb49df (Merge pull request #76 from plantbreeding/java-21-upgrade)
 );
 
 
@@ -2064,6 +3987,7 @@ ALTER TABLE public.variable_base_entity_synonyms OWNER TO postgres;
 -- Name: variant; Type: TABLE; Schema: public; Owner: postgres
 --
 
+<<<<<<< HEAD
 CREATE TABLE public.variant (
                                 id text NOT NULL,
                                 additional_info jsonb,
@@ -2080,6 +4004,11 @@ CREATE TABLE public.variant (
                                 variant_type text,
                                 reference_set_id text,
                                 variant_set_id text
+=======
+CREATE TABLE variant_entity_filters_failed (
+    variant_entity_id varchar(255) NOT NULL,
+    filters_failed varchar(255)
+>>>>>>> 9eb49df (Merge pull request #76 from plantbreeding/java-21-upgrade)
 );
 
 
@@ -2089,9 +4018,15 @@ ALTER TABLE public.variant OWNER TO postgres;
 -- Name: variant_entity_alternate_bases; Type: TABLE; Schema: public; Owner: postgres
 --
 
+<<<<<<< HEAD
 CREATE TABLE public.variant_entity_alternate_bases (
                                                        variant_entity_id text NOT NULL,
                                                        alternate_bases text
+=======
+CREATE TABLE variant_external_references (
+    variant_entity_id varchar(255) NOT NULL,
+    external_references_id varchar(255) NOT NULL
+>>>>>>> 9eb49df (Merge pull request #76 from plantbreeding/java-21-upgrade)
 );
 
 
@@ -2101,9 +4036,15 @@ ALTER TABLE public.variant_entity_alternate_bases OWNER TO postgres;
 -- Name: variant_entity_ciend; Type: TABLE; Schema: public; Owner: postgres
 --
 
+<<<<<<< HEAD
 CREATE TABLE public.variant_entity_ciend (
                                              variant_entity_id text NOT NULL,
                                              ciend integer
+=======
+CREATE TABLE variant_set_analysis_entity_software (
+    variant_set_analysis_entity_id varchar(255) NOT NULL,
+    software varchar(255)
+>>>>>>> 9eb49df (Merge pull request #76 from plantbreeding/java-21-upgrade)
 );
 
 
@@ -2113,9 +4054,18 @@ ALTER TABLE public.variant_entity_ciend OWNER TO postgres;
 -- Name: variant_entity_cipos; Type: TABLE; Schema: public; Owner: postgres
 --
 
+<<<<<<< HEAD
 CREATE TABLE public.variant_entity_cipos (
                                              variant_entity_id text NOT NULL,
                                              cipos integer
+=======
+CREATE TABLE variantset (
+    id varchar(255) NOT NULL,
+    auth_user_id varchar(255),
+    variant_set_name varchar(255),
+    reference_set_id varchar(255),
+    study_id varchar(255)
+>>>>>>> 9eb49df (Merge pull request #76 from plantbreeding/java-21-upgrade)
 );
 
 
@@ -2125,9 +4075,15 @@ ALTER TABLE public.variant_entity_cipos OWNER TO postgres;
 -- Name: variant_entity_filters_failed; Type: TABLE; Schema: public; Owner: postgres
 --
 
+<<<<<<< HEAD
 CREATE TABLE public.variant_entity_filters_failed (
                                                       variant_entity_id text NOT NULL,
                                                       filters_failed text
+=======
+CREATE TABLE variantset_additional_info (
+    variant_set_entity_id varchar(255) NOT NULL,
+    additional_info_id varchar(255) NOT NULL
+>>>>>>> 9eb49df (Merge pull request #76 from plantbreeding/java-21-upgrade)
 );
 
 
@@ -2137,9 +4093,20 @@ ALTER TABLE public.variant_entity_filters_failed OWNER TO postgres;
 -- Name: variant_external_references; Type: TABLE; Schema: public; Owner: postgres
 --
 
+<<<<<<< HEAD
 CREATE TABLE public.variant_external_references (
                                                     variant_entity_id text NOT NULL,
                                                     external_references_id text NOT NULL
+=======
+CREATE TABLE variantset_analysis (
+    id varchar(255) NOT NULL,
+    analysis_name varchar(255),
+    created timestamp without time zone,
+    description varchar(255),
+    type varchar(255),
+    updated timestamp without time zone,
+    variant_set_id varchar(255)
+>>>>>>> 9eb49df (Merge pull request #76 from plantbreeding/java-21-upgrade)
 );
 
 
@@ -2149,9 +4116,15 @@ ALTER TABLE public.variant_external_references OWNER TO postgres;
 -- Name: variant_set_analysis_entity_software; Type: TABLE; Schema: public; Owner: postgres
 --
 
+<<<<<<< HEAD
 CREATE TABLE public.variant_set_analysis_entity_software (
                                                              variant_set_analysis_entity_id text NOT NULL,
                                                              software text
+=======
+CREATE TABLE variantset_external_references (
+    variant_set_entity_id varchar(255) NOT NULL,
+    external_references_id varchar(255) NOT NULL
+>>>>>>> 9eb49df (Merge pull request #76 from plantbreeding/java-21-upgrade)
 );
 
 
@@ -2161,6 +4134,7 @@ ALTER TABLE public.variant_set_analysis_entity_software OWNER TO postgres;
 -- Name: variantset; Type: TABLE; Schema: public; Owner: postgres
 --
 
+<<<<<<< HEAD
 CREATE TABLE public.variantset (
                                    id text NOT NULL,
                                    additional_info jsonb,
@@ -2168,6 +4142,18 @@ CREATE TABLE public.variantset (
                                    variant_set_name text,
                                    reference_set_id text,
                                    study_id text
+=======
+CREATE TABLE variantset_format (
+    id varchar(255) NOT NULL,
+    data_format integer,
+    expand_homozygotes boolean,
+    file_format integer,
+    fileurl varchar(255),
+    sep_phased varchar(255),
+    sep_unphased varchar(255),
+    unknown_string varchar(255),
+    variant_set_id varchar(255)
+>>>>>>> 9eb49df (Merge pull request #76 from plantbreeding/java-21-upgrade)
 );
 
 
@@ -2177,6 +4163,7 @@ ALTER TABLE public.variantset OWNER TO postgres;
 -- Name: variantset_analysis; Type: TABLE; Schema: public; Owner: postgres
 --
 
+<<<<<<< HEAD
 CREATE TABLE public.variantset_analysis (
                                             id text NOT NULL,
                                             analysis_name text,
@@ -2185,6 +4172,15 @@ CREATE TABLE public.variantset_analysis (
                                             type text,
                                             updated timestamp without time zone,
                                             variant_set_id text
+=======
+CREATE TABLE vendor_file (
+    id varchar(255) NOT NULL,
+    url varchar(255),
+    file_type varchar(255),
+    filename varchar(255),
+    md5sum varchar(255),
+    order_id varchar(255)
+>>>>>>> 9eb49df (Merge pull request #76 from plantbreeding/java-21-upgrade)
 );
 
 
@@ -2194,9 +4190,15 @@ ALTER TABLE public.variantset_analysis OWNER TO postgres;
 -- Name: variantset_external_references; Type: TABLE; Schema: public; Owner: postgres
 --
 
+<<<<<<< HEAD
 CREATE TABLE public.variantset_external_references (
                                                        variant_set_entity_id text NOT NULL,
                                                        external_references_id text NOT NULL
+=======
+CREATE TABLE vendor_file_sample (
+    verndor_file_dbid varchar(255) NOT NULL,
+    sample_dbid varchar(255) NOT NULL
+>>>>>>> 9eb49df (Merge pull request #76 from plantbreeding/java-21-upgrade)
 );
 
 
@@ -2206,6 +4208,7 @@ ALTER TABLE public.variantset_external_references OWNER TO postgres;
 -- Name: variantset_format; Type: TABLE; Schema: public; Owner: postgres
 --
 
+<<<<<<< HEAD
 CREATE TABLE public.variantset_format (
                                           id text NOT NULL,
                                           data_format integer,
@@ -2216,6 +4219,16 @@ CREATE TABLE public.variantset_format (
                                           sep_unphased text,
                                           unknown_string text,
                                           variant_set_id text
+=======
+CREATE TABLE vendor_order (
+    id varchar(255) NOT NULL,
+    auth_user_id varchar(255),
+    client_plate_barcode varchar(255),
+    client_plate_db_id varchar(255),
+    sample_type integer,
+    status integer,
+    status_time_stamp timestamp without time zone
+>>>>>>> 9eb49df (Merge pull request #76 from plantbreeding/java-21-upgrade)
 );
 
 
@@ -2225,6 +4238,7 @@ ALTER TABLE public.variantset_format OWNER TO postgres;
 -- Name: vendor_file; Type: TABLE; Schema: public; Owner: postgres
 --
 
+<<<<<<< HEAD
 CREATE TABLE public.vendor_file (
                                     id text NOT NULL,
                                     url text,
@@ -2232,6 +4246,11 @@ CREATE TABLE public.vendor_file (
                                     filename text,
                                     md5sum text,
                                     order_id text
+=======
+CREATE TABLE vendor_order_additional_info (
+    vendor_order_entity_id varchar(255) NOT NULL,
+    additional_info_id varchar(255) NOT NULL
+>>>>>>> 9eb49df (Merge pull request #76 from plantbreeding/java-21-upgrade)
 );
 
 
@@ -2241,9 +4260,16 @@ ALTER TABLE public.vendor_file OWNER TO postgres;
 -- Name: vendor_file_sample; Type: TABLE; Schema: public; Owner: postgres
 --
 
+<<<<<<< HEAD
 CREATE TABLE public.vendor_file_sample (
                                            verndor_file_dbid text NOT NULL,
                                            sample_dbid text NOT NULL
+=======
+CREATE TABLE vendor_order_entity_required_service_info (
+    vendor_order_entity_id varchar(255) NOT NULL,
+    required_service_info varchar(255),
+    required_service_info_key varchar(255) NOT NULL
+>>>>>>> 9eb49df (Merge pull request #76 from plantbreeding/java-21-upgrade)
 );
 
 
@@ -2253,6 +4279,7 @@ ALTER TABLE public.vendor_file_sample OWNER TO postgres;
 -- Name: vendor_order; Type: TABLE; Schema: public; Owner: postgres
 --
 
+<<<<<<< HEAD
 CREATE TABLE public.vendor_order (
                                      id text NOT NULL,
                                      additional_info jsonb,
@@ -2262,6 +4289,11 @@ CREATE TABLE public.vendor_order (
                                      sample_type integer,
                                      status integer,
                                      status_time_stamp timestamp without time zone
+=======
+CREATE TABLE vendor_order_entity_service_ids (
+    vendor_order_entity_id varchar(255) NOT NULL,
+    service_ids varchar(255)
+>>>>>>> 9eb49df (Merge pull request #76 from plantbreeding/java-21-upgrade)
 );
 
 
@@ -2271,10 +4303,16 @@ ALTER TABLE public.vendor_order OWNER TO postgres;
 -- Name: vendor_order_entity_required_service_info; Type: TABLE; Schema: public; Owner: postgres
 --
 
+<<<<<<< HEAD
 CREATE TABLE public.vendor_order_entity_required_service_info (
                                                                   vendor_order_entity_id text NOT NULL,
                                                                   required_service_info text,
                                                                   required_service_info_key text NOT NULL
+=======
+CREATE TABLE vendor_order_external_references (
+    vendor_order_entity_id varchar(255) NOT NULL,
+    external_references_id varchar(255) NOT NULL
+>>>>>>> 9eb49df (Merge pull request #76 from plantbreeding/java-21-upgrade)
 );
 
 
@@ -2284,9 +4322,24 @@ ALTER TABLE public.vendor_order_entity_required_service_info OWNER TO postgres;
 -- Name: vendor_order_entity_service_ids; Type: TABLE; Schema: public; Owner: postgres
 --
 
+<<<<<<< HEAD
 CREATE TABLE public.vendor_order_entity_service_ids (
                                                         vendor_order_entity_id text NOT NULL,
                                                         service_ids text
+=======
+CREATE TABLE vendor_spec (
+    id varchar(255) NOT NULL,
+    auth_user_id varchar(255),
+    contact_name varchar(255),
+    vendor_address varchar(255),
+    vendor_city varchar(255),
+    vendor_country varchar(255),
+    vendor_description varchar(255),
+    vendor_email varchar(255),
+    vendor_name varchar(255),
+    vendor_phone varchar(255),
+    vendorurl varchar(255)
+>>>>>>> 9eb49df (Merge pull request #76 from plantbreeding/java-21-upgrade)
 );
 
 
@@ -2296,9 +4349,15 @@ ALTER TABLE public.vendor_order_entity_service_ids OWNER TO postgres;
 -- Name: vendor_order_external_references; Type: TABLE; Schema: public; Owner: postgres
 --
 
+<<<<<<< HEAD
 CREATE TABLE public.vendor_order_external_references (
                                                          vendor_order_entity_id text NOT NULL,
                                                          external_references_id text NOT NULL
+=======
+CREATE TABLE vendor_spec_additional_info (
+    vendor_spec_entity_id varchar(255) NOT NULL,
+    additional_info_id varchar(255) NOT NULL
+>>>>>>> 9eb49df (Merge pull request #76 from plantbreeding/java-21-upgrade)
 );
 
 
@@ -2308,6 +4367,7 @@ ALTER TABLE public.vendor_order_external_references OWNER TO postgres;
 -- Name: vendor_spec; Type: TABLE; Schema: public; Owner: postgres
 --
 
+<<<<<<< HEAD
 CREATE TABLE public.vendor_spec (
                                     id text NOT NULL,
                                     additional_info jsonb,
@@ -2321,6 +4381,14 @@ CREATE TABLE public.vendor_spec (
                                     vendor_name text,
                                     vendor_phone text,
                                     vendorurl text
+=======
+CREATE TABLE vendor_spec_deliverable (
+    id varchar(255) NOT NULL,
+    description varchar(255),
+    format varchar(255),
+    name varchar(255),
+    vendor_spec_platform_db_id varchar(255)
+>>>>>>> 9eb49df (Merge pull request #76 from plantbreeding/java-21-upgrade)
 );
 
 
@@ -2330,12 +4398,18 @@ ALTER TABLE public.vendor_spec OWNER TO postgres;
 -- Name: vendor_spec_deliverable; Type: TABLE; Schema: public; Owner: postgres
 --
 
+<<<<<<< HEAD
 CREATE TABLE public.vendor_spec_deliverable (
                                                 id text NOT NULL,
                                                 description text,
                                                 format text,
                                                 name text,
                                                 vendor_spec_platform_db_id text
+=======
+CREATE TABLE vendor_spec_external_references (
+    vendor_spec_entity_id varchar(255) NOT NULL,
+    external_references_id varchar(255) NOT NULL
+>>>>>>> 9eb49df (Merge pull request #76 from plantbreeding/java-21-upgrade)
 );
 
 
@@ -2345,9 +4419,16 @@ ALTER TABLE public.vendor_spec_deliverable OWNER TO postgres;
 -- Name: vendor_spec_external_references; Type: TABLE; Schema: public; Owner: postgres
 --
 
+<<<<<<< HEAD
 CREATE TABLE public.vendor_spec_external_references (
                                                         vendor_spec_entity_id text NOT NULL,
                                                         external_references_id text NOT NULL
+=======
+CREATE TABLE vendor_spec_input_format (
+    id varchar(255) NOT NULL,
+    input_format varchar(255),
+    vendor_spec_standard_requirement_db_id varchar(255)
+>>>>>>> 9eb49df (Merge pull request #76 from plantbreeding/java-21-upgrade)
 );
 
 
@@ -2357,10 +4438,29 @@ ALTER TABLE public.vendor_spec_external_references OWNER TO postgres;
 -- Name: vendor_spec_input_format; Type: TABLE; Schema: public; Owner: postgres
 --
 
+<<<<<<< HEAD
 CREATE TABLE public.vendor_spec_input_format (
                                                  id text NOT NULL,
                                                  input_format text,
                                                  vendor_spec_standard_requirement_db_id text
+=======
+CREATE TABLE vendor_spec_platform (
+    id varchar(255) NOT NULL,
+    contact_email varchar(255),
+    contact_name varchar(255),
+    contact_phone varchar(255),
+    platform_description varchar(255),
+    platform_name varchar(255),
+    platformurl varchar(255),
+    shipping_address varchar(255),
+    specific_requirements varchar(255),
+    taxonomy_id_system_name varchar(255),
+    taxonomy_id_systemuri varchar(255),
+    tissue_id_system_name varchar(255),
+    tissue_id_systemuri varchar(255),
+    vendor_spec_db_id varchar(255),
+    standard_requirements_id varchar(255)
+>>>>>>> 9eb49df (Merge pull request #76 from plantbreeding/java-21-upgrade)
 );
 
 
@@ -2370,6 +4470,7 @@ ALTER TABLE public.vendor_spec_input_format OWNER TO postgres;
 -- Name: vendor_spec_platform; Type: TABLE; Schema: public; Owner: postgres
 --
 
+<<<<<<< HEAD
 CREATE TABLE public.vendor_spec_platform (
                                              id text NOT NULL,
                                              contact_email text,
@@ -2386,6 +4487,18 @@ CREATE TABLE public.vendor_spec_platform (
                                              tissue_id_systemuri text,
                                              vendor_spec_db_id text,
                                              standard_requirements_id text
+=======
+CREATE TABLE vendor_spec_requirement (
+    id varchar(255) NOT NULL,
+    input_format_details varchar(255),
+    max_concentration varchar(255),
+    max_volume varchar(255),
+    min_concentration varchar(255),
+    min_sample_number varchar(255),
+    min_volume varchar(255),
+    plate_orientation varchar(255),
+    sample_type_details varchar(255)
+>>>>>>> 9eb49df (Merge pull request #76 from plantbreeding/java-21-upgrade)
 );
 
 
@@ -2395,6 +4508,7 @@ ALTER TABLE public.vendor_spec_platform OWNER TO postgres;
 -- Name: vendor_spec_requirement; Type: TABLE; Schema: public; Owner: postgres
 --
 
+<<<<<<< HEAD
 CREATE TABLE public.vendor_spec_requirement (
                                                 id text NOT NULL,
                                                 input_format_details text,
@@ -2405,6 +4519,12 @@ CREATE TABLE public.vendor_spec_requirement (
                                                 min_volume text,
                                                 plate_orientation text,
                                                 sample_type_details text
+=======
+CREATE TABLE vendor_spec_sample_type (
+    id varchar(255) NOT NULL,
+    sample_type varchar(255),
+    vendor_spec_standard_requirement_db_id varchar(255)
+>>>>>>> 9eb49df (Merge pull request #76 from plantbreeding/java-21-upgrade)
 );
 
 
@@ -2414,10 +4534,18 @@ ALTER TABLE public.vendor_spec_requirement OWNER TO postgres;
 -- Name: vendor_spec_sample_type; Type: TABLE; Schema: public; Owner: postgres
 --
 
+<<<<<<< HEAD
 CREATE TABLE public.vendor_spec_sample_type (
                                                 id text NOT NULL,
                                                 sample_type text,
                                                 vendor_spec_standard_requirement_db_id text
+=======
+CREATE TABLE vendor_spec_status (
+    id varchar(255) NOT NULL,
+    status_description varchar(255),
+    status_name varchar(255),
+    vendor_spec_platform_db_id varchar(255)
+>>>>>>> 9eb49df (Merge pull request #76 from plantbreeding/java-21-upgrade)
 );
 
 
@@ -2427,11 +4555,18 @@ ALTER TABLE public.vendor_spec_sample_type OWNER TO postgres;
 -- Name: vendor_spec_status; Type: TABLE; Schema: public; Owner: postgres
 --
 
+<<<<<<< HEAD
 CREATE TABLE public.vendor_spec_status (
                                            id text NOT NULL,
                                            status_description text,
                                            status_name text,
                                            vendor_spec_platform_db_id text
+=======
+CREATE TABLE vendor_spec_well_position (
+    id varchar(255) NOT NULL,
+    "position" varchar(255),
+    vendor_spec_standard_requirement_db_id varchar(255)
+>>>>>>> 9eb49df (Merge pull request #76 from plantbreeding/java-21-upgrade)
 );
 
 

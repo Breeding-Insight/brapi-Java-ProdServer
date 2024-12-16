@@ -9,7 +9,7 @@ import org.springframework.validation.annotation.Validated;
  * BatchSummary
  */
 @Validated
-@javax.annotation.Generated(value = "io.swagger.codegen.v3.generators.java.SpringCodegen", date = "2020-03-20T16:31:52.030Z[GMT]")
+@jakarta.annotation.Generated(value = "io.swagger.codegen.v3.generators.java.SpringCodegen", date = "2020-03-20T16:31:52.030Z[GMT]")
 public class BatchDeleteSummary extends BatchDeleteBaseFields {
   @JsonProperty("batchDeleteDbId")
   private String batchDeleteDbId = null;

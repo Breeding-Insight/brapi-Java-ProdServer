@@ -1,14 +1,13 @@
 package org.brapi.test.BrAPITestServer.model.entity.core;
 
-import java.util.Date;
-import java.util.List;
-
-import javax.persistence.*;
-
+import jakarta.persistence.*;
 import org.brapi.test.BrAPITestServer.model.entity.BrAPIPrimaryEntity;
 import org.brapi.test.BrAPITestServer.model.entity.pheno.ObservationEntity;
 import org.brapi.test.BrAPITestServer.model.entity.pheno.ObservationUnitEntity;
 import org.hibernate.annotations.Where;
+
+import java.util.Date;
+import java.util.List;
 
 @Entity
 @Table(name = "trial")

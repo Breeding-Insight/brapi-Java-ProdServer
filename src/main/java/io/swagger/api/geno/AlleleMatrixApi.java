@@ -21,7 +21,7 @@ import io.swagger.model.geno.AlleleMatrixResponse;
 import io.swagger.model.geno.AlleleMatrixSearchRequest;
 import jakarta.validation.Valid;
 
-@javax.annotation.Generated(value = "io.swagger.codegen.v3.generators.java.SpringCodegen", date = "2022-06-17T15:45:22.167Z[GMT]")
+@javax.annotation.processing.Generated(value = "io.swagger.codegen.v3.generators.java.SpringCodegen", date = "2022-06-17T15:45:22.167Z[GMT]")
 @Validated
 public interface AlleleMatrixApi {
 

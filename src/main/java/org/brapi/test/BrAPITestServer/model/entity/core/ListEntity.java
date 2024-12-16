@@ -2,9 +2,10 @@ package org.brapi.test.BrAPITestServer.model.entity.core;
 
 import io.swagger.model.core.ListTypes;
 import org.brapi.test.BrAPITestServer.model.entity.BrAPIPrimaryEntity;
+
+import jakarta.persistence.*;
 import org.hibernate.annotations.Where;
 
-import javax.persistence.*;
 import java.util.Date;
 import java.util.List;
 
@@ -35,69 +36,74 @@ public class ListEntity extends BrAPIPrimaryEntity {
 	@OrderColumn(name = "position")
 	private List<ListItemEntity> data;
 
-	public PersonEntity getListOwnerPerson() {
-		return listOwnerPerson;
-	}
 
-	public void setListOwnerPerson(PersonEntity listOwnerPerson) {
-		this.listOwnerPerson = listOwnerPerson;
-	}
+    public PersonEntity getListOwnerPerson() {
+        return listOwnerPerson;
+    }
 
-	public Date getDateCreated() {
-		return dateCreated;
-	}
+    public void setListOwnerPerson(PersonEntity listOwnerPerson) {
+        this.listOwnerPerson = listOwnerPerson;
+    }
 
-	public void setDateCreated(Date dateCreated) {
-		this.dateCreated = dateCreated;
-	}
+    public Date getDateCreated() {
+        return dateCreated;
+    }
 
-	public Date getDateModified() {
-		return dateModified;
-	}
+    public void setDateCreated(Date dateCreated) {
+        this.dateCreated = dateCreated;
+    }
 
-	public void setDateModified(Date dateModified) {
-		this.dateModified = dateModified;
-	}
+    public Date getDateModified() {
+        return dateModified;
+    }
 
-	public String getDescription() {
-		return description;
-	}
+    public void setDateModified(Date dateModified) {
+        this.dateModified = dateModified;
+    }
 
-	public void setDescription(String description) {
-		this.description = description;
-	}
+    public String getDescription() {
+        return description;
+    }
 
-	public String getListName() {
-		return listName;
-	}
+    public void setDescription(String description) {
+        this.description = description;
+    }
 
-	public void setListName(String listName) {
-		this.listName = listName;
-	}
+    public String getListName() {
+        return listName;
+    }
 
-	public String getListOwnerName() {
-		return listOwnerName;
-	}
+    public void setListName(String listName) {
+        this.listName = listName;
+    }
 
-	public void setListOwnerName(String listOwnerName) {
-		this.listOwnerName = listOwnerName;
-	}
+    public String getListOwnerName() {
+        return listOwnerName;
+    }
 
-	public String getListSource() {
-		return listSource;
-	}
+    public void setListOwnerName(String listOwnerName) {
+        this.listOwnerName = listOwnerName;
+    }
 
-	public void setListSource(String listSource) {
-		this.listSource = listSource;
-	}
+    public String getListSource() {
+        return listSource;
+    }
 
-	public ListTypes getListType() {
-		return listType;
-	}
+    public void setListSource(String listSource) {
+        this.listSource = listSource;
+    }
 
-	public void setListType(ListTypes listType) {
-		this.listType = listType;
-	}
+    public ListTypes getListType() {
+        return listType;
+    }
+
+    public void setListType(ListTypes listType) {
+        this.listType = listType;
+    }
+
+    public void setData(List<ListItemEntity> data) {
+        this.data = data;
+    }
 
 	public boolean getSoftDeleted() { return softDeleted; }
 
@@ -107,9 +113,4 @@ public class ListEntity extends BrAPIPrimaryEntity {
 		return data;
 	}
 
-	public void setData(List<ListItemEntity> data) {
-		this.data = data;
-	}
-	
-	
 }

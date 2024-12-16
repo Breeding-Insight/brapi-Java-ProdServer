@@ -1,9 +1,6 @@
 package org.brapi.test.BrAPITestServer.model.entity.geno;
 
-import java.util.Date;
-
-import javax.persistence.*;
-
+import jakarta.persistence.*;
 import org.brapi.test.BrAPITestServer.model.entity.BrAPIPrimaryEntity;
 import org.brapi.test.BrAPITestServer.model.entity.core.ProgramEntity;
 import org.brapi.test.BrAPITestServer.model.entity.core.StudyEntity;
@@ -11,6 +8,8 @@ import org.brapi.test.BrAPITestServer.model.entity.core.TrialEntity;
 import org.brapi.test.BrAPITestServer.model.entity.pheno.ObservationUnitEntity;
 import org.brapi.test.BrAPITestServer.model.entity.pheno.TaxonEntity;
 import org.hibernate.annotations.Where;
+
+import java.util.Date;
 
 @Entity
 @Table(name="sample")
@@ -181,5 +180,4 @@ public class SampleEntity extends BrAPIPrimaryEntity{
 	}
 	public boolean getSoftDeleted() { return softDeleted; }
 	public void setSoftDeleted(boolean sofDeleted) { this.softDeleted = sofDeleted; }
-
 }

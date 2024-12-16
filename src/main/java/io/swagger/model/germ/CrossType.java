@@ -17,8 +17,7 @@ public enum CrossType {
     BULK_OPEN_POLLINATED("BULK_OPEN_POLLINATED"),
     
     DOUBLE_HAPLOID("DOUBLE_HAPLOID");
-
-    private String value;
+private String value;
 
     CrossType(String value) {
       this.value = value;

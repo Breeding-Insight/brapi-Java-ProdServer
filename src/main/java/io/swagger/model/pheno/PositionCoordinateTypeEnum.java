@@ -12,8 +12,7 @@ public enum PositionCoordinateTypeEnum {
     GRID_COL("GRID_COL"),
     MEASURED_ROW("MEASURED_ROW"),
     MEASURED_COL("MEASURED_COL");
-
-    private String value;
+private String value;
 
     PositionCoordinateTypeEnum(String value) {
       this.value = value;

@@ -1,22 +1,22 @@
 package org.brapi.test.BrAPITestServer.repository;
 
 import java.io.Serializable;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
-import io.swagger.model.Metadata;
-import io.swagger.model.germ.GermplasmSearchRequest;
-import javax.persistence.EntityManager;
-import javax.persistence.TypedQuery;
-
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.TypedQuery;
 import org.brapi.test.BrAPITestServer.exceptions.InvalidPagingException;
 import org.brapi.test.BrAPITestServer.model.entity.BrAPIBaseEntity;
 import org.brapi.test.BrAPITestServer.model.entity.BrAPIPrimaryEntity;
 import org.brapi.test.BrAPITestServer.model.entity.ExternalReferenceEntity;
 import org.brapi.test.BrAPITestServer.service.SearchQueryBuilder;
 import org.brapi.test.BrAPITestServer.service.SecurityUtils;
-import org.hibernate.jpa.QueryHints;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -25,6 +25,8 @@ import org.springframework.data.jpa.repository.support.JpaEntityInformation;
 import org.springframework.data.jpa.repository.support.SimpleJpaRepository;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
+
+import java.util.*;
 
 public class BrAPIRepositoryImpl<T extends BrAPIPrimaryEntity, ID extends Serializable>
 		extends SimpleJpaRepository<T, ID> implements BrAPIRepository<T, ID> {
@@ -62,7 +64,7 @@ public class BrAPIRepositoryImpl<T extends BrAPIPrimaryEntity, ID extends Serial
 	 * one-to-many collection attributes. Call this method with the query you've built.
 	 * WARN: To avoid multiple bag fetch hibernate errors, only one collection that is one-many can be fetched at a time.
 	 * Ensure only one of these types of entity members is being fetched at time.
-	 * See {@link org.brapi.test.BrAPITestServer.service.germ.GermplasmService#findGermplasmEntities(GermplasmSearchRequest, Metadata)} for example usage.
+	 * See {@link org.brapi.test.BrAPITestServer.service.germ.GermplasmService#findGermplasmEntities for example usage.}
 	 *
 	 * Once you fetch the first lazy loaded collection, if there are others you need to fetch for your entity it is
 	 * recommended to utilize the non-paging findAllBySearch() method, creating a searchQuery that inserts all the ids
@@ -171,7 +173,6 @@ public class BrAPIRepositoryImpl<T extends BrAPIPrimaryEntity, ID extends Serial
 
 	private List<T> getPagedContent(SearchQueryBuilder<T> searchQuery, Pageable pageReq) {
 		TypedQuery<T> query = entityManager.createQuery(searchQuery.getQuery(), searchQuery.getClazz());
-		query.setHint(QueryHints.HINT_PASS_DISTINCT_THROUGH, false);
 
 		setQueryParams(query, searchQuery);
 

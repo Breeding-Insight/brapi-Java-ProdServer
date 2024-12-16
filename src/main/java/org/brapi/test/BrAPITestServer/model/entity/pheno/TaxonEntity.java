@@ -1,12 +1,12 @@
 package org.brapi.test.BrAPITestServer.model.entity.pheno;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 
 import org.brapi.test.BrAPITestServer.model.entity.BrAPIBaseEntity;
 import org.brapi.test.BrAPITestServer.model.entity.germ.GermplasmEntity;
 
 @Entity
-@Table(name="germplasm_taxon")
+@Table(name = "germplasm_taxon")
 public class TaxonEntity extends BrAPIBaseEntity {
 	@Column
 	private String sourceName;
@@ -32,5 +32,5 @@ public class TaxonEntity extends BrAPIBaseEntity {
 	}
 	public void setTaxonId(String taxonId) {
 		this.taxonId = taxonId;
-	}	
+	}
 }

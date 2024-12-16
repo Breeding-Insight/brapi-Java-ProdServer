@@ -16,7 +16,7 @@ public interface TrialRepository extends BrAPIRepository<TrialEntity, String> {
 	@Query("select t from TrialEntity t join t.studies s "
 			+ "where ('' = :programDbId OR t.program.id = :programDbId) "
 			+ "AND ('' = :commonCropName OR t.program.crop.cropName = :commonCropName) "
-			+ "AND ('' = :locationDbId OR :locationDbId IN s.location.id) "
+			+ "AND ('' = :locationDbId OR :locationDbId = s.location.id) "
 			+ "AND (:applyActiveFilter = false OR :active = t.active)")
 	Page<TrialEntity> findBySearch(
 			@Param("commonCropName") String commonCropName,

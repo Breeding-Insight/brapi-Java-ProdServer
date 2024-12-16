@@ -15,8 +15,7 @@ public enum ObservationUnitHierarchyLevelEnum {
     PLANT("plant"),
     POT("pot"),
     SAMPLE("sample");
-
-    private String value;
+private String value;
 
     ObservationUnitHierarchyLevelEnum(String value) {
       this.value = value;

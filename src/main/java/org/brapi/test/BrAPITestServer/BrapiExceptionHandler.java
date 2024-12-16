@@ -26,13 +26,11 @@ public class BrapiExceptionHandler extends ResponseEntityExceptionHandler {
 
 	private static final Logger log = LoggerFactory.getLogger(BrapiExceptionHandler.class);
 
-	@Override
 	protected ResponseEntity<Object> handleMissingServletRequestParameter(MissingServletRequestParameterException ex,
 			HttpHeaders headers, HttpStatus status, WebRequest request) {
 		return buildErrorResponse(HttpStatus.BAD_REQUEST, ex.getParameterName() + " parameter is missing");
 	}
 
-	@Override
 	protected ResponseEntity<Object> handleExceptionInternal(Exception ex, @Nullable Object body, HttpHeaders headers,
 			HttpStatus status, WebRequest request) {
 

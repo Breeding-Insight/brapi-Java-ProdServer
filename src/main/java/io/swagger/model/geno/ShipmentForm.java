@@ -12,7 +12,7 @@ import org.springframework.validation.annotation.Validated;
  * ShipmentForm
  */
 @Validated
-@javax.annotation.Generated(value = "io.swagger.codegen.v3.generators.java.SpringCodegen", date = "2020-03-20T16:32:53.794Z[GMT]")
+@javax.annotation.processing.Generated(value = "io.swagger.codegen.v3.generators.java.SpringCodegen", date = "2020-03-20T16:32:53.794Z[GMT]")
 public class ShipmentForm   {
   @JsonProperty("fileDescription")
   private String fileDescription = null;

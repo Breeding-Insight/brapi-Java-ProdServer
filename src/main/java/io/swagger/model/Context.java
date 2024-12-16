@@ -15,7 +15,7 @@ import io.swagger.annotations.ApiModel;
  */
 @ApiModel(description = "The JSON-LD Context is used to provide JSON-LD definitions to each field in a JSON object. By providing an array of context file urls, a BrAPI response object becomes JSON-LD compatible.    For more information, see https://w3c.github.io/json-ld-syntax/#the-context")
 @Validated
-@javax.annotation.Generated(value = "io.swagger.codegen.v3.generators.java.SpringCodegen", date = "2020-03-20T16:31:52.030Z[GMT]")
+@javax.annotation.processing.Generated(value = "io.swagger.codegen.v3.generators.java.SpringCodegen", date = "2020-03-20T16:31:52.030Z[GMT]")
 public class Context extends ArrayList<String> {
 	private static final long serialVersionUID = 6638807737898652599L;
 

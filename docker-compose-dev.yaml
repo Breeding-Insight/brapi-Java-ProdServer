@@ -1,0 +1,21 @@
+services:
+  brapi-java-server-v2:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+      - "5005:5005"
+    depends_on:
+      - brapi-db
+    volumes:
+      - .\src\main\resources\properties\application.properties:/home/brapi/properties/application.properties
+  brapi-db:
+    image: postgres:17.2
+    environment:
+      POSTGRES_USER: brapi
+      POSTGRES_PASSWORD: password
+    volumes:
+      - /var/lib/postgresql/data
+    ports:
+      - "5433:5432"

@@ -1,7 +1,6 @@
 package org.brapi.test.BrAPITestServer.model.entity.germ;
 
-import javax.persistence.*;
-
+import jakarta.persistence.*;
 import org.brapi.test.BrAPITestServer.model.entity.BrAPIBaseEntity;
 
 @Entity
@@ -32,5 +31,4 @@ public class GermplasmSynonymEntity extends BrAPIBaseEntity {
 	public void setType(String type) {
 		this.type = type;
 	}
-
 }

@@ -1,26 +1,23 @@
 package org.brapi.test.BrAPITestServer.model.entity.geno.vendor;
 
-import java.util.List;
-
-import javax.persistence.*;
-
-import org.brapi.test.BrAPITestServer.model.entity.BrAPIBaseEntity;
+import io.swagger.model.geno.VendorPlateSubmissionRequest.SampleTypeEnum;
+import jakarta.persistence.*;
 import org.brapi.test.BrAPITestServer.model.entity.BrAPIPrimaryEntity;
 import org.brapi.test.BrAPITestServer.model.entity.geno.PlateEntity;
 
-import io.swagger.model.geno.VendorPlateSubmissionRequest.SampleTypeEnum;
+import java.util.List;
 
 @Entity
-@Table(name="plate_submission")
-public class VendorPlateSubmissionEntity extends BrAPIPrimaryEntity{
-	
-	@Column
-	private String clientId;
-	@Column
-	private Integer numberOfSamples;
-	@Column
-	private SampleTypeEnum sampleType;
-	@OneToMany(mappedBy="submission", cascade = CascadeType.ALL)
+@Table(name = "plate_submission")
+public class VendorPlateSubmissionEntity extends BrAPIPrimaryEntity {
+
+    @Column
+    private String clientId;
+    @Column
+    private Integer numberOfSamples;
+    @Column
+    private SampleTypeEnum sampleType;
+    @OneToMany(mappedBy = "submission", cascade = CascadeType.ALL)
     private List<PlateEntity> plates;
 	@OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
 	private VendorOrderEntity order;
@@ -56,5 +53,4 @@ public class VendorPlateSubmissionEntity extends BrAPIPrimaryEntity{
 	public void setPlates(List<PlateEntity> plates) {
 		this.plates = plates;
 	}
-	
 }

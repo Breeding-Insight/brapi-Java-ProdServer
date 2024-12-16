@@ -24,8 +24,7 @@ public enum ObservationTableHeaderRowEnum {
     BLOCK("block"),
     ENTRY("entry"),
     REP("rep");
-
-    private String value;
+private String value;
 
     ObservationTableHeaderRowEnum(String value) {
       this.value = value;

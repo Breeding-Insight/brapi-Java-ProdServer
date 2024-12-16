@@ -18,7 +18,7 @@ import jakarta.validation.Valid;
  * ObservationLevelListResponse
  */
 @Validated
-@javax.annotation.Generated(value = "io.swagger.codegen.v3.generators.java.SpringCodegen", date = "2020-03-20T16:32:22.556Z[GMT]")
+@javax.annotation.processing.Generated(value = "io.swagger.codegen.v3.generators.java.SpringCodegen", date = "2020-03-20T16:32:22.556Z[GMT]")
 public class ObservationLevelListResponse implements BrAPIResponse<ObservationLevelListResponseResult>  {
   @JsonProperty("@context")
   private Context _atContext = null;

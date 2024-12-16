@@ -8,6 +8,36 @@ This server implements all BrAPI calls. It is backed by a custom database with d
 
 Use [/calls](https://test-server.brapi.org/brapi/v1/call) (V1) or [/serverinfo](https://test-server.brapi.org/brapi/v2/serverinfo) (V2) to check the available endpoints.
 
+<<<<<<< HEAD
+=======
+## Prerequisites
+* Maven 3.9
+* Java 21
+* Postgres 17.2
+
+## Auth Configuration
+BrAPI has provided a [sample central authentication service for the test server](https://brapi.org/oauth).
+
+Here you can create a user and login to be presented with a token which can be used to make requests to your sample server implementation.
+
+Why offer auth? Apart from security concerns, you can utilize authentication with the BrAPI spec to deliver extra functionality
+tailored to what data you want your users to see.
+
+To utilize the sample central auth service, set the following properties in your `application.properties` file:
+```
+security.oidc_discovery_url=https://test-server.brapi.org/.well-known/openid-configuration
+security.issuer_urlhttps://auth.brapi.org/realms/brapi
+```
+
+If you are not using the sample BrAPI auth system, you must configure these variables properly with the endpoints they expect for your service.
+
+The [local authorization docker set up](#self-contained-authorization-implementation) has some details about how to find these values.
+
+For instructions on how to send the authentication token in your request, see [this section](#authenticating-a-request).
+
+For more information detailing the authentication of the BrAPI Test Server, more documentation with examples and diagrams
+can be found [here](https://plant-breeding-api.readthedocs.io/en/latest/docs/best_practices/Authentication.html)
+>>>>>>> e742f19 (Merge pull request #76 from plantbreeding/java-21-upgrade)
 ## Run
 
 ### Java IDE
