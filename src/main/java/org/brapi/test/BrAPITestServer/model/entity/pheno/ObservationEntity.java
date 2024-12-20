@@ -11,9 +11,11 @@ import org.brapi.test.BrAPITestServer.model.entity.core.ProgramEntity;
 import org.brapi.test.BrAPITestServer.model.entity.core.SeasonEntity;
 import org.brapi.test.BrAPITestServer.model.entity.core.StudyEntity;
 import org.brapi.test.BrAPITestServer.model.entity.core.TrialEntity;
+import org.hibernate.annotations.Where;
 
 @Entity
 @Table(name = "observation")
+@Where(clause = "soft_deleted = false")
 public class ObservationEntity extends BrAPIPrimaryEntity {
 	@Column
 	private String collector;

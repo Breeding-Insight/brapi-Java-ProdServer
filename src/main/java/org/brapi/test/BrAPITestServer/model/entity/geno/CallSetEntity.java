@@ -7,9 +7,11 @@ import java.util.List;
 import javax.persistence.*;
 
 import org.brapi.test.BrAPITestServer.model.entity.BrAPIPrimaryEntity;
+import org.hibernate.annotations.Where;
 
 @Entity
 @Table(name = "callset")
+@Where(clause = "soft_deleted = false")
 public class CallSetEntity extends BrAPIPrimaryEntity {
 	@Column
 	private String callSetName;
