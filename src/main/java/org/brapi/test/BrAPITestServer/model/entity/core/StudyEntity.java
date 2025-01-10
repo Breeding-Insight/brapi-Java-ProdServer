@@ -9,9 +9,11 @@ import org.brapi.test.BrAPITestServer.model.entity.BrAPIPrimaryEntity;
 import org.brapi.test.BrAPITestServer.model.entity.pheno.ObservationEntity;
 import org.brapi.test.BrAPITestServer.model.entity.pheno.ObservationUnitEntity;
 import org.brapi.test.BrAPITestServer.model.entity.pheno.ObservationVariableEntity;
+import org.hibernate.annotations.Where;
 
 @Entity
 @Table(name = "study")
+@Where(clause = "soft_deleted = false")
 public class StudyEntity extends BrAPIPrimaryEntity {
 
 	@Column

@@ -14,9 +14,11 @@ import org.brapi.test.BrAPITestServer.model.entity.geno.vendor.VendorPlateSubmis
 
 import io.swagger.model.geno.PlateFormat;
 import io.swagger.model.geno.SampleType;
+import org.hibernate.annotations.Where;
 
 @Entity
 @Table(name="plate")
+@Where(clause = "soft_deleted = false")
 public class PlateEntity extends BrAPIPrimaryEntity{
 	@Column
     private String clientPlateDbId;

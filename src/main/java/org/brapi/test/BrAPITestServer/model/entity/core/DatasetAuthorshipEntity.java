@@ -5,9 +5,11 @@ import java.util.Date;
 import javax.persistence.*;
 
 import org.brapi.test.BrAPITestServer.model.entity.BrAPIBaseEntity;
+import org.hibernate.annotations.Where;
 
 @Entity
 @Table(name = "trial_dataset_authorship")
+@Where(clause = "soft_deleted = false")
 public class DatasetAuthorshipEntity extends BrAPIBaseEntity {
 	@Column
 	private String datasetPUI;

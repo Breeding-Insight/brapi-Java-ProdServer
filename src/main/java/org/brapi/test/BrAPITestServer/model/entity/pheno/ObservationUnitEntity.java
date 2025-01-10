@@ -12,9 +12,11 @@ import org.brapi.test.BrAPITestServer.model.entity.core.TrialEntity;
 import org.brapi.test.BrAPITestServer.model.entity.germ.CrossEntity;
 import org.brapi.test.BrAPITestServer.model.entity.germ.GermplasmEntity;
 import org.brapi.test.BrAPITestServer.model.entity.germ.SeedLotEntity;
+import org.hibernate.annotations.Where;
 
 @Entity
 @Table(name = "observation_unit")
+@Where(clause = "soft_deleted = false")
 public class ObservationUnitEntity extends BrAPIPrimaryEntity {
 	@ManyToOne(fetch = FetchType.LAZY)
 	private CrossEntity cross;
