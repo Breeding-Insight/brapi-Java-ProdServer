@@ -289,7 +289,11 @@ public class ListService {
 				}
 			}
 		} else {
-			entity.getData().clear();
+			if (entity.getData() == null) {
+				entity.setData(new ArrayList<>());
+			} else {
+				entity.getData().clear();
+			}
 		}
 
 	}
