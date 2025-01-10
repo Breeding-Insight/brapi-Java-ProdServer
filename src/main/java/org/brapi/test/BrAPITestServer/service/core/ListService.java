@@ -273,9 +273,12 @@ public class ListService {
 				item.setList(null);
 			});
 		}
-
+		
 		if (list.getData() != null) {
-			List<ListItemEntity> items = new ArrayList<>();
+			// Clear existing items
+			entity.getData().clear();
+
+			// Add new items
 			ListIterator<String> iter = list.getData().listIterator();
 			while (iter.hasNext()) {
 				String item = iter.next();
@@ -284,12 +287,12 @@ public class ListService {
 					itemEntity.setPosition(iter.nextIndex());
 					itemEntity.setItem(item);
 					itemEntity.setList(entity);
-					items.add(itemEntity);
+					entity.getData().add(itemEntity);
 				}
 			}
-			entity.setData(items);
 		} else {
-			entity.setData(new ArrayList<>());
+			entity.getData().clear();
 		}
+
 	}
 }
