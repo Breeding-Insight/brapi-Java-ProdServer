@@ -268,15 +268,13 @@ public class ListService {
 			entity.setListOwnerPerson(person);
 		}
 
-		if (entity.getData() != null) {
-			entity.getData().stream().forEach((item) -> {
-				item.setList(null);
-			});
-		}
-		
 		if (list.getData() != null) {
 			// Clear existing items
-			entity.getData().clear();
+			if (entity.getData() == null) {
+				entity.setData(new ArrayList<>());
+			} else {
+				entity.getData().clear();
+			}
 
 			// Add new items
 			ListIterator<String> iter = list.getData().listIterator();
