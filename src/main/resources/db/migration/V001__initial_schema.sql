@@ -25,7 +25,7 @@ SET default_with_oids = false;
 --
 
 CREATE TABLE public.allele_call (
-                                    id text NOT NULL,
+                                    id UUID NOT NULL,
                                     additional_info jsonb,
                                     auth_user_id text,
                                     genotype text,
@@ -44,8 +44,8 @@ ALTER TABLE public.allele_call OWNER TO postgres;
 --
 
 CREATE TABLE public.allele_call_external_references (
-                                                        call_entity_id text NOT NULL,
-                                                        external_references_id text NOT NULL
+                                                        call_entity_id UUID NOT NULL,
+                                                        external_references_id UUID NOT NULL
 );
 
 
@@ -56,7 +56,7 @@ ALTER TABLE public.allele_call_external_references OWNER TO postgres;
 --
 
 CREATE TABLE public.breeding_method (
-                                        id text NOT NULL,
+                                        id UUID NOT NULL,
                                         additional_info jsonb,
                                         auth_user_id text,
                                         abbreviation text,
@@ -72,8 +72,8 @@ ALTER TABLE public.breeding_method OWNER TO postgres;
 --
 
 CREATE TABLE public.breeding_method_external_references (
-                                                            breeding_method_entity_id text NOT NULL,
-                                                            external_references_id text NOT NULL
+                                                            breeding_method_entity_id UUID NOT NULL,
+                                                            external_references_id UUID NOT NULL
 );
 
 
@@ -84,7 +84,7 @@ ALTER TABLE public.breeding_method_external_references OWNER TO postgres;
 --
 
 CREATE TABLE public.callset (
-                                id text NOT NULL,
+                                id UUID NOT NULL,
                                 additional_info jsonb,
                                 auth_user_id text,
                                 call_set_name text,
@@ -101,8 +101,8 @@ ALTER TABLE public.callset OWNER TO postgres;
 --
 
 CREATE TABLE public.callset_external_references (
-                                                    call_set_entity_id text NOT NULL,
-                                                    external_references_id text NOT NULL
+                                                    call_set_entity_id UUID NOT NULL,
+                                                    external_references_id UUID NOT NULL
 );
 
 
@@ -113,8 +113,8 @@ ALTER TABLE public.callset_external_references OWNER TO postgres;
 --
 
 CREATE TABLE public.callset_variant_sets (
-                                             call_sets_id text NOT NULL,
-                                             variant_sets_id text NOT NULL
+                                             call_sets_id UUID NOT NULL,
+                                             variant_sets_id UUID NOT NULL
 );
 
 
@@ -125,7 +125,7 @@ ALTER TABLE public.callset_variant_sets OWNER TO postgres;
 --
 
 CREATE TABLE public.contact (
-                                id text NOT NULL,
+                                id UUID NOT NULL,
                                 email text,
                                 institute_name text,
                                 name text,
@@ -143,7 +143,7 @@ ALTER TABLE public.contact OWNER TO postgres;
 --
 
 CREATE TABLE public.coordinate (
-                                   id text NOT NULL,
+                                   id UUID NOT NULL,
                                    altitude numeric(9,6),
                                    latitude numeric(9,6),
                                    longitude numeric(9,6),
@@ -158,7 +158,7 @@ ALTER TABLE public.coordinate OWNER TO postgres;
 --
 
 CREATE TABLE public.crop (
-                             id text NOT NULL,
+                             id UUID NOT NULL,
                              additional_info jsonb,
                              auth_user_id text,
                              crop_name text
@@ -172,8 +172,8 @@ ALTER TABLE public.crop OWNER TO postgres;
 --
 
 CREATE TABLE public.crop_external_references (
-                                                 crop_entity_id text NOT NULL,
-                                                 external_references_id text NOT NULL
+                                                 crop_entity_id UUID NOT NULL,
+                                                 external_references_id UUID NOT NULL
 );
 
 
@@ -184,7 +184,7 @@ ALTER TABLE public.crop_external_references OWNER TO postgres;
 --
 
 CREATE TABLE public.cross_entity (
-                                     id text NOT NULL,
+                                     id UUID NOT NULL,
                                      additional_info jsonb,
                                      auth_user_id text,
                                      cross_type integer,
@@ -203,7 +203,7 @@ ALTER TABLE public.cross_entity OWNER TO postgres;
 --
 
 CREATE TABLE public.cross_entity_cross_attributes (
-                                                      cross_entity_id text NOT NULL,
+                                                      cross_entity_id UUID NOT NULL,
                                                       cross_attributes text
 );
 
@@ -215,8 +215,8 @@ ALTER TABLE public.cross_entity_cross_attributes OWNER TO postgres;
 --
 
 CREATE TABLE public.cross_entity_external_references (
-                                                         cross_entity_id text NOT NULL,
-                                                         external_references_id text NOT NULL
+                                                         cross_entity_id UUID NOT NULL,
+                                                         external_references_id UUID NOT NULL
 );
 
 
@@ -227,7 +227,7 @@ ALTER TABLE public.cross_entity_external_references OWNER TO postgres;
 --
 
 CREATE TABLE public.cross_parent (
-                                     id text NOT NULL,
+                                     id UUID NOT NULL,
                                      parent_type integer,
                                      cross_id text,
                                      crossing_project_id text,
@@ -243,7 +243,7 @@ ALTER TABLE public.cross_parent OWNER TO postgres;
 --
 
 CREATE TABLE public.cross_pollination_event (
-                                                id text NOT NULL,
+                                                id UUID NOT NULL,
                                                 pollination_number text,
                                                 pollination_successful boolean,
                                                 pollination_time_stamp timestamp without time zone,
@@ -258,7 +258,7 @@ ALTER TABLE public.cross_pollination_event OWNER TO postgres;
 --
 
 CREATE TABLE public.crossing_project (
-                                         id text NOT NULL,
+                                         id UUID NOT NULL,
                                          additional_info jsonb,
                                          auth_user_id text,
                                          description text,
@@ -274,8 +274,8 @@ ALTER TABLE public.crossing_project OWNER TO postgres;
 --
 
 CREATE TABLE public.crossing_project_external_references (
-                                                             crossing_project_entity_id text NOT NULL,
-                                                             external_references_id text NOT NULL
+                                                             crossing_project_entity_id UUID NOT NULL,
+                                                             external_references_id UUID NOT NULL
 );
 
 
@@ -286,7 +286,7 @@ ALTER TABLE public.crossing_project_external_references OWNER TO postgres;
 --
 
 CREATE TABLE public.event (
-                              id text NOT NULL,
+                              id UUID NOT NULL,
                               additional_info jsonb,
                               auth_user_id text,
                               event_description text,
@@ -303,7 +303,7 @@ ALTER TABLE public.event OWNER TO postgres;
 --
 
 CREATE TABLE public.event_entity_dates (
-                                           event_entity_id text NOT NULL,
+                                           event_entity_id UUID NOT NULL,
                                            dates timestamp without time zone
 );
 
@@ -315,8 +315,8 @@ ALTER TABLE public.event_entity_dates OWNER TO postgres;
 --
 
 CREATE TABLE public.event_external_references (
-                                                  event_entity_id text NOT NULL,
-                                                  external_references_id text NOT NULL
+                                                  event_entity_id UUID NOT NULL,
+                                                  external_references_id UUID NOT NULL
 );
 
 
@@ -327,8 +327,8 @@ ALTER TABLE public.event_external_references OWNER TO postgres;
 --
 
 CREATE TABLE public.event_observation_units (
-                                                event_entity_id text NOT NULL,
-                                                observation_units_id text NOT NULL
+                                                event_entity_id UUID NOT NULL,
+                                                observation_units_id UUID NOT NULL
 );
 
 
@@ -339,7 +339,7 @@ ALTER TABLE public.event_observation_units OWNER TO postgres;
 --
 
 CREATE TABLE public.event_param (
-                                    id text NOT NULL,
+                                    id UUID NOT NULL,
                                     code text,
                                     description text,
                                     key text,
@@ -359,7 +359,7 @@ ALTER TABLE public.event_param OWNER TO postgres;
 --
 
 CREATE TABLE public.event_parameter_entity_values_by_date (
-                                                              event_parameter_entity_id text NOT NULL,
+                                                              event_parameter_entity_id UUID NOT NULL,
                                                               values_by_date text
 );
 
@@ -371,7 +371,7 @@ ALTER TABLE public.event_parameter_entity_values_by_date OWNER TO postgres;
 --
 
 CREATE TABLE public.external_reference (
-                                           id text NOT NULL,
+                                           id UUID NOT NULL,
                                            external_reference_id text,
                                            external_reference_source text
 );
@@ -384,7 +384,7 @@ ALTER TABLE public.external_reference OWNER TO postgres;
 --
 
 CREATE TABLE public.genome_map (
-                                   id text NOT NULL,
+                                   id UUID NOT NULL,
                                    additional_info jsonb,
                                    auth_user_id text,
                                    comments text,
@@ -406,8 +406,8 @@ ALTER TABLE public.genome_map OWNER TO postgres;
 --
 
 CREATE TABLE public.genome_map_external_references (
-                                                       genome_map_entity_id text NOT NULL,
-                                                       external_references_id text NOT NULL
+                                                       genome_map_entity_id UUID NOT NULL,
+                                                       external_references_id UUID NOT NULL
 );
 
 
@@ -418,8 +418,8 @@ ALTER TABLE public.genome_map_external_references OWNER TO postgres;
 --
 
 CREATE TABLE public.genome_map_studies (
-                                           genome_map_entity_id text NOT NULL,
-                                           studies_id text NOT NULL
+                                           genome_map_entity_id UUID NOT NULL,
+                                           studies_id UUID NOT NULL
 );
 
 
@@ -430,7 +430,7 @@ ALTER TABLE public.genome_map_studies OWNER TO postgres;
 --
 
 CREATE TABLE public.geojson (
-                                id text NOT NULL,
+                                id UUID NOT NULL,
                                 type text
 );
 
@@ -442,7 +442,7 @@ ALTER TABLE public.geojson OWNER TO postgres;
 --
 
 CREATE TABLE public.germplasm (
-                                  id text NOT NULL,
+                                  id UUID NOT NULL,
                                   additional_info jsonb,
                                   auth_user_id text,
                                   accession_number text,
@@ -476,7 +476,7 @@ ALTER TABLE public.germplasm OWNER TO postgres;
 --
 
 CREATE TABLE public.germplasm_attribute_definition (
-                                                       id text NOT NULL,
+                                                       id UUID NOT NULL,
                                                        additional_info jsonb,
                                                        auth_user_id text,
                                                        default_value text,
@@ -509,7 +509,7 @@ ALTER TABLE public.germplasm_attribute_definition OWNER TO postgres;
 --
 
 CREATE TABLE public.germplasm_attribute_value (
-                                                  id text NOT NULL,
+                                                  id UUID NOT NULL,
                                                   additional_info jsonb,
                                                   auth_user_id text,
                                                   determined_date timestamp without time zone,
@@ -526,8 +526,8 @@ ALTER TABLE public.germplasm_attribute_value OWNER TO postgres;
 --
 
 CREATE TABLE public.germplasm_attribute_value_external_references (
-                                                                      germplasm_attribute_value_entity_id text NOT NULL,
-                                                                      external_references_id text NOT NULL
+                                                                      germplasm_attribute_value_entity_id UUID NOT NULL,
+                                                                      external_references_id UUID NOT NULL
 );
 
 
@@ -538,7 +538,7 @@ ALTER TABLE public.germplasm_attribute_value_external_references OWNER TO postgr
 --
 
 CREATE TABLE public.germplasm_donor (
-                                        id text NOT NULL,
+                                        id UUID NOT NULL,
                                         additional_info jsonb,
                                         auth_user_id text,
                                         donor_accession_number text,
@@ -556,8 +556,8 @@ ALTER TABLE public.germplasm_donor OWNER TO postgres;
 --
 
 CREATE TABLE public.germplasm_donor_external_references (
-                                                            donor_entity_id text NOT NULL,
-                                                            external_references_id text NOT NULL
+                                                            donor_entity_id UUID NOT NULL,
+                                                            external_references_id UUID NOT NULL
 );
 
 
@@ -568,7 +568,7 @@ ALTER TABLE public.germplasm_donor_external_references OWNER TO postgres;
 --
 
 CREATE TABLE public.germplasm_entity_type_of_germplasm_storage_code (
-                                                                        germplasm_entity_id text NOT NULL,
+                                                                        germplasm_entity_id UUID NOT NULL,
                                                                         type_of_germplasm_storage_code integer
 );
 
@@ -580,8 +580,8 @@ ALTER TABLE public.germplasm_entity_type_of_germplasm_storage_code OWNER TO post
 --
 
 CREATE TABLE public.germplasm_external_references (
-                                                      germplasm_entity_id text NOT NULL,
-                                                      external_references_id text NOT NULL
+                                                      germplasm_entity_id UUID NOT NULL,
+                                                      external_references_id UUID NOT NULL
 );
 
 
@@ -592,7 +592,7 @@ ALTER TABLE public.germplasm_external_references OWNER TO postgres;
 --
 
 CREATE TABLE public.germplasm_institute (
-                                            id text NOT NULL,
+                                            id UUID NOT NULL,
                                             institute_address text,
                                             institute_code text,
                                             institute_name text,
@@ -608,7 +608,7 @@ ALTER TABLE public.germplasm_institute OWNER TO postgres;
 --
 
 CREATE TABLE public.germplasm_origin (
-                                         id text NOT NULL,
+                                         id UUID NOT NULL,
                                          coordinate_uncertainty text,
                                          coordinates_id text,
                                          germplasm_id text
@@ -622,8 +622,8 @@ ALTER TABLE public.germplasm_origin OWNER TO postgres;
 --
 
 CREATE TABLE public.germplasm_search_results (
-                                                 germplasm_entity_id text NOT NULL,
-                                                 search_results_id text NOT NULL
+                                                 germplasm_entity_id UUID NOT NULL,
+                                                 search_results_id UUID NOT NULL
 );
 
 
@@ -634,7 +634,7 @@ ALTER TABLE public.germplasm_search_results OWNER TO postgres;
 --
 
 CREATE TABLE public.germplasm_synonym (
-                                          id text NOT NULL,
+                                          id UUID NOT NULL,
                                           synonym text,
                                           type text,
                                           germplasm_id text
@@ -648,7 +648,7 @@ ALTER TABLE public.germplasm_synonym OWNER TO postgres;
 --
 
 CREATE TABLE public.germplasm_taxon (
-                                        id text NOT NULL,
+                                        id UUID NOT NULL,
                                         source_name text,
                                         taxon_id text,
                                         germplasm_id text
@@ -662,7 +662,7 @@ ALTER TABLE public.germplasm_taxon OWNER TO postgres;
 --
 
 CREATE TABLE public.image (
-                              id text NOT NULL,
+                              id UUID NOT NULL,
                               additional_info jsonb,
                               auth_user_id text,
                               copyright text,
@@ -688,7 +688,7 @@ ALTER TABLE public.image OWNER TO postgres;
 --
 
 CREATE TABLE public.image_entity_descriptive_ontology_terms (
-                                                                image_entity_id text NOT NULL,
+                                                                image_entity_id UUID NOT NULL,
                                                                 descriptive_ontology_terms text
 );
 
@@ -700,8 +700,8 @@ ALTER TABLE public.image_entity_descriptive_ontology_terms OWNER TO postgres;
 --
 
 CREATE TABLE public.image_external_references (
-                                                  image_entity_id text NOT NULL,
-                                                  external_references_id text NOT NULL
+                                                  image_entity_id UUID NOT NULL,
+                                                  external_references_id UUID NOT NULL
 );
 
 
@@ -712,8 +712,8 @@ ALTER TABLE public.image_external_references OWNER TO postgres;
 --
 
 CREATE TABLE public.image_observations (
-                                           image_entity_id text NOT NULL,
-                                           observations_id text NOT NULL
+                                           image_entity_id UUID NOT NULL,
+                                           observations_id UUID NOT NULL
 );
 
 
@@ -724,7 +724,7 @@ ALTER TABLE public.image_observations OWNER TO postgres;
 --
 
 CREATE TABLE public.linkage_group (
-                                      id text NOT NULL,
+                                      id UUID NOT NULL,
                                       additional_info jsonb,
                                       auth_user_id text,
                                       linkage_group_name text,
@@ -740,8 +740,8 @@ ALTER TABLE public.linkage_group OWNER TO postgres;
 --
 
 CREATE TABLE public.linkage_group_external_references (
-                                                          linkage_group_entity_id text NOT NULL,
-                                                          external_references_id text NOT NULL
+                                                          linkage_group_entity_id UUID NOT NULL,
+                                                          external_references_id UUID NOT NULL
 );
 
 
@@ -752,7 +752,7 @@ ALTER TABLE public.linkage_group_external_references OWNER TO postgres;
 --
 
 CREATE TABLE public.list (
-                             id text NOT NULL,
+                             id UUID NOT NULL,
                              additional_info jsonb,
                              auth_user_id text,
                              date_created timestamp without time zone,
@@ -773,8 +773,8 @@ ALTER TABLE public.list OWNER TO postgres;
 --
 
 CREATE TABLE public.list_external_references (
-                                                 list_entity_id text NOT NULL,
-                                                 external_references_id text NOT NULL
+                                                 list_entity_id UUID NOT NULL,
+                                                 external_references_id UUID NOT NULL
 );
 
 
@@ -785,7 +785,7 @@ ALTER TABLE public.list_external_references OWNER TO postgres;
 --
 
 CREATE TABLE public.list_item (
-                                  id text NOT NULL,
+                                  id UUID NOT NULL,
                                   item text,
                                   list_id text
 );
@@ -798,7 +798,7 @@ ALTER TABLE public.list_item OWNER TO postgres;
 --
 
 CREATE TABLE public.location (
-                                 id text NOT NULL,
+                                 id UUID NOT NULL,
                                  additional_info jsonb,
                                  auth_user_id text,
                                  abbreviation text,
@@ -830,8 +830,8 @@ ALTER TABLE public.location OWNER TO postgres;
 --
 
 CREATE TABLE public.location_external_references (
-                                                     location_entity_id text NOT NULL,
-                                                     external_references_id text NOT NULL
+                                                     location_entity_id UUID NOT NULL,
+                                                     external_references_id UUID NOT NULL
 );
 
 
@@ -842,7 +842,7 @@ ALTER TABLE public.location_external_references OWNER TO postgres;
 --
 
 CREATE TABLE public.marker_position (
-                                        id text NOT NULL,
+                                        id UUID NOT NULL,
                                         additional_info jsonb,
                                         auth_user_id text,
                                         "position" integer,
@@ -858,8 +858,8 @@ ALTER TABLE public.marker_position OWNER TO postgres;
 --
 
 CREATE TABLE public.marker_position_external_references (
-                                                            marker_position_entity_id text NOT NULL,
-                                                            external_references_id text NOT NULL
+                                                            marker_position_entity_id UUID NOT NULL,
+                                                            external_references_id UUID NOT NULL
 );
 
 
@@ -870,7 +870,7 @@ ALTER TABLE public.marker_position_external_references OWNER TO postgres;
 --
 
 CREATE TABLE public.method (
-                               id text NOT NULL,
+                               id UUID NOT NULL,
                                additional_info jsonb,
                                auth_user_id text,
                                description text,
@@ -890,8 +890,8 @@ ALTER TABLE public.method OWNER TO postgres;
 --
 
 CREATE TABLE public.method_external_references (
-                                                   method_entity_id text NOT NULL,
-                                                   external_references_id text NOT NULL
+                                                   method_entity_id UUID NOT NULL,
+                                                   external_references_id UUID NOT NULL
 );
 
 
@@ -902,8 +902,8 @@ ALTER TABLE public.method_external_references OWNER TO postgres;
 --
 
 CREATE TABLE public.method_ontology_reference (
-                                                  method_entity_id text NOT NULL,
-                                                  ontology_reference_id text NOT NULL
+                                                  method_entity_id UUID NOT NULL,
+                                                  ontology_reference_id UUID NOT NULL
 );
 
 
@@ -914,7 +914,7 @@ ALTER TABLE public.method_ontology_reference OWNER TO postgres;
 --
 
 CREATE TABLE public.observation (
-                                    id text NOT NULL,
+                                    id UUID NOT NULL,
                                     additional_info jsonb,
                                     auth_user_id text,
                                     collector text,
@@ -939,8 +939,8 @@ ALTER TABLE public.observation OWNER TO postgres;
 --
 
 CREATE TABLE public.observation_external_references (
-                                                        observation_entity_id text NOT NULL,
-                                                        external_references_id text NOT NULL
+                                                        observation_entity_id UUID NOT NULL,
+                                                        external_references_id UUID NOT NULL
 );
 
 
@@ -951,7 +951,7 @@ ALTER TABLE public.observation_external_references OWNER TO postgres;
 --
 
 CREATE TABLE public.observation_unit (
-                                         id text NOT NULL,
+                                         id UUID NOT NULL,
                                          additional_info jsonb,
                                          auth_user_id text,
                                          observation_unit_name text,
@@ -973,8 +973,8 @@ ALTER TABLE public.observation_unit OWNER TO postgres;
 --
 
 CREATE TABLE public.observation_unit_external_references (
-                                                             observation_unit_entity_id text NOT NULL,
-                                                             external_references_id text NOT NULL
+                                                             observation_unit_entity_id UUID NOT NULL,
+                                                             external_references_id UUID NOT NULL
 );
 
 
@@ -985,7 +985,7 @@ ALTER TABLE public.observation_unit_external_references OWNER TO postgres;
 --
 
 CREATE TABLE public.observation_unit_level (
-                                               id text NOT NULL,
+                                               id UUID NOT NULL,
                                                level_code text,
                                                level_name integer,
                                                level_order integer,
@@ -1001,7 +1001,7 @@ ALTER TABLE public.observation_unit_level OWNER TO postgres;
 --
 
 CREATE TABLE public.observation_unit_position (
-                                                  id text NOT NULL,
+                                                  id UUID NOT NULL,
                                                   entry_type integer,
                                                   level_code text,
                                                   level_name integer,
@@ -1022,7 +1022,7 @@ ALTER TABLE public.observation_unit_position OWNER TO postgres;
 --
 
 CREATE TABLE public.observation_unit_treatment (
-                                                   id text NOT NULL,
+                                                   id UUID NOT NULL,
                                                    factor text,
                                                    modality text,
                                                    observation_unit_id text
@@ -1036,7 +1036,7 @@ ALTER TABLE public.observation_unit_treatment OWNER TO postgres;
 --
 
 CREATE TABLE public.observation_variable (
-                                             id text NOT NULL,
+                                             id UUID NOT NULL,
                                              additional_info jsonb,
                                              auth_user_id text,
                                              default_value text,
@@ -1064,7 +1064,7 @@ ALTER TABLE public.observation_variable OWNER TO postgres;
 --
 
 CREATE TABLE public.ontology (
-                                 id text NOT NULL,
+                                 id UUID NOT NULL,
                                  additional_info jsonb,
                                  auth_user_id text,
                                  authors text,
@@ -1084,7 +1084,7 @@ ALTER TABLE public.ontology OWNER TO postgres;
 --
 
 CREATE TABLE public.ontology_entity_documentation_links (
-                                                            ontology_entity_id text NOT NULL,
+                                                            ontology_entity_id UUID NOT NULL,
                                                             documentation_links text
 );
 
@@ -1096,8 +1096,8 @@ ALTER TABLE public.ontology_entity_documentation_links OWNER TO postgres;
 --
 
 CREATE TABLE public.ontology_external_references (
-                                                     ontology_entity_id text NOT NULL,
-                                                     external_references_id text NOT NULL
+                                                     ontology_entity_id UUID NOT NULL,
+                                                     external_references_id UUID NOT NULL
 );
 
 
@@ -1108,7 +1108,7 @@ ALTER TABLE public.ontology_external_references OWNER TO postgres;
 --
 
 CREATE TABLE public.ontology_ref (
-                                     id text NOT NULL,
+                                     id UUID NOT NULL,
                                      url text,
                                      type integer
 );
@@ -1121,7 +1121,7 @@ ALTER TABLE public.ontology_ref OWNER TO postgres;
 --
 
 CREATE TABLE public.pedigree_edge (
-                                      id text NOT NULL,
+                                      id UUID NOT NULL,
                                       additional_info jsonb,
                                       auth_user_id text,
                                       edge_type integer,
@@ -1138,8 +1138,8 @@ ALTER TABLE public.pedigree_edge OWNER TO postgres;
 --
 
 CREATE TABLE public.pedigree_edge_external_references (
-                                                          pedigree_edge_entity_id text NOT NULL,
-                                                          external_references_id text NOT NULL
+                                                          pedigree_edge_entity_id UUID NOT NULL,
+                                                          external_references_id UUID NOT NULL
 );
 
 
@@ -1150,7 +1150,7 @@ ALTER TABLE public.pedigree_edge_external_references OWNER TO postgres;
 --
 
 CREATE TABLE public.pedigree_node (
-                                      id text NOT NULL,
+                                      id UUID NOT NULL,
                                       additional_info jsonb,
                                       auth_user_id text,
                                       crossing_year integer,
@@ -1168,8 +1168,8 @@ ALTER TABLE public.pedigree_node OWNER TO postgres;
 --
 
 CREATE TABLE public.pedigree_node_external_references (
-                                                          pedigree_node_entity_id text NOT NULL,
-                                                          external_references_id text NOT NULL
+                                                          pedigree_node_entity_id UUID NOT NULL,
+                                                          external_references_id UUID NOT NULL
 );
 
 
@@ -1180,7 +1180,7 @@ ALTER TABLE public.pedigree_node_external_references OWNER TO postgres;
 --
 
 CREATE TABLE public.person (
-                               id text NOT NULL,
+                               id UUID NOT NULL,
                                additional_info jsonb,
                                auth_user_id text,
                                description text,
@@ -1202,8 +1202,8 @@ ALTER TABLE public.person OWNER TO postgres;
 --
 
 CREATE TABLE public.person_external_references (
-                                                   person_entity_id text NOT NULL,
-                                                   external_references_id text NOT NULL
+                                                   person_entity_id UUID NOT NULL,
+                                                   external_references_id UUID NOT NULL
 );
 
 
@@ -1214,7 +1214,7 @@ ALTER TABLE public.person_external_references OWNER TO postgres;
 --
 
 CREATE TABLE public.plate (
-                              id text NOT NULL,
+                              id UUID NOT NULL,
                               additional_info jsonb,
                               auth_user_id text,
                               client_plate_barcode text,
@@ -1239,8 +1239,8 @@ ALTER TABLE public.plate OWNER TO postgres;
 --
 
 CREATE TABLE public.plate_external_references (
-                                                  plate_entity_id text NOT NULL,
-                                                  external_references_id text NOT NULL
+                                                  plate_entity_id UUID NOT NULL,
+                                                  external_references_id UUID NOT NULL
 );
 
 
@@ -1251,7 +1251,7 @@ ALTER TABLE public.plate_external_references OWNER TO postgres;
 --
 
 CREATE TABLE public.plate_submission (
-                                         id text NOT NULL,
+                                         id UUID NOT NULL,
                                          additional_info jsonb,
                                          auth_user_id text,
                                          client_id text,
@@ -1268,8 +1268,8 @@ ALTER TABLE public.plate_submission OWNER TO postgres;
 --
 
 CREATE TABLE public.plate_submission_external_references (
-                                                             vendor_plate_submission_entity_id text NOT NULL,
-                                                             external_references_id text NOT NULL
+                                                             vendor_plate_submission_entity_id UUID NOT NULL,
+                                                             external_references_id UUID NOT NULL
 );
 
 
@@ -1280,7 +1280,7 @@ ALTER TABLE public.plate_submission_external_references OWNER TO postgres;
 --
 
 CREATE TABLE public.program (
-                                id text NOT NULL,
+                                id UUID NOT NULL,
                                 additional_info jsonb,
                                 auth_user_id text,
                                 abbreviation text,
@@ -1301,8 +1301,8 @@ ALTER TABLE public.program OWNER TO postgres;
 --
 
 CREATE TABLE public.program_external_references (
-                                                    program_entity_id text NOT NULL,
-                                                    external_references_id text NOT NULL
+                                                    program_entity_id UUID NOT NULL,
+                                                    external_references_id UUID NOT NULL
 );
 
 
@@ -1313,7 +1313,7 @@ ALTER TABLE public.program_external_references OWNER TO postgres;
 --
 
 CREATE TABLE public.reference (
-                                  id text NOT NULL,
+                                  id UUID NOT NULL,
                                   additional_info jsonb,
                                   auth_user_id text,
                                   length integer,
@@ -1331,7 +1331,7 @@ ALTER TABLE public.reference OWNER TO postgres;
 --
 
 CREATE TABLE public.reference_bases (
-                                        id text NOT NULL,
+                                        id UUID NOT NULL,
                                         additional_info jsonb,
                                         auth_user_id text,
                                         bases text,
@@ -1347,8 +1347,8 @@ ALTER TABLE public.reference_bases OWNER TO postgres;
 --
 
 CREATE TABLE public.reference_bases_external_references (
-                                                            reference_bases_page_entity_id text NOT NULL,
-                                                            external_references_id text NOT NULL
+                                                            reference_bases_page_entity_id UUID NOT NULL,
+                                                            external_references_id UUID NOT NULL
 );
 
 
@@ -1359,8 +1359,8 @@ ALTER TABLE public.reference_bases_external_references OWNER TO postgres;
 --
 
 CREATE TABLE public.reference_external_references (
-                                                      reference_entity_id text NOT NULL,
-                                                      external_references_id text NOT NULL
+                                                      reference_entity_id UUID NOT NULL,
+                                                      external_references_id UUID NOT NULL
 );
 
 
@@ -1371,7 +1371,7 @@ ALTER TABLE public.reference_external_references OWNER TO postgres;
 --
 
 CREATE TABLE public.reference_set (
-                                      id text NOT NULL,
+                                      id UUID NOT NULL,
                                       additional_info jsonb,
                                       auth_user_id text,
                                       assemblypui text,
@@ -1393,8 +1393,8 @@ ALTER TABLE public.reference_set OWNER TO postgres;
 --
 
 CREATE TABLE public.reference_set_external_references (
-                                                          reference_set_entity_id text NOT NULL,
-                                                          external_references_id text NOT NULL
+                                                          reference_set_entity_id UUID NOT NULL,
+                                                          external_references_id UUID NOT NULL
 );
 
 
@@ -1405,7 +1405,7 @@ ALTER TABLE public.reference_set_external_references OWNER TO postgres;
 --
 
 CREATE TABLE public.sample (
-                               id text NOT NULL,
+                               id UUID NOT NULL,
                                additional_info jsonb,
                                auth_user_id text,
                                concentration text,
@@ -1438,8 +1438,8 @@ ALTER TABLE public.sample OWNER TO postgres;
 --
 
 CREATE TABLE public.sample_external_references (
-                                                   sample_entity_id text NOT NULL,
-                                                   external_references_id text NOT NULL
+                                                   sample_entity_id UUID NOT NULL,
+                                                   external_references_id UUID NOT NULL
 );
 
 
@@ -1450,7 +1450,7 @@ ALTER TABLE public.sample_external_references OWNER TO postgres;
 --
 
 CREATE TABLE public.scale (
-                              id text NOT NULL,
+                              id UUID NOT NULL,
                               additional_info jsonb,
                               auth_user_id text,
                               data_type integer,
@@ -1471,8 +1471,8 @@ ALTER TABLE public.scale OWNER TO postgres;
 --
 
 CREATE TABLE public.scale_external_references (
-                                                  scale_entity_id text NOT NULL,
-                                                  external_references_id text NOT NULL
+                                                  scale_entity_id UUID NOT NULL,
+                                                  external_references_id UUID NOT NULL
 );
 
 
@@ -1483,8 +1483,8 @@ ALTER TABLE public.scale_external_references OWNER TO postgres;
 --
 
 CREATE TABLE public.scale_ontology_reference (
-                                                 scale_entity_id text NOT NULL,
-                                                 ontology_reference_id text NOT NULL
+                                                 scale_entity_id UUID NOT NULL,
+                                                 ontology_reference_id UUID NOT NULL
 );
 
 
@@ -1495,7 +1495,7 @@ ALTER TABLE public.scale_ontology_reference OWNER TO postgres;
 --
 
 CREATE TABLE public.scale_valid_value_category (
-                                                   id text NOT NULL,
+                                                   id UUID NOT NULL,
                                                    label text,
                                                    value text,
                                                    scale_id text
@@ -1509,7 +1509,7 @@ ALTER TABLE public.scale_valid_value_category OWNER TO postgres;
 --
 
 CREATE TABLE public.search (
-                               id text NOT NULL,
+                               id UUID NOT NULL,
                                additional_info jsonb,
                                auth_user_id text,
                                parameters text,
@@ -1525,8 +1525,8 @@ ALTER TABLE public.search OWNER TO postgres;
 --
 
 CREATE TABLE public.search_external_references (
-                                                   search_request_entity_id text NOT NULL,
-                                                   external_references_id text NOT NULL
+                                                   search_request_entity_id UUID NOT NULL,
+                                                   external_references_id UUID NOT NULL
 );
 
 
@@ -1537,7 +1537,7 @@ ALTER TABLE public.search_external_references OWNER TO postgres;
 --
 
 CREATE TABLE public.season (
-                               id text NOT NULL,
+                               id UUID NOT NULL,
                                additional_info jsonb,
                                auth_user_id text,
                                season text,
@@ -1552,8 +1552,8 @@ ALTER TABLE public.season OWNER TO postgres;
 --
 
 CREATE TABLE public.season_external_references (
-                                                   season_entity_id text NOT NULL,
-                                                   external_references_id text NOT NULL
+                                                   season_entity_id UUID NOT NULL,
+                                                   external_references_id UUID NOT NULL
 );
 
 
@@ -1564,7 +1564,7 @@ ALTER TABLE public.season_external_references OWNER TO postgres;
 --
 
 CREATE TABLE public.seed_lot (
-                                 id text NOT NULL,
+                                 id UUID NOT NULL,
                                  additional_info jsonb,
                                  auth_user_id text,
                                  amount numeric(19,2),
@@ -1587,7 +1587,7 @@ ALTER TABLE public.seed_lot OWNER TO postgres;
 --
 
 CREATE TABLE public.seed_lot_content_mixture (
-                                                 id text NOT NULL,
+                                                 id UUID NOT NULL,
                                                  mixture_percentage integer,
                                                  cross_id text,
                                                  germplasm_id text,
@@ -1602,8 +1602,8 @@ ALTER TABLE public.seed_lot_content_mixture OWNER TO postgres;
 --
 
 CREATE TABLE public.seed_lot_external_references (
-                                                     seed_lot_entity_id text NOT NULL,
-                                                     external_references_id text NOT NULL
+                                                     seed_lot_entity_id UUID NOT NULL,
+                                                     external_references_id UUID NOT NULL
 );
 
 
@@ -1614,7 +1614,7 @@ ALTER TABLE public.seed_lot_external_references OWNER TO postgres;
 --
 
 CREATE TABLE public.seed_lot_transaction (
-                                             id text NOT NULL,
+                                             id UUID NOT NULL,
                                              additional_info jsonb,
                                              auth_user_id text,
                                              amount numeric(19,2),
@@ -1633,8 +1633,8 @@ ALTER TABLE public.seed_lot_transaction OWNER TO postgres;
 --
 
 CREATE TABLE public.seed_lot_transaction_external_references (
-                                                                 seed_lot_transaction_entity_id text NOT NULL,
-                                                                 external_references_id text NOT NULL
+                                                                 seed_lot_transaction_entity_id UUID NOT NULL,
+                                                                 external_references_id UUID NOT NULL
 );
 
 
@@ -1645,7 +1645,7 @@ ALTER TABLE public.seed_lot_transaction_external_references OWNER TO postgres;
 --
 
 CREATE TABLE public.study (
-                              id text NOT NULL,
+                              id UUID NOT NULL,
                               additional_info jsonb,
                               auth_user_id text,
                               active boolean,
@@ -1674,8 +1674,8 @@ ALTER TABLE public.study OWNER TO postgres;
 --
 
 CREATE TABLE public.study_contact (
-                                      study_db_id text NOT NULL,
-                                      person_db_id text NOT NULL
+                                      study_db_id UUID NOT NULL,
+                                      person_db_id UUID NOT NULL
 );
 
 
@@ -1686,7 +1686,7 @@ ALTER TABLE public.study_contact OWNER TO postgres;
 --
 
 CREATE TABLE public.study_data_link (
-                                        id text NOT NULL,
+                                        id UUID NOT NULL,
                                         data_format text,
                                         description text,
                                         file_format text,
@@ -1706,7 +1706,7 @@ ALTER TABLE public.study_data_link OWNER TO postgres;
 --
 
 CREATE TABLE public.study_environment_parameter (
-                                                    id text NOT NULL,
+                                                    id UUID NOT NULL,
                                                     description text,
                                                     parameter_name text,
                                                     parameterpui text,
@@ -1725,7 +1725,7 @@ ALTER TABLE public.study_environment_parameter OWNER TO postgres;
 --
 
 CREATE TABLE public.study_experimental_design (
-                                                  id text NOT NULL,
+                                                  id UUID NOT NULL,
                                                   pui text,
                                                   description text,
                                                   study_id text
@@ -1739,8 +1739,8 @@ ALTER TABLE public.study_experimental_design OWNER TO postgres;
 --
 
 CREATE TABLE public.study_external_references (
-                                                  study_entity_id text NOT NULL,
-                                                  external_references_id text NOT NULL
+                                                  study_entity_id UUID NOT NULL,
+                                                  external_references_id UUID NOT NULL
 );
 
 
@@ -1751,7 +1751,7 @@ ALTER TABLE public.study_external_references OWNER TO postgres;
 --
 
 CREATE TABLE public.study_growth_facility (
-                                              id text NOT NULL,
+                                              id UUID NOT NULL,
                                               pui text,
                                               description text,
                                               study_id text
@@ -1765,7 +1765,7 @@ ALTER TABLE public.study_growth_facility OWNER TO postgres;
 --
 
 CREATE TABLE public.study_last_update (
-                                          id text NOT NULL,
+                                          id UUID NOT NULL,
                                           "timestamp" timestamp without time zone,
                                           version text,
                                           study_id text
@@ -1779,7 +1779,7 @@ ALTER TABLE public.study_last_update OWNER TO postgres;
 --
 
 CREATE TABLE public.study_observation_level (
-                                                id text NOT NULL,
+                                                id UUID NOT NULL,
                                                 level_name text,
                                                 level_order integer,
                                                 study_id text
@@ -1793,8 +1793,8 @@ ALTER TABLE public.study_observation_level OWNER TO postgres;
 --
 
 CREATE TABLE public.study_season (
-                                     study_db_id text NOT NULL,
-                                     season_db_id text NOT NULL
+                                     study_db_id UUID NOT NULL,
+                                     season_db_id UUID NOT NULL
 );
 
 
@@ -1805,8 +1805,8 @@ ALTER TABLE public.study_season OWNER TO postgres;
 --
 
 CREATE TABLE public.study_variable (
-                                       study_db_id text NOT NULL,
-                                       variable_db_id text NOT NULL
+                                       study_db_id UUID NOT NULL,
+                                       variable_db_id UUID NOT NULL
 );
 
 
@@ -1817,7 +1817,7 @@ ALTER TABLE public.study_variable OWNER TO postgres;
 --
 
 CREATE TABLE public.trait (
-                              id text NOT NULL,
+                              id UUID NOT NULL,
                               additional_info jsonb,
                               auth_user_id text,
                               attribute text,
@@ -1841,7 +1841,7 @@ ALTER TABLE public.trait OWNER TO postgres;
 --
 
 CREATE TABLE public.trait_abbreviation (
-                                           id text NOT NULL,
+                                           id UUID NOT NULL,
                                            abbreviation text,
                                            trait_id text
 );
@@ -1854,7 +1854,7 @@ ALTER TABLE public.trait_abbreviation OWNER TO postgres;
 --
 
 CREATE TABLE public.trait_entity_alternative_abbreviations (
-                                                               trait_entity_id text NOT NULL,
+                                                               trait_entity_id UUID NOT NULL,
                                                                alternative_abbreviations text
 );
 
@@ -1866,7 +1866,7 @@ ALTER TABLE public.trait_entity_alternative_abbreviations OWNER TO postgres;
 --
 
 CREATE TABLE public.trait_entity_synonyms (
-                                              trait_entity_id text NOT NULL,
+                                              trait_entity_id UUID NOT NULL,
                                               synonyms text
 );
 
@@ -1878,8 +1878,8 @@ ALTER TABLE public.trait_entity_synonyms OWNER TO postgres;
 --
 
 CREATE TABLE public.trait_external_references (
-                                                  trait_entity_id text NOT NULL,
-                                                  external_references_id text NOT NULL
+                                                  trait_entity_id UUID NOT NULL,
+                                                  external_references_id UUID NOT NULL
 );
 
 
@@ -1890,8 +1890,8 @@ ALTER TABLE public.trait_external_references OWNER TO postgres;
 --
 
 CREATE TABLE public.trait_ontology_reference (
-                                                 trait_entity_id text NOT NULL,
-                                                 ontology_reference_id text NOT NULL
+                                                 trait_entity_id UUID NOT NULL,
+                                                 ontology_reference_id UUID NOT NULL
 );
 
 
@@ -1902,7 +1902,7 @@ ALTER TABLE public.trait_ontology_reference OWNER TO postgres;
 --
 
 CREATE TABLE public.trait_synonym (
-                                      id text NOT NULL,
+                                      id UUID NOT NULL,
                                       synonym text,
                                       trait_id text
 );
@@ -1915,7 +1915,7 @@ ALTER TABLE public.trait_synonym OWNER TO postgres;
 --
 
 CREATE TABLE public.trial (
-                              id text NOT NULL,
+                              id UUID NOT NULL,
                               additional_info jsonb,
                               auth_user_id text,
                               active boolean,
@@ -1937,8 +1937,8 @@ ALTER TABLE public.trial OWNER TO postgres;
 --
 
 CREATE TABLE public.trial_contact (
-                                      trial_db_id text NOT NULL,
-                                      person_db_id text NOT NULL
+                                      trial_db_id UUID NOT NULL,
+                                      person_db_id UUID NOT NULL
 );
 
 
@@ -1949,7 +1949,7 @@ ALTER TABLE public.trial_contact OWNER TO postgres;
 --
 
 CREATE TABLE public.trial_dataset_authorship (
-                                                 id text NOT NULL,
+                                                 id UUID NOT NULL,
                                                  datasetpui text,
                                                  license text,
                                                  public_release_date timestamp without time zone,
@@ -1965,8 +1965,8 @@ ALTER TABLE public.trial_dataset_authorship OWNER TO postgres;
 --
 
 CREATE TABLE public.trial_external_references (
-                                                  trial_entity_id text NOT NULL,
-                                                  external_references_id text NOT NULL
+                                                  trial_entity_id UUID NOT NULL,
+                                                  external_references_id UUID NOT NULL
 );
 
 
@@ -1977,7 +1977,7 @@ ALTER TABLE public.trial_external_references OWNER TO postgres;
 --
 
 CREATE TABLE public.trial_publication (
-                                          id text NOT NULL,
+                                          id UUID NOT NULL,
                                           publicationpui text,
                                           publication_reference text,
                                           trial_id text
@@ -1991,7 +1991,7 @@ ALTER TABLE public.trial_publication OWNER TO postgres;
 --
 
 CREATE TABLE public.variable_base_entity (
-                                             id text NOT NULL,
+                                             id UUID NOT NULL,
                                              additional_info jsonb,
                                              auth_user_id text,
                                              default_value text,
@@ -2017,7 +2017,7 @@ ALTER TABLE public.variable_base_entity OWNER TO postgres;
 --
 
 CREATE TABLE public.variable_base_entity_context_of_use (
-                                                            variable_base_entity_id text NOT NULL,
+                                                            variable_base_entity_id UUID NOT NULL,
                                                             context_of_use text
 );
 
@@ -2029,8 +2029,8 @@ ALTER TABLE public.variable_base_entity_context_of_use OWNER TO postgres;
 --
 
 CREATE TABLE public.variable_base_entity_external_references (
-                                                                 variable_base_entity_id text NOT NULL,
-                                                                 external_references_id text NOT NULL
+                                                                 variable_base_entity_id UUID NOT NULL,
+                                                                 external_references_id UUID NOT NULL
 );
 
 
@@ -2041,8 +2041,8 @@ ALTER TABLE public.variable_base_entity_external_references OWNER TO postgres;
 --
 
 CREATE TABLE public.variable_base_entity_ontology_reference (
-                                                                variable_base_entity_id text NOT NULL,
-                                                                ontology_reference_id text NOT NULL
+                                                                variable_base_entity_id UUID NOT NULL,
+                                                                ontology_reference_id UUID NOT NULL
 );
 
 
@@ -2053,7 +2053,7 @@ ALTER TABLE public.variable_base_entity_ontology_reference OWNER TO postgres;
 --
 
 CREATE TABLE public.variable_base_entity_synonyms (
-                                                      variable_base_entity_id text NOT NULL,
+                                                      variable_base_entity_id UUID NOT NULL,
                                                       synonyms text
 );
 
@@ -2065,7 +2065,7 @@ ALTER TABLE public.variable_base_entity_synonyms OWNER TO postgres;
 --
 
 CREATE TABLE public.variant (
-                                id text NOT NULL,
+                                id UUID NOT NULL,
                                 additional_info jsonb,
                                 auth_user_id text,
                                 created timestamp without time zone,
@@ -2090,7 +2090,7 @@ ALTER TABLE public.variant OWNER TO postgres;
 --
 
 CREATE TABLE public.variant_entity_alternate_bases (
-                                                       variant_entity_id text NOT NULL,
+                                                       variant_entity_id UUID NOT NULL,
                                                        alternate_bases text
 );
 
@@ -2102,7 +2102,7 @@ ALTER TABLE public.variant_entity_alternate_bases OWNER TO postgres;
 --
 
 CREATE TABLE public.variant_entity_ciend (
-                                             variant_entity_id text NOT NULL,
+                                             variant_entity_id UUID NOT NULL,
                                              ciend integer
 );
 
@@ -2114,7 +2114,7 @@ ALTER TABLE public.variant_entity_ciend OWNER TO postgres;
 --
 
 CREATE TABLE public.variant_entity_cipos (
-                                             variant_entity_id text NOT NULL,
+                                             variant_entity_id UUID NOT NULL,
                                              cipos integer
 );
 
@@ -2126,7 +2126,7 @@ ALTER TABLE public.variant_entity_cipos OWNER TO postgres;
 --
 
 CREATE TABLE public.variant_entity_filters_failed (
-                                                      variant_entity_id text NOT NULL,
+                                                      variant_entity_id UUID NOT NULL,
                                                       filters_failed text
 );
 
@@ -2138,8 +2138,8 @@ ALTER TABLE public.variant_entity_filters_failed OWNER TO postgres;
 --
 
 CREATE TABLE public.variant_external_references (
-                                                    variant_entity_id text NOT NULL,
-                                                    external_references_id text NOT NULL
+                                                    variant_entity_id UUID NOT NULL,
+                                                    external_references_id UUID NOT NULL
 );
 
 
@@ -2150,7 +2150,7 @@ ALTER TABLE public.variant_external_references OWNER TO postgres;
 --
 
 CREATE TABLE public.variant_set_analysis_entity_software (
-                                                             variant_set_analysis_entity_id text NOT NULL,
+                                                             variant_set_analysis_entity_id UUID NOT NULL,
                                                              software text
 );
 
@@ -2162,7 +2162,7 @@ ALTER TABLE public.variant_set_analysis_entity_software OWNER TO postgres;
 --
 
 CREATE TABLE public.variantset (
-                                   id text NOT NULL,
+                                   id UUID NOT NULL,
                                    additional_info jsonb,
                                    auth_user_id text,
                                    variant_set_name text,
@@ -2178,7 +2178,7 @@ ALTER TABLE public.variantset OWNER TO postgres;
 --
 
 CREATE TABLE public.variantset_analysis (
-                                            id text NOT NULL,
+                                            id UUID NOT NULL,
                                             analysis_name text,
                                             created timestamp without time zone,
                                             description text,
@@ -2195,8 +2195,8 @@ ALTER TABLE public.variantset_analysis OWNER TO postgres;
 --
 
 CREATE TABLE public.variantset_external_references (
-                                                       variant_set_entity_id text NOT NULL,
-                                                       external_references_id text NOT NULL
+                                                       variant_set_entity_id UUID NOT NULL,
+                                                       external_references_id UUID NOT NULL
 );
 
 
@@ -2207,7 +2207,7 @@ ALTER TABLE public.variantset_external_references OWNER TO postgres;
 --
 
 CREATE TABLE public.variantset_format (
-                                          id text NOT NULL,
+                                          id UUID NOT NULL,
                                           data_format integer,
                                           expand_homozygotes boolean,
                                           file_format integer,
@@ -2226,7 +2226,7 @@ ALTER TABLE public.variantset_format OWNER TO postgres;
 --
 
 CREATE TABLE public.vendor_file (
-                                    id text NOT NULL,
+                                    id UUID NOT NULL,
                                     url text,
                                     file_type text,
                                     filename text,
@@ -2242,8 +2242,8 @@ ALTER TABLE public.vendor_file OWNER TO postgres;
 --
 
 CREATE TABLE public.vendor_file_sample (
-                                           verndor_file_dbid text NOT NULL,
-                                           sample_dbid text NOT NULL
+                                           verndor_file_dbid UUID NOT NULL,
+                                           sample_dbid UUID NOT NULL
 );
 
 
@@ -2254,7 +2254,7 @@ ALTER TABLE public.vendor_file_sample OWNER TO postgres;
 --
 
 CREATE TABLE public.vendor_order (
-                                     id text NOT NULL,
+                                     id UUID NOT NULL,
                                      additional_info jsonb,
                                      auth_user_id text,
                                      client_plate_barcode text,
@@ -2272,7 +2272,7 @@ ALTER TABLE public.vendor_order OWNER TO postgres;
 --
 
 CREATE TABLE public.vendor_order_entity_required_service_info (
-                                                                  vendor_order_entity_id text NOT NULL,
+                                                                  vendor_order_entity_id UUID NOT NULL,
                                                                   required_service_info text,
                                                                   required_service_info_key text NOT NULL
 );
@@ -2285,7 +2285,7 @@ ALTER TABLE public.vendor_order_entity_required_service_info OWNER TO postgres;
 --
 
 CREATE TABLE public.vendor_order_entity_service_ids (
-                                                        vendor_order_entity_id text NOT NULL,
+                                                        vendor_order_entity_id UUID NOT NULL,
                                                         service_ids text
 );
 
@@ -2297,8 +2297,8 @@ ALTER TABLE public.vendor_order_entity_service_ids OWNER TO postgres;
 --
 
 CREATE TABLE public.vendor_order_external_references (
-                                                         vendor_order_entity_id text NOT NULL,
-                                                         external_references_id text NOT NULL
+                                                         vendor_order_entity_id UUID NOT NULL,
+                                                         external_references_id UUID NOT NULL
 );
 
 
@@ -2309,7 +2309,7 @@ ALTER TABLE public.vendor_order_external_references OWNER TO postgres;
 --
 
 CREATE TABLE public.vendor_spec (
-                                    id text NOT NULL,
+                                    id UUID NOT NULL,
                                     additional_info jsonb,
                                     auth_user_id text,
                                     contact_name text,
@@ -2331,7 +2331,7 @@ ALTER TABLE public.vendor_spec OWNER TO postgres;
 --
 
 CREATE TABLE public.vendor_spec_deliverable (
-                                                id text NOT NULL,
+                                                id UUID NOT NULL,
                                                 description text,
                                                 format text,
                                                 name text,
@@ -2346,8 +2346,8 @@ ALTER TABLE public.vendor_spec_deliverable OWNER TO postgres;
 --
 
 CREATE TABLE public.vendor_spec_external_references (
-                                                        vendor_spec_entity_id text NOT NULL,
-                                                        external_references_id text NOT NULL
+                                                        vendor_spec_entity_id UUID NOT NULL,
+                                                        external_references_id UUID NOT NULL
 );
 
 
@@ -2358,7 +2358,7 @@ ALTER TABLE public.vendor_spec_external_references OWNER TO postgres;
 --
 
 CREATE TABLE public.vendor_spec_input_format (
-                                                 id text NOT NULL,
+                                                 id UUID NOT NULL,
                                                  input_format text,
                                                  vendor_spec_standard_requirement_db_id text
 );
@@ -2371,7 +2371,7 @@ ALTER TABLE public.vendor_spec_input_format OWNER TO postgres;
 --
 
 CREATE TABLE public.vendor_spec_platform (
-                                             id text NOT NULL,
+                                             id UUID NOT NULL,
                                              contact_email text,
                                              contact_name text,
                                              contact_phone text,
@@ -2396,7 +2396,7 @@ ALTER TABLE public.vendor_spec_platform OWNER TO postgres;
 --
 
 CREATE TABLE public.vendor_spec_requirement (
-                                                id text NOT NULL,
+                                                id UUID NOT NULL,
                                                 input_format_details text,
                                                 max_concentration text,
                                                 max_volume text,
@@ -2415,7 +2415,7 @@ ALTER TABLE public.vendor_spec_requirement OWNER TO postgres;
 --
 
 CREATE TABLE public.vendor_spec_sample_type (
-                                                id text NOT NULL,
+                                                id UUID NOT NULL,
                                                 sample_type text,
                                                 vendor_spec_standard_requirement_db_id text
 );
@@ -2428,7 +2428,7 @@ ALTER TABLE public.vendor_spec_sample_type OWNER TO postgres;
 --
 
 CREATE TABLE public.vendor_spec_status (
-                                           id text NOT NULL,
+                                           id UUID NOT NULL,
                                            status_description text,
                                            status_name text,
                                            vendor_spec_platform_db_id text
@@ -2442,7 +2442,7 @@ ALTER TABLE public.vendor_spec_status OWNER TO postgres;
 --
 
 CREATE TABLE public.vendor_spec_well_position (
-                                                  id text NOT NULL,
+                                                  id UUID NOT NULL,
                                                   "position" text,
                                                   vendor_spec_standard_requirement_db_id text
 );
