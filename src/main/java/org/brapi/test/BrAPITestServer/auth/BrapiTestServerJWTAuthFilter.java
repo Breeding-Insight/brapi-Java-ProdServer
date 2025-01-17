@@ -65,7 +65,7 @@ public class BrapiTestServerJWTAuthFilter extends BasicAuthenticationFilter {
 			authorities.add(new SimpleGrantedAuthority("ROLE_USER"));
 			authorities.add(new SimpleGrantedAuthority("ROLE_ADMIN"));
 			AuthDetails bypassDetails = new AuthDetails();
-			bypassDetails.setUserId("anonymousUser");
+			bypassDetails.setUserId("AAAAAAAA-AAAA-AAAA-AAAA-AAAAAAAAAAAA");
 			bypassDetails.setExpirationTimestamp(Long.MAX_VALUE);
 			bypassDetails.setRoles(new ArrayList<>());
 			bypassDetails.getRoles().add("ROLE_USER");
@@ -151,7 +151,7 @@ public class BrapiTestServerJWTAuthFilter extends BasicAuthenticationFilter {
 			details.setExpirationTimestamp(Long.MAX_VALUE);
 		} else if (token.equals("ZZZZ")) {
 			details = new AuthDetails();
-			details.setUserId("anonymousUser");
+			details.setUserId("AAAAAAAA-AAAA-AAAA-AAAA-AAAAAAAAAAAA");
 			details.setExpirationTimestamp(Long.MAX_VALUE);
 		}
 		return details;

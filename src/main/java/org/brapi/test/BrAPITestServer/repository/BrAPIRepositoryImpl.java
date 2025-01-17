@@ -114,7 +114,7 @@ public class BrAPIRepositoryImpl<T extends BrAPIPrimaryEntity, ID extends Serial
 			String userId = SecurityUtils.getCurrentUserId();
 			if (!(null == response.get().getAuthUserId()
 					|| userId.equals(response.get().getAuthUserId())
-					|| "anonymousUser".equals(response.get().getAuthUserId()))) {
+					|| "AAAAAAAA-AAAA-AAAA-AAAA-AAAAAAAAAAAA".equals(response.get().getAuthUserId()))) {
 				response = Optional.empty();
 			}
 		}
@@ -165,7 +165,7 @@ public class BrAPIRepositoryImpl<T extends BrAPIPrimaryEntity, ID extends Serial
 		if (userRolesSet.contains("ROLE_ADMIN")) {
 			return;
 		} else if (userRolesSet.contains("ROLE_USER")) {
-			userIds.add("anonymousUser");
+			userIds.add("AAAAAAAA-AAAA-AAAA-AAAA-AAAAAAAAAAAA");
 		}
 
 		searchQuery.appendList(userIds, "authUserId");
