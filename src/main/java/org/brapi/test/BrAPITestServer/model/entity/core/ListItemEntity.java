@@ -9,7 +9,7 @@ import javax.persistence.*;
 @Table(name = "list_item")
 @Where(clause = "soft_deleted = false")
 public class ListItemEntity extends BrAPIBaseEntity {
-	@ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+	@ManyToOne(fetch = FetchType.LAZY)
 	private ListEntity list;
 	@Column
 	private String item;
