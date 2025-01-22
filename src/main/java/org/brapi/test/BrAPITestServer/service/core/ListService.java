@@ -20,6 +20,7 @@ import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Service
@@ -247,7 +248,7 @@ public class ListService {
 	}
 
 	private void updateEntity(ListEntity entity, @Valid ListNewRequest list) throws BrAPIServerException {
-
+		// Update simple fields
 		if (list.getAdditionalInfo() != null)
 			entity.setAdditionalInfo(list.getAdditionalInfo());
 		if (list.getListDescription() != null)
@@ -268,33 +269,46 @@ public class ListService {
 			entity.setListOwnerPerson(person);
 		}
 
+		// Update list items
 		if (list.getData() != null) {
-			// Clear existing items
+			// Initialize entity.getData() if it's null
 			if (entity.getData() == null) {
 				entity.setData(new ArrayList<>());
-			} else {
-				entity.getData().clear();
 			}
 
-			// Add new items
-			ListIterator<String> iter = list.getData().listIterator();
-			while (iter.hasNext()) {
-				String item = iter.next();
+			// Create a map of existing items for efficient lookup
+			Map<String, ListItemEntity> existingItems = entity.getData().stream()
+					.filter(item -> item.getItem() != null)
+					.collect(Collectors.toMap(
+							ListItemEntity::getItem,
+							Function.identity(),
+							(existing, replacement) -> existing,
+							HashMap::new
+					));
+
+			List<ListItemEntity> updatedItems = new ArrayList<>();
+			int position = 0;
+
+			for (String item : list.getData()) {
 				if (item != null) {
-					ListItemEntity itemEntity = new ListItemEntity();
-					itemEntity.setPosition(iter.nextIndex());
-					itemEntity.setItem(item);
-					itemEntity.setList(entity);
-					entity.getData().add(itemEntity);
+					ListItemEntity itemEntity = existingItems.get(item);
+					if (itemEntity == null) {
+						// Create new item if it doesn't exist
+						itemEntity = new ListItemEntity();
+						itemEntity.setItem(item);
+						itemEntity.setList(entity);
+					}
+					itemEntity.setPosition(position++);
+					updatedItems.add(itemEntity);
 				}
 			}
-		} else {
-			if (entity.getData() == null) {
-				entity.setData(new ArrayList<>());
-			} else {
-				entity.getData().clear();
-			}
-		}
 
+			// Update the list with new and updated items
+			entity.getData().clear();
+			entity.getData().addAll(updatedItems);
+		} else {
+			// If data is null, initialize an empty list
+			entity.setData(new ArrayList<>());
+		}
 	}
 }
