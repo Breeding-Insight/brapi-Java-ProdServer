@@ -167,7 +167,7 @@ public class ScaleService {
 			scale.setDataType(entity.getDataType());
 			scale.setDecimalPlaces(entity.getDecimalPlaces());
 			scale.setUnits(entity.getUnits());
-			scale.setScaleDbId(entity.getId());
+			scale.setScaleDbId(entity.getId().toString());
 			scale.setScaleName(entity.getScaleName());
 			scale.setScalePUI(entity.getScalePUI());
 			scale.setOntologyReference(ontologyService.convertFromEntity(entity));

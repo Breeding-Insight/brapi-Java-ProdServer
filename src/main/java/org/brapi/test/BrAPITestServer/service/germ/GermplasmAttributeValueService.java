@@ -139,14 +139,14 @@ public class GermplasmAttributeValueService {
 
 		value.setAdditionalInfo(entity.getAdditionalInfo());
 		if (entity.getAttribute() != null) {
-			value.setAttributeDbId(entity.getAttribute().getId());
+			value.setAttributeDbId(entity.getAttribute().getId().toString());
 			value.setAttributeName(entity.getAttribute().getName());
 		}
-		value.setAttributeValueDbId(entity.getId());
+		value.setAttributeValueDbId(entity.getId().toString());
 		value.setDeterminedDate(DateUtility.toOffsetDateTime(entity.getDeterminedDate()));
 		value.setExternalReferences(entity.getExternalReferencesMap());
 		if (entity.getGermplasm() != null) {
-			value.setGermplasmDbId(entity.getGermplasm().getId());
+			value.setGermplasmDbId(entity.getGermplasm().getId().toString());
 			value.setGermplasmName(entity.getGermplasm().getGermplasmName());
 		}
 		value.setValue(entity.getValue());

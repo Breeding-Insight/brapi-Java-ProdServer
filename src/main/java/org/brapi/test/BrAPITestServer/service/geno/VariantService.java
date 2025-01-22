@@ -107,9 +107,9 @@ public class VariantService {
 		variant.setStart(entity.getStart());
 		variant.setSvlen(entity.getSvlen());
 		variant.setUpdated(DateUtility.toOffsetDateTime(entity.getUpdated()));
-		variant.setVariantDbId(entity.getId());
+		variant.setVariantDbId(entity.getId().toString());
 		variant.setVariantNames(Arrays.asList(entity.getVariantName()));
-		variant.setVariantSetDbId(Arrays.asList(entity.getVariantSet().getId()));
+		variant.setVariantSetDbId(Arrays.asList(entity.getVariantSet().getId().toString()));
 		variant.setVariantType(entity.getVariantType());
 
 		return variant;

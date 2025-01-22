@@ -1,6 +1,7 @@
 package org.brapi.test.BrAPITestServer.model.entity.pheno;
 
 import java.util.List;
+import java.util.UUID;
 
 public interface OntologyReferenceHolder {
     public OntologyEntity getOntology();
@@ -11,5 +12,5 @@ public interface OntologyReferenceHolder {
 
     public void setOntologyReference(List<OntologyReferenceEntity> ontologyReference);
 
-    public String getId();
+    public UUID getId();
 }

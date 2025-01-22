@@ -108,7 +108,7 @@ public class BatchService {
 	private BatchDeleteDetails convertToDetails(BatchDeleteEntity entity) {
 		BatchDeleteDetails details = new BatchDeleteDetails();
 		details = (BatchDeleteDetails) convertToBaseFields(entity, details);
-		details.setBatchDeleteDbId(entity.getId());
+		details.setBatchDeleteDbId(entity.getId().toString());
 		details.setData(entity.getData().stream().map((e) -> e.getItem()).collect(Collectors.toList()));
 
 		return details;
@@ -117,7 +117,7 @@ public class BatchService {
 	private BatchDeleteSummary convertToSummary(BatchDeleteEntity entity) {
 		BatchDeleteSummary summary = new BatchDeleteSummary();
 		summary = (BatchDeleteSummary) convertToBaseFields(entity, summary);
-		summary.setBatchDeleteDbId(entity.getId());
+		summary.setBatchDeleteDbId(entity.getId().toString());
 
 		return summary;
 	}
@@ -134,7 +134,7 @@ public class BatchService {
 		base.setExternalReferences(entity.getExternalReferencesMap());
 
 		if (entity.getBatchDeleteOwnerPerson() != null) {
-			base.setBatchDeleteOwnerPersonDbId(entity.getBatchDeleteOwnerPerson().getId());
+			base.setBatchDeleteOwnerPersonDbId(entity.getBatchDeleteOwnerPerson().getId().toString());
 		}
 		if (entity.getData() != null) {
 			base.setBatchDeleteSize(entity.getData().size());

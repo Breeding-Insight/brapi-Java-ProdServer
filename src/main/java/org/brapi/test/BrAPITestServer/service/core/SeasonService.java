@@ -101,7 +101,7 @@ public class SeasonService {
 		if (entity != null) {
 			season = new Season();
 			season.setSeasonName(entity.getSeason());
-			season.setSeasonDbId(entity.getId());
+			season.setSeasonDbId(entity.getId().toString());
 			season.setYear(entity.getYear());
 		}
 

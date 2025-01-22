@@ -117,12 +117,12 @@ public class ReferenceService {
 
 		ref.setLength(entity.getLength());
 		ref.setMd5checksum(entity.getMd5checksum());
-		ref.setReferenceDbId(entity.getId());
+		ref.setReferenceDbId(entity.getId().toString());
 		ref.setReferenceName(entity.getReferenceName());
 
 		if (entity.getReferenceSet() != null) {
 			ReferenceSetEntity refSetEntity = entity.getReferenceSet();
-			ref.setReferenceSetDbId(refSetEntity.getId());
+			ref.setReferenceSetDbId(refSetEntity.getId().toString());
 			ref.setReferenceName(refSetEntity.getReferenceSetName());
 			ref.setIsDerived(refSetEntity.getIsDerived());
 			ref.setSourceURI(entity.getReferenceSet().getSourceURI());
@@ -133,7 +133,7 @@ public class ReferenceService {
 			if (refSetEntity.getSourceGermplasm() != null) {
 				ref.setCommonCropName(refSetEntity.getSourceGermplasm().getCrop().getCropName());
 				ReferenceSourceGermplasm sourceGerm = new ReferenceSourceGermplasm();
-				sourceGerm.setGermplasmDbId(refSetEntity.getSourceGermplasm().getId());
+				sourceGerm.setGermplasmDbId(refSetEntity.getSourceGermplasm().getId().toString());
 				sourceGerm.setGermplasmName(refSetEntity.getSourceGermplasm().getGermplasmName());
 				ref.setSourceGermplasm(Arrays.asList(sourceGerm));
 

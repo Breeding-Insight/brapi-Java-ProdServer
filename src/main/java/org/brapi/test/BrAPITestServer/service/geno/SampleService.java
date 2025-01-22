@@ -225,42 +225,42 @@ public class SampleService {
 
 		if (entity.getObservationUnit() != null) {
 			ObservationUnitEntity unit = entity.getObservationUnit();
-			sample.setObservationUnitDbId(unit.getId());
+			sample.setObservationUnitDbId(unit.getId().toString());
 			if (unit.getGermplasm() != null)
-				sample.setGermplasmDbId(unit.getGermplasm().getId());
+				sample.setGermplasmDbId(unit.getGermplasm().getId().toString());
 			if (unit.getStudy() != null) {
-				sample.setStudyDbId(unit.getStudy().getId());
+				sample.setStudyDbId(unit.getStudy().getId().toString());
 				if (unit.getStudy().getTrial() != null) {
-					sample.setTrialDbId(unit.getStudy().getTrial().getId());
+					sample.setTrialDbId(unit.getStudy().getTrial().getId().toString());
 					if (unit.getStudy().getTrial().getProgram() != null) {
-						sample.setProgramDbId(unit.getStudy().getTrial().getProgram().getId());
+						sample.setProgramDbId(unit.getStudy().getTrial().getProgram().getId().toString());
 					}
 				}
 			}
 		} else if (entity.getStudy() != null) {
-			sample.setStudyDbId(entity.getStudy().getId());
+			sample.setStudyDbId(entity.getStudy().getId().toString());
 			if (entity.getStudy().getTrial() != null) {
-				sample.setTrialDbId(entity.getStudy().getTrial().getId());
+				sample.setTrialDbId(entity.getStudy().getTrial().getId().toString());
 				if (entity.getStudy().getTrial().getProgram() != null) {
-					sample.setProgramDbId(entity.getStudy().getTrial().getProgram().getId());
+					sample.setProgramDbId(entity.getStudy().getTrial().getProgram().getId().toString());
 				}
 			}
 		} else if (entity.getTrial() != null) {
-			sample.setTrialDbId(entity.getTrial().getId());
+			sample.setTrialDbId(entity.getTrial().getId().toString());
 			if (entity.getTrial().getProgram() != null) {
-				sample.setProgramDbId(entity.getTrial().getProgram().getId());
+				sample.setProgramDbId(entity.getTrial().getProgram().getId().toString());
 			}
 		} else if (entity.getProgram() != null) {
-			sample.setProgramDbId(entity.getProgram().getId());
+			sample.setProgramDbId(entity.getProgram().getId().toString());
 		}
 
 		if (entity.getPlate() != null) {
-			sample.setPlateDbId(entity.getPlate().getId());
+			sample.setPlateDbId(entity.getPlate().getId().toString());
 			sample.setPlateName(entity.getPlate().getPlateName());
 		}
 		sample.setRow(entity.getPlateRow());
 		sample.setSampleBarcode(entity.getSampleBarcode());
-		sample.setSampleDbId(entity.getId());
+		sample.setSampleDbId(entity.getId().toString());
 		sample.setSampleDescription(entity.getSampleDescription());
 		sample.setSampleGroupDbId(entity.getSampleGroupDbId());
 		sample.setSampleName(entity.getSampleName());

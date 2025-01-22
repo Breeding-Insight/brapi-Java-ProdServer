@@ -195,29 +195,29 @@ public class SeedLotService {
 		seedLot.setCreatedDate(DateUtility.toOffsetDateTime(entity.getCreatedDate()));
 		seedLot.setLastUpdated(DateUtility.toOffsetDateTime(entity.getLastUpdated()));
 		if (entity.getLocation() != null) {
-			seedLot.setLocationDbId(entity.getLocation().getId());
+			seedLot.setLocationDbId(entity.getLocation().getId().toString());
 			seedLot.setLocationName(entity.getLocation().getLocationName());
 		}
 		if (entity.getProgram() != null) {
-			seedLot.setProgramDbId(entity.getProgram().getId());
+			seedLot.setProgramDbId(entity.getProgram().getId().toString());
 			seedLot.setProgramName(entity.getProgram().getName());
 		}
-		seedLot.setSeedLotDbId(entity.getId());
+		seedLot.setSeedLotDbId(entity.getId().toString());
 		seedLot.setSeedLotDescription(entity.getDescription());
 		seedLot.setSeedLotName(entity.getName());
 		seedLot.setSourceCollection(entity.getSourceCollection());
 		seedLot.setStorageLocation(entity.getStorageLocation());
 		seedLot.setUnits(entity.getUnits());
 		if (entity.getContentMixture() != null && !entity.getContentMixture().isEmpty()) {
-			seedLot.setGermplasmDbId(entity.getContentMixture().get(0).getGermplasm().getId());
+			seedLot.setGermplasmDbId(entity.getContentMixture().get(0).getGermplasm().getId().toString());
 			seedLot.setContentMixture(entity.getContentMixture().stream().map(mixtureEntity -> {
 				SeedLotContentMixture mixture = new SeedLotContentMixture();
 				if (mixtureEntity.getCross() != null) {
-					mixture.setCrossDbId(mixtureEntity.getCross().getId());
+					mixture.setCrossDbId(mixtureEntity.getCross().getId().toString());
 					mixture.setCrossName(mixtureEntity.getCross().getName());
 				}
 				if (mixtureEntity.getGermplasm() != null) {
-					mixture.setGermplasmDbId(mixtureEntity.getGermplasm().getId());
+					mixture.setGermplasmDbId(mixtureEntity.getGermplasm().getId().toString());
 					mixture.setGermplasmName(mixtureEntity.getGermplasm().getGermplasmName());
 				}
 				mixture.setMixturePercentage(mixtureEntity.getMixturePercentage());
@@ -285,10 +285,10 @@ public class SeedLotService {
 		UpdateUtility.convertFromEntity(entity, transaction);
 		transaction.setAmount(entity.getAmount());
 		if (entity.getToSeedLot() != null)
-			transaction.setToSeedLotDbId(entity.getToSeedLot().getId());
+			transaction.setToSeedLotDbId(entity.getToSeedLot().getId().toString());
 		if (entity.getFromSeedLot() != null)
-			transaction.setFromSeedLotDbId(entity.getFromSeedLot().getId());
-		transaction.setTransactionDbId(entity.getId());
+			transaction.setFromSeedLotDbId(entity.getFromSeedLot().getId().toString());
+		transaction.setTransactionDbId(entity.getId().toString());
 		transaction.setTransactionDescription(entity.getDescription());
 		transaction.setTransactionTimestamp(DateUtility.toOffsetDateTime(entity.getTimestamp()));
 		transaction.setUnits(entity.getUnits());

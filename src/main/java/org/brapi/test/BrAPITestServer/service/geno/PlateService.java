@@ -189,27 +189,27 @@ public class PlateService {
 	private Plate convertFromEntity(PlateEntity entity) {
 		Plate plate = new Plate();
 		UpdateUtility.convertFromEntity(entity, plate);
-		plate.setPlateDbId(entity.getId());
+		plate.setPlateDbId(entity.getId().toString());
 		plate.setPlateName(entity.getPlateName());
 		plate.setPlateBarcode(entity.getPlateBarcode());
 		plate.setPlateFormat(entity.getPlateFormat());
 		plate.setSampleType(entity.getSampleType());
 
 		if (entity.getStudy() != null) {
-			plate.setStudyDbId(entity.getStudy().getId());
+			plate.setStudyDbId(entity.getStudy().getId().toString());
 			if (entity.getStudy().getTrial() != null) {
-				plate.setTrialDbId(entity.getStudy().getTrial().getId());
+				plate.setTrialDbId(entity.getStudy().getTrial().getId().toString());
 				if (entity.getStudy().getTrial().getProgram() != null) {
-					plate.setProgramDbId(entity.getStudy().getTrial().getProgram().getId());
+					plate.setProgramDbId(entity.getStudy().getTrial().getProgram().getId().toString());
 				}
 			}
 		} else if (entity.getTrial() != null) {
-			plate.setTrialDbId(entity.getTrial().getId());
+			plate.setTrialDbId(entity.getTrial().getId().toString());
 			if (entity.getTrial().getProgram() != null) {
-				plate.setProgramDbId(entity.getTrial().getProgram().getId());
+				plate.setProgramDbId(entity.getTrial().getProgram().getId().toString());
 			}
 		} else if (entity.getProgram() != null) {
-			plate.setProgramDbId(entity.getProgram().getId());
+			plate.setProgramDbId(entity.getProgram().getId().toString());
 		}
 		return plate;
 	}

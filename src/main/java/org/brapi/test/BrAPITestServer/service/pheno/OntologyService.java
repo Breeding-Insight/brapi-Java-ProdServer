@@ -85,7 +85,7 @@ public class OntologyService {
 		ontology.setDescription(entity.getDescription());
 		ontology.setDocumentationURL(entity.getDocumentationURL());
 		ontology.setLicence(entity.getLicence());
-		ontology.setOntologyDbId(entity.getId());
+		ontology.setOntologyDbId(entity.getId().toString());
 		ontology.setOntologyName(entity.getOntologyName());
 		ontology.setVersion(entity.getVersion());
 		return ontology;
@@ -160,7 +160,7 @@ public class OntologyService {
 		OntologyReference ontologyReference = null;
 		if (entity.getOntology() != null) {
 			ontologyReference = new OntologyReference();
-			ontologyReference.setOntologyDbId(entity.getOntology().getId());
+			ontologyReference.setOntologyDbId(entity.getOntology().getId().toString());
 			ontologyReference.setOntologyName(entity.getOntology().getOntologyName());
 			ontologyReference.setVersion(entity.getOntology().getVersion());
 			if (entity.getOntologyReference() != null) {

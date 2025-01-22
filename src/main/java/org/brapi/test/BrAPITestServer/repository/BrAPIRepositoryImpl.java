@@ -144,12 +144,12 @@ public class BrAPIRepositoryImpl<T extends BrAPIPrimaryEntity, ID extends Serial
 	public void fetchXrefs(Page<T> page, Class<T> searchClass) throws InvalidPagingException {
 		SearchQueryBuilder<T> searchQuery = new SearchQueryBuilder<T>(searchClass);
 		searchQuery.leftJoinFetch("externalReferences", "externalReferences")
-				   .appendList(page.stream().map(BrAPIBaseEntity::getId).collect(Collectors.toList()), "id");
+				   .appendList(page.stream().map(p -> p.getId().toString()).collect(Collectors.toList()), "id");
 
 		Page<T> xrefs = findAllBySearchAndPaginate(searchQuery, PageRequest.of(0, page.getSize()));
 
 		Map<String, List<ExternalReferenceEntity>> xrefByEntity = new HashMap<>();
-		xrefs.forEach(entity -> xrefByEntity.put(entity.getId(), entity.getExternalReferences()));
+		xrefs.forEach(entity -> xrefByEntity.put(entity.getId().toString(), entity.getExternalReferences()));
 
 		page.forEach(entity -> entity.setExternalReferences(xrefByEntity.get(entity.getId())));
 	}

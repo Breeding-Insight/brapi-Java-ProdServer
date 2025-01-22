@@ -120,12 +120,12 @@ public class AlleleMatrixService {
 		AlleleMatrixPagination callSetPage = new AlleleMatrixPagination().dimension(DimensionEnum.CALLSETS);
 
 		List<CallSetEntity> callSets = findCallSets(request, callSetPage);
-		matrixResponse.setCallSetDbIds(callSets.stream().map(callSet -> callSet.getId()).collect(Collectors.toList()));
+		matrixResponse.setCallSetDbIds(callSets.stream().map(callSet -> callSet.getId().toString()).collect(Collectors.toList()));
 
 		List<VariantEntity> variants = findVariants(request, variantPage);
-		matrixResponse.setVariantDbIds(variants.stream().map(variant -> variant.getId()).collect(Collectors.toList()));
+		matrixResponse.setVariantDbIds(variants.stream().map(variant -> variant.getId().toString()).collect(Collectors.toList()));
 
-		matrixResponse.setVariantSetDbIds(variants.stream().unordered().map(variant -> variant.getVariantSet().getId())
+		matrixResponse.setVariantSetDbIds(variants.stream().unordered().map(variant -> variant.getVariantSet().getId().toString())
 				.distinct().collect(Collectors.toList()));
 
 		matrixResponse
@@ -143,8 +143,8 @@ public class AlleleMatrixService {
 
 			List<CallEntity> calls = findCalls(matrixResponse, request);
 			for (CallEntity call : calls) {
-				int callSetPos = callSetIndex.get(call.getCallSet().getId());
-				int variantPos = variantIndex.get(call.getVariant().getId());
+				int callSetPos = callSetIndex.get(call.getCallSet().getId().toString());
+				int variantPos = variantIndex.get(call.getVariant().getId().toString());
 				for (AlleleMatrixDataMatrices matrix : matrixResponse.getDataMatrices()) {
 					String value = "";
 					if (matrix.getDataMatrixAbbreviation() == "GT") {

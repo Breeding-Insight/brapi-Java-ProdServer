@@ -35,7 +35,7 @@ public class SearchService {
 			searchEntity.setResponseCountdown((paramCount / 5) - 1);
 			searchEntity.setParameters(body);
 			SearchRequestEntity savedEntity = searchRepository.save(searchEntity);
-			return savedEntity.getId();
+			return savedEntity.getId().toString();
 		}
 	}
 

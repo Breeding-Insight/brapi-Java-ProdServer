@@ -61,7 +61,7 @@ public class BreedingMethodService {
 	private BreedingMethod convertFromEntity(BreedingMethodEntity entity) {
 		BreedingMethod method = new BreedingMethod();
 		method.setAbbreviation(entity.getAbbreviation());
-		method.setBreedingMethodDbId(entity.getId());
+		method.setBreedingMethodDbId(entity.getId().toString());
 		method.setBreedingMethodName(entity.getName());
 		method.setDescription(entity.getDescription());
 		return method;

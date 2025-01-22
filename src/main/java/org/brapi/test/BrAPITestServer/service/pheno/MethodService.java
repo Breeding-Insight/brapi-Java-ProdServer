@@ -122,7 +122,7 @@ public class MethodService {
 			method.setDescription(entity.getDescription());
 			method.setFormula(entity.getFormula());
 			method.setMethodClass(entity.getMethodClass());
-			method.setMethodDbId(entity.getId());
+			method.setMethodDbId(entity.getId().toString());
 			method.setMethodName(entity.getName());
 			method.setMethodPUI(entity.getMethodPUI());
 			method.setOntologyReference(ontologyService.convertFromEntity(entity));

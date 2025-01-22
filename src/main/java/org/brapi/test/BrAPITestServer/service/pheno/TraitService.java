@@ -137,7 +137,7 @@ public class TraitService {
 			trait.setStatus(entity.getStatus());
 			trait.setSynonyms(entity.getSynonyms());
 			trait.setTraitClass(entity.getTraitClass());
-			trait.setTraitDbId(entity.getId());
+			trait.setTraitDbId(entity.getId().toString());
 			trait.setTraitDescription(entity.getTraitDescription());
 			trait.setTraitName(entity.getTraitName());
 			trait.setTraitPUI(entity.getTraitPUI());

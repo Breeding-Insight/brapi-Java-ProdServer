@@ -61,13 +61,13 @@ public class MarkerPositionService {
 		if (entity.getLinkageGroup() != null) {
 			position.setLinkageGroupName(entity.getLinkageGroup().getLinkageGroupName());
 			if (entity.getLinkageGroup().getGenomeMap() != null) {
-				position.setMapDbId(entity.getLinkageGroup().getGenomeMap().getId());
+				position.setMapDbId(entity.getLinkageGroup().getGenomeMap().getId().toString());
 				position.setMapName(entity.getLinkageGroup().getGenomeMap().getMapName());
 			}
 		}
 		position.setPosition(entity.getPosition());
 		if (entity.getVariant() != null) {
-			position.setVariantDbId(entity.getVariant().getId());
+			position.setVariantDbId(entity.getVariant().getId().toString());
 			position.setVariantName(entity.getVariant().getVariantName());
 		}
 		return position;

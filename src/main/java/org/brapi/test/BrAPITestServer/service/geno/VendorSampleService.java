@@ -75,8 +75,8 @@ public class VendorSampleService {
 
 	private VendorSample convertFromEntity(SampleEntity entity) {
 		VendorSample sample = new VendorSample();
-		sample.setClientSampleBarCode(entity.getId());
-		sample.setClientSampleId(entity.getId());
+		sample.setClientSampleBarCode(entity.getId().toString());
+		sample.setClientSampleId(entity.getId().toString());
 		sample.setComments(entity.getSampleDescription());
 		if (entity.getConcentration() != null)
 			sample.setConcentration(new Measurement().value(new BigDecimal(entity.getConcentration())).units("ppm"));
@@ -102,7 +102,7 @@ public class VendorSampleService {
 		VendorResultFile file = new VendorResultFile();
 		file.setAdditionalInfo(new HashMap<>());
 		if (entity.getSamples() != null)
-			file.setClientSampleIds(entity.getSamples().stream().map(e -> e.getId()).collect(Collectors.toList()));
+			file.setClientSampleIds(entity.getSamples().stream().map(e -> e.getId().toString()).collect(Collectors.toList()));
 		file.setFileName(entity.getFilename());
 		file.setFileType(entity.getFileType());
 		file.setFileURL(entity.getURL());
@@ -112,7 +112,7 @@ public class VendorSampleService {
 
 	private VendorOrder convertFromEntity(VendorOrderEntity entity) {
 		VendorOrder order = new VendorOrder().clientId(entity.getClientPlateDbId())
-				.numberOfSamples(entity.getPlateSubmission().getNumberOfSamples()).orderId(entity.getId())
+				.numberOfSamples(entity.getPlateSubmission().getNumberOfSamples()).orderId(entity.getId().toString())
 				.requiredServiceInfo(entity.getRequiredServiceInfo());
 		if (entity.getServiceIds() != null && !entity.getServiceIds().isEmpty())
 			order.setServiceIds(Arrays.asList(entity.getServiceIds().get(0)));
@@ -141,7 +141,7 @@ public class VendorSampleService {
 
 		spec.setServices(specEntity.getPlatforms().stream().map((platformEntity) -> {
 			VendorSpecificationService service = new VendorSpecificationService()
-					.serviceDescription(platformEntity.getPlatformURL()).serviceId(platformEntity.getId())
+					.serviceDescription(platformEntity.getPlatformURL()).serviceId(platformEntity.getId().toString())
 					.serviceName(platformEntity.getPlatformName())
 					.servicePlatformMarkerType(VendorServicePlatformMarkerTypeEnum.FIXED)
 					.servicePlatformName(platformEntity.getPlatformName()).specificRequirements(new ArrayList<>());
@@ -307,7 +307,7 @@ public class VendorSampleService {
 		VendorOrderEntity newEntity = vendorOrderRepository.save(convertToEntity(body));
 
 		VendorOrderSubmission result = new VendorOrderSubmission();
-		result.setOrderId(newEntity.getId());
+		result.setOrderId(newEntity.getId().toString());
 
 		return result;
 	}
@@ -320,7 +320,7 @@ public class VendorSampleService {
 		VendorOrderEntity entity = convertToEntity(request);
 		VendorOrderEntity newEntity = vendorOrderRepository.save(entity);
 		VendorPlateSubmissionId submissionId = new VendorPlateSubmissionId();
-		submissionId.setSubmissionId(newEntity.getPlateSubmission().getId());
+		submissionId.setSubmissionId(newEntity.getPlateSubmission().getId().toString());
 
 		return submissionId;
 	}
@@ -354,7 +354,7 @@ public class VendorSampleService {
 	private void updateResultFiles(VendorOrderEntity order) {
 		List<VendorFileEntity> files = new ArrayList<>();
 		VendorFileEntity entity = new VendorFileEntity();
-		entity.setFilename("example_file_" + order.getId() + ".vcf");
+		entity.setFilename("example_file_" + order.getId().toString() + ".vcf");
 		entity.setFileType("application/vcf");
 		entity.setMd5sum("8DEA19500BC44D35E2D7B6A68ABA552B");
 		entity.setURL("https://brapi.org/" + entity.getFilename());

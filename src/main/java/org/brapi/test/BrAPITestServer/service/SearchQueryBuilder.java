@@ -62,10 +62,16 @@ public class SearchQueryBuilder<T> {
 		return this;
 	}
 
-	public SearchQueryBuilder<T> appendIds(List<String> ids) {
-		String paramName = paramFilter("id");
+
+	public SearchQueryBuilder<T> appendIds(List<UUID> ids) {
+		return appendIds(ids, null);
+	}
+
+	public SearchQueryBuilder<T> appendIds(List<UUID> ids, String inputColumnName) {
+		String columnName = inputColumnName == null ? "id" : inputColumnName;
+		String paramName = paramFilter(columnName);
 		if (ids != null && !ids.isEmpty()) {
-			this.whereClause += "AND " + entityPrefix("id") + " in :" + paramName + " ";
+			this.whereClause += "AND " + entityPrefix(columnName) + " in :" + paramName + " ";
 			this.params.put(paramName, ids);
 		}
 		return this;

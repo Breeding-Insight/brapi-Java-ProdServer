@@ -1,9 +1,6 @@
 package org.brapi.test.BrAPITestServer.service.germ;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 import io.swagger.model.IndexPagination;
 import jakarta.validation.Valid;
@@ -128,11 +125,11 @@ public class CrossingProjectService {
 		CrossingProject project = new CrossingProject();
 		UpdateUtility.convertFromEntity(entity, project);
 
-		project.setCrossingProjectDbId(entity.getId());
+		project.setCrossingProjectDbId(entity.getId().toString());
 		project.setCrossingProjectDescription(entity.getDescription());
 		project.setCrossingProjectName(entity.getName());
 		if (entity.getProgram() != null) {
-			project.setProgramDbId(entity.getProgram().getId());
+			project.setProgramDbId(entity.getProgram().getId().toString());
 			project.setProgramName(entity.getProgram().getName());
 			if (entity.getProgram().getCrop() != null) {
 				project.setCommonCropName(entity.getProgram().getCrop().getCropName());

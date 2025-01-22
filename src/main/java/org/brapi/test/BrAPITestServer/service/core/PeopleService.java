@@ -165,7 +165,7 @@ public class PeopleService {
 		person.setLastName(entity.getLastName());
 		person.setMailingAddress(entity.getMailingAddress());
 		person.setMiddleName(entity.getMiddleName());
-		person.setPersonDbId(entity.getId());
+		person.setPersonDbId(entity.getId().toString());
 		person.setPhoneNumber(entity.getPhoneNumber());
 		person.setUserID(entity.getUserID());
 
@@ -175,7 +175,7 @@ public class PeopleService {
 	public Contact convertToContact(PersonEntity entity) {
 		Contact contact = new Contact();
 
-		contact.setContactDbId(entity.getId());
+		contact.setContactDbId(entity.getId().toString());
 		contact.setEmail(entity.getEmailAddress());
 		contact.setInstituteName(entity.getInstituteName());
 		contact.setName(entity.getFullName());

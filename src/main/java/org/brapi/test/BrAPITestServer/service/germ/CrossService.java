@@ -174,14 +174,14 @@ public class CrossService {
 			UpdateUtility.convertFromEntity(entity, cross);
 			convertFromEntity(entity, cross);
 			cross.setCrossAttributes(convertFromEntity(entity.getCrossAttributes()));
-			cross.setCrossDbId(entity.getId());
+			cross.setCrossDbId(entity.getId().toString());
 			cross.setCrossName(entity.getName());
 			if (entity.getPollinationEvents() != null && !entity.getPollinationEvents().isEmpty()) {
 				cross.setPollinationTimeStamp(
 						DateUtility.toOffsetDateTime(entity.getPollinationEvents().get(0).getPollinationTimeStamp()));
 			}
 			if (entity.getPlannedCross() != null) {
-				cross.setPlannedCrossDbId(entity.getPlannedCross().getId());
+				cross.setPlannedCrossDbId(entity.getPlannedCross().getId().toString());
 				cross.setPlannedCrossName(entity.getPlannedCross().getName());
 			}
 			if (entity.getPollinationEvents() != null) {
@@ -202,7 +202,7 @@ public class CrossService {
 		if (entity != null) {
 			UpdateUtility.convertFromEntity(entity, planned);
 			convertFromEntity(entity, planned);
-			planned.setPlannedCrossDbId(entity.getId());
+			planned.setPlannedCrossDbId(entity.getId().toString());
 			planned.setPlannedCrossName(entity.getName());
 			planned.setStatus(entity.getStatus());
 		}
@@ -211,7 +211,7 @@ public class CrossService {
 
 	private void convertFromEntity(CrossEntity entity, CrossInterface cross) {
 		if (entity.getCrossingProject() != null) {
-			cross.setCrossingProjectDbId(entity.getCrossingProject().getId());
+			cross.setCrossingProjectDbId(entity.getCrossingProject().getId().toString());
 			cross.setCrossingProjectName(entity.getCrossingProject().getName());
 		}
 		cross.setCrossType(entity.getCrossType());

@@ -195,11 +195,11 @@ public class ObservationVariableService {
 	}
 
 	private ObservationVariable convertFromEntity(ObservationVariableEntity entity) {
-		log.trace("converting variable: " + entity.getId());
+		log.trace("converting variable: " + entity.getId().toString());
 		ObservationVariable var = new ObservationVariable();
 		convertFromBaseEntity(entity, var);
 		var.setObservationVariableName(entity.getName());
-		var.setObservationVariableDbId(entity.getId());
+		var.setObservationVariableDbId(entity.getId().toString());
 
 		return var;
 	}

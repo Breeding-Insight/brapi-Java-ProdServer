@@ -212,7 +212,7 @@ public class TrialService {
 		trial.setEndDate(DateUtility.toLocalDate(entity.getEndDate()));
 		trial.setExternalReferences(entity.getExternalReferencesMap());
 		trial.setStartDate(DateUtility.toLocalDate(entity.getStartDate()));
-		trial.setTrialDbId(entity.getId());
+		trial.setTrialDbId(entity.getId().toString());
 		trial.setTrialDescription(entity.getTrialDescription());
 		trial.setTrialName(entity.getTrialName());
 		trial.setTrialPUI(entity.getTrialPUI());
@@ -232,7 +232,7 @@ public class TrialService {
 		}
 
 		if (entity.getProgram() != null) {
-			trial.setProgramDbId(entity.getProgram().getId());
+			trial.setProgramDbId(entity.getProgram().getId().toString());
 			trial.setProgramName(entity.getProgram().getName());
 			if (entity.getProgram().getCrop() != null) {
 				trial.setCommonCropName(entity.getProgram().getCrop().getCropName());

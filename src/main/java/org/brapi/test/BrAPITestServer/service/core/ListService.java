@@ -210,7 +210,7 @@ public class ListService {
 	private ListDetails convertToDetails(ListEntity entity) {
 		ListDetails details = new ListDetails();
 		details = (ListDetails) convertToBaseFields(entity, details);
-		details.setListDbId(entity.getId());
+		details.setListDbId(entity.getId().toString());
 		details.setData(entity.getData().stream().map((e) -> {
 			return e.getItem();
 		}).collect(Collectors.toList()));
@@ -221,7 +221,7 @@ public class ListService {
 	private ListSummary convertToSummary(ListEntity entity) {
 		ListSummary summary = new ListSummary();
 		summary = (ListSummary) convertToBaseFields(entity, summary);
-		summary.setListDbId(entity.getId());
+		summary.setListDbId(entity.getId().toString());
 
 		return summary;
 
@@ -239,7 +239,7 @@ public class ListService {
 		base.setExternalReferences(entity.getExternalReferencesMap());
 
 		if (entity.getListOwnerPerson() != null) {
-			base.setListOwnerPersonDbId(entity.getListOwnerPerson().getId());
+			base.setListOwnerPersonDbId(entity.getListOwnerPerson().getId().toString());
 		}
 		if (entity.getData() != null) {
 			base.setListSize(entity.getData().size());

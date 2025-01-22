@@ -93,7 +93,7 @@ public class GenomeMapService {
 			map.setMarkerCount((int) entity.getLinkageGroups().stream().filter(lg -> lg.getMarkers() != null)
 					.flatMap(lg -> lg.getMarkers().stream()).count());
 		}
-		map.setMapDbId(entity.getId());
+		map.setMapDbId(entity.getId().toString());
 		map.setMapName(entity.getMapName());
 		map.setMapPUI(entity.getMapPUI());
 		map.setPublishedDate(DateUtility.toOffsetDateTime(entity.getPublishedDate()));
