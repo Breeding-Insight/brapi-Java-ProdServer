@@ -3,6 +3,7 @@ package org.brapi.test.BrAPITestServer.service.geno;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 import jakarta.validation.Valid;
 
@@ -102,7 +103,7 @@ public class ReferenceService {
 	public ReferenceEntity getReferenceEntity(String referenceDbId, HttpStatus errorStatus)
 			throws BrAPIServerException {
 		ReferenceEntity reference = null;
-		Optional<ReferenceEntity> entityOpt = referenceRepository.findById(referenceDbId);
+		Optional<ReferenceEntity> entityOpt = referenceRepository.findById(UUID.fromString(referenceDbId));
 		if (entityOpt.isPresent()) {
 			reference = entityOpt.get();
 		} else {

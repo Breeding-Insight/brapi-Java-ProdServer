@@ -1,9 +1,8 @@
 package org.brapi.test.BrAPITestServer.service.germ;
 
-import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
+import java.util.UUID;
 
 import org.brapi.test.BrAPITestServer.exceptions.BrAPIServerDbIdNotFoundException;
 import org.brapi.test.BrAPITestServer.exceptions.BrAPIServerException;
@@ -45,7 +44,7 @@ public class BreedingMethodService {
 
 	public BreedingMethodEntity getBreedingMethodEntity(String breedingMethodDbId, HttpStatus errorStatus) throws BrAPIServerException {
 		BreedingMethodEntity breedingMethodEntity = null;
-		Optional<BreedingMethodEntity> entityOpt = breedingMethodRepository.findById(breedingMethodDbId);
+		Optional<BreedingMethodEntity> entityOpt = breedingMethodRepository.findById(UUID.fromString(breedingMethodDbId));
 		if (entityOpt.isPresent()) {
 			breedingMethodEntity = entityOpt.get();
 		} else {
@@ -55,7 +54,7 @@ public class BreedingMethodService {
 	}
 
 	public List<BreedingMethodEntity> findBreedingMethodsByIds(List<String> ids) {
-		return breedingMethodRepository.findByIdIn(ids);
+		return breedingMethodRepository.findByIdIn(ids.stream().map(UUID::fromString).toList());
 	}
 
 	private BreedingMethod convertFromEntity(BreedingMethodEntity entity) {

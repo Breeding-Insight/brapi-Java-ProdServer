@@ -68,7 +68,7 @@ public class CrossingProjectService {
 	}
 
 	public List<CrossingProjectEntity> findCrossingProjectsByIds(List<String> crossingProjectIds) {
-		return crossingProjectRepository.findByIdIn(crossingProjectIds);
+		return crossingProjectRepository.findByIdIn(crossingProjectIds.stream().map(UUID::fromString).toList());
 	}
 
 	public CrossingProject getCrossingProject(String crossingProjectDbId) throws BrAPIServerException {
@@ -82,7 +82,7 @@ public class CrossingProjectService {
 	public CrossingProjectEntity getCrossingProjectEntity(String crossingProjectDbId, HttpStatus errorStatus)
 			throws BrAPIServerException {
 		CrossingProjectEntity crossingProject = null;
-		Optional<CrossingProjectEntity> entityOpt = crossingProjectRepository.findById(crossingProjectDbId);
+		Optional<CrossingProjectEntity> entityOpt = crossingProjectRepository.findById(UUID.fromString(crossingProjectDbId));
 		if (entityOpt.isPresent()) {
 			crossingProject = entityOpt.get();
 		} else {

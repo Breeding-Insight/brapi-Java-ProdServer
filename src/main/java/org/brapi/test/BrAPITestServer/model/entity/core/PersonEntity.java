@@ -5,6 +5,8 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 import org.brapi.test.BrAPITestServer.model.entity.BrAPIPrimaryEntity;
 
+import java.util.UUID;
+
 @Entity
 @Table(name = "person")
 public class PersonEntity extends BrAPIPrimaryEntity {
@@ -23,7 +25,7 @@ public class PersonEntity extends BrAPIPrimaryEntity {
     @Column
     private String phoneNumber;
     @Column
-    private String userID;
+    private UUID userID;
     @Column
     private String instituteName;
 
@@ -101,11 +103,11 @@ public class PersonEntity extends BrAPIPrimaryEntity {
         this.phoneNumber = phoneNumber;
     }
 
-    public String getUserID() {
+    public UUID getUserID() {
         return userID;
     }
 
-    public void setUserID(String userID) {
+    public void setUserID(UUID userID) {
         this.userID = userID;
     }
 

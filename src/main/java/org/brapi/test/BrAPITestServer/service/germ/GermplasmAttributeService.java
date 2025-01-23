@@ -1,10 +1,6 @@
 package org.brapi.test.BrAPITestServer.service.germ;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 import jakarta.validation.Valid;
 
@@ -144,7 +140,7 @@ public class GermplasmAttributeService {
 	public GermplasmAttributeDefinitionEntity getGermplasmAttributeDefinitionEntity(String attributeDbId,
 			HttpStatus errorStatus) throws BrAPIServerException {
 		GermplasmAttributeDefinitionEntity attribute = null;
-		Optional<GermplasmAttributeDefinitionEntity> entityOpt = attributeRepository.findById(attributeDbId);
+		Optional<GermplasmAttributeDefinitionEntity> entityOpt = attributeRepository.findById(UUID.fromString(attributeDbId));
 		if (entityOpt.isPresent()) {
 			attribute = entityOpt.get();
 		} else {

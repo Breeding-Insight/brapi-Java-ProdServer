@@ -5,19 +5,21 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 import org.brapi.test.BrAPITestServer.model.entity.BrAPIBaseEntity;
 
+import java.util.UUID;
+
 @Entity
 @Table(name = "vendor_spec_input_format")
 public class VendorSpecInputFormatEntity extends BrAPIBaseEntity {
     @Column
-    private String vendorSpecStandardRequirementDbId;
+    private UUID vendorSpecStandardRequirementDbId;
     @Column
     private String inputFormat;
 
-    public String getVendorSpecStandardRequirementDbId() {
+    public UUID getVendorSpecStandardRequirementDbId() {
         return vendorSpecStandardRequirementDbId;
     }
 
-    public void setVendorSpecStandardRequirementDbId(String vendorSpecStandardRequirementDbId) {
+    public void setVendorSpecStandardRequirementDbId(UUID vendorSpecStandardRequirementDbId) {
         this.vendorSpecStandardRequirementDbId = vendorSpecStandardRequirementDbId;
     }
 

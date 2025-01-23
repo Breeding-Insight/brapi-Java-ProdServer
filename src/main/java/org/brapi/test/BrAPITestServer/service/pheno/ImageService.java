@@ -3,6 +3,7 @@ package org.brapi.test.BrAPITestServer.service.pheno;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import jakarta.validation.Valid;
@@ -104,7 +105,7 @@ public class ImageService {
 		Image image = null;
 
 		if (imageDbId != null && !imageDbId.isEmpty()) {
-			Optional<ImageEntity> imageOption = imageRepository.findById(imageDbId);
+			Optional<ImageEntity> imageOption = imageRepository.findById(UUID.fromString(imageDbId));
 			if (imageOption.isPresent()) {
 				image = convertFromEntity(imageOption.get());
 			} else {
@@ -118,7 +119,7 @@ public class ImageService {
 	public Image updateImageContent(String imageDbId, String requestURL, byte[] imageData) throws BrAPIServerException {
 		Image result = null;
 		if (imageDbId != null && !imageDbId.isEmpty()) {
-			Optional<ImageEntity> imageOption = imageRepository.findById(imageDbId);
+			Optional<ImageEntity> imageOption = imageRepository.findById(UUID.fromString(imageDbId));
 			if (imageOption.isPresent()) {
 				ImageEntity newEntity = imageOption.get();
 				newEntity.setImageData(imageData);
@@ -137,7 +138,7 @@ public class ImageService {
 
 	public Image updateImage(String imageDbId, ImageNewRequest body) throws BrAPIServerException {
 		ImageEntity savedEntity;
-		Optional<ImageEntity> entityOpt = imageRepository.findById(imageDbId);
+		Optional<ImageEntity> entityOpt = imageRepository.findById(UUID.fromString(imageDbId));
 		if (entityOpt.isPresent()) {
 			ImageEntity entity = entityOpt.get();
 			updateEntity(entity, body);
@@ -165,7 +166,7 @@ public class ImageService {
 	public byte[] getImageData(String imageDbId) {
 		byte[] bytes = null;
 		if (imageDbId != null && !imageDbId.isEmpty()) {
-			Optional<ImageEntity> imageOption = imageRepository.findById(imageDbId);
+			Optional<ImageEntity> imageOption = imageRepository.findById(UUID.fromString(imageDbId));
 			if (imageOption.isPresent()) {
 				bytes = imageOption.get().getImageData();
 			}

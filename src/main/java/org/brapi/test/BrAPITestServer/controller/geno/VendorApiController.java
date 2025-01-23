@@ -165,13 +165,14 @@ public class VendorApiController extends BrAPIController implements VendorApi {
 	@CrossOrigin
 	@Override
 	public ResponseEntity<VendorSpecificationSingleResponse> vendorSpecificationsGet(
+			@RequestParam(value = "vendorSpecId") String vendorSpecId,
 			@RequestHeader(value = "Authorization", required = false) String authorization)
 			throws BrAPIServerException {
 
 		log.debug("Request: " + request.getRequestURI());
 		validateSecurityContext(request, "ROLE_ANONYMOUS", "ROLE_USER");
 		validateAcceptHeader(request);
-		VendorSpecification data = vendorSampleService.getVendorSpec();
+		VendorSpecification data = vendorSampleService.getVendorSpec(vendorSpecId);
 		return responseOK(new VendorSpecificationSingleResponse(), data);
 	}
 

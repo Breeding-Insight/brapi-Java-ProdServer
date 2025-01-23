@@ -5,11 +5,13 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 import org.brapi.test.BrAPITestServer.model.entity.BrAPIBaseEntity;
 
+import java.util.UUID;
+
 @Entity
 @Table(name = "vendor_spec_deliverable")
 public class VendorSpecDeliverableEntity extends BrAPIBaseEntity {
     @Column
-    private String vendorSpecPlatformDbId;
+    private UUID vendorSpecPlatformDbId;
     @Column
     private String name;
     @Column
@@ -17,11 +19,11 @@ public class VendorSpecDeliverableEntity extends BrAPIBaseEntity {
     @Column
     private String format;
 
-    public String getVendorSpecPlatformDbId() {
+    public UUID getVendorSpecPlatformDbId() {
         return vendorSpecPlatformDbId;
     }
 
-    public void setVendorSpecPlatformDbId(String vendorSpecPlatformDbId) {
+    public void setVendorSpecPlatformDbId(UUID vendorSpecPlatformDbId) {
         this.vendorSpecPlatformDbId = vendorSpecPlatformDbId;
     }
 

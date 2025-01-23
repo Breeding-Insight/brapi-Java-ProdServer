@@ -4,12 +4,13 @@ import jakarta.persistence.*;
 import org.brapi.test.BrAPITestServer.model.entity.BrAPIBaseEntity;
 
 import java.util.List;
+import java.util.UUID;
 
 @Entity
 @Table(name = "vendor_spec_platform")
 public class VendorSpecPlatformEntity extends BrAPIBaseEntity {
     @Column
-    private String vendorSpecDbId;
+    private UUID vendorSpecDbId;
     @Column
     private String platformName;
     @Column
@@ -41,11 +42,11 @@ public class VendorSpecPlatformEntity extends BrAPIBaseEntity {
     @Column
     private String tissueIdSystemURI;
 
-    public String getVendorSpecDbId() {
+    public UUID getVendorSpecDbId() {
         return vendorSpecDbId;
     }
 
-    public void setVendorSpecDbId(String vendorSpecDbId) {
+    public void setVendorSpecDbId(UUID vendorSpecDbId) {
         this.vendorSpecDbId = vendorSpecDbId;
     }
 

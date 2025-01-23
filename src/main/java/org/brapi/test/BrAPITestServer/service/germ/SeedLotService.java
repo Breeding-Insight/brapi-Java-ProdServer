@@ -1,9 +1,6 @@
 package org.brapi.test.BrAPITestServer.service.germ;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import jakarta.validation.Valid;
@@ -98,7 +95,7 @@ public class SeedLotService {
 
 	public SeedLotEntity getSeedLotEntity(String seedLotDbId, HttpStatus errorStatus) throws BrAPIServerException {
 		SeedLotEntity seedLot = null;
-		Optional<SeedLotEntity> entityOpt = seedLotRepository.findById(seedLotDbId);
+		Optional<SeedLotEntity> entityOpt = seedLotRepository.findById(UUID.fromString(seedLotDbId));
 		if (entityOpt.isPresent()) {
 			seedLot = entityOpt.get();
 		} else {

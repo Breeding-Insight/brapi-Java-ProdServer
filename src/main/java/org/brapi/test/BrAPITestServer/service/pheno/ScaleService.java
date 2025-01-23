@@ -3,6 +3,7 @@ package org.brapi.test.BrAPITestServer.service.pheno;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.math.NumberUtils;
@@ -91,7 +92,7 @@ public class ScaleService {
 	public ScaleEntity getScaleEntity(String scaleDbId, HttpStatus errorStatus) throws BrAPIServerException {
 		ScaleEntity scale = null;
 		if (scaleDbId != null) {
-			Optional<ScaleEntity> entityOpt = scaleRepository.findById(scaleDbId);
+			Optional<ScaleEntity> entityOpt = scaleRepository.findById(UUID.fromString(scaleDbId));
 			if (entityOpt.isPresent()) {
 				scale = entityOpt.get();
 			} else {

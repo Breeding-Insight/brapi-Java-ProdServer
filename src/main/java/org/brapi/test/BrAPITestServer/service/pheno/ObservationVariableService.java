@@ -185,7 +185,7 @@ public class ObservationVariableService {
 	public ObservationVariableEntity getObservationVariableEntity(String observationVariableDbId,
 			HttpStatus errorStatus) throws BrAPIServerException {
 		ObservationVariableEntity observationVariable = null;
-		Optional<ObservationVariableEntity> entityOpt = observationVariableRepository.findById(observationVariableDbId);
+		Optional<ObservationVariableEntity> entityOpt = observationVariableRepository.findById(UUID.fromString(observationVariableDbId));
 		if (entityOpt.isPresent()) {
 			observationVariable = entityOpt.get();
 		} else {

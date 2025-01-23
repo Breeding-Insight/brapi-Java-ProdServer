@@ -2,6 +2,7 @@ package org.brapi.test.BrAPITestServer.service.geno;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 import org.brapi.test.BrAPITestServer.exceptions.BrAPIServerDbIdNotFoundException;
 import org.brapi.test.BrAPITestServer.exceptions.BrAPIServerException;
@@ -60,7 +61,7 @@ public class GenomeMapService {
 
 	public GenomeMap getMap(String mapDbId) throws BrAPIServerException {
 		GenomeMap map = null;
-		Optional<GenomeMapEntity> entityOpt = genomeMapRepository.findById(mapDbId);
+		Optional<GenomeMapEntity> entityOpt = genomeMapRepository.findById(UUID.fromString(mapDbId));
 		if (entityOpt.isPresent()) {
 			map = convertFromEntity(entityOpt.get());
 		} else {

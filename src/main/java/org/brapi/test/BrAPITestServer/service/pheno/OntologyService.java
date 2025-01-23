@@ -3,6 +3,7 @@ package org.brapi.test.BrAPITestServer.service.pheno;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 import org.brapi.test.BrAPITestServer.exceptions.BrAPIServerDbIdNotFoundException;
 import org.brapi.test.BrAPITestServer.exceptions.BrAPIServerException;
@@ -41,7 +42,7 @@ public class OntologyService {
 			PagingUtility.calculateMetaData(metadata, ontologiesPage);
 			ontologies = ontologiesPage.map(this::convertFromEntity).getContent();
 		} else {
-			Optional<OntologyEntity> ontologyOpt = ontologyRepository.findById(ontologyDbId);
+			Optional<OntologyEntity> ontologyOpt = ontologyRepository.findById(UUID.fromString(ontologyDbId));
 			if (ontologyOpt.isPresent()) {
 				ontologies.add(convertFromEntity(ontologyOpt.get()));
 				metadata.getPagination().setCurrentPage(0);
@@ -118,7 +119,7 @@ public class OntologyService {
 	public OntologyEntity getOntologyEntity(String ontologyDbId, HttpStatus errorStatus) throws BrAPIServerException {
 		OntologyEntity ontology = null;
 		if (ontologyDbId != null) {
-			Optional<OntologyEntity> entityOpt = ontologyRepository.findById(ontologyDbId);
+			Optional<OntologyEntity> entityOpt = ontologyRepository.findById(UUID.fromString(ontologyDbId));
 			if (entityOpt.isPresent()) {
 				ontology = entityOpt.get();
 			} else {

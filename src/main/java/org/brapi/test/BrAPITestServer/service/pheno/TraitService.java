@@ -3,6 +3,8 @@ package org.brapi.test.BrAPITestServer.service.pheno;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
+
 import jakarta.validation.Valid;
 
 import org.brapi.test.BrAPITestServer.exceptions.BrAPIServerDbIdNotFoundException;
@@ -87,7 +89,7 @@ public class TraitService {
 	public TraitEntity getTraitEntity(String traitDbId, HttpStatus errorStatus) throws BrAPIServerException {
 		TraitEntity trait = null;
 		if (traitDbId != null) {
-			Optional<TraitEntity> entityOpt = traitRepository.findById(traitDbId);
+			Optional<TraitEntity> entityOpt = traitRepository.findById(UUID.fromString(traitDbId));
 			if (entityOpt.isPresent()) {
 				trait = entityOpt.get();
 			} else {

@@ -1,6 +1,7 @@
 package org.brapi.test.BrAPITestServer.service;
 
 import java.util.Optional;
+import java.util.UUID;
 
 import org.brapi.test.BrAPITestServer.exceptions.BrAPIServerDbIdNotFoundException;
 import org.brapi.test.BrAPITestServer.exceptions.BrAPIServerException;
@@ -40,7 +41,7 @@ public class SearchService {
 	}
 
 	public SearchRequestEntity findById(String searchResultsDbId) throws BrAPIServerException {
-		Optional<SearchRequestEntity> searchEntityOpt = searchRepository.findById(searchResultsDbId);
+		Optional<SearchRequestEntity> searchEntityOpt = searchRepository.findById(UUID.fromString(searchResultsDbId));
 		if (searchEntityOpt.isPresent()) {
 			SearchRequestEntity searchEntity = searchEntityOpt.get();
 			if(searchEntity.getResponseCountdown() <= 0) {

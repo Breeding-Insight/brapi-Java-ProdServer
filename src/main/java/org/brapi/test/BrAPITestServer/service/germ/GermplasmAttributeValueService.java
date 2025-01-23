@@ -3,6 +3,8 @@ package org.brapi.test.BrAPITestServer.service.germ;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
+
 import jakarta.validation.Valid;
 
 import org.brapi.test.BrAPITestServer.exceptions.BrAPIServerDbIdNotFoundException;
@@ -98,7 +100,7 @@ public class GermplasmAttributeValueService {
 	public GermplasmAttributeValueEntity getGermplasmAttributeValueEntity(String attributeValueDbId,
 			HttpStatus errorStatus) throws BrAPIServerException {
 		GermplasmAttributeValueEntity attributeValue = null;
-		Optional<GermplasmAttributeValueEntity> entityOpt = attributeValueRepository.findById(attributeValueDbId);
+		Optional<GermplasmAttributeValueEntity> entityOpt = attributeValueRepository.findById(UUID.fromString(attributeValueDbId));
 		if (entityOpt.isPresent()) {
 			attributeValue = entityOpt.get();
 		} else {

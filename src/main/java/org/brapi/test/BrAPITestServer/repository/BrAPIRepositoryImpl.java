@@ -23,6 +23,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.support.JpaEntityInformation;
 import org.springframework.data.jpa.repository.support.SimpleJpaRepository;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 
@@ -111,10 +112,10 @@ public class BrAPIRepositoryImpl<T extends BrAPIPrimaryEntity, ID extends Serial
 	public Optional<T> findById(ID id) {
 		Optional<T> response = super.findById(id);
 		if (response.isPresent()) {
-			String userId = SecurityUtils.getCurrentUserId();
+			UUID userId = SecurityUtils.getCurrentUserId();
 			if (!(null == response.get().getAuthUserId()
 					|| userId.equals(response.get().getAuthUserId())
-					|| "AAAAAAAA-AAAA-AAAA-AAAA-AAAAAAAAAAAA".equals(response.get().getAuthUserId()))) {
+					|| UUID.fromString("AAAAAAAA-AAAA-AAAA-AAAA-AAAAAAAAAAAA").equals(response.get().getAuthUserId()))) {
 				response = Optional.empty();
 			}
 		}
@@ -148,8 +149,8 @@ public class BrAPIRepositoryImpl<T extends BrAPIPrimaryEntity, ID extends Serial
 
 		Page<T> xrefs = findAllBySearchAndPaginate(searchQuery, PageRequest.of(0, page.getSize()));
 
-		Map<String, List<ExternalReferenceEntity>> xrefByEntity = new HashMap<>();
-		xrefs.forEach(entity -> xrefByEntity.put(entity.getId().toString(), entity.getExternalReferences()));
+		Map<UUID, List<ExternalReferenceEntity>> xrefByEntity = new HashMap<>();
+		xrefs.forEach(entity -> xrefByEntity.put(entity.getId(), entity.getExternalReferences()));
 
 		page.forEach(entity -> entity.setExternalReferences(xrefByEntity.get(entity.getId())));
 	}
@@ -158,10 +159,10 @@ public class BrAPIRepositoryImpl<T extends BrAPIPrimaryEntity, ID extends Serial
 
 		SecurityContext context = SecurityContextHolder.getContext();
 		Set<String> userRolesSet = context.getAuthentication().getAuthorities().stream()
-				.map(auth -> auth.getAuthority()).collect(Collectors.toSet());
+				.map(GrantedAuthority::getAuthority).collect(Collectors.toSet());
 
 		List<String> userIds = new ArrayList<>();
-		userIds.add(SecurityUtils.getCurrentUserId());
+		userIds.add(SecurityUtils.getCurrentUserId().toString());
 		if (userRolesSet.contains("ROLE_ADMIN")) {
 			return;
 		} else if (userRolesSet.contains("ROLE_USER")) {

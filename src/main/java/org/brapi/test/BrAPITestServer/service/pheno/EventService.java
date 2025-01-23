@@ -60,7 +60,7 @@ public class EventService {
 		event.setEventDbId(entity.getId().toString());
 		event.setEventDescription(entity.getEventDescription());
 		event.setEventType(entity.getEventType());
-		event.setEventTypeDbId(entity.getEventTypeDbId());
+		event.setEventTypeDbId(entity.getEventTypeDbId().toString());
 
 		if (entity.getDates() != null) {
 			event.setDate(

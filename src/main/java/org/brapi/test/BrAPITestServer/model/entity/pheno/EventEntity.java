@@ -6,6 +6,7 @@ import org.brapi.test.BrAPITestServer.model.entity.core.StudyEntity;
 
 import java.util.Date;
 import java.util.List;
+import java.util.UUID;
 
 @Entity
 @Table(name = "event")
@@ -19,7 +20,7 @@ public class EventEntity extends BrAPIPrimaryEntity {
 	@Column
 	private String eventType = null;
 	@Column
-	private String eventTypeDbId = null;
+	private UUID eventTypeDbId = null;
 	@ManyToMany
 	@JoinTable
 	private List<ObservationUnitEntity> observationUnits;
@@ -58,11 +59,11 @@ public class EventEntity extends BrAPIPrimaryEntity {
         this.eventType = eventType;
     }
 
-    public String getEventTypeDbId() {
+    public UUID getEventTypeDbId() {
         return eventTypeDbId;
     }
 
-    public void setEventTypeDbId(String eventTypeDbId) {
+    public void setEventTypeDbId(UUID eventTypeDbId) {
         this.eventTypeDbId = eventTypeDbId;
     }
 

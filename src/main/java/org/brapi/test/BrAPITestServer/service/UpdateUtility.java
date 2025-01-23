@@ -70,7 +70,7 @@ public class UpdateUtility {
 
 			Map<String, List<ExternalReferenceEntity>> existingRefsById =
 					entity.getExternalReferences() != null ?
-							entity.getExternalReferences().stream().collect(Collectors.groupingBy(ExternalReferenceEntity::getExternalReferenceId))
+							entity.getExternalReferences().stream().collect(Collectors.groupingBy(e -> e.getExternalReferenceId().toString()))
 							: Collections.emptyMap();
 
 
@@ -81,10 +81,10 @@ public class UpdateUtility {
 					return true;
 				}
 
-				ExternalReferenceEntity existingEntityRef = existingEntityRefList.get(0);
+				ExternalReferenceEntity existingEntityRef = existingEntityRefList.getFirst();
 
 				return !existingEntityRef.getExternalReferenceSource().equals(exRef.getReferenceSource());
-			}).collect(Collectors.toList());
+			}).toList();
 
 			if (!newExRefs.isEmpty()) {
 				// Detected different ex refs than what is in the original entity. Updating entity exRefs.

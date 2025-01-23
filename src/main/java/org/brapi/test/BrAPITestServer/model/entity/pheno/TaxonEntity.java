@@ -5,13 +5,15 @@ import jakarta.persistence.*;
 import org.brapi.test.BrAPITestServer.model.entity.BrAPIBaseEntity;
 import org.brapi.test.BrAPITestServer.model.entity.germ.GermplasmEntity;
 
+import java.util.UUID;
+
 @Entity
 @Table(name = "germplasm_taxon")
 public class TaxonEntity extends BrAPIBaseEntity {
 	@Column
 	private String sourceName;
 	@Column
-	private String taxonId;
+	private UUID taxonId;
 	@ManyToOne(fetch = FetchType.LAZY)
 	private GermplasmEntity germplasm;
 	
@@ -27,10 +29,10 @@ public class TaxonEntity extends BrAPIBaseEntity {
 	public void setSourceName(String sourceName) {
 		this.sourceName = sourceName;
 	}
-	public String getTaxonId() {
+	public UUID getTaxonId() {
 		return taxonId;
 	}
-	public void setTaxonId(String taxonId) {
+	public void setTaxonId(UUID taxonId) {
 		this.taxonId = taxonId;
 	}
 }

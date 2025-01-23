@@ -5,13 +5,15 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 import org.brapi.test.BrAPITestServer.model.entity.BrAPIBaseEntity;
 
+import java.util.UUID;
+
 @Entity
 @Table(name = "contact")
 public class ContactEntity extends BrAPIBaseEntity {
     @Column
-    private String studyDbId;
+    private UUID studyDbId;
     @Column
-    private String trialDbId;
+    private UUID trialDbId;
     @Column
     private String name;
     @Column
@@ -21,14 +23,22 @@ public class ContactEntity extends BrAPIBaseEntity {
     @Column
     private String type;
     @Column
-    private String orcid;
+    private UUID orcid;
 
-    public String getStudyDbId() {
+    public UUID getStudyDbId() {
         return studyDbId;
     }
 
-    public void setStudyDbId(String studyDbId) {
+    public void setStudyDbId(UUID studyDbId) {
         this.studyDbId = studyDbId;
+    }
+
+    public UUID getTrialDbId() {
+        return trialDbId;
+    }
+
+    public void setTrialDbId(UUID trialDbId) {
+        this.trialDbId = trialDbId;
     }
 
     public String getName() {
@@ -63,11 +73,11 @@ public class ContactEntity extends BrAPIBaseEntity {
         this.type = type;
     }
 
-    public String getOrcid() {
+    public UUID getOrcid() {
         return orcid;
     }
 
-    public void setOrcid(String orcid) {
+    public void setOrcid(UUID orcid) {
         this.orcid = orcid;
     }
 }

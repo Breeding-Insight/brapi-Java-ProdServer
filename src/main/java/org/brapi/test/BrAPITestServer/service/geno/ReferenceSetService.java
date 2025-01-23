@@ -3,6 +3,7 @@ package org.brapi.test.BrAPITestServer.service.geno;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 import org.brapi.test.BrAPITestServer.exceptions.BrAPIServerDbIdNotFoundException;
 import org.brapi.test.BrAPITestServer.exceptions.BrAPIServerException;
@@ -84,7 +85,7 @@ public class ReferenceSetService {
 	public ReferenceSetEntity getReferenceSetEntity(String referenceSetDbId, HttpStatus errorStatus)
 			throws BrAPIServerException {
 		ReferenceSetEntity referenceSet = null;
-		Optional<ReferenceSetEntity> entityOpt = referenceSetRepository.findById(referenceSetDbId);
+		Optional<ReferenceSetEntity> entityOpt = referenceSetRepository.findById(UUID.fromString(referenceSetDbId));
 		if (entityOpt.isPresent()) {
 			referenceSet = entityOpt.get();
 		} else {

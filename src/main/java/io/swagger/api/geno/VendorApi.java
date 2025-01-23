@@ -142,6 +142,7 @@ public interface VendorApi {
 			@ApiResponse(code = 200, message = "OK", response = VendorSpecificationSingleResponse.class) })
 	@RequestMapping(value = "/vendor/specifications", produces = { "application/json" }, method = RequestMethod.GET)
 	ResponseEntity<VendorSpecificationSingleResponse> vendorSpecificationsGet(
+			@ApiParam(value = "The vendor specification id", required = true) @PathVariable("vendorSpecId") String vendorSpecId,
 			@ApiParam(value = "HTTP HEADER - Token used for Authorization   <strong> Bearer {token_string} </strong>") @RequestHeader(value = "Authorization", required = false) String authorization)
 			throws BrAPIServerException;
 

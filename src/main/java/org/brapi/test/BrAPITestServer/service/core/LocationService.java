@@ -3,6 +3,7 @@ package org.brapi.test.BrAPITestServer.service.core;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 import jakarta.validation.Valid;
 
@@ -103,7 +104,7 @@ public class LocationService {
 
 	public LocationEntity getLocationEntity(String locationDbId, HttpStatus errorStatus) throws BrAPIServerException {
 		LocationEntity location = null;
-		Optional<LocationEntity> entityOpt = locationRepository.findById(locationDbId);
+		Optional<LocationEntity> entityOpt = locationRepository.findById(UUID.fromString(locationDbId));
 		if (entityOpt.isPresent()) {
 			location = entityOpt.get();
 		} else {

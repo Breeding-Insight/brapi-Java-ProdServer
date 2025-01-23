@@ -8,6 +8,7 @@ import org.brapi.test.BrAPITestServer.converter.JsonbConverter;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 @MappedSuperclass
 public class BrAPIPrimaryEntity extends BrAPIBaseEntity {
@@ -22,13 +23,13 @@ public class BrAPIPrimaryEntity extends BrAPIBaseEntity {
     private List<ExternalReferenceEntity> externalReferences;
 
     @Column
-    private String authUserId;
+    private UUID authUserId;
 
-    public String getAuthUserId() {
+    public UUID getAuthUserId() {
         return authUserId;
     }
 
-    public void setAuthUserId(String authUserId) {
+    public void setAuthUserId(UUID authUserId) {
         this.authUserId = authUserId;
     }
 
@@ -53,7 +54,7 @@ public class BrAPIPrimaryEntity extends BrAPIBaseEntity {
         if (getExternalReferences() != null) {
             for (ExternalReferenceEntity entity : getExternalReferences()) {
                 ExternalReferencesInner exRef = new ExternalReferencesInner();
-                exRef.setReferenceID(entity.getExternalReferenceId());
+                exRef.setReferenceID(entity.getExternalReferenceId().toString());
                 exRef.setReferenceSource(entity.getExternalReferenceSource());
                 exRefs.add(exRef);
             }
@@ -66,7 +67,7 @@ public class BrAPIPrimaryEntity extends BrAPIBaseEntity {
             setExternalReferences(new ArrayList<>());
             for (ExternalReferencesInner exRef : exRefs) {
                 ExternalReferenceEntity entity = new ExternalReferenceEntity();
-                entity.setExternalReferenceId(exRef.getReferenceID());
+                entity.setExternalReferenceId(UUID.fromString(exRef.getReferenceID()));
                 entity.setExternalReferenceSource(exRef.getReferenceSource());
                 getExternalReferences().add(entity);
             }

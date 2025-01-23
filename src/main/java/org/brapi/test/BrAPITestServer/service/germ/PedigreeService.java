@@ -163,7 +163,7 @@ public class PedigreeService {
 
 	public Optional<PedigreeNodeEntity> getPedigreeNode(String germplasmDbId) {
 		Optional<PedigreeNodeEntity> node = Optional.empty();
-		List<PedigreeNodeEntity> nodeList = pedigreeRepository.findByGermplasm_Id(germplasmDbId);
+		List<PedigreeNodeEntity> nodeList = pedigreeRepository.findByGermplasm_Id(UUID.fromString(germplasmDbId));
 		if (nodeList.size() == 1) {
 			node = Optional.of(nodeList.get(0));
 		} else if (nodeList.size() > 1) {
@@ -696,21 +696,21 @@ public class PedigreeService {
 								   Map<String, Pair<PedigreeNodeEntity, PedigreeNode>> entityDtoPairsByGermId)
 		throws BrAPIServerException {
 
-		List<String> parentEdgesToDelete = new ArrayList<>();
+		List<UUID> parentEdgesToDelete = new ArrayList<>();
 
 		SearchQueryBuilder<PedigreeEdgeEntity> search = new SearchQueryBuilder<>(PedigreeEdgeEntity.class);
 		search.appendList(germIdsWithParentNodes, "connectedNode.germplasm.id");
 		search.appendEnum(PedigreeEdgeEntity.EdgeType.child, "edgeType");
 		List<PedigreeEdgeEntity> existingParentEdges = pedigreeEdgeRepository.findAllBySearch(search);
 
-		List<String> existingParentEdgesFromPassedEntities = entityDtoPairsByGermId.entrySet()
+		List<UUID> existingParentEdgesFromPassedEntities = entityDtoPairsByGermId.entrySet()
 				.stream()
 				.flatMap(entry -> entry.getValue().getLeft().getParentEdges().stream())
-				.map(e -> e.getId().toString())
+				.map(BrAPIBaseEntity::getId)
 				.toList();
 
 		parentEdgesToDelete.addAll(existingParentEdgesFromPassedEntities);
-		parentEdgesToDelete.addAll(existingParentEdges.stream().map(e -> e.getId().toString()).toList());
+		parentEdgesToDelete.addAll(existingParentEdges.stream().map(BrAPIBaseEntity::getId).toList());
 
 		if (!parentEdgesToDelete.isEmpty()) {
 			pedigreeEdgeRepository.deleteAllByIdInBatch(parentEdgesToDelete);
@@ -752,7 +752,7 @@ public class PedigreeService {
 	private void updateChildEdges(List<String> germIdsWithProgenyNodes,
 								  Map<String, Pair<PedigreeNodeEntity, PedigreeNode>> entityDtoPairsByGermId)
 		throws BrAPIServerException {
-		List<String> progenyEdgesToDelete = new ArrayList<>();
+		List<UUID> progenyEdgesToDelete = new ArrayList<>();
 
 		SearchQueryBuilder<PedigreeEdgeEntity> search = new SearchQueryBuilder<PedigreeEdgeEntity>(PedigreeEdgeEntity.class);
 
@@ -760,14 +760,14 @@ public class PedigreeService {
 		search.appendEnum(PedigreeEdgeEntity.EdgeType.parent, "edgeType");
 		List<PedigreeEdgeEntity> existingProgenyEdges = pedigreeEdgeRepository.findAllBySearch(search);
 
-		List<String> existingProgenyEdgeFromPassedEntities = entityDtoPairsByGermId.entrySet()
+		List<UUID> existingProgenyEdgeFromPassedEntities = entityDtoPairsByGermId.entrySet()
 				.stream()
 				.flatMap(entry -> entry.getValue().getLeft().getProgenyEdges().stream())
-				.map(e -> e.getId().toString())
+				.map(BrAPIBaseEntity::getId)
 				.toList();
 
 		progenyEdgesToDelete.addAll(existingProgenyEdgeFromPassedEntities);
-		progenyEdgesToDelete.addAll(existingProgenyEdges.stream().map(e -> e.getId().toString()).toList());
+		progenyEdgesToDelete.addAll(existingProgenyEdges.stream().map(BrAPIBaseEntity::getId).toList());
 
 		if (!progenyEdgesToDelete.isEmpty()) {
 			pedigreeEdgeRepository.deleteAllByIdInBatch(progenyEdgesToDelete);

@@ -10,18 +10,19 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.UUID;
 
-public interface TrialRepository extends BrAPIRepository<TrialEntity, String> {
+public interface TrialRepository extends BrAPIRepository<TrialEntity, UUID> {
 
 	@Query("select t from TrialEntity t join t.studies s "
-			+ "where ('' = :programDbId OR t.program.id = :programDbId) "
+			+ "where (:programDbId IS NULL OR t.program.id = :programDbId) "
 			+ "AND ('' = :commonCropName OR t.program.crop.cropName = :commonCropName) "
-			+ "AND ('' = :locationDbId OR :locationDbId = s.location.id) "
+			+ "AND (:locationDbId IS NULL OR :locationDbId = s.location.id) "
 			+ "AND (:applyActiveFilter = false OR :active = t.active)")
 	Page<TrialEntity> findBySearch(
 			@Param("commonCropName") String commonCropName,
-			@Param("programDbId") String programDbId, 
-			@Param("locationDbId") String locationDbId, 
+			@Param("programDbId") UUID programDbId,
+			@Param("locationDbId") UUID locationDbId,
 			@Param("applyActiveFilter") boolean applyActiveFilter, 
 			@Param("active") boolean active, Pageable pageReq);
 

@@ -4,19 +4,21 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 
+import java.util.UUID;
+
 @Entity
 @Table(name = "external_reference")
 public class ExternalReferenceEntity extends BrAPIBaseEntity {
     @Column
-    private String externalReferenceId;
+    private UUID externalReferenceId;
     @Column
     private String externalReferenceSource;
 
-    public String getExternalReferenceId() {
+    public UUID getExternalReferenceId() {
         return externalReferenceId;
     }
 
-    public void setExternalReferenceId(String externalReferenceId) {
+    public void setExternalReferenceId(UUID externalReferenceId) {
         this.externalReferenceId = externalReferenceId;
     }
 

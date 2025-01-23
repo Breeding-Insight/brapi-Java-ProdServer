@@ -1,9 +1,6 @@
 package org.brapi.test.BrAPITestServer.service.geno;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.Map.Entry;
 
 import org.brapi.test.BrAPITestServer.exceptions.BrAPIServerDbIdNotFoundException;
@@ -119,7 +116,7 @@ public class PlateService {
 
 	public PlateEntity getPlateEntity(String plateDbId, HttpStatus errorStatus) throws BrAPIServerException {
 		PlateEntity plate = null;
-		Optional<PlateEntity> entityOpt = plateRepository.findById(plateDbId);
+		Optional<PlateEntity> entityOpt = plateRepository.findById(UUID.fromString(plateDbId));
 		if (entityOpt.isPresent()) {
 			plate = entityOpt.get();
 		} else {
@@ -157,7 +154,7 @@ public class PlateService {
 	}
 
 	public void deletePlateBatch(List<String> plateDbIds) {
-		plateRepository.deleteAllByIdInBatch(plateDbIds);
+		plateRepository.deleteAllByIdInBatch(plateDbIds.stream().map(UUID::fromString).toList());
 	}
 
 	private void updateEntity(PlateEntity entity, PlateNewRequest plate) throws BrAPIServerException {

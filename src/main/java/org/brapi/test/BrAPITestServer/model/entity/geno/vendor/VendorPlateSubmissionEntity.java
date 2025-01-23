@@ -6,13 +6,14 @@ import org.brapi.test.BrAPITestServer.model.entity.BrAPIPrimaryEntity;
 import org.brapi.test.BrAPITestServer.model.entity.geno.PlateEntity;
 
 import java.util.List;
+import java.util.UUID;
 
 @Entity
 @Table(name = "plate_submission")
 public class VendorPlateSubmissionEntity extends BrAPIPrimaryEntity {
 
     @Column
-    private String clientId;
+    private UUID clientId;
     @Column
     private Integer numberOfSamples;
     @Column
@@ -29,10 +30,10 @@ public class VendorPlateSubmissionEntity extends BrAPIPrimaryEntity {
 	public void setOrder(VendorOrderEntity order) {
 		this.order = order;
 	}
-	public String getClientId() {
+	public UUID getClientId() {
 		return clientId;
 	}
-	public void setClientId(String clientId) {
+	public void setClientId(UUID clientId) {
 		this.clientId = clientId;
 	}
 	public Integer getNumberOfSamples() {

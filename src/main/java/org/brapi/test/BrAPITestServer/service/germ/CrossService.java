@@ -1,10 +1,6 @@
 package org.brapi.test.BrAPITestServer.service.germ;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.Map.Entry;
 
@@ -93,10 +89,7 @@ public class CrossService {
 		if(isPlanned == null) {
 			isPlanned = false;
 		}
-		if(crossDbId == null) {
-			crossDbId = "";
-		}
-		return crossRepository.findByIdAndPlanned(crossDbId, isPlanned);
+		return crossRepository.findByIdAndPlanned(UUID.fromString(crossDbId), isPlanned);
 	}
 	
 	public List<Cross> saveCrosses(@Valid List<CrossNewRequest> body) throws BrAPIServerException {
@@ -135,7 +128,7 @@ public class CrossService {
 		List<Cross> savedValues = new ArrayList<>();
 
 		for (Entry<String, CrossNewRequest> crossEntry : body.entrySet()) {
-			Optional<CrossEntity> entityOpt = crossRepository.findById(crossEntry.getKey());
+			Optional<CrossEntity> entityOpt = crossRepository.findById(UUID.fromString(crossEntry.getKey()));
 			if (entityOpt.isPresent()) {
 				CrossEntity entity = entityOpt.get();
 				updateEntity(entity, crossEntry.getValue());
@@ -154,7 +147,7 @@ public class CrossService {
 		List<PlannedCross> savedValues = new ArrayList<>();
 
 		for (Entry<String, PlannedCrossNewRequest> crossEntry : body.entrySet()) {
-			Optional<CrossEntity> entityOpt = crossRepository.findById(crossEntry.getKey());
+			Optional<CrossEntity> entityOpt = crossRepository.findById(UUID.fromString(crossEntry.getKey()));
 			if (entityOpt.isPresent()) {
 				CrossEntity entity = entityOpt.get();
 				updateEntity(entity, crossEntry.getValue());

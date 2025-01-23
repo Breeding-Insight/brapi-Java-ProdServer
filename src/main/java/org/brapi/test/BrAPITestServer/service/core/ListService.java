@@ -114,7 +114,7 @@ public class ListService {
 	public ListDetails getList(String listDbId) throws BrAPIServerException {
 		ListEntity entity;
 
-		Optional<ListEntity> entityOpt = listRepository.findById(listDbId);
+		Optional<ListEntity> entityOpt = listRepository.findById(UUID.fromString(listDbId));
 		if (entityOpt.isPresent()) {
 			entity = entityOpt.get();
 		} else {
@@ -126,7 +126,7 @@ public class ListService {
 
 	public ListDetails updateListItems(String listDbId, List<String> listItems) throws BrAPIServerException {
 		ListEntity savedEntity;
-		Optional<ListEntity> entityOpt = listRepository.findById(listDbId);
+		Optional<ListEntity> entityOpt = listRepository.findById(UUID.fromString(listDbId));
 		if (entityOpt.isPresent()) {
 			ListEntity entity = entityOpt.get();
 			entity.setDateModified(new Date());
@@ -150,7 +150,7 @@ public class ListService {
 
 	public ListDetails updateList(String listDbId, ListNewRequest list) throws BrAPIServerException {
 		ListEntity savedEntity;
-		Optional<ListEntity> entityOpt = listRepository.findById(listDbId);
+		Optional<ListEntity> entityOpt = listRepository.findById(UUID.fromString(listDbId));
 		if (entityOpt.isPresent()) {
 			ListEntity entity = entityOpt.get();
 			updateEntity(entity, list);
@@ -165,7 +165,7 @@ public class ListService {
 	}
 
 	public void deleteListBatch(List<String> listDbIds) {
-		listRepository.deleteAllByIdInBatch(listDbIds);
+		listRepository.deleteAllByIdInBatch(listDbIds.stream().map(UUID::fromString).toList());
 	}
 
 	public void softDeleteListBatch(List<String> listDbIds) {
@@ -177,7 +177,7 @@ public class ListService {
 		softDeleteList(listDbId);
 
 		// Hard delete the list
-		listRepository.deleteAllByIdInBatch(Arrays.asList(listDbId));
+		listRepository.deleteAllByIdInBatch(List.of(UUID.fromString(listDbId)));
 	}
 
 	public void softDeleteList(String listDbId) throws BrAPIServerDbIdNotFoundException {

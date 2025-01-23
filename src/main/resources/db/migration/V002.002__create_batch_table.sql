@@ -5,9 +5,9 @@
 --
 
 CREATE TABLE public.batch (
-                             id text NOT NULL,
+                             id UUID NOT NULL,
                              additional_info jsonb,
-                             auth_user_id text,
+                             auth_user_id UUID,
                              date_created timestamp without time zone,
                              date_modified timestamp without time zone,
                              description text,
@@ -15,7 +15,7 @@ CREATE TABLE public.batch (
                              batch_owner_name text,
                              batch_source text,
                              batch_type integer,
-                             batch_owner_person_id text
+                             batch_owner_person_id UUID
 );
 
 
@@ -26,8 +26,8 @@ ALTER TABLE public.batch OWNER TO postgres;
 --
 
 CREATE TABLE public.batch_external_references (
-                                                 batch_entity_id text NOT NULL,
-                                                 external_references_id text NOT NULL
+                                                 batch_entity_id UUID NOT NULL,
+                                                 external_references_id UUID NOT NULL
 );
 
 
@@ -38,9 +38,9 @@ ALTER TABLE public.batch_external_references OWNER TO postgres;
 --
 
 CREATE TABLE public.batch_item (
-                                  id text NOT NULL,
+                                  id UUID NOT NULL,
                                   item text,
-                                  batch_id text
+                                  batch_id UUID
 );
 
 

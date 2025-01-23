@@ -1,12 +1,7 @@
 package org.brapi.test.BrAPITestServer.service.geno;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import jakarta.validation.Valid;
@@ -66,7 +61,7 @@ public class VendorSampleService {
 	private VendorPlate convertFromEntity(PlateEntity entity) {
 		VendorPlate plate = new VendorPlate();
 		plate.setClientPlateBarcode(entity.getClientPlateBarcode());
-		plate.setClientPlateId(entity.getClientPlateDbId());
+		plate.setClientPlateId(entity.getClientPlateDbId().toString());
 		plate.setSampleSubmissionFormat(entity.getSampleSubmissionFormat());
 		plate.setSamples(entity.getSamples().stream().map(this::convertFromEntity).collect(Collectors.toList()));
 
@@ -111,7 +106,7 @@ public class VendorSampleService {
 	}
 
 	private VendorOrder convertFromEntity(VendorOrderEntity entity) {
-		VendorOrder order = new VendorOrder().clientId(entity.getClientPlateDbId())
+		VendorOrder order = new VendorOrder().clientId(entity.getClientPlateDbId().toString())
 				.numberOfSamples(entity.getPlateSubmission().getNumberOfSamples()).orderId(entity.getId().toString())
 				.requiredServiceInfo(entity.getRequiredServiceInfo());
 		if (entity.getServiceIds() != null && !entity.getServiceIds().isEmpty())
@@ -122,7 +117,7 @@ public class VendorSampleService {
 
 	private VendorPlateSubmission convertFromEntity(VendorPlateSubmissionEntity entity) {
 		VendorPlateSubmission response = new VendorPlateSubmission();
-		response.setClientId(entity.getClientId());
+		response.setClientId(entity.getClientId().toString());
 		response.setNumberOfSamples(entity.getNumberOfSamples());
 		response.setPlates(
 				entity.getPlates().stream().map(this::convertFromEntityToSummary).collect(Collectors.toList()));
@@ -155,7 +150,7 @@ public class VendorSampleService {
 	private VendorPlateSubmissionPlates convertFromEntityToSummary(PlateEntity entity) {
 		VendorPlateSubmissionPlates plate = new VendorPlateSubmissionPlates();
 		plate.setClientPlateBarcode(entity.getClientPlateBarcode());
-		plate.setClientPlateId(entity.getClientPlateDbId());
+		plate.setClientPlateId(entity.getClientPlateDbId().toString());
 		plate.setSampleSubmissionFormat(entity.getSampleSubmissionFormat());
 		plate.setSamples(entity.getSamples().stream().map(this::convertFromEntity).collect(Collectors.toList()));
 		return plate;
@@ -164,7 +159,7 @@ public class VendorSampleService {
 	private VendorOrderEntity convertToEntity(VendorOrderSubmissionRequest request) {
 		VendorOrderEntity entity = new VendorOrderEntity();
 		entity.setClientPlateBarcode(request.getClientId());
-		entity.setClientPlateDbId(request.getClientId());
+		entity.setClientPlateDbId(UUID.fromString(request.getClientId()));
 		entity.setRequiredServiceInfo(request.getRequiredServiceInfo());
 		entity.setSampleType(request.getSampleType());
 		entity.setServiceIds(request.getServiceIds());
@@ -193,7 +188,7 @@ public class VendorSampleService {
 
 	private PlateEntity convertToEntity(VendorPlateSubmissionRequestPlates newPlate) {
 		PlateEntity plateEntity = new PlateEntity();
-		plateEntity.setClientPlateDbId(newPlate.getClientPlateId());
+		plateEntity.setClientPlateDbId(UUID.fromString(newPlate.getClientPlateId()));
 		plateEntity.setStatusTimeStamp(new Date());
 
 		return plateEntity;
@@ -202,7 +197,7 @@ public class VendorSampleService {
 	private VendorOrderEntity convertToEntity(VendorPlateSubmissionRequest request) {
 		VendorOrderEntity entity = new VendorOrderEntity();
 		entity.setClientPlateBarcode(request.getClientId());
-		entity.setClientPlateDbId(request.getClientId());
+		entity.setClientPlateDbId(UUID.fromString(request.getClientId()));
 		entity.setSampleType(request.getSampleType());
 		entity.setStatus(StatusEnum.RECEIVED);
 		entity.setStatusTimeStamp(new Date());
@@ -226,7 +221,7 @@ public class VendorSampleService {
 		Pageable pageReq = PagingUtility.getPageRequest(metadata);
 		List<VendorOrder> orders = new ArrayList<>();
 		if (orderId != null) {
-			Optional<VendorOrderEntity> orderEntity = vendorOrderRepository.findById(orderId);
+			Optional<VendorOrderEntity> orderEntity = vendorOrderRepository.findById(UUID.fromString(orderId));
 			if (orderEntity.isPresent()) {
 				metadata.getPagination().setTotalCount(1);
 				metadata.getPagination().setTotalPages(1);
@@ -247,7 +242,7 @@ public class VendorSampleService {
 	public VendorOrderStatusResponseResult getOrderStatus(String orderId) {
 		VendorOrderStatusResponseResult status = new VendorOrderStatusResponseResult();
 		if (orderId != null) {
-			Optional<VendorOrderEntity> orderEntity = vendorOrderRepository.findById(orderId);
+			Optional<VendorOrderEntity> orderEntity = vendorOrderRepository.findById(UUID.fromString(orderId));
 			if (orderEntity.isPresent()) {
 				status.setStatus(orderEntity.get().getStatus());
 				updateStatus(orderEntity.get());
@@ -259,7 +254,7 @@ public class VendorSampleService {
 	public List<VendorPlate> getPlates(String orderId, Metadata metadata) {
 		List<VendorPlate> plates = new ArrayList<>();
 		if (orderId != null) {
-			Optional<VendorOrderEntity> orderEntity = vendorOrderRepository.findById(orderId);
+			Optional<VendorOrderEntity> orderEntity = vendorOrderRepository.findById(UUID.fromString(orderId));
 			if (orderEntity.isPresent()) {
 				plates = orderEntity.get().getPlateSubmission().getPlates().stream().map(this::convertFromEntity)
 						.collect(Collectors.toList());
@@ -273,7 +268,7 @@ public class VendorSampleService {
 	public VendorPlateSubmission getPlateSubmission(String submissionId) {
 		VendorPlateSubmission response = null;
 		if (submissionId != null) {
-			Optional<VendorPlateSubmissionEntity> submissionEntity = vendorPlateRepository.findById(submissionId);
+			Optional<VendorPlateSubmissionEntity> submissionEntity = vendorPlateRepository.findById(UUID.fromString(submissionId));
 			if (submissionEntity.isPresent()) {
 				response = convertFromEntity(submissionEntity.get());
 			}
@@ -284,7 +279,7 @@ public class VendorSampleService {
 	public List<VendorResultFile> getResultFiles(String orderId, Metadata metadata) {
 		List<VendorResultFile> files = new ArrayList<>();
 		if (orderId != null) {
-			Optional<VendorOrderEntity> orderEntity = vendorOrderRepository.findById(orderId);
+			Optional<VendorOrderEntity> orderEntity = vendorOrderRepository.findById(UUID.fromString(orderId));
 			if (orderEntity.isPresent()) {
 				files = orderEntity.get().getFiles().stream().map(this::convertFromEntity).collect(Collectors.toList());
 				metadata.getPagination().setTotalCount(files.size());
@@ -294,8 +289,8 @@ public class VendorSampleService {
 		return files;
 	}
 
-	public VendorSpecification getVendorSpec() {
-		Optional<VendorSpecEntity> vendorSpecOpt = vendorSpecRepository.findById("vendor_spec1");
+	public VendorSpecification getVendorSpec(String vendorSpec) {
+		Optional<VendorSpecEntity> vendorSpecOpt = vendorSpecRepository.findById(UUID.fromString(vendorSpec));
 		VendorSpecification spec = null;
 		if (vendorSpecOpt.isPresent()) {
 			spec = convertFromEntity(vendorSpecOpt.get());

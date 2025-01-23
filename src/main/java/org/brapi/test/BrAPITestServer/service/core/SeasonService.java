@@ -3,6 +3,7 @@ package org.brapi.test.BrAPITestServer.service.core;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 import jakarta.validation.Valid;
 
@@ -63,7 +64,7 @@ public class SeasonService {
 
 	public SeasonEntity getSeasonEntity(String seasonDbId, HttpStatus errorStatus) throws BrAPIServerException {
 		SeasonEntity season = null;
-		Optional<SeasonEntity> entityOpt = seasonRepository.findById(seasonDbId);
+		Optional<SeasonEntity> entityOpt = seasonRepository.findById(UUID.fromString(seasonDbId));
 		if (entityOpt.isPresent()) {
 			season = entityOpt.get();
 		} else {

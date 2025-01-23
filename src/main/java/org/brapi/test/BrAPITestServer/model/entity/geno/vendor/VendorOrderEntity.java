@@ -8,12 +8,13 @@ import org.brapi.test.BrAPITestServer.model.entity.BrAPIPrimaryEntity;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 @Entity
 @Table(name = "vendor_order")
 public class VendorOrderEntity extends BrAPIPrimaryEntity {
     @Column
-    private String clientPlateDbId;
+    private UUID clientPlateDbId;
     @Column
     private String clientPlateBarcode;
     @Column
@@ -72,11 +73,11 @@ public class VendorOrderEntity extends BrAPIPrimaryEntity {
         this.plateSubmission = plateSubmission;
     }
 
-    public String getClientPlateDbId() {
+    public UUID getClientPlateDbId() {
         return clientPlateDbId;
     }
 
-    public void setClientPlateDbId(String clientPlateDbId) {
+    public void setClientPlateDbId(UUID clientPlateDbId) {
         this.clientPlateDbId = clientPlateDbId;
     }
 

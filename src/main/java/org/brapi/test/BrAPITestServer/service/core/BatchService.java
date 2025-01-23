@@ -31,7 +31,7 @@ public class BatchService {
 	public BatchDeleteDetails getBatch(String batchDbId) throws BrAPIServerException {
 		BatchDeleteEntity entity;
 
-		Optional<BatchDeleteEntity> entityOpt = batchDeleteRepository.findById(batchDbId);
+		Optional<BatchDeleteEntity> entityOpt = batchDeleteRepository.findById(UUID.fromString(batchDbId));
 		if (entityOpt.isPresent()) {
 			entity = entityOpt.get();
 		} else {
@@ -43,7 +43,7 @@ public class BatchService {
 
 	public BatchDeleteDetails updateBatchItems(String batchDbId, List<String> batchItems) throws BrAPIServerException {
 		BatchDeleteEntity savedEntity;
-		Optional<BatchDeleteEntity> entityOpt = batchDeleteRepository.findById(batchDbId);
+		Optional<BatchDeleteEntity> entityOpt = batchDeleteRepository.findById(UUID.fromString(batchDbId));
 		if (entityOpt.isPresent()) {
 			BatchDeleteEntity entity = entityOpt.get();
 			entity.setDateModified(new Date());
@@ -67,7 +67,7 @@ public class BatchService {
 
 	public BatchDeleteDetails updateBatch(String batchDbId, BatchDeleteNewRequest batch) throws BrAPIServerException {
 		BatchDeleteEntity savedEntity;
-		Optional<BatchDeleteEntity> entityOpt = batchDeleteRepository.findById(batchDbId);
+		Optional<BatchDeleteEntity> entityOpt = batchDeleteRepository.findById(UUID.fromString(batchDbId));
 		if (entityOpt.isPresent()) {
 			BatchDeleteEntity entity = entityOpt.get();
 			updateEntity(entity, batch);
@@ -102,7 +102,7 @@ public class BatchService {
 	}
 
 	public void deleteBatch(String batchDbId) throws BrAPIServerException {
-		batchDeleteRepository.deleteAllByIdInBatch(Arrays.asList(batchDbId));
+		batchDeleteRepository.deleteAllByIdInBatch(Arrays.asList(UUID.fromString(batchDbId)));
 	}
 
 	private BatchDeleteDetails convertToDetails(BatchDeleteEntity entity) {

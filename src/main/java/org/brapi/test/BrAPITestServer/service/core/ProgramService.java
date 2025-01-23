@@ -3,6 +3,7 @@ package org.brapi.test.BrAPITestServer.service.core;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 import org.brapi.test.BrAPITestServer.exceptions.BrAPIServerDbIdNotFoundException;
 import org.brapi.test.BrAPITestServer.exceptions.BrAPIServerException;
@@ -85,7 +86,7 @@ public class ProgramService {
 
 	public ProgramEntity getProgramEntity(String programDbId, HttpStatus errorStatus) throws BrAPIServerException {
 		ProgramEntity program = null;
-		Optional<ProgramEntity> entityOpt = programRepository.findById(programDbId);
+		Optional<ProgramEntity> entityOpt = programRepository.findById(UUID.fromString(programDbId));
 		if (entityOpt.isPresent()) {
 			program = entityOpt.get();
 		} else {
