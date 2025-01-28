@@ -10,15 +10,15 @@ import java.util.UUID;
 @Table(name = "external_reference")
 public class ExternalReferenceEntity extends BrAPIBaseEntity {
     @Column
-    private UUID externalReferenceId;
+    private String externalReferenceId;
     @Column
     private String externalReferenceSource;
 
-    public UUID getExternalReferenceId() {
+    public String getExternalReferenceId() {
         return externalReferenceId;
     }
 
-    public void setExternalReferenceId(UUID externalReferenceId) {
+    public void setExternalReferenceId(String externalReferenceId) {
         this.externalReferenceId = externalReferenceId;
     }
 

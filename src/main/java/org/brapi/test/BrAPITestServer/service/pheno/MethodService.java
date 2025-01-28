@@ -43,7 +43,7 @@ public class MethodService {
 			searchQuery = searchQuery.join("variables", "variable").appendSingle(observationVariableDbId,
 					"*variable.id");
 		}
-		searchQuery = searchQuery.appendSingle(methodDbId, "id").withExRefs(externalReferenceID,
+		searchQuery = searchQuery.appendSingle(UUID.fromString(methodDbId), "id").withExRefs(externalReferenceID,
 				externalReferenceSource);
 		Page<MethodEntity> methodPage = methodRepository.findAllBySearchAndPaginate(searchQuery, pageReq);
 		PagingUtility.calculateMetaData(metadata, methodPage);

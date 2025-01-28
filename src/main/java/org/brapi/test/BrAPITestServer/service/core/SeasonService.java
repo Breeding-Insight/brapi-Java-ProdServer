@@ -38,7 +38,7 @@ public class SeasonService {
 		Pageable pageReq = PagingUtility.getPageRequest(metadata);
 		SearchQueryBuilder<SeasonEntity> searchQuery = new SearchQueryBuilder<SeasonEntity>(SeasonEntity.class);
 		if (seasonDbId != null)
-			searchQuery = searchQuery.appendSingle(seasonDbId, "id");
+			searchQuery = searchQuery.appendSingle(UUID.fromString(seasonDbId), "id");
 		if (season != null)
 			searchQuery = searchQuery.appendSingle(season, "season");
 		if (seasonName != null)

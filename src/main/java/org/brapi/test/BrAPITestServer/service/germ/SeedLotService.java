@@ -62,22 +62,30 @@ public class SeedLotService {
 		Pageable pageReq = PagingUtility.getPageRequest(metadata);
 		SearchQueryBuilder<SeedLotEntity> searchQuery = new SearchQueryBuilder<SeedLotEntity>(SeedLotEntity.class);
 
-		if (seedLotDbId != null)
-			searchQuery = searchQuery.appendSingle(seedLotDbId, "id");
-		if (crossDbId != null || crossName != null || germplasmDbId != null || germplasmName != null) {
+		if (seedLotDbId != null) {
+			searchQuery = searchQuery.appendSingle(UUID.fromString(seedLotDbId), "id");
+		}
+
+		if (crossDbId != null) {
+			searchQuery.appendSingle(UUID.fromString(crossDbId), "*contentMixture.cross.id");
+		}
+
+		if (germplasmDbId != null) {
+			searchQuery.appendSingle(UUID.fromString(germplasmDbId), "*contentMixture.germplasm.id");
+		}
+
+		if (crossName != null || germplasmName != null) {
 			searchQuery = searchQuery.join("contentMixture", "contentMixture")
-					.appendSingle(crossDbId, "*contentMixture.cross.id")
 					.appendSingle(crossName, "*contentMixture.cross.name")
-					.appendSingle(germplasmDbId, "*contentMixture.germplasm.id")
 					.appendSingle(germplasmName, "*contentMixture.germplasm.name");
 		}
 		if (commonCropName != null)
 			searchQuery = searchQuery.appendSingle(commonCropName, "program.crop.crop_name");
 		if (programDbId != null)
-			searchQuery = searchQuery.appendSingle(programDbId, "program.id");
+			searchQuery = searchQuery.appendSingle(UUID.fromString(programDbId), "program.id");
 		if (externalReferenceID != null && externalReferenceSource != null)
-			searchQuery = searchQuery.withExRefs(Arrays.asList(externalReferenceID),
-					Arrays.asList(externalReferenceSource));
+			searchQuery = searchQuery.withExRefs(List.of(externalReferenceID),
+                    List.of(externalReferenceSource));
 
 		Page<SeedLotEntity> page = seedLotRepository.findAllBySearchAndPaginate(searchQuery, pageReq);
 		List<SeedLot> seedLots = page.map(this::convertFromEntity).getContent();
@@ -144,25 +152,32 @@ public class SeedLotService {
 		SearchQueryBuilder<SeedLotTransactionEntity> searchQuery = new SearchQueryBuilder<SeedLotTransactionEntity>(
 				SeedLotTransactionEntity.class);
 
-		if (transactionDbId != null)
-			searchQuery = searchQuery.appendSingle(transactionDbId, "id");
-		if (seedLotDbId != null)
-			searchQuery = searchQuery.appendSingle(seedLotDbId, "toSeedLot.id");
-		if (crossDbId != null || crossName != null || germplasmDbId != null || germplasmName != null) {
+		if (transactionDbId != null) {
+			searchQuery = searchQuery.appendSingle(UUID.fromString(transactionDbId), "id");
+		}
+		if (seedLotDbId != null) {
+			searchQuery = searchQuery.appendSingle(UUID.fromString(seedLotDbId), "toSeedLot.id");
+		}
+		if (crossDbId != null) {
+			searchQuery.appendSingle(UUID.fromString(crossDbId), "*contentMixture.cross.id");
+		}
+		if (germplasmDbId != null) {
+			searchQuery.appendSingle(UUID.fromString(germplasmDbId), "*contentMixture.germplasm.id");
+		}
+
+		if (crossName != null || germplasmName != null) {
 			searchQuery = searchQuery.join("toSeedLot.contentMixture", "contentMixture")
-					.appendSingle(crossDbId, "*contentMixture.cross.id")
 					.appendSingle(crossName, "*contentMixture.cross.name")
-					.appendSingle(germplasmDbId, "*contentMixture.germplasm.id")
 					.appendSingle(germplasmName, "*contentMixture.germplasm.name");
 		}
 		if (commonCropName != null)
 			searchQuery = searchQuery.appendSingle(commonCropName, "toSeedLot.program.crop.crop_name");
 		if (programDbId != null)
-			searchQuery = searchQuery.appendSingle(programDbId, "toSeedLot.program.id");
+			searchQuery = searchQuery.appendSingle(UUID.fromString(programDbId), "toSeedLot.program.id");
 
 		if (externalReferenceID != null && externalReferenceSource != null)
-			searchQuery = searchQuery.withExRefs(Arrays.asList(externalReferenceID),
-					Arrays.asList(externalReferenceSource));
+			searchQuery = searchQuery.withExRefs(List.of(externalReferenceID),
+                    List.of(externalReferenceSource));
 
 		Page<SeedLotTransactionEntity> page = seedLotTransactionRepository.findAllBySearchAndPaginate(searchQuery, pageReq);
 		List<SeedLotTransaction> transactions = page.map(this::convertFromEntity).getContent();

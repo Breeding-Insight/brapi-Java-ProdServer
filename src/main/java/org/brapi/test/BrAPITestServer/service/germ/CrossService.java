@@ -71,12 +71,12 @@ public class CrossService {
 		Pageable pageReq = PagingUtility.getPageRequest(metadata);
 		SearchQueryBuilder<CrossEntity> searchQuery = new SearchQueryBuilder<CrossEntity>(CrossEntity.class);
 		if (crossDbId != null)
-			searchQuery = searchQuery.appendSingle(crossDbId, "id");
+			searchQuery = searchQuery.appendSingle(UUID.fromString(crossDbId), "id");
 		if (crossingProjectDbId != null)
-			searchQuery = searchQuery.appendSingle(crossingProjectDbId, "crossingProject.id");
+			searchQuery = searchQuery.appendSingle(UUID.fromString(crossingProjectDbId), "crossingProject.id");
 		if (externalReferenceID != null && externalReferenceSource != null)
-			searchQuery = searchQuery.withExRefs(Arrays.asList(externalReferenceID),
-					Arrays.asList(externalReferenceSource));
+			searchQuery = searchQuery.withExRefs(List.of(externalReferenceID),
+                    List.of(externalReferenceSource));
 		if (plannedCross != null)
 			searchQuery = searchQuery.appendSingle(plannedCross, "planned");
 

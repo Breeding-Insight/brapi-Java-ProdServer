@@ -1,6 +1,7 @@
 package org.brapi.test.BrAPITestServer.service.pheno;
 
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import org.brapi.test.BrAPITestServer.exceptions.BrAPIServerException;
@@ -35,8 +36,8 @@ public class EventService {
 		Pageable pageReq = PagingUtility.getPageRequest(metadata);
 		SearchQueryBuilder<EventEntity> searchQuery = new SearchQueryBuilder<EventEntity>(EventEntity.class);
 
-		searchQuery = searchQuery.appendSingle(eventDbId, "id");
-		searchQuery = searchQuery.appendSingle(studyDbId, "study.id");
+		searchQuery = searchQuery.appendSingle(UUID.fromString(eventDbId), "id");
+		searchQuery = searchQuery.appendSingle(UUID.fromString(studyDbId), "study.id");
 		searchQuery = searchQuery.appendSingle(eventType, "eventType");
 		if (observationUnitDbId != null) {
 			searchQuery = searchQuery.join("observationUnits", "observationUnit").appendSingle(observationUnitDbId,

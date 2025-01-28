@@ -67,7 +67,7 @@ public class BrAPIPrimaryEntity extends BrAPIBaseEntity {
             setExternalReferences(new ArrayList<>());
             for (ExternalReferencesInner exRef : exRefs) {
                 ExternalReferenceEntity entity = new ExternalReferenceEntity();
-                entity.setExternalReferenceId(UUID.fromString(exRef.getReferenceID()));
+                entity.setExternalReferenceId(exRef.getReferenceID());
                 entity.setExternalReferenceSource(exRef.getReferenceSource());
                 getExternalReferences().add(entity);
             }

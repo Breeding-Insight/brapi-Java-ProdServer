@@ -122,6 +122,15 @@ public class SearchQueryBuilder<T> {
 		return this;
 	}
 
+	public SearchQueryBuilder<T> appendSingle(UUID single, String columnName) {
+		String paramName = paramFilter(columnName);
+		if (single != null) {
+			this.whereClause += "AND " + entityPrefix(columnName) + " = :" + paramName + " ";
+			this.params.put(paramName, single);
+		}
+		return this;
+	}
+
 	public <E extends Enum<E>> SearchQueryBuilder<T> appendEnum(E enumVal, String columnName) {
 		String paramName = paramFilter(columnName);
 		if (enumVal != null) {

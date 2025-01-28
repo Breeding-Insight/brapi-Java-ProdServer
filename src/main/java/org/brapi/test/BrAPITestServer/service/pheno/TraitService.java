@@ -45,7 +45,7 @@ public class TraitService {
 			searchQuery = searchQuery.join("variables", "variable").appendSingle(observationVariableDbId,
 					"*variable.id");
 		}
-		searchQuery = searchQuery.appendSingle(traitDbId, "id").withExRefs(externalReferenceID,
+		searchQuery = searchQuery.appendSingle(UUID.fromString(traitDbId), "id").withExRefs(externalReferenceID,
 				externalReferenceSource);
 		Page<TraitEntity> traitPage = traitRepository.findAllBySearchAndPaginate(searchQuery, pageReq);
 		PagingUtility.calculateMetaData(metadata, traitPage);

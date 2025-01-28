@@ -561,30 +561,6 @@ public class PedigreeService {
 		}
 	}
 
-	private void updateEntity(PedigreeNodeEntity entity, PedigreeNode node) throws BrAPIServerException {
-		if (node.getGermplasmDbId() != null && entity.getGermplasm() == null) {
-			GermplasmEntity germplasm = germplasmService.getGermplasmEntity(node.getGermplasmDbId());
-			entity.setGermplasm(germplasm);
-		}
-
-		UpdateUtility.updateEntity(node, entity);
-
-		if (node.getCrossingYear() != null)
-			entity.setCrossingYear(node.getCrossingYear());
-		if (node.getFamilyCode() != null)
-			entity.setFamilyCode(node.getFamilyCode());
-		if (node.getPedigreeString() != null)
-			entity.setPedigreeString(node.getPedigreeString());
-
-		if (node.getCrossingProjectDbId() != null) {
-			CrossingProjectEntity crossingProject = crossingProjectService
-					.getCrossingProjectEntity(node.getCrossingProjectDbId());
-			entity.setCrossingProject(crossingProject);
-		}
-	}
-
-
-
 	// This method should be used in use cases where there are no existing node entities representing the list being passed through.
 	private List<PedigreeNodeEntity> createEntitiesInBatch(List<PedigreeNode> nodes)
 		throws BrAPIServerException {

@@ -47,16 +47,16 @@ public class CrossingProjectService {
 				CrossingProjectEntity.class);
 
 		if (crossingProjectDbId != null)
-			searchQuery = searchQuery.appendSingle(crossingProjectDbId, "id");
+			searchQuery = searchQuery.appendSingle(UUID.fromString(crossingProjectDbId), "id");
 		if (crossingProjectName != null)
 			searchQuery = searchQuery.appendSingle(crossingProjectName, "name");
 		if (commonCropName != null)
 			searchQuery = searchQuery.appendSingle(commonCropName, "crop.crop_name");
 		if (programDbId != null)
-			searchQuery = searchQuery.appendSingle(programDbId, "program.id");
+			searchQuery = searchQuery.appendSingle(UUID.fromString(programDbId), "program.id");
 		if (externalReferenceID != null && externalReferenceSource != null)
-			searchQuery = searchQuery.withExRefs(Arrays.asList(externalReferenceID),
-					Arrays.asList(externalReferenceSource));
+			searchQuery = searchQuery.withExRefs(List.of(externalReferenceID),
+                    List.of(externalReferenceSource));
 
 		Page<CrossingProjectEntity> page = crossingProjectRepository.findAllBySearchAndPaginate(searchQuery, pageReq);
 		List<CrossingProject> crossingProjects = new ArrayList<>();

@@ -372,7 +372,7 @@ ALTER TABLE public.event_parameter_entity_values_by_date OWNER TO postgres;
 
 CREATE TABLE public.external_reference (
                                            id UUID NOT NULL,
-                                           external_reference_id UUID,
+                                           external_reference_id varchar(255),
                                            external_reference_source text
 );
 

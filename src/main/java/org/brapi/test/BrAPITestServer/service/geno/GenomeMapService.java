@@ -43,14 +43,24 @@ public class GenomeMapService {
 		if (programDbId != null || trialDbId != null || studyDbId != null) {
 			searchQuery = searchQuery.join("studies", "study");
 		}
+
+		if (programDbId != null) {
+			searchQuery.appendSingle(UUID.fromString(programDbId), "*study.trial.program.id");
+		}
+
+		if (trialDbId != null) {
+			searchQuery.appendSingle(UUID.fromString(trialDbId), "*study.trial.id");
+		}
+
+		if (studyDbId != null) {
+			searchQuery.appendSingle(UUID.fromString(studyDbId), "*study.id");
+
+		}
 		
 		searchQuery.appendSingle(commonCropName, "crop.cropName")
 				.appendSingle(mapPUI, "mapPUI")
 				.appendSingle(scientificName, "scientificName")
-				.appendSingle(type, "type")
-				.appendSingle(programDbId, "*study.trial.program.id")
-				.appendSingle(trialDbId, "*study.trial.id")
-				.appendSingle(studyDbId, "*study.id");
+				.appendSingle(type, "type");
 
 		Pageable pageReq = PagingUtility.getPageRequest(metadata);
 		Page<GenomeMapEntity> page = genomeMapRepository.findAllBySearchAndPaginate(searchQuery, pageReq);
@@ -73,7 +83,7 @@ public class GenomeMapService {
 	public List<LinkageGroup> findLinkageGroups(String mapDbId, Metadata metadata)
 		throws BrAPIServerException {
 		SearchQueryBuilder<LinkageGroupEntity> searchQuery = new SearchQueryBuilder<LinkageGroupEntity>(
-				LinkageGroupEntity.class).appendSingle(mapDbId, "genomeMap.id");
+				LinkageGroupEntity.class).appendSingle(UUID.fromString(mapDbId), "genomeMap.id");
 
 		Pageable pageReq = PagingUtility.getPageRequest(metadata);
 		Page<LinkageGroupEntity> page = linkageGroupRepository.findAllBySearchAndPaginate(searchQuery, pageReq);
