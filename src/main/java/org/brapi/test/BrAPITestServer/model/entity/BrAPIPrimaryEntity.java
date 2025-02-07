@@ -1,10 +1,13 @@
 package org.brapi.test.BrAPITestServer.model.entity;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import io.swagger.model.ExternalReferences;
 import io.swagger.model.ExternalReferencesInner;
 
 import jakarta.persistence.*;
-import org.brapi.test.BrAPITestServer.converter.JsonbConverter;
+import org.hibernate.annotations.BatchSize;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -13,10 +16,11 @@ import java.util.UUID;
 @MappedSuperclass
 public class BrAPIPrimaryEntity extends BrAPIBaseEntity {
 
-	@Convert(converter= JsonbConverter.class)
+    @JdbcTypeCode(SqlTypes.JSON)
 	@Column(columnDefinition="jsonb")
-	private Object additionalInfo;
+	private JsonNode additionalInfo;
 
+    @BatchSize(size = 50)
     @ManyToMany(cascade = CascadeType.ALL)
     @JoinTable(joinColumns = {@JoinColumn(referencedColumnName = "id")}, inverseJoinColumns = {
             @JoinColumn(referencedColumnName = "id")})
@@ -33,11 +37,11 @@ public class BrAPIPrimaryEntity extends BrAPIBaseEntity {
         this.authUserId = authUserId;
     }
 
-	public Object getAdditionalInfo() {
+	public JsonNode getAdditionalInfo() {
 		return this.additionalInfo;
 	}
 
-	public void setAdditionalInfo(Object info) {
+	public void setAdditionalInfo(JsonNode info) {
 		this.additionalInfo = info;
 	}
 

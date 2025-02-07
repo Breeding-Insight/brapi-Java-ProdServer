@@ -11,6 +11,8 @@ import org.brapi.test.BrAPITestServer.model.entity.core.CropEntity;
 import org.brapi.test.BrAPITestServer.model.entity.germ.GermplasmInstituteEntity.InstituteTypeEnum;
 import org.brapi.test.BrAPITestServer.model.entity.pheno.ObservationUnitEntity;
 import org.brapi.test.BrAPITestServer.model.entity.pheno.TaxonEntity;
+
+import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.Where;
 
 import java.util.ArrayList;
@@ -28,6 +30,7 @@ public class GermplasmEntity extends BrAPIPrimaryEntity {
 	@Column
 	private AcquisitionSourceCodeEnum acquisitionSourceCode;
 	@OneToMany(mappedBy = "germplasm")
+    @BatchSize(size = 50)
 	private List<GermplasmAttributeValueEntity> attributes;
 	@Column
 	private BiologicalStatusOfAccessionCode biologicalStatusOfAccessionCode;
@@ -44,17 +47,20 @@ public class GermplasmEntity extends BrAPIPrimaryEntity {
 	@Column
 	private String documentationURL;
 	@OneToMany(mappedBy = "germplasm", cascade = CascadeType.ALL)
+    @BatchSize(size = 50)
 	private List<DonorEntity> donors;
 	@Column
 	private String genus;
 	@Column
 	private String germplasmName;
 	@OneToMany(mappedBy = "germplasm", cascade = CascadeType.ALL)
+    @BatchSize(size = 50)
 	private List<GermplasmOriginEntity> germplasmOrigin;
 	@Column
 	private String germplasmPreprocessing;
 	@Column
 	private String germplasmPUI;
+    @BatchSize(size = 50)
 	@OneToMany(mappedBy = "germplasm", cascade = CascadeType.ALL)
 	private List<GermplasmInstituteEntity> institutes;
 	@Column
@@ -76,10 +82,13 @@ public class GermplasmEntity extends BrAPIPrimaryEntity {
 	private String subtaxa;
 	@Column
 	private String subtaxaAuthority;
+    @BatchSize(size = 50)
 	@OneToMany(mappedBy = "germplasm", cascade = CascadeType.ALL)
 	private List<GermplasmSynonymEntity> synonyms;
+    @BatchSize(size = 50)
 	@OneToMany(mappedBy = "germplasm", cascade = CascadeType.ALL)
 	private List<TaxonEntity> taxonIds;
+    @BatchSize(size = 50)
 	@OneToMany(mappedBy = "germplasm")
 	private List<ObservationUnitEntity> observationUnits;
 	@ElementCollection

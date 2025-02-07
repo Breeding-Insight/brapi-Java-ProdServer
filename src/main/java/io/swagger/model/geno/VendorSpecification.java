@@ -1,6 +1,7 @@
 package io.swagger.model.geno;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.JsonNode;
 import io.swagger.annotations.ApiModelProperty;
 import jakarta.validation.Valid;
 import org.springframework.validation.annotation.Validated;
@@ -17,7 +18,7 @@ import java.util.Objects;
 public class VendorSpecification   {
   @JsonProperty("additionalInfo")
   @Valid
-  private Object additionalInfo = null;
+  private JsonNode additionalInfo = null;
 
   @JsonProperty("services")
   @Valid
@@ -26,7 +27,7 @@ public class VendorSpecification   {
   @JsonProperty("vendorContact")
   private VendorContact vendorContact = null;
 
-  public VendorSpecification additionalInfo(Object additionalInfo) {
+  public VendorSpecification additionalInfo(JsonNode additionalInfo) {
     this.additionalInfo = additionalInfo;
     return this;
   }
@@ -36,12 +37,11 @@ public class VendorSpecification   {
    * @return additionalInfo
   **/
   @ApiModelProperty(value = "Additional arbitrary information specific to a particular Vendor. Look for the Vendors specific API documentation for more details")
-  
-    public Object getAdditionalInfo() {
+    public JsonNode getAdditionalInfo() {
     return additionalInfo;
   }
 
-  public void setAdditionalInfo(Object additionalInfo) {
+  public void setAdditionalInfo(JsonNode additionalInfo) {
     this.additionalInfo = additionalInfo;
   }
 

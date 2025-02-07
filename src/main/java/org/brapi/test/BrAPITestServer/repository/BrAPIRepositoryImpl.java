@@ -10,8 +10,8 @@ import java.util.stream.Collectors;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.TypedQuery;
+
 import org.brapi.test.BrAPITestServer.exceptions.InvalidPagingException;
-import org.brapi.test.BrAPITestServer.model.entity.BrAPIBaseEntity;
 import org.brapi.test.BrAPITestServer.model.entity.BrAPIPrimaryEntity;
 import org.brapi.test.BrAPITestServer.model.entity.ExternalReferenceEntity;
 import org.brapi.test.BrAPITestServer.service.SearchQueryBuilder;
@@ -130,14 +130,13 @@ public class BrAPIRepositoryImpl<T extends BrAPIPrimaryEntity, ID extends Serial
 		entity.setAuthUserId(SecurityUtils.getCurrentUserId());
 		return super.save(entity);
 	}
-
 	public <S extends T> List<S> saveAll(Iterable<S> entities) {
 		for (S entity : entities) {
 			entity.setAuthUserId(SecurityUtils.getCurrentUserId());
 		}
 		return super.saveAll(entities);
 	}
-	
+
 	public <S extends T> void refresh(S entity) {
 		this.entityManager.refresh(entity);
 	}

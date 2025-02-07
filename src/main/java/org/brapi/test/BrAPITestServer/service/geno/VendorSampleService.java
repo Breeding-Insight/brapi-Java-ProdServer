@@ -4,6 +4,8 @@ import java.math.BigDecimal;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import jakarta.validation.Valid;
 
 import org.brapi.test.BrAPITestServer.exceptions.BrAPIServerException;
@@ -127,7 +129,7 @@ public class VendorSampleService {
 
 	private VendorSpecification convertFromEntity(VendorSpecEntity specEntity) {
 		VendorSpecification spec = new VendorSpecification();
-		spec.setAdditionalInfo(new HashMap<>());
+		spec.setAdditionalInfo(JsonNodeFactory.instance.objectNode());
 		spec.setVendorContact(new VendorContact().vendorAddress(specEntity.getVendorAddress())
 				.vendorCity(specEntity.getVendorCity()).vendorContactName(specEntity.getContactName())
 				.vendorCountry(specEntity.getVendorCountry()).vendorDescription(specEntity.getVendorDescription())

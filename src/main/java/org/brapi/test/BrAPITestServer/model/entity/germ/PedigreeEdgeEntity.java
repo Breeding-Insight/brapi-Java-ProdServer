@@ -6,7 +6,7 @@ import org.brapi.test.BrAPITestServer.model.entity.BrAPIPrimaryEntity;
 
 @Entity
 @Table(name="pedigree_edge")
-public class PedigreeEdgeEntity extends BrAPIPrimaryEntity{
+public class PedigreeEdgeEntity extends BrAPIPrimaryEntity {
 	@ManyToOne(fetch = FetchType.LAZY)
 	private PedigreeNodeEntity thisNode;
 	@ManyToOne(fetch = FetchType.LAZY)

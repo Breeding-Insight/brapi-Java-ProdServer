@@ -1,25 +1,26 @@
 package io.swagger.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.JsonNode;
 
 public abstract class BrAPIDataModel {
 
 	@JsonProperty("additionalInfo")
-	protected Object additionalInfo = null;
+	protected JsonNode additionalInfo = null;
 
 	@JsonProperty("externalReferences")
 	protected ExternalReferences externalReferences = null;
 
-	final public BrAPIDataModel additionalInfo(Object additionalInfo) {
+	final public BrAPIDataModel additionalInfo(JsonNode additionalInfo) {
 		this.additionalInfo = additionalInfo;
 		return this;
 	}
 
-	final public Object getAdditionalInfo() {
+	final public JsonNode getAdditionalInfo() {
 		return additionalInfo;
 	}
 
-	final public void setAdditionalInfo(Object additionalInfo) {
+	final public void setAdditionalInfo(JsonNode additionalInfo) {
 		this.additionalInfo = additionalInfo;
 	}
 	

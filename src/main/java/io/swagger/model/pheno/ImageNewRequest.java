@@ -1,6 +1,7 @@
 package io.swagger.model.pheno;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.JsonNode;
 import io.swagger.annotations.ApiModelProperty;
 import io.swagger.model.ExternalReferences;
 import io.swagger.model.GeoJSON;
@@ -22,7 +23,7 @@ import java.util.Objects;
 public class ImageNewRequest   {
   @JsonProperty("additionalInfo")
   @Valid
-  private Object additionalInfo = null;
+  private JsonNode additionalInfo = null;
 
   @JsonProperty("copyright")
   private String copyright = null;
@@ -71,7 +72,7 @@ public class ImageNewRequest   {
   @JsonProperty("observationUnitDbId")
   private String observationUnitDbId = null;
 
-  public ImageNewRequest additionalInfo(Object additionalInfo) {
+  public ImageNewRequest additionalInfo(JsonNode additionalInfo) {
     this.additionalInfo = additionalInfo;
     return this;
   }
@@ -81,12 +82,11 @@ public class ImageNewRequest   {
    * @return additionalInfo
   **/
   @ApiModelProperty(value = "")
-  
-    public Object getAdditionalInfo() {
+  public JsonNode getAdditionalInfo() {
     return additionalInfo;
   }
 
-  public void setAdditionalInfo(Object additionalInfo) {
+  public void setAdditionalInfo(JsonNode additionalInfo) {
     this.additionalInfo = additionalInfo;
   }
 
