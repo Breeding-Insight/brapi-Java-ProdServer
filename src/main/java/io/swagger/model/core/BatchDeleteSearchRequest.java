@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import io.swagger.model.SearchRequest;
+import io.swagger.model.geno.PlateSearchRequest;
 import io.swagger.model.geno.SampleSearchRequest;
 import io.swagger.model.germ.GermplasmSearchRequest;
 
@@ -17,7 +18,8 @@ public class BatchDeleteSearchRequest extends SearchRequest {
 			@JsonSubTypes.Type(value = GermplasmSearchRequest.class, name = "germplasm"),
 			@JsonSubTypes.Type(value = ListSearchRequest.class, name = "lists"),
 			@JsonSubTypes.Type(value = TrialSearchRequest.class, name = "trials"),
-			@JsonSubTypes.Type(value = SampleSearchRequest.class, name = "samples")
+			@JsonSubTypes.Type(value = SampleSearchRequest.class, name = "samples"),
+			@JsonSubTypes.Type(value = PlateSearchRequest.class, name = "plates")
 	})
 	private SearchRequest searchRequest = null;
 

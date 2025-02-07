@@ -154,6 +154,10 @@ public class PlateService {
 
 	}
 
+	public void deletePlateBatch(List<String> plateDbIds) {
+		plateRepository.deleteAllByIdInBatch(plateDbIds);
+	}
+
 	private void updateEntity(PlateEntity entity, PlateNewRequest plate) throws BrAPIServerException {
 		UpdateUtility.updateEntity(plate, entity);
 		if (plate.getPlateName() != null) {
