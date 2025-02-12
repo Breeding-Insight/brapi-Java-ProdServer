@@ -1,6 +1,7 @@
 package org.brapi.test.BrAPITestServer.service.pheno;
 
 import io.swagger.model.Metadata;
+import io.swagger.model.Pagination;
 import io.swagger.model.pheno.*;
 import jakarta.validation.Valid;
 import org.brapi.test.BrAPITestServer.exceptions.BrAPIServerDbIdNotFoundException;
@@ -22,11 +23,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -137,7 +135,7 @@ public class ObservationService {
 			String observationUnitLevelOrder, String observationUnitLevelCode,
 			String observationUnitLevelRelationshipName, String observationUnitLevelRelationshipOrder,
 			String observationUnitLevelRelationshipCode, String observationUnitLevelRelationshipDbId,
-			String observationTimeStampRangeStart, String observationTimeStampRangeEnd, String searchResultsDbId)
+			String observationTimeStampRangeStart, String observationTimeStampRangeEnd, String searchResultsDbId, Metadata metadata)
 			throws BrAPIServerException {
 		ObservationSearchRequest obsRequest = buildObservationsSearchRequest(null, observationUnitDbId, germplasmDbId,
 				observationVariableDbId, studyDbId, locationDbId, trialDbId, programDbId, seasonDbId,
@@ -145,19 +143,22 @@ public class ObservationService {
 				observationTimeStampRangeStart, observationTimeStampRangeEnd, observationUnitLevelRelationshipName,
 				observationUnitLevelRelationshipOrder, observationUnitLevelRelationshipCode,
 				observationUnitLevelRelationshipDbId, null, null, null, null);
-		return findObservationsTable(obsRequest);
+		return findObservationsTable(obsRequest, metadata);
 	}
 
-	public ObservationTable findObservationsTable(ObservationSearchRequest obsRequest) {
-		Page<ObservationEntity> observations = findObservationEntities(obsRequest, null);
+	public ObservationTable findObservationsTable(ObservationSearchRequest obsRequest, Metadata metadata) {
+		Page<ObservationEntity> page = findObservationEntities(obsRequest, metadata);
+		log.debug("converting "+page.getSize()+" entities");
 
-		List<ObservationVariableEntity> variables = observations.stream().map(obs -> obs.getObservationVariable())
-				.filter(vid -> vid != null).distinct().collect(Collectors.toList());
+		List<ObservationVariableEntity> variables = page.stream().map(ObservationEntity::getObservationVariable)
+				.filter(Objects::nonNull).distinct().collect(Collectors.toList());
 
 		ObservationTable table = new ObservationTable();
-		table.setData(buildDataMatrix(observations, variables));
+		table.setData(buildDataMatrix(page, variables));
 		table.setHeaderRow(buildHeaderRow());
 		table.setObservationVariables(variables.stream().map(this::convertVariables).collect(Collectors.toList()));
+		log.debug("done converting entities");
+		PagingUtility.calculateMetaData(metadata, page);
 		return table;
 	}
 
