@@ -94,7 +94,7 @@ public class PedigreeNodeEntity extends BrAPIPrimaryEntity {
 	public List<PedigreeNodeEntity> getParentNodes() {
 		return edges.stream().filter(e -> {
 			return e.getEdgeType() == EdgeType.parent;
-		}).map(edge -> edge.getConncetedNode()).collect(Collectors.toList());
+		}).map(edge -> edge.getConnectedNode()).collect(Collectors.toList());
 	}
 
 	public List<PedigreeEdgeEntity> getProgenyEdges() {
@@ -106,13 +106,13 @@ public class PedigreeNodeEntity extends BrAPIPrimaryEntity {
 	public List<PedigreeNodeEntity> getProgenyNodes() {
 		return edges.stream().filter(e -> {
 			return e.getEdgeType() == EdgeType.child;
-		}).map(edge -> edge.getConncetedNode()).collect(Collectors.toList());
+		}).map(edge -> edge.getConnectedNode()).collect(Collectors.toList());
 	}
 
 	public void addParent(PedigreeNodeEntity node, ParentType type) {
 		PedigreeEdgeEntity edge = new PedigreeEdgeEntity();
 		edge.setThisNode(this);
-		edge.setConncetedNode(node);
+		edge.setConnectedNode(node);
 		edge.setParentType(type);
 		edge.setEdgeType(EdgeType.parent);
 		if(edges == null) 
@@ -123,7 +123,7 @@ public class PedigreeNodeEntity extends BrAPIPrimaryEntity {
 	public void addProgeny(PedigreeNodeEntity node, ParentType type) {
 		PedigreeEdgeEntity edge = new PedigreeEdgeEntity();
 		edge.setThisNode(this);
-		edge.setConncetedNode(node);
+		edge.setConnectedNode(node);
 		edge.setParentType(type);
 		edge.setEdgeType(EdgeType.child);
 		if(edges == null) 
