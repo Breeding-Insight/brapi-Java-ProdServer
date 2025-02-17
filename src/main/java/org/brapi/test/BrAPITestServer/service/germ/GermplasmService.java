@@ -473,7 +473,7 @@ public class GermplasmService {
 			throws BrAPIServerException {
 		GermplasmEntity entity = getGermplasmEntity(germplasmDbId, HttpStatus.NOT_FOUND);
 		updateEntity(entity, body);
-		GermplasmEntity savedEntity = germplasmRepository.saveAndFlush(entity);
+		GermplasmEntity savedEntity = germplasmRepository.save(entity);
 
 		return convertFromEntity(savedEntity);
 	}
@@ -509,7 +509,7 @@ public class GermplasmService {
 			toSave.add(entity);
 		}
 		// Save batch.
-		return germplasmRepository.saveAllAndFlush(toSave)
+		return germplasmRepository.saveAll(toSave)
 				.stream()
 				.map(this::convertFromEntity)
 				.collect(Collectors.toList());
@@ -677,14 +677,42 @@ public class GermplasmService {
 		}
 	}
 
+	public List<GermplasmEntity> findByNames(List<String> germplasmNames)
+		throws BrAPIServerException {
+		GermplasmSearchRequest request = new GermplasmSearchRequest().germplasmNames(germplasmNames);
+		Metadata metadata = new Metadata().pagination(new IndexPagination());
+		Page<GermplasmEntity> page = findGermplasmEntities(request, metadata);
+
+		if (page.hasContent()) {
+			return page.getContent();
+		}
+
+		return null;
+	}
+
+	// TODO: Add lookupType param to RQ Germplasm which can short-circuit all the lookup logic to only one query here.
 	public GermplasmEntity findByUnknownIdentity(String germplasmStr)
 		throws BrAPIServerException {
+
+		// First, check to see if the str provided is a real UUID.
+		boolean tryDBIdLookup = true;
+		try {
+			UUID germUUID = UUID.fromString(germplasmStr);
+		} catch (IllegalArgumentException e) {
+			tryDBIdLookup = false;
+		}
+
 		List<String> germplasmList = Arrays.asList(germplasmStr);
 		Metadata metadata = new Metadata().pagination(new IndexPagination());
 
 		// germplasmDbId
 		GermplasmSearchRequest request = new GermplasmSearchRequest().germplasmDbIds(germplasmList);
-		Page<GermplasmEntity> page = findGermplasmEntities(request, metadata);
+		Page<GermplasmEntity> page = Page.empty();
+
+		if (tryDBIdLookup) {
+			page = findGermplasmEntities(request, metadata);
+		}
+
 		if (page.hasContent()) {
 			return page.getContent().get(0);
 		}

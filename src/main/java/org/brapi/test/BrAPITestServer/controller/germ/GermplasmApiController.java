@@ -199,7 +199,9 @@ public class GermplasmApiController extends BrAPIController implements Germplasm
 		log.debug("Request: " + request.getRequestURI());
 		validateSecurityContext(request, "ROLE_USER");
 		validateAcceptHeader(request);
+
 		List<Germplasm> data = germplasmService.saveGermplasm(body);
+		// TODO: Add short-circuit if no ped connections are sent.
 		pedigreeService.updateGermplasmPedigree(data);
 		return responseOK(new GermplasmListResponse(), new GermplasmListResponseResult(), data);
 	}

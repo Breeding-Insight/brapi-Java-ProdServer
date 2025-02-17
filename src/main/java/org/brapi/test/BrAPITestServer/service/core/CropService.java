@@ -68,7 +68,7 @@ public class CropService {
 		if (commonCropName != null) {
 			entity = new CropEntity();
 			entity.setCropName(commonCropName);
-			entity = cropRepository.saveAndFlush(entity);
+			entity = cropRepository.save(entity);
 		}
 		return entity;
 	}
