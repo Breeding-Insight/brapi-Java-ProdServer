@@ -212,7 +212,6 @@ public class ObservationsApiController extends BrAPIController implements Observ
 		}
 
 		if (sep.isEmpty()) {
-			//return responseOK(new ObservationListResponse(), new ObservationListResponseResult(), data, metadata);
 			return responseOK(new ObservationTableResponse(), data, metadata);
 		} else {
 			String textTable = observationService.getObservationTableText(data, sep);
