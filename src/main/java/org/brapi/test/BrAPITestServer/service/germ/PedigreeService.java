@@ -12,6 +12,7 @@ import java.util.Optional;
 import java.util.Set;
 
 import io.swagger.model.IndexPagination;
+import org.apache.commons.lang3.tuple.Pair;
 import org.brapi.test.BrAPITestServer.exceptions.BrAPIServerDbIdNotFoundException;
 import org.brapi.test.BrAPITestServer.exceptions.BrAPIServerException;
 import org.brapi.test.BrAPITestServer.model.entity.germ.CrossingProjectEntity;
@@ -247,13 +248,8 @@ public class PedigreeService {
 			throw new BrAPIServerException(HttpStatus.BAD_REQUEST, errorMsg);
 		}
 
-		List<PedigreeNodeEntity> newEntities = new ArrayList<>();
-
-		for (PedigreeNode node : request) {
-			PedigreeNodeEntity entity = new PedigreeNodeEntity();
-			updateEntity(entity, node);
-			newEntities.add(entity);
-		}
+		// TODO: Batch this
+		List<PedigreeNodeEntity> newEntities = createEntitiesInBatch(request);
 		// save all the new nodes without edges
 		//TODO: Fix to save nodes and edges at same time
 		pedigreeRepository.saveAll(newEntities);
@@ -272,6 +268,7 @@ public class PedigreeService {
 		Map<String, PedigreeNodeEntity> nodesByGermplasm = getExistingPedigreeNodes(new ArrayList<>(request.keySet()));
 		List<PedigreeNodeEntity> newEntities = new ArrayList<>();
 
+		// TODO: Batch this
 		for (Entry<String, PedigreeNode> entry : request.entrySet()) {
 			PedigreeNodeEntity entity = nodesByGermplasm.get(entry.getKey());
 			if (entity != null) {
@@ -329,6 +326,7 @@ public class PedigreeService {
 			List<PedigreeNodeEntity> nodeEntities = findPedigreeEntities(searchReq, null);
 
 			for (PedigreeNodeEntity nodeEntity : nodeEntities) {
+				// TODO: nodeEntity.getGermplasm() causes a lazy load
 				if (nodeEntity.getGermplasm() != null && nodeEntity.getGermplasm().getId() != null) {
 					nodesByGermplasm.put(nodeEntity.getGermplasm().getId(), nodeEntity);
 				}
@@ -494,6 +492,48 @@ public class PedigreeService {
 					.getCrossingProjectEntity(node.getCrossingProjectDbId());
 			entity.setCrossingProject(crossingProject);
 		}
+	}
+
+
+
+	// This method should be used in use cases where there are no existing node entities representing the list being passed through.
+	private List<PedigreeNodeEntity> createEntitiesInBatch(List<PedigreeNode> nodes)
+		throws BrAPIServerException {
+		List<String> germIds = nodes.stream().map(PedigreeNode::getGermplasmDbId).collect(Collectors.toList());
+		List<String> crossingProjIds = nodes.stream().map(PedigreeNode::getCrossingProjectDbId).collect(Collectors.toList());
+
+		List<GermplasmEntity> germs = germplasmService.findByIds(germIds);
+		List<CrossingProjectEntity> crossingProjs = crossingProjectService.findCrossingProjectsByIds(crossingProjIds);
+
+		List<PedigreeNodeEntity> result = new ArrayList<PedigreeNodeEntity>();
+		for (PedigreeNode node : nodes) {
+			PedigreeNodeEntity entity = new PedigreeNodeEntity();
+
+			if (node.getGermplasmDbId() != null) {
+				String germId = node.getGermplasmDbId();
+				Optional<GermplasmEntity> germEntity = germs.stream().filter(ge -> ge.getId().equals(germId)).findFirst();
+				germEntity.ifPresent(entity::setGermplasm);
+			}
+
+			UpdateUtility.updateEntity(node, entity);
+
+			if (node.getCrossingYear() != null)
+				entity.setCrossingYear(node.getCrossingYear());
+			if (node.getFamilyCode() != null)
+				entity.setFamilyCode(node.getFamilyCode());
+			if (node.getPedigreeString() != null)
+				entity.setPedigreeString(node.getPedigreeString());
+
+			if (node.getCrossingProjectDbId() != null) {
+				String cpId = node.getCrossingProjectDbId();
+				Optional<CrossingProjectEntity> crossingProjectEntity = crossingProjs.stream().filter(cp -> cp.getId().equals(cpId)).findFirst();
+                crossingProjectEntity.ifPresent(entity::setCrossingProject);
+			}
+
+			result.add(entity);
+		}
+
+		return result;
 	}
 
 	private void updateEntityWithEdges(PedigreeNodeEntity entity, PedigreeNode node) throws BrAPIServerException {

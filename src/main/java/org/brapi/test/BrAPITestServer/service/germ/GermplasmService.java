@@ -690,6 +690,19 @@ public class GermplasmService {
 		return null;
 	}
 
+	public List<GermplasmEntity> findByIds(List<String> germplasmDbIds)
+		throws BrAPIServerException {
+		GermplasmSearchRequest request = new GermplasmSearchRequest().germplasmDbIds(germplasmDbIds);
+		Metadata metadata = new Metadata().pagination(new IndexPagination());
+		Page<GermplasmEntity> page = findGermplasmEntities(request, metadata);
+
+		if (page.hasContent()) {
+			return page.getContent();
+		}
+
+		return null;
+	}
+
 	// TODO: Add lookupType param to RQ Germplasm which can short-circuit all the lookup logic to only one query here.
 	public GermplasmEntity findByUnknownIdentity(String germplasmStr)
 		throws BrAPIServerException {
