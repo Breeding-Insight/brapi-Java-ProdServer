@@ -173,11 +173,14 @@ public class ObservationsApiController extends BrAPIController implements Observ
 			@RequestParam(value = "observationUnitLevelRelationshipOrder", required = false) String observationUnitLevelRelationshipOrder,
 			@RequestParam(value = "observationUnitLevelRelationshipCode", required = false) String observationUnitLevelRelationshipCode,
 			@RequestParam(value = "observationUnitLevelRelationshipDbId", required = false) String observationUnitLevelRelationshipDbId,
+		    @RequestParam(value = "page", required = false) Integer page,
+		    @RequestParam(value = "pageSize", required = false) Integer pageSize,
 			@RequestHeader(value = "Authorization", required = false) String authorization)
 			throws BrAPIServerException {
 
 		log.debug("Request: " + request.getRequestURI());
 		validateSecurityContext(request, "ROLE_ANONYMOUS", "ROLE_USER");
+		Metadata metadata = generateMetaDataTemplate(page, pageSize);
 
 		String sep = "";
 		if ("text/csv".equals(accept)) {
@@ -193,7 +196,8 @@ public class ObservationsApiController extends BrAPIController implements Observ
 			SearchRequestEntity request = searchService.findById(searchResultsDbId);
 			if (request != null) {
 				ObservationSearchRequest body = request.getParameters(ObservationSearchRequest.class);
-				data = observationService.findObservationsTable(body);
+				//TODO: revisit paging for this case; metadata=null
+				data = observationService.findObservationsTable(body, null);
 			} else {
 				return responseAccepted(searchResultsDbId);
 			}
@@ -204,11 +208,11 @@ public class ObservationsApiController extends BrAPIController implements Observ
 					observationUnitLevelName, observationUnitLevelOrder, observationUnitLevelCode,
 					observationUnitLevelRelationshipName, observationUnitLevelRelationshipOrder,
 					observationUnitLevelRelationshipCode, observationUnitLevelRelationshipDbId,
-					observationTimeStampRangeStart, observationTimeStampRangeEnd, searchResultsDbId);
+					observationTimeStampRangeStart, observationTimeStampRangeEnd, searchResultsDbId, metadata);
 		}
 
 		if (sep.isEmpty()) {
-			return responseOK(new ObservationTableResponse(), data);
+			return responseOK(new ObservationTableResponse(), data, metadata);
 		} else {
 			String textTable = observationService.getObservationTableText(data, sep);
 			return new ResponseEntity<String>(textTable, HttpStatus.OK);
