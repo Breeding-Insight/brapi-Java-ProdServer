@@ -277,7 +277,7 @@ public class GermplasmService {
 		searchQuery.leftJoinFetch("pedigree", "pedigree")
 				   .leftJoinFetch("*pedigree.crossingProject", "crossingProject")
 				   .leftJoinFetch("*pedigree.edges", "pedigreeEdges")
-				   .leftJoinFetch("*pedigreeEdges.conncetedNode", "connectedNode")
+				   .leftJoinFetch("*pedigreeEdges.connectedNode", "connectedNode")
 				   .appendList(page.stream()
 								   .map(BrAPIBaseEntity::getId)
 								   .collect(Collectors.toList()), "id");
@@ -324,6 +324,29 @@ public class GermplasmService {
 		GermplasmEntity savedEntity = germplasmRepository.saveAndFlush(entity);
 
 		return convertFromEntity(savedEntity);
+	}
+
+	public void deleteGermplasmBatch(List<String> germplasmDbIds) {
+		germplasmRepository.deleteAllByIdInBatch(germplasmDbIds);
+	}
+
+	public void softDeleteGermplasmBatch(List<String> germplasmDbIds) {
+		germplasmRepository.updateSoftDeletedStatusBatch(germplasmDbIds, true);
+	}
+
+	public void deleteGermplasm(String germplasmDbId) throws BrAPIServerException {
+		// Soft delete the germplasm first since the method throws a 404 exception if the germplasm is not found
+		softDeleteGermplasm(germplasmDbId);
+
+		// Hard delete the list
+		germplasmRepository.deleteAllByIdInBatch(Arrays.asList(germplasmDbId));
+	}
+
+	public void softDeleteGermplasm(String germplasmDbId) throws BrAPIServerException {
+		int updatedCount = germplasmRepository.updateSoftDeletedStatus(germplasmDbId, true);
+		if (updatedCount == 0) {
+			throw new BrAPIServerDbIdNotFoundException("list", germplasmDbId, "list database ID", HttpStatus.NOT_FOUND);
+		}
 	}
 
 	public List<Germplasm> saveGermplasm(@Valid List<GermplasmNewRequest> body) throws BrAPIServerException {

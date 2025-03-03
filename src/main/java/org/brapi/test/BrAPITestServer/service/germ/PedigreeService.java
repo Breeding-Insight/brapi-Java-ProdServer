@@ -17,7 +17,6 @@ import org.brapi.test.BrAPITestServer.exceptions.BrAPIServerException;
 import org.brapi.test.BrAPITestServer.model.entity.germ.CrossingProjectEntity;
 import org.brapi.test.BrAPITestServer.model.entity.germ.GermplasmEntity;
 import org.brapi.test.BrAPITestServer.model.entity.germ.PedigreeEdgeEntity;
-import org.brapi.test.BrAPITestServer.model.entity.germ.PedigreeEdgeEntity.EdgeType;
 import org.brapi.test.BrAPITestServer.model.entity.germ.PedigreeNodeEntity;
 import org.brapi.test.BrAPITestServer.repository.germ.PedigreeEdgeRepository;
 import org.brapi.test.BrAPITestServer.repository.germ.PedigreeRepository;
@@ -408,8 +407,8 @@ public class PedigreeService {
 			if (entity.getParentEdges() != null && request.isIncludeParents()) {
 				node.setParents(entity.getParentEdges().stream().map(edge -> {
 					PedigreeNodeParents parent = new PedigreeNodeParents();
-					parent.setGermplasmDbId(edge.getConncetedNode().getGermplasm().getId());
-					parent.setGermplasmName(edge.getConncetedNode().getGermplasm().getGermplasmName());
+					parent.setGermplasmDbId(edge.getConnectedNode().getGermplasm().getId());
+					parent.setGermplasmName(edge.getConnectedNode().getGermplasm().getGermplasmName());
 					parent.setParentType(edge.getParentType());
 					return parent;
 				}).collect(Collectors.toList()));
@@ -417,8 +416,8 @@ public class PedigreeService {
 			if (entity.getProgenyEdges() != null && request.isIncludeProgeny()) {
 				node.setProgeny(entity.getProgenyEdges().stream().map(edge -> {
 					PedigreeNodeParents progeny = new PedigreeNodeParents();
-					progeny.setGermplasmDbId(edge.getConncetedNode().getGermplasm().getId());
-					progeny.setGermplasmName(edge.getConncetedNode().getGermplasm().getGermplasmName());
+					progeny.setGermplasmDbId(edge.getConnectedNode().getGermplasm().getId());
+					progeny.setGermplasmName(edge.getConnectedNode().getGermplasm().getGermplasmName());
 					progeny.setParentType(edge.getParentType());
 					return progeny;
 				}).collect(Collectors.toList()));
@@ -442,10 +441,10 @@ public class PedigreeService {
 			if (entity.getParentEdges() != null && !entity.getParentEdges().isEmpty()) {
 				Optional<PedigreeNodeEntity> mother = entity.getParentEdges().stream().filter(parentEdge -> {
 					return ParentType.FEMALE == parentEdge.getParentType();
-				}).map(PedigreeEdgeEntity::getConncetedNode).findFirst();
+				}).map(PedigreeEdgeEntity::getConnectedNode).findFirst();
 				Optional<PedigreeNodeEntity> father = entity.getParentEdges().stream().filter(parentEdge -> {
 					return ParentType.MALE == parentEdge.getParentType();
-				}).map(PedigreeEdgeEntity::getConncetedNode).findFirst();
+				}).map(PedigreeEdgeEntity::getConnectedNode).findFirst();
 
 				if (mother.isPresent()) {
 					pedStr += mother.get().getGermplasm().getGermplasmName() + "/";
@@ -493,7 +492,7 @@ public class PedigreeService {
 		if (node.getParents() != null) {
 
 			SearchQueryBuilder<PedigreeEdgeEntity> search = new SearchQueryBuilder<PedigreeEdgeEntity>(PedigreeEdgeEntity.class);
-			search.appendSingle(node.getGermplasmDbId(), "conncetedNode.germplasm.id");
+			search.appendSingle(node.getGermplasmDbId(), "connectedNode.germplasm.id");
 			search.appendEnum(PedigreeEdgeEntity.EdgeType.child, "edgeType");
 			Pageable defaultPageSize = PagingUtility.getPageRequest(new Metadata().pagination(new IndexPagination().pageSize(10000000)));
 			Page<PedigreeEdgeEntity> existingParentEdges = pedigreeEdgeRepository.findAllBySearch(search, defaultPageSize);
@@ -516,7 +515,7 @@ public class PedigreeService {
 		if (node.getProgeny() != null) {
 
 			SearchQueryBuilder<PedigreeEdgeEntity> search = new SearchQueryBuilder<PedigreeEdgeEntity>(PedigreeEdgeEntity.class);
-			search.appendSingle(node.getGermplasmDbId(), "conncetedNode.germplasm.id");
+			search.appendSingle(node.getGermplasmDbId(), "connectedNode.germplasm.id");
 			search.appendEnum(PedigreeEdgeEntity.EdgeType.parent, "edgeType");
 			Pageable defaultPageSize = PagingUtility.getPageRequest(new Metadata().pagination(new IndexPagination().pageSize(10000000)));
 			Page<PedigreeEdgeEntity> existingProgenyEdges = pedigreeEdgeRepository.findAllBySearch(search, defaultPageSize);

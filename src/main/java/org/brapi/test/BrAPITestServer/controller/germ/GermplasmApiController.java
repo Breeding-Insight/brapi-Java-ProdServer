@@ -2,6 +2,7 @@ package org.brapi.test.BrAPITestServer.controller.germ;
 
 import io.swagger.model.BrAPIResponse;
 import io.swagger.model.Metadata;
+import io.swagger.model.core.ListsSingleResponse;
 import io.swagger.model.germ.Germplasm;
 import io.swagger.model.germ.GermplasmListResponse;
 import io.swagger.model.germ.GermplasmListResponseResult;
@@ -16,6 +17,7 @@ import io.swagger.model.germ.GermplasmSearchRequest;
 import io.swagger.model.germ.GermplasmProgenyResponse;
 import io.swagger.api.germ.GermplasmApi;
 
+import jakarta.validation.Valid;
 import org.brapi.test.BrAPITestServer.controller.core.BrAPIController;
 import org.brapi.test.BrAPITestServer.exceptions.BrAPIServerException;
 import org.brapi.test.BrAPITestServer.model.entity.SearchRequestEntity;
@@ -70,6 +72,26 @@ public class GermplasmApiController extends BrAPIController implements Germplasm
 		validateAcceptHeader(request);
 		Germplasm data = germplasmService.getGermplasm(germplasmDbId);
 		return responseOK(new GermplasmSingleResponse(), data);
+	}
+
+	@CrossOrigin
+	@Override
+	public ResponseEntity<GermplasmSingleResponse> germplasmGermplasmDbIdDelete(
+		@PathVariable("germplasmDbId") String germplasmDbId,
+		@Valid @RequestParam(value = "hardDelete", defaultValue = "false" ,required = false) boolean hardDelete,
+		@RequestHeader(value = "Authorization", required = false) String authorization) throws BrAPIServerException {
+
+			log.debug("Request: " + request.getRequestURI());
+			validateSecurityContext(request, "ROLE_USER");
+			validateAcceptHeader(request);
+
+			if (hardDelete) {
+				germplasmService.deleteGermplasm(germplasmDbId);
+				return responseNoContent();
+			}
+
+			germplasmService.softDeleteGermplasm(germplasmDbId);
+			return responseNoContent();
 	}
 
 	@CrossOrigin

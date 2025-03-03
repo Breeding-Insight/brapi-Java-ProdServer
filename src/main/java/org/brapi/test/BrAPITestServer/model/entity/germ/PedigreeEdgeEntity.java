@@ -12,7 +12,7 @@ public class PedigreeEdgeEntity extends BrAPIPrimaryEntity{
 	@ManyToOne(fetch = FetchType.LAZY)
 	private PedigreeNodeEntity thisNode;
 	@ManyToOne(fetch = FetchType.LAZY)
-	private PedigreeNodeEntity conncetedNode;
+	private PedigreeNodeEntity connectedNode;
 	@Column
 	private ParentType parentType;
 	@Column
@@ -31,11 +31,11 @@ public class PedigreeEdgeEntity extends BrAPIPrimaryEntity{
 	public void setEdgeType(EdgeType edgeType) {
 		this.edgeType = edgeType;
 	}
-	public PedigreeNodeEntity getConncetedNode() {
-		return conncetedNode;
+	public PedigreeNodeEntity getConnectedNode() {
+		return connectedNode;
 	}
-	public void setConncetedNode(PedigreeNodeEntity conncetedNode) {
-		this.conncetedNode = conncetedNode;
+	public void setConnectedNode(PedigreeNodeEntity connectedNode) {
+		this.connectedNode = connectedNode;
 	}
 	public ParentType getParentType() {
 		return parentType;

@@ -17,9 +17,11 @@ import io.swagger.model.germ.BiologicalStatusOfAccessionCode;
 import io.swagger.model.germ.GermplasmMCPD.AcquisitionSourceCodeEnum;
 import io.swagger.model.germ.GermplasmMCPD.MlsStatusEnum;
 import io.swagger.model.germ.GermplasmStorageTypesEnum;
+import org.hibernate.annotations.Where;
 
 @Entity
 @Table(name = "germplasm")
+@Where(clause = "soft_deleted = false")
 public class GermplasmEntity extends BrAPIPrimaryEntity {
 	@Column
 	private String accessionNumber;
@@ -84,6 +86,8 @@ public class GermplasmEntity extends BrAPIPrimaryEntity {
 	private List<ObservationUnitEntity> observationUnits;
 	@ElementCollection
 	private List<GermplasmStorageTypesEnum> typeOfGermplasmStorageCode;
+	@Column(name = "soft_deleted")
+	private boolean softDeleted;
 
 	public GermplasmInstituteEntity getHostInstitute() {
 		if (getInstitutes() != null) {
@@ -351,5 +355,9 @@ public class GermplasmEntity extends BrAPIPrimaryEntity {
 	public void setTypeOfGermplasmStorageCode(List<GermplasmStorageTypesEnum> typeOfGermplasmStorageCode) {
 		this.typeOfGermplasmStorageCode = typeOfGermplasmStorageCode;
 	}
+
+	public boolean getSoftDeleted() { return softDeleted; }
+
+	public void setSoftDeleted(boolean sofDeleted) { this.softDeleted = sofDeleted; }
 
 }

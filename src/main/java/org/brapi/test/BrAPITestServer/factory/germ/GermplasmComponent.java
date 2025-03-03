@@ -40,11 +40,11 @@ public class GermplasmComponent implements BrAPIComponent<Germplasm, GermplasmSe
 
     @Override
     public void deleteBatchDeleteData(List<String> dbIds) {
-
+        germplasmService.deleteGermplasmBatch(dbIds);
     }
 
     @Override
     public void softDeleteBatchDeleteData(List<String> dbIds) {
-
+        germplasmService.softDeleteGermplasmBatch(dbIds);
     }
 }
