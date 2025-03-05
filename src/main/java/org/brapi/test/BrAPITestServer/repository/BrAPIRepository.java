@@ -3,6 +3,7 @@ package org.brapi.test.BrAPITestServer.repository;
 import java.io.Serializable;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 import org.brapi.test.BrAPITestServer.model.entity.BrAPIPrimaryEntity;
 import org.brapi.test.BrAPITestServer.service.SearchQueryBuilder;
@@ -15,6 +16,10 @@ import org.springframework.data.repository.NoRepositoryBean;
 public interface BrAPIRepository<T extends BrAPIPrimaryEntity, ID extends Serializable> extends JpaRepository<T, ID> {
 
 	public Page<T> findAllBySearch(SearchQueryBuilder<T> searchQuery, Pageable pageReq);
+
+	public Page<UUID> findAllBySearchIdsOnly(SearchQueryBuilder<T> searchQuery, Pageable pageReq);
+
+	public Page<T> findAllBySearchNoPage(SearchQueryBuilder<T> searchQuery, Page<UUID> pagedIds, Pageable pageReq);
 
 	public Optional<T> findById(ID id);
 

@@ -16,6 +16,7 @@ import io.swagger.model.core.SortOrder;
 public class SearchQueryBuilder<T> {
 
 	private String selectClause;
+	private String selectOnlyIds;
 	private String whereClause;
 	private String sortClause;
 	private Map<String, Object> params;
@@ -23,6 +24,7 @@ public class SearchQueryBuilder<T> {
 
 	public SearchQueryBuilder(Class<T> clazz) {
 		this.selectClause = "SELECT distinct entity FROM " + clazz.getSimpleName() + " entity ";
+		this.selectOnlyIds = "SELECT entity.id FROM " + clazz.getSimpleName() + " entity ";
 		this.whereClause = "WHERE 1=1 ";
 		this.sortClause = "";
 		this.params = new HashMap<>();
@@ -32,6 +34,8 @@ public class SearchQueryBuilder<T> {
 	public String getQuery() {
 		return selectClause + whereClause + sortClause;
 	}
+
+	public String getIdQuery() { return selectOnlyIds + whereClause + sortClause;}
 
 	public Map<String, Object> getParams() {
 		return params;
@@ -221,6 +225,7 @@ public class SearchQueryBuilder<T> {
 
 	public SearchQueryBuilder<T> join(String join, String name) {
 		this.selectClause += "JOIN " + entityPrefix(join) + " " + paramFilter(name) + " ";
+		this.selectOnlyIds += "JOIN " + entityPrefix(join) + " " + paramFilter(name) + " ";
 		return this;
 	}
 

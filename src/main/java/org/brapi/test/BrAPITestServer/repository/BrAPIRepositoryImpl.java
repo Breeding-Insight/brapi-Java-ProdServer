@@ -30,12 +30,35 @@ public class BrAPIRepositoryImpl<T extends BrAPIPrimaryEntity, ID extends Serial
 		this.entityManager = entityManager;
 	}
 
+	// This is the method that should be used for simple entities with few collections and eager loading requirements.
 	public Page<T> findAllBySearch(SearchQueryBuilder<T> searchQuery, Pageable pageReq) {
-		searchQuery = applyUserId(searchQuery);
+		applyUserId(searchQuery);
 		List<T> content = getPagedContent(searchQuery, pageReq);
 		Long totalCount = getTotalCount(searchQuery);
 
 		Page<T> page = new PageImpl<>(content, pageReq, totalCount);
+
+		return page;
+	}
+
+	public Page<T> findAllBySearchNoPage(SearchQueryBuilder<T> searchQuery, Page<UUID> pagedIds, Pageable pageReq) {
+		applyUserId(searchQuery);
+
+		var entities = searchEntitiesWithIds(searchQuery, pagedIds);
+
+		return new PageImpl<>(entities, pageReq, pagedIds.getTotalElements());
+	}
+
+
+
+	// For entities that are complex and have lots of Collections and lazy loaded entities, it is more efficient to grab the IDs of the on Page,
+	// and afterward fetch these collections using the Ids, this time without paging.
+	public Page<UUID> findAllBySearchIdsOnly(SearchQueryBuilder<T> searchQuery, Pageable pageReq) {
+		applyUserId(searchQuery);
+		List<UUID> content = getPagedContentIdsOnly(searchQuery, pageReq);
+		Long totalCount = getTotalCount(searchQuery);
+
+		Page<UUID> page = new PageImpl<>(content, pageReq, totalCount);
 
 		return page;
 	}
@@ -82,16 +105,7 @@ public class BrAPIRepositoryImpl<T extends BrAPIPrimaryEntity, ID extends Serial
 		page.forEach(entity -> entity.setExternalReferences(xrefByEntity.get(entity.getId())));
 	}
 
-	private String getCurrentUserId() {
-		SecurityContext context = SecurityContextHolder.getContext();
-		String userId = "";
-		if (context.getAuthentication().getPrincipal() != null) {
-			userId = context.getAuthentication().getPrincipal().toString();
-		}
-		return userId;
-	}
-
-	private SearchQueryBuilder<T> applyUserId(SearchQueryBuilder<T> searchQuery) {
+	private void applyUserId(SearchQueryBuilder<T> searchQuery) {
 
 		SecurityContext context = SecurityContextHolder.getContext();
 		Set<String> userRolesSet = context.getAuthentication().getAuthorities().stream()
@@ -100,14 +114,12 @@ public class BrAPIRepositoryImpl<T extends BrAPIPrimaryEntity, ID extends Serial
 		List<String> userIds = new ArrayList<>();
 		userIds.add(getCurrentUserId());
 		if (userRolesSet.contains("ROLE_ADMIN")) {
-			return searchQuery;
+			return;
 		} else if (userRolesSet.contains("ROLE_USER")) {
 			userIds.add("anonymousUser");
 		}
 
 		searchQuery.appendList(userIds, "authUserId");
-
-		return searchQuery;
 	}
 
 	private List<T> getPagedContent(SearchQueryBuilder<T> searchQuery, Pageable pageReq) {
@@ -124,6 +136,36 @@ public class BrAPIRepositoryImpl<T extends BrAPIPrimaryEntity, ID extends Serial
 		List<T> content = query.getResultList();
 		return content;
 	}
+
+	private List<T> searchEntitiesWithIds(SearchQueryBuilder<T> searchQuery, Page<UUID> ids) {
+		searchQuery.appendList(ids.stream().map(UUID::toString).toList(), "id");
+
+		TypedQuery<T> query = entityManager.createQuery(searchQuery.getQuery(), searchQuery.getClazz());
+
+		for (Entry<String, Object> entry : searchQuery.getParams().entrySet()) {
+			query.setParameter(entry.getKey(), entry.getValue());
+		}
+
+		List<T> content = query.getResultList();
+		return content;	}
+
+	private List<UUID> getPagedContentIdsOnly(SearchQueryBuilder<T> searchQuery, Pageable pageReq) {
+
+		TypedQuery<UUID> query = entityManager.createQuery(searchQuery.getIdQuery(), UUID.class);
+
+		for (Entry<String, Object> entry : searchQuery.getParams().entrySet()) {
+			query.setParameter(entry.getKey(), entry.getValue());
+		}
+
+		query.setFirstResult((int) pageReq.getOffset());
+		query.setMaxResults(pageReq.getPageSize());
+
+		List<UUID> content = query.getResultList();
+		return content;
+	}
+
+
+
 
 	private Long getTotalCount(SearchQueryBuilder<T> searchQuery) {
 		String countQueryStr = searchQuery.getQuery()
