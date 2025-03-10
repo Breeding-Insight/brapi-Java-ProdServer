@@ -662,7 +662,7 @@ public class PedigreeService {
 				germEntity.ifPresent(entity::setGermplasm);
 			}
 
-			UpdateUtility.updateEntity(node, entity);
+			UpdateUtility.updateEntityCheckExRefs(node, entity);
 
 			if (node.getCrossingYear() != null)
 				entity.setCrossingYear(node.getCrossingYear());
