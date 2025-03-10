@@ -201,7 +201,6 @@ public class GermplasmApiController extends BrAPIController implements Germplasm
 		validateAcceptHeader(request);
 
 		List<Germplasm> data = germplasmService.saveGermplasm(body);
-		// TODO: Add short-circuit if no ped connections are sent.
 		pedigreeService.updateGermplasmPedigree(data);
 		return responseOK(new GermplasmListResponse(), new GermplasmListResponseResult(), data);
 	}

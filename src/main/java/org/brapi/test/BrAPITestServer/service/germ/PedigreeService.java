@@ -284,13 +284,19 @@ public class PedigreeService {
 		return result;
 	}
 
-	public List<PedigreeNode> savePedigreeNodes(List<PedigreeNode> request) throws BrAPIServerException {
+	public List<PedigreeNode> savePedigreeNodes(List<PedigreeNode> request)
+		throws BrAPIServerException {
+		return savePedigreeNodes(request, true);
+	}
+
+	public List<PedigreeNode> savePedigreeNodes(List<PedigreeNode> request,
+												boolean returnValues) throws BrAPIServerException {
 		Map<String, PedigreeNodeEntity> nodesByGermplasm = getExistingPedigreeNodes(
 				request.stream().map(PedigreeNode::getGermplasmDbId).collect(Collectors.toList()));
 
 		if (!nodesByGermplasm.isEmpty()) {
 			String errorMsg = "The following germplasmDbIds already have existing pedigree data. Please use PUT /pedigree to update these germplasm. \n"
-					+ nodesByGermplasm.keySet().toString();
+					+ nodesByGermplasm.keySet();
 			throw new BrAPIServerException(HttpStatus.BAD_REQUEST, errorMsg);
 		}
 
@@ -305,16 +311,22 @@ public class PedigreeService {
 			updateRequest.put(newNode.getGermplasmDbId(), newNode);
 		}
 		// update the new nodes with requested edges
-		List<PedigreeNode> saved = updatePedigreeNodes(updateRequest);
-
-		return saved;
+		if (returnValues) {
+			return updatePedigreeNodes(updateRequest);
+		} else {
+			updatePedigreeNodes(updateRequest, false);
+			return Collections.emptyList();
+		}
 	}
 
-	public List<PedigreeNode> updatePedigreeNodes(Map<String, PedigreeNode> request) throws BrAPIServerException {
-		Map<String, PedigreeNodeEntity> nodesByGermplasm = getExistingPedigreeNodes(new ArrayList<>(request.keySet()));
-		List<PedigreeNodeEntity> newEntities = new ArrayList<>();
+	public List<PedigreeNode> updatePedigreeNodes(Map<String, PedigreeNode> request)
+		throws BrAPIServerException {
+		return updatePedigreeNodes(request, true);
+	}
 
-		// TODO: Batch this
+	public List<PedigreeNode> updatePedigreeNodes(Map<String, PedigreeNode> request,
+												  boolean returnValues) throws BrAPIServerException {
+		Map<String, PedigreeNodeEntity> nodesByGermplasm = getExistingPedigreeNodes(new ArrayList<>(request.keySet()));
 
 		Map<String, Pair<PedigreeNodeEntity, PedigreeNode>> entityDtoPairsByGermplasmId = new HashMap<>();
 
@@ -332,10 +344,16 @@ public class PedigreeService {
 		// First, update the basic properties of the nodes in batch.
 		updateEntitiesWithEdgesInBatch(entityDtoPairsByGermplasmId);
 
-		List<PedigreeNodeEntity> savedEntities = pedigreeRepository.saveAll(entityDtoPairsByGermplasmId.values().stream().map(Pair::getLeft).collect(Collectors.toList()));
-		List<PedigreeNode> saved = convertFromEntities(savedEntities,
-				new PedigreeSearchRequest().includeParents(true).includeProgeny(true).includeSiblings(true));
-		return saved;
+		if (returnValues) {
+			List<PedigreeNodeEntity> savedEntities = pedigreeRepository.saveAll(entityDtoPairsByGermplasmId.values().stream().map(Pair::getLeft).collect(Collectors.toList()));
+			List<PedigreeNode> saved = convertFromEntities(savedEntities,
+					new PedigreeSearchRequest().includeParents(true).includeProgeny(true).includeSiblings(true));
+			return saved;
+		} else {
+			// If no values are required, simply return an empty list.
+			pedigreeRepository.saveAll(entityDtoPairsByGermplasmId.values().stream().map(Pair::getLeft).collect(Collectors.toList()));
+			return Collections.emptyList();
+		}
 	}
 
 	public void updateGermplasmPedigree(List<Germplasm> data) throws BrAPIServerException {
@@ -356,14 +374,14 @@ public class PedigreeService {
 			}
 
 			if (!createPedigreeNodes.isEmpty()) {
-				savePedigreeNodes(createPedigreeNodes);
+				savePedigreeNodes(createPedigreeNodes, false);
 			}
 
 			if (!updatePedigreeNodes.isEmpty()) {
-				updatePedigreeNodes(updatePedigreeNodes);
+				updatePedigreeNodes(updatePedigreeNodes, false);
 			}
 		} else {
-			savePedigreeNodes(convertFromGermplasmToPedigreeBatchUsingNames(data));
+			savePedigreeNodes(convertFromGermplasmToPedigreeBatchUsingNames(data), false);
 		}
 
 	}
