@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import io.swagger.model.core.SortOrder;
 import io.swagger.model.germ.*;
 import jakarta.validation.Valid;
 
@@ -137,7 +138,7 @@ public class GermplasmService {
 					"*institute.instituteCode");
 		}
 
-				searchQuery.withExRefs(request.getExternalReferenceIDs(), request.getExternalReferenceSources())
+		searchQuery.withExRefs(request.getExternalReferenceIDs(), request.getExternalReferenceSources())
 				.appendList(request.getAccessionNumbers(), "accessionNumber")
 				.appendList(request.getCollections(), "collection")
 				.appendList(request.getCommonCropNames(), "crop.cropName").appendList(request.getGermplasmDbIds(), "id")

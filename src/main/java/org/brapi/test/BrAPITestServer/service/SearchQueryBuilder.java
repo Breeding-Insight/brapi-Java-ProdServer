@@ -32,10 +32,22 @@ public class SearchQueryBuilder<T> {
 	}
 
 	public String getQuery() {
+		if (sortClause.isBlank()) {
+			// By default, sort on entity id to have query result remain idempotent
+			sortClause = " ORDER BY entity.id ASC ";
+		}
+
 		return selectClause + whereClause + sortClause;
 	}
 
-	public String getIdQuery() { return selectOnlyIds + whereClause + sortClause;}
+	public String getIdQuery() {
+		if (sortClause.isBlank()) {
+			// By default, sort on entity id to have query result remain idempotent
+			sortClause = " ORDER BY entity.id ASC ";
+		}
+
+		return selectOnlyIds + whereClause + sortClause;
+	}
 
 	public Map<String, Object> getParams() {
 		return params;
