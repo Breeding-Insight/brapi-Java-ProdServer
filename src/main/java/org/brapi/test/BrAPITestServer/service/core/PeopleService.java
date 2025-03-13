@@ -62,7 +62,7 @@ public class PeopleService {
 				.appendList(request.getMiddleNames(), "middleName").appendList(request.getPersonDbIds(), "id")
 				.appendList(request.getPhoneNumbers(), "phoneNumber").appendList(request.getUserIDs(), "userID");
 
-		Page<PersonEntity> entityPage = peopleRepository.findAllBySearch(searchQuery, pageReq);
+		Page<PersonEntity> entityPage = peopleRepository.findAllBySearchAndPaginate(searchQuery, pageReq);
 
 		List<Person> data = entityPage.map(this::convertToPerson).getContent();
 		PagingUtility.calculateMetaData(metadata, entityPage);

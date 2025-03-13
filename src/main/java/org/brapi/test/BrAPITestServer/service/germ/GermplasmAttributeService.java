@@ -125,7 +125,7 @@ public class GermplasmAttributeService {
 				.appendList(request.getOntologyDbIds(), "ontology.id")
 				.appendList(request.getCommonCropNames(), "crop.crop_name");
 
-		Page<GermplasmAttributeDefinitionEntity> page = attributeRepository.findAllBySearch(searchQuery, pageReq);
+		Page<GermplasmAttributeDefinitionEntity> page = attributeRepository.findAllBySearchAndPaginate(searchQuery, pageReq);
 		List<GermplasmAttribute> attributes = page.map(this::convertFromEntity).getContent();
 		PagingUtility.calculateMetaData(metadata, page);
 		return attributes;

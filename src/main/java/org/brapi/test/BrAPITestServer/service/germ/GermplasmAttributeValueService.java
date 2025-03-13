@@ -78,7 +78,7 @@ public class GermplasmAttributeValueService {
 						.appendList(request.getGermplasmDbIds(), "germplasm.id")
 						.appendList(request.getGermplasmNames(), "germplasm.germplasmName");
 
-		Page<GermplasmAttributeValueEntity> page = attributeValueRepository.findAllBySearch(searchQuery, pageReq);
+		Page<GermplasmAttributeValueEntity> page = attributeValueRepository.findAllBySearchAndPaginate(searchQuery, pageReq);
 		List<GermplasmAttributeValue> attributeValues = page.map(this::convertFromEntity).getContent();
 		PagingUtility.calculateMetaData(metadata, page);
 		return attributeValues;

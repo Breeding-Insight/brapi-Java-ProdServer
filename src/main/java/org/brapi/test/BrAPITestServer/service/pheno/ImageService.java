@@ -86,7 +86,7 @@ public class ImageService {
 						"timeStamp")
 				.appendGeoJSONArea(request.getImageLocation());
 
-		Page<ImageEntity> imagePage = imageRepository.findAllBySearch(searchQuery, pageReq);
+		Page<ImageEntity> imagePage = imageRepository.findAllBySearchAndPaginate(searchQuery, pageReq);
 		PagingUtility.calculateMetaData(metadata, imagePage);
 		return imagePage.getContent();
 	}

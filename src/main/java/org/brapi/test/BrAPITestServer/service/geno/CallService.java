@@ -71,7 +71,7 @@ public class CallService {
 				.appendList(request.getCallSetDbIds(), "callSet.id").appendList(request.getVariantDbIds(), "variant.id")
 				.appendList(request.getVariantSetDbIds(), "variant.variantSet.id");
 
-		Page<CallEntity> page = callRepository.findAllBySearch(searchQuery, pageReq);
+		Page<CallEntity> page = callRepository.findAllBySearchAndPaginate(searchQuery, pageReq);
 		PagingUtility.calculateMetaData(metadata, page);
 		return page.getContent();
 	}

@@ -65,7 +65,7 @@ public class ReferenceSetService {
 						.appendList(request.getMd5checksums(), "md5checksum")
 						.appendList(request.getReferenceSetDbIds(), "id");
 
-		Page<ReferenceSetEntity> page = referenceSetRepository.findAllBySearch(searchQuery, pageReq);
+		Page<ReferenceSetEntity> page = referenceSetRepository.findAllBySearchAndPaginate(searchQuery, pageReq);
 		List<ReferenceSet> referenceSets = page.map(this::convertFromEntity).getContent();
 		PagingUtility.calculateMetaData(metadata, page);
 		return referenceSets;

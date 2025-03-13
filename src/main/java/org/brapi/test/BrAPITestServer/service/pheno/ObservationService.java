@@ -243,7 +243,7 @@ public class ObservationService {
 				.appendList(request.getTrialDbIds(), "trial.id").appendList(request.getTrialNames(), "trial.trialName");
 
 		log.debug("starting search");
-		Page<ObservationEntity> page = observationRepository.findAllBySearch(searchQuery, pageReq);
+		Page<ObservationEntity> page = observationRepository.findAllBySearchAndPaginate(searchQuery, pageReq);
 		log.debug("search complete");
 
 		if(!page.isEmpty()) {

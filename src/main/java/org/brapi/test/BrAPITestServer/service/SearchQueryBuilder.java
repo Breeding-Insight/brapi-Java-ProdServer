@@ -1,11 +1,7 @@
 package org.brapi.test.BrAPITestServer.service;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
@@ -32,7 +28,7 @@ public class SearchQueryBuilder<T> {
 	}
 
 	public String getQuery() {
-		if (sortClause.isBlank()) {
+		if (sortClause.isEmpty()) {
 			// By default, sort on entity id to have query result remain idempotent
 			sortClause = " ORDER BY entity.id ASC ";
 		}
@@ -41,7 +37,7 @@ public class SearchQueryBuilder<T> {
 	}
 
 	public String getIdQuery() {
-		if (sortClause.isBlank()) {
+		if (sortClause.isEmpty()) {
 			// By default, sort on entity id to have query result remain idempotent
 			sortClause = " ORDER BY entity.id ASC ";
 		}
@@ -62,6 +58,15 @@ public class SearchQueryBuilder<T> {
 		if (list != null && !list.isEmpty()) {
 			this.whereClause += "AND " + entityPrefix(columnName) + " in :" + paramName + " ";
 			this.params.put(paramName, list);
+		}
+		return this;
+	}
+
+	public SearchQueryBuilder<T> appendIds(List<String> ids) {
+		String paramName = paramFilter("id");
+		if (ids != null && !ids.isEmpty()) {
+			this.whereClause += "AND " + entityPrefix("id") + " in :" + paramName + " ";
+			this.params.put(paramName, ids);
 		}
 		return this;
 	}
@@ -242,8 +247,37 @@ public class SearchQueryBuilder<T> {
 	}
 
 	public SearchQueryBuilder<T> leftJoinFetch(String join, String name) {
-		this.selectClause += "LEFT JOIN FETCH " + entityPrefix(join) + " " + paramFilter(name) + " ";
+		this.selectClause += generateLeftJoinFetch(join, name);
 		return this;
+	}
+
+	/**
+	 * Use this method to remove left join fetches from specific collection attributes so you can leverage the same query to
+	 * iterate through other lazily loaded collections on an entity you need to fetch.
+	 */
+	public SearchQueryBuilder<T> removeAndReplaceLeftJoinFetch(String join,
+															   String name,
+															   String existingJoin,
+															   String existingName) {
+
+		this.selectClause =
+				this.selectClause.replace(generateLeftJoinFetch(existingJoin, existingName), generateLeftJoinFetch(join, name));
+
+		return this;
+	}
+
+	/**
+	 * Use this method to remove left join fetches from specific collection attributes so you can leverage the same
+	 * base query criteria to add another join fetch with leftJoinFetch()
+	 */
+	public SearchQueryBuilder<T> removeLeftJoinFetch(String join, String name) {
+		this.selectClause =
+				this.selectClause.replace(generateLeftJoinFetch(join, name), "");
+		return this;
+	}
+
+	private String generateLeftJoinFetch(String join, String paramName) {
+		return "LEFT JOIN FETCH " + entityPrefix(join) + " " + paramFilter(paramName) + " ";
 	}
 
 	private String entityPrefix(String field) {

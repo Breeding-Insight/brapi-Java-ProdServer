@@ -149,7 +149,7 @@ public class StudyService {
 				.appendList(request.getTrialDbIds(), "trial.id").appendList(request.getTrialNames(), "trial.trialName")
 				.withSort(getSortByField(request.getSortBy()), request.getSortOrder());
 
-		Page<StudyEntity> studiesPage = studyRepository.findAllBySearch(searchQuery, pageReq);
+		Page<StudyEntity> studiesPage = studyRepository.findAllBySearchAndPaginate(searchQuery, pageReq);
 		PagingUtility.calculateMetaData(metaData, studiesPage);
 
 		List<Study> studies = studiesPage.map(this::convertFromEntity).getContent();

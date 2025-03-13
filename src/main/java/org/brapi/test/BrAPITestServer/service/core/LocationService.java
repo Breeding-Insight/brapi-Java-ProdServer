@@ -83,7 +83,7 @@ public class LocationService {
 				.appendList(request.getParentLocationDbIds(), "parentLocation.id")
 				.appendList(request.getParentLocationNames(), "parentLocation.name");
 
-		Page<LocationEntity> entityPage = locationRepository.findAllBySearch(searchQuery, pageReq);
+		Page<LocationEntity> entityPage = locationRepository.findAllBySearchAndPaginate(searchQuery, pageReq);
 
 		List<Location> data = entityPage.map(this::convertFromEntity).getContent();
 		PagingUtility.calculateMetaData(metadata, entityPage);

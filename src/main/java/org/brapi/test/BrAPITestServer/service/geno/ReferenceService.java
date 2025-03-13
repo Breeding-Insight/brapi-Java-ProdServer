@@ -83,7 +83,7 @@ public class ReferenceService {
 				.appendNumberRange(request.getMinLength(), request.getMaxLength(), "length")
 				.appendSingle(request.isIsDerived(), "referenceSet.isDerived");
 
-		Page<ReferenceEntity> page = referenceRepository.findAllBySearch(searchQuery, pageReq);
+		Page<ReferenceEntity> page = referenceRepository.findAllBySearchAndPaginate(searchQuery, pageReq);
 		List<Reference> references = page.map(this::convertFromEntity).getContent();
 		PagingUtility.calculateMetaData(metadata, page);
 		return references;

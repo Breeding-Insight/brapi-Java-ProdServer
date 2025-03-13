@@ -81,7 +81,7 @@ public class CrossService {
 		if (plannedCross != null)
 			searchQuery = searchQuery.appendSingle(plannedCross, "planned");
 
-		Page<CrossEntity> page = crossRepository.findAllBySearch(searchQuery, pageReq);
+		Page<CrossEntity> page = crossRepository.findAllBySearchAndPaginate(searchQuery, pageReq);
 		PagingUtility.calculateMetaData(metadata, page);
 		return page;
 	}

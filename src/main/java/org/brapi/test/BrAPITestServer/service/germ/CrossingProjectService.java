@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
+import io.swagger.model.IndexPagination;
 import jakarta.validation.Valid;
 
 import org.brapi.test.BrAPITestServer.exceptions.BrAPIServerDbIdNotFoundException;
@@ -59,13 +60,33 @@ public class CrossingProjectService {
 			searchQuery = searchQuery.withExRefs(Arrays.asList(externalReferenceID),
 					Arrays.asList(externalReferenceSource));
 
-		Page<CrossingProjectEntity> page = crossingProjectRepository.findAllBySearch(searchQuery, pageReq);
+		Page<CrossingProjectEntity> page = crossingProjectRepository.findAllBySearchAndPaginate(searchQuery, pageReq);
 		List<CrossingProject> crossingProjects = new ArrayList<>();
 		for (CrossingProjectEntity entity : page) {
 			crossingProjects.add(convertFromEntity(entity, includePotentialParents));
 		}
 		PagingUtility.calculateMetaData(metadata, page);
 		return crossingProjects;
+	}
+
+	public List<CrossingProjectEntity> findCrossingProjectsByIds(List<String> crossingProjectIds) {
+		Metadata metadata = new Metadata().pagination(new IndexPagination());
+		Pageable pageReq = PagingUtility.getPageRequest(metadata);
+
+		SearchQueryBuilder<CrossingProjectEntity> searchQuery = new SearchQueryBuilder<CrossingProjectEntity>(
+				CrossingProjectEntity.class);
+
+		if (crossingProjectIds != null && !crossingProjectIds.isEmpty()) {
+			searchQuery = searchQuery.appendList(crossingProjectIds, "id");
+		}
+
+		Page<CrossingProjectEntity> page = crossingProjectRepository.findAllBySearchAndPaginate(searchQuery, pageReq);
+
+		if (page.hasContent()) {
+			return page.getContent();
+		}
+
+		return null;
 	}
 
 	public CrossingProject getCrossingProject(String crossingProjectDbId) throws BrAPIServerException {

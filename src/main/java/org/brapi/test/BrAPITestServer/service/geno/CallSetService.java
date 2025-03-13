@@ -66,7 +66,7 @@ public class CallSetService {
 				.appendList(request.getSampleDbIds(), "sample.id")
 				.appendList(request.getSampleNames(), "sample.sampleName");
 
-		Page<CallSetEntity> page = callSetRepository.findAllBySearch(searchQuery, pageReq);
+		Page<CallSetEntity> page = callSetRepository.findAllBySearchAndPaginate(searchQuery, pageReq);
 		PagingUtility.calculateMetaData(metadata, page);
 		return page.getContent();
 	}

@@ -101,7 +101,7 @@ public class PlateService {
 				.appendList(request.getTrialNames(), "trial.trialName").appendList(request.getStudyDbIds(), "study.id")
 				.appendList(request.getStudyNames(), "study.studyName");
 
-		Page<PlateEntity> page = plateRepository.findAllBySearch(searchQuery, pageReq);
+		Page<PlateEntity> page = plateRepository.findAllBySearchAndPaginate(searchQuery, pageReq);
 		List<Plate> plates = page.map(this::convertFromEntity).getContent();
 		PagingUtility.calculateMetaData(metadata, page);
 		return plates;

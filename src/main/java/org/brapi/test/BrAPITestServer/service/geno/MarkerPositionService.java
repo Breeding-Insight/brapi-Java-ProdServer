@@ -46,7 +46,7 @@ public class MarkerPositionService {
 						.appendList(request.getMapDbIds(), "linkageGroup.genomeMap.id")
 						.appendNumberRange(request.getMinPosition(), request.getMaxPosition(), "position");
 
-		Page<MarkerPositionEntity> page = markerPositionRepository.findAllBySearch(searchQuery, pageReq);
+		Page<MarkerPositionEntity> page = markerPositionRepository.findAllBySearchAndPaginate(searchQuery, pageReq);
 		List<MarkerPosition> markerPositions = page.map(this::convertFromEntity).getContent();
 		PagingUtility.calculateMetaData(metadata, page);
 		return markerPositions;

@@ -44,7 +44,7 @@ public class TraitService {
 		}
 		searchQuery = searchQuery.appendSingle(traitDbId, "id").withExRefs(externalReferenceID,
 				externalReferenceSource);
-		Page<TraitEntity> traitPage = traitRepository.findAllBySearch(searchQuery, pageReq);
+		Page<TraitEntity> traitPage = traitRepository.findAllBySearchAndPaginate(searchQuery, pageReq);
 		PagingUtility.calculateMetaData(metadata, traitPage);
 
 		List<Trait> traits = traitPage.map(this::convertFromEntity).getContent();

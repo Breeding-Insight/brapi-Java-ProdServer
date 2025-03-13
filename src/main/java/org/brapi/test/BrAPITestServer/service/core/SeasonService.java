@@ -44,7 +44,7 @@ public class SeasonService {
 		if (year != null)
 			searchQuery = searchQuery.appendSingle(year, "year");
 
-		Page<SeasonEntity> entityPage = seasonRepository.findAllBySearch(searchQuery, pageReq);
+		Page<SeasonEntity> entityPage = seasonRepository.findAllBySearchAndPaginate(searchQuery, pageReq);
 
 		List<Season> data = entityPage.map(this::convertFromEntity).getContent();
 		PagingUtility.calculateMetaData(metadata, entityPage);

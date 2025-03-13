@@ -135,7 +135,7 @@ public class SampleService {
 				.appendList(request.getStudyDbIds(), "plate.study.id")
 				.appendList(request.getStudyNames(), "plate.study.studyName");
 
-		Page<SampleEntity> page = sampleRepository.findAllBySearch(searchQuery, pageReq);
+		Page<SampleEntity> page = sampleRepository.findAllBySearchAndPaginate(searchQuery, pageReq);
 		List<Sample> samples = page.map(this::convertFromEntity).getContent();
 		PagingUtility.calculateMetaData(metadata, page);
 		return samples;

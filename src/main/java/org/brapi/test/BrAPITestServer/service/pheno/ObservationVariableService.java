@@ -137,7 +137,7 @@ public class ObservationVariableService {
 				.appendEnumList(request.getDataTypes(), "scale.dataType");
 
 		log.debug("Starting variable search");
-		Page<ObservationVariableEntity> page = observationVariableRepository.findAllBySearch(searchQuery, pageReq);
+		Page<ObservationVariableEntity> page = observationVariableRepository.findAllBySearchAndPaginate(searchQuery, pageReq);
 		log.debug("Variable search complete");
 
 

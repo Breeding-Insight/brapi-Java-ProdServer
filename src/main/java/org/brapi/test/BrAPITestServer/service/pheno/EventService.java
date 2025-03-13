@@ -45,7 +45,7 @@ public class EventService {
 					"*dateOccured");
 		}
 
-		Page<EventEntity> page = eventRepository.findAllBySearch(searchQuery, pageReq);
+		Page<EventEntity> page = eventRepository.findAllBySearchAndPaginate(searchQuery, pageReq);
 		List<Event> crossingProjects = page.map(this::convertFromEntity).getContent();
 		PagingUtility.calculateMetaData(metadata, page);
 		return crossingProjects;

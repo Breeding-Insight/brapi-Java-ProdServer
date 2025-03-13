@@ -153,7 +153,7 @@ public class PedigreeService {
 				.appendNamesList(request.getBinomialNames(), "germplasm.genus", "germplasm.genus", "germplasm.species")
 				.appendList(request.getFamilyCodes(), "familyCode");
 
-		Page<PedigreeNodeEntity> page = pedigreeRepository.findAllBySearch(searchQuery, pageReq);
+		Page<PedigreeNodeEntity> page = pedigreeRepository.findAllBySearchAndPaginate(searchQuery, pageReq);
 
 		List<PedigreeNodeEntity> filteredNodes = filterGenerations(request, page.getContent());
 
@@ -495,7 +495,7 @@ public class PedigreeService {
 			search.appendSingle(node.getGermplasmDbId(), "connectedNode.germplasm.id");
 			search.appendEnum(PedigreeEdgeEntity.EdgeType.child, "edgeType");
 			Pageable defaultPageSize = PagingUtility.getPageRequest(new Metadata().pagination(new IndexPagination().pageSize(10000000)));
-			Page<PedigreeEdgeEntity> existingParentEdges = pedigreeEdgeRepository.findAllBySearch(search, defaultPageSize);
+			Page<PedigreeEdgeEntity> existingParentEdges = pedigreeEdgeRepository.findAllBySearchAndPaginate(search, defaultPageSize);
 
 			List<String> edgeIdsToDelete = new ArrayList<>();
 			edgeIdsToDelete.addAll(entity.getParentEdges().stream().map(e -> e.getId()).collect(Collectors.toList()));
@@ -518,7 +518,7 @@ public class PedigreeService {
 			search.appendSingle(node.getGermplasmDbId(), "connectedNode.germplasm.id");
 			search.appendEnum(PedigreeEdgeEntity.EdgeType.parent, "edgeType");
 			Pageable defaultPageSize = PagingUtility.getPageRequest(new Metadata().pagination(new IndexPagination().pageSize(10000000)));
-			Page<PedigreeEdgeEntity> existingProgenyEdges = pedigreeEdgeRepository.findAllBySearch(search, defaultPageSize);
+			Page<PedigreeEdgeEntity> existingProgenyEdges = pedigreeEdgeRepository.findAllBySearchAndPaginate(search, defaultPageSize);
 
 			List<String> edgeIdsToDelete = new ArrayList<>();
 			edgeIdsToDelete.addAll(entity.getProgenyEdges().stream().map(e -> e.getId()).collect(Collectors.toList()));

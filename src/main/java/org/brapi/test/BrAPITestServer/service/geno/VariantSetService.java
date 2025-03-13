@@ -97,7 +97,7 @@ public class VariantSetService {
 		searchQuery.appendList(request.getStudyDbIds(), "study.id")
 				.appendList(request.getStudyNames(), "study.studyName").appendList(request.getVariantSetDbIds(), "id");
 
-		Page<VariantSetEntity> page = variantSetRepository.findAllBySearch(searchQuery, pageReq);
+		Page<VariantSetEntity> page = variantSetRepository.findAllBySearchAndPaginate(searchQuery, pageReq);
 		PagingUtility.calculateMetaData(metadata, page);
 		return page.getContent();
 	}

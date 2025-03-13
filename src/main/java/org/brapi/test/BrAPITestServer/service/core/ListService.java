@@ -88,7 +88,7 @@ public class ListService {
 		Pageable pageReq = PagingUtility.getPageRequest(metadata);
 		SearchQueryBuilder<ListEntity> searchQuery = buildQueryString(request);
 
-		Page<ListEntity> entityPage = listRepository.findAllBySearch(searchQuery, pageReq);
+		Page<ListEntity> entityPage = listRepository.findAllBySearchAndPaginate(searchQuery, pageReq);
 
 		List<ListSummary> data = entityPage.map(this::convertToSummary).getContent();
 		PagingUtility.calculateMetaData(metadata, entityPage);

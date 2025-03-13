@@ -261,7 +261,7 @@ public class ObservationUnitService {
 				.appendList(request.getTrialNames(), "trial.trailName");
 
 		log.debug("Starting search");
-		Page<ObservationUnitEntity> page = observationUnitRepository.findAllBySearch(searchQuery, pageReq);
+		Page<ObservationUnitEntity> page = observationUnitRepository.findAllBySearchAndPaginate(searchQuery, pageReq);
 		log.debug("Search complete");
 
 		if(!page.isEmpty()) {
@@ -278,7 +278,7 @@ public class ObservationUnitService {
 		searchQuery.leftJoinFetch("treatments", "treatments")
 				   .appendList(page.stream().map(BrAPIBaseEntity::getId).collect(Collectors.toList()), "id");
 
-		Page<ObservationUnitEntity> treatments = observationUnitRepository.findAllBySearch(searchQuery, PageRequest.of(0, page.getSize()));
+		Page<ObservationUnitEntity> treatments = observationUnitRepository.findAllBySearchAndPaginate(searchQuery, PageRequest.of(0, page.getSize()));
 
 		Map<String, List<TreatmentEntity>> treatmentsByOu = new HashMap<>();
 		treatments.forEach(ou -> treatmentsByOu.put(ou.getId(), ou.getTreatments()));
@@ -293,7 +293,7 @@ public class ObservationUnitService {
 				   .leftJoinFetch("*position.observationLevelRelationships", "observationLevelRelationships")
 				   .appendList(page.stream().map(BrAPIBaseEntity::getId).collect(Collectors.toList()), "id");
 
-		Page<ObservationUnitEntity> positions = observationUnitRepository.findAllBySearch(searchQuery, PageRequest.of(0, page.getSize()));
+		Page<ObservationUnitEntity> positions = observationUnitRepository.findAllBySearchAndPaginate(searchQuery, PageRequest.of(0, page.getSize()));
 
 		Map<String, ObservationUnitPositionEntity> positionByOu = new HashMap<>();
 		positions.forEach(ou -> positionByOu.put(ou.getId(), ou.getPosition()));

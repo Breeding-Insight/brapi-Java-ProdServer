@@ -15,11 +15,11 @@ import org.springframework.data.repository.NoRepositoryBean;
 @NoRepositoryBean
 public interface BrAPIRepository<T extends BrAPIPrimaryEntity, ID extends Serializable> extends JpaRepository<T, ID> {
 
-	public Page<T> findAllBySearch(SearchQueryBuilder<T> searchQuery, Pageable pageReq);
+	public Page<T> findAllBySearchAndPaginate(SearchQueryBuilder<T> searchQuery, Pageable pageReq);
 
-	public Page<UUID> findAllBySearchIdsOnly(SearchQueryBuilder<T> searchQuery, Pageable pageReq);
+	public Page<T> findAllBySearchPaginatingWithFetches(SearchQueryBuilder<T> searchQuery, Pageable pageReq);
 
-	public Page<T> findAllBySearchNoPage(SearchQueryBuilder<T> searchQuery, Page<UUID> pagedIds, Pageable pageReq);
+	public List<T> findAllBySearch(SearchQueryBuilder<T> searchQuery);
 
 	public Optional<T> findById(ID id);
 

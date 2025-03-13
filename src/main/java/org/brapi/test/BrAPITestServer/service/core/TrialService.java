@@ -129,7 +129,7 @@ public class TrialService {
 				.appendDateRange(request.getSearchDateRangeStart(), request.getSearchDateRangeEnd(), "startDate")
 				.withSort(getSortByField(request.getSortBy()), request.getSortOrder());
 
-		Page<TrialEntity> trialsPage = trialRepository.findAllBySearch(searchQuery, pageReq);
+		Page<TrialEntity> trialsPage = trialRepository.findAllBySearchAndPaginate(searchQuery, pageReq);
 		PagingUtility.calculateMetaData(metadata, trialsPage);
 
 		List<Trial> trials = trialsPage.map(this::convertFromEntity).getContent();

@@ -63,7 +63,7 @@ public class VariantService {
 		searchQuery = searchQuery.appendList(request.getVariantSetDbIds(), "variantSet.id")
 				.appendList(request.getVariantDbIds(), "id");
 
-		Page<VariantEntity> page = variantRepository.findAllBySearch(searchQuery, pageReq);
+		Page<VariantEntity> page = variantRepository.findAllBySearchAndPaginate(searchQuery, pageReq);
 		PagingUtility.calculateMetaData(metadata, page);
 		return page.getContent();
 	}
