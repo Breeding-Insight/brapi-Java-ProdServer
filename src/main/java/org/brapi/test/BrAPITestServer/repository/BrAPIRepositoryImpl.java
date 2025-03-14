@@ -4,6 +4,7 @@ import org.brapi.test.BrAPITestServer.model.entity.BrAPIBaseEntity;
 import org.brapi.test.BrAPITestServer.model.entity.BrAPIPrimaryEntity;
 import org.brapi.test.BrAPITestServer.model.entity.ExternalReferenceEntity;
 import org.brapi.test.BrAPITestServer.service.SearchQueryBuilder;
+import org.brapi.test.BrAPITestServer.service.SecurityUtils;
 import org.hibernate.jpa.QueryHints;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -44,7 +45,7 @@ public class BrAPIRepositoryImpl<T extends BrAPIPrimaryEntity, ID extends Serial
 	public Page<T> findAllBySearchNoPage(SearchQueryBuilder<T> searchQuery, Page<UUID> pagedIds, Pageable pageReq) {
 		applyUserId(searchQuery);
 
-		var entities = searchEntitiesWithIds(searchQuery, pagedIds);
+		List<T> entities = searchEntitiesWithIds(searchQuery, pagedIds);
 
 		return new PageImpl<>(entities, pageReq, pagedIds.getTotalElements());
 	}
@@ -66,7 +67,7 @@ public class BrAPIRepositoryImpl<T extends BrAPIPrimaryEntity, ID extends Serial
 	public Optional<T> findById(ID id) {
 		Optional<T> response = super.findById(id);
 		if (response.isPresent()) {
-			String userId = getCurrentUserId();
+			String userId = SecurityUtils.getCurrentUserId();
 			if (!(null == response.get().getAuthUserId()
 					|| userId.equals(response.get().getAuthUserId())
 					|| "anonymousUser".equals(response.get().getAuthUserId()))) {
@@ -77,13 +78,13 @@ public class BrAPIRepositoryImpl<T extends BrAPIPrimaryEntity, ID extends Serial
 	}
 
 	public <S extends T> S save(S entity) {
-		entity.setAuthUserId(getCurrentUserId());
+		entity.setAuthUserId(SecurityUtils.getCurrentUserId());
 		return super.save(entity);
 	}
 
 	public <S extends T> List<S> saveAll(Iterable<S> entities) {
 		for (S entity : entities) {
-			entity.setAuthUserId(getCurrentUserId());
+			entity.setAuthUserId(SecurityUtils.getCurrentUserId());
 		}
 		return super.saveAll(entities);
 	}
@@ -112,7 +113,7 @@ public class BrAPIRepositoryImpl<T extends BrAPIPrimaryEntity, ID extends Serial
 				.map(auth -> auth.getAuthority()).collect(Collectors.toSet());
 
 		List<String> userIds = new ArrayList<>();
-		userIds.add(getCurrentUserId());
+		userIds.add(SecurityUtils.getCurrentUserId());
 		if (userRolesSet.contains("ROLE_ADMIN")) {
 			return;
 		} else if (userRolesSet.contains("ROLE_USER")) {
@@ -138,7 +139,7 @@ public class BrAPIRepositoryImpl<T extends BrAPIPrimaryEntity, ID extends Serial
 	}
 
 	private List<T> searchEntitiesWithIds(SearchQueryBuilder<T> searchQuery, Page<UUID> ids) {
-		searchQuery.appendList(ids.stream().map(UUID::toString).toList(), "id");
+		searchQuery.appendList(ids.stream().map(UUID::toString).collect(Collectors.toList()), "id");
 
 		TypedQuery<T> query = entityManager.createQuery(searchQuery.getQuery(), searchQuery.getClazz());
 
