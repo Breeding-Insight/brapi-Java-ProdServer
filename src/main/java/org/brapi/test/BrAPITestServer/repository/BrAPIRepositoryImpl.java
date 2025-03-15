@@ -65,10 +65,10 @@ public class BrAPIRepositoryImpl<T extends BrAPIPrimaryEntity, ID extends Serial
 		applyUserId(searchQuery);
 
 		// First grab all the ids of the entities according to the criteria of the searchQuery, paging as specified in the pageReq.
-		List<UUID> content = getPagedContentIdsOnly(searchQuery, pageReq);
+		List<String> content = getPagedContentIdsOnly(searchQuery, pageReq);
 		Long totalCount = getTotalCount(searchQuery);
 
-		Page<UUID> pagedIds = new PageImpl<>(content, pageReq, totalCount);
+		Page<String> pagedIds = new PageImpl<>(content, pageReq, totalCount);
 
 		// Now execute another query to fetch all the entities requested in the searchQuery, passing the pagedIds found
 		// in the previous query.  We will fetch them utilizing the ids from the paged query, avoiding the hibernate
@@ -76,10 +76,10 @@ public class BrAPIRepositoryImpl<T extends BrAPIPrimaryEntity, ID extends Serial
         return findAllBySearchUsingIds(searchQuery, pagedIds, pageReq);
 	}
 
-	private Page<T> findAllBySearchUsingIds(SearchQueryBuilder<T> searchQuery, Page<UUID> pagedIds, Pageable pageReq) {
+	private Page<T> findAllBySearchUsingIds(SearchQueryBuilder<T> searchQuery, Page<String> pagedIds, Pageable pageReq) {
 		List<T> entities = searchEntitiesWithIds(searchQuery, pagedIds.toList());
 
-		return new PageImpl<>(entities, pageReq, pagedIds.getSize());
+		return new PageImpl<>(entities, pageReq, pagedIds.getTotalElements());
 	}
 
 	/**
@@ -162,7 +162,7 @@ public class BrAPIRepositoryImpl<T extends BrAPIPrimaryEntity, ID extends Serial
         return query.getResultList();
 	}
 
-	private List<T> searchEntitiesWithIds(SearchQueryBuilder<T> searchQuery, List<UUID> ids) {
+	private List<T> searchEntitiesWithIds(SearchQueryBuilder<T> searchQuery, List<String> ids) {
 		searchQuery.appendList(ids.stream().map(Object::toString).collect(Collectors.toList()), "id");
 
 		TypedQuery<T> query = entityManager.createQuery(searchQuery.getQuery(), searchQuery.getClazz());
@@ -186,9 +186,9 @@ public class BrAPIRepositoryImpl<T extends BrAPIPrimaryEntity, ID extends Serial
 		}
 	}
 
-	private List<UUID> getPagedContentIdsOnly(SearchQueryBuilder<T> searchQuery, Pageable pageReq) {
+	private List<String> getPagedContentIdsOnly(SearchQueryBuilder<T> searchQuery, Pageable pageReq) {
 
-		TypedQuery<UUID> query = entityManager.createQuery(searchQuery.getIdQuery(), UUID.class);
+		TypedQuery<String> query = entityManager.createQuery(searchQuery.getIdQuery(), String.class);
 
 		for (Entry<String, Object> entry : searchQuery.getParams().entrySet()) {
 			query.setParameter(entry.getKey(), entry.getValue());
