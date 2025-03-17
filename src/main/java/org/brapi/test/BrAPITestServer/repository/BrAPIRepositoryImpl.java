@@ -10,6 +10,7 @@ import io.swagger.model.germ.GermplasmSearchRequest;
 import javax.persistence.EntityManager;
 import javax.persistence.TypedQuery;
 
+import org.brapi.test.BrAPITestServer.exceptions.InvalidPagingException;
 import org.brapi.test.BrAPITestServer.model.entity.BrAPIBaseEntity;
 import org.brapi.test.BrAPITestServer.model.entity.BrAPIPrimaryEntity;
 import org.brapi.test.BrAPITestServer.model.entity.ExternalReferenceEntity;
@@ -38,10 +39,20 @@ public class BrAPIRepositoryImpl<T extends BrAPIPrimaryEntity, ID extends Serial
 	 * 	Use this method to page simple entities with no lazily loaded collections or attributes.
 	 * 	WARN: Failure to do so can easily exhaust memory at scale and will cause hibernate warnings.
 	 */
-	public Page<T> findAllBySearchAndPaginate(SearchQueryBuilder<T> searchQuery, Pageable pageReq) {
+	public Page<T> findAllBySearchAndPaginate(SearchQueryBuilder<T> searchQuery, Pageable pageReq)
+		throws InvalidPagingException {
 		applyUserId(searchQuery);
-		List<T> content = getPagedContent(searchQuery, pageReq);
+
 		Long totalCount = getTotalCount(searchQuery);
+
+		validatePageNumber(pageReq, totalCount);
+
+		if (totalCount == 0) {
+			// Short-circuit to avoid running possible long-running query
+			return new PageImpl<>(Collections.emptyList(), pageReq, totalCount);
+		}
+
+		List<T> content = getPagedContent(searchQuery, pageReq);
 
         return new PageImpl<>(content, pageReq, totalCount);
 	}
@@ -61,12 +72,16 @@ public class BrAPIRepositoryImpl<T extends BrAPIPrimaryEntity, ID extends Serial
 	 *
 	 * The results will be paged and ordered based on the submitted searchQuery and pageReq.
     */
-	public Page<T> findAllBySearchPaginatingWithFetches(SearchQueryBuilder<T> searchQuery, Pageable pageReq) {
+	public Page<T> findAllBySearchPaginatingWithFetches(SearchQueryBuilder<T> searchQuery, Pageable pageReq)
+		throws InvalidPagingException {
 		applyUserId(searchQuery);
+
+		Long totalCount = getTotalCount(searchQuery);
+
+		validatePageNumber(pageReq, totalCount);
 
 		// First grab all the ids of the entities according to the criteria of the searchQuery, paging as specified in the pageReq.
 		List<String> content = getPagedContentIdsOnly(searchQuery, pageReq);
-		Long totalCount = getTotalCount(searchQuery);
 
 		Page<String> pagedIds = new PageImpl<>(content, pageReq, totalCount);
 
@@ -120,7 +135,7 @@ public class BrAPIRepositoryImpl<T extends BrAPIPrimaryEntity, ID extends Serial
 		this.entityManager.refresh(entity);
 	}
 
-	public void fetchXrefs(Page<T> page, Class<T> searchClass) {
+	public void fetchXrefs(Page<T> page, Class<T> searchClass) throws InvalidPagingException {
 		SearchQueryBuilder<T> searchQuery = new SearchQueryBuilder<T>(searchClass);
 		searchQuery.leftJoinFetch("externalReferences", "externalReferences")
 				   .appendList(page.stream().map(BrAPIBaseEntity::getId).collect(Collectors.toList()), "id");
@@ -219,5 +234,14 @@ public class BrAPIRepositoryImpl<T extends BrAPIPrimaryEntity, ID extends Serial
 			return content.get(0);
 		}
 		return 0L;
+	}
+
+	private void validatePageNumber(Pageable pageReq, Long totalCount) throws InvalidPagingException {
+		int reqPageNum = pageReq.getPageNumber();
+		if (reqPageNum != 0 && reqPageNum > Math.floor(((double) totalCount) / pageReq.getPageSize())) {
+			// Condition indicates a request was sent where the page requested exceeds the total number of pages.
+			// Instruct requester to send the correct request.
+			throw new InvalidPagingException();
+		}
 	}
 }

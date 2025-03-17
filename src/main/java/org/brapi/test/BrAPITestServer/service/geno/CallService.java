@@ -41,7 +41,8 @@ public class CallService {
 	}
 
 	public CallsListResponseResult findCalls(String callSetDbId, String variantDbId, String variantSetDbId,
-			Boolean expandHomozygotes, String unknownString, String sepPhased, String sepUnphased, Metadata metadata) {
+			Boolean expandHomozygotes, String unknownString, String sepPhased, String sepUnphased, Metadata metadata)
+		throws BrAPIServerException {
 		CallsSearchRequest request = new CallsSearchRequest();
 		if (callSetDbId != null)
 			request.addCallSetDbIdsItem(callSetDbId);
@@ -57,7 +58,8 @@ public class CallService {
 		return findCalls(request, metadata);
 	}
 
-	public CallsListResponseResult findCalls(CallsSearchRequest request, Metadata metadata) {
+	public CallsListResponseResult findCalls(CallsSearchRequest request, Metadata metadata)
+		throws BrAPIServerException {
 		List<Call> calls = findCallEntities(request, metadata).stream().map(e -> {
 			return convertFromEntityWithFormatting(e, request);
 		}).collect(Collectors.toList());
@@ -65,7 +67,8 @@ public class CallService {
 		return result;
 	}
 
-	public List<CallEntity> findCallEntities(CallsSearchRequest request, Metadata metadata) {
+	public List<CallEntity> findCallEntities(CallsSearchRequest request, Metadata metadata)
+		throws BrAPIServerException {
 		Pageable pageReq = PagingUtility.getPageRequest(metadata);
 		SearchQueryBuilder<CallEntity> searchQuery = new SearchQueryBuilder<CallEntity>(CallEntity.class)
 				.appendList(request.getCallSetDbIds(), "callSet.id").appendList(request.getVariantDbIds(), "variant.id")

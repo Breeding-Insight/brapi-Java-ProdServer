@@ -32,7 +32,8 @@ public class PeopleService {
 
 	public List<Person> findPeople(String firstName, String lastName, String personDbId, String userID,
 			String commonCropName, String programDbId, String externalReferenceId, String externalReferenceID,
-			String externalReferenceSource, Metadata metadata) {
+			String externalReferenceSource, Metadata metadata)
+		throws BrAPIServerException {
 
 		PersonSearchRequest request = new PersonSearchRequest();
 		if (firstName != null)
@@ -52,7 +53,8 @@ public class PeopleService {
 		return findPeople(request, metadata);
 	}
 
-	public List<Person> findPeople(PersonSearchRequest request, Metadata metadata) {
+	public List<Person> findPeople(PersonSearchRequest request, Metadata metadata)
+		throws BrAPIServerException {
 		Pageable pageReq = PagingUtility.getPageRequest(metadata);
 		SearchQueryBuilder<PersonEntity> searchQuery = new SearchQueryBuilder<PersonEntity>(PersonEntity.class)
 				.withExRefs(request.getExternalReferenceIDs(), request.getExternalReferenceSources())

@@ -47,27 +47,30 @@ public class CrossService {
 		this.crossParentService = crossParentService;
 	}
 
-	public List<Cross> findCrosses(String crossingProjectDbId, String crossingProjectName, String crossDbId,
-			String crossName, String commonCropName, String programDbId, String externalReferenceId,
-			String externalReferenceID, String externalReferenceSource, Metadata metadata) {
-		List<Cross> crosses = findCrossEntities(crossingProjectDbId, crossingProjectName, crossDbId, crossName, null,
-				commonCropName, programDbId, externalReferenceId, externalReferenceID, externalReferenceSource, false,
+	public List<Cross> findCrosses(String crossingProjectDbId, String crossDbId,
+								   String externalReferenceID, String externalReferenceSource, Metadata metadata)
+		throws BrAPIServerException {
+		List<Cross> crosses = findCrossEntities(crossingProjectDbId, crossDbId,
+				externalReferenceID, externalReferenceSource, false,
 				metadata).map(this::convertToCross).getContent();
 		return crosses;
 	}
 
-	public List<PlannedCross> findPlannedCrosses(String crossingProjectDbId, String crossingProjectName,
-			String crossDbId, String crossName, String status, String commonCropName, String programDbId,
-			String externalReferenceId, String externalReferenceID, String externalReferenceSource, Metadata metadata) {
-		List<PlannedCross> crosses = findCrossEntities(crossingProjectDbId, crossingProjectName, crossDbId, crossName, status,
-				commonCropName, programDbId, externalReferenceId, externalReferenceID, externalReferenceSource, true,
+	public List<PlannedCross> findPlannedCrosses(String crossingProjectDbId,
+												 String crossDbId,
+												 String externalReferenceID, String externalReferenceSource,
+												 Metadata metadata)
+		throws BrAPIServerException {
+		List<PlannedCross> crosses = findCrossEntities(crossingProjectDbId, crossDbId,
+				externalReferenceID, externalReferenceSource, true,
 				metadata).map(this::convertToPlanned).getContent();
 		return crosses;
 	}
 
-	public Page<CrossEntity> findCrossEntities(String crossingProjectDbId, String crossingProjectName, String crossDbId,
-			String crossName, String status, String commonCropName, String programDbId, String externalReferenceId,
-			String externalReferenceID, String externalReferenceSource, Boolean plannedCross, Metadata metadata) {
+	public Page<CrossEntity> findCrossEntities(String crossingProjectDbId, String crossDbId,
+											   String externalReferenceID, String externalReferenceSource,
+											   Boolean plannedCross, Metadata metadata)
+		throws BrAPIServerException {
 
 		Pageable pageReq = PagingUtility.getPageRequest(metadata);
 		SearchQueryBuilder<CrossEntity> searchQuery = new SearchQueryBuilder<CrossEntity>(CrossEntity.class);
@@ -224,7 +227,7 @@ public class CrossService {
 		if (cross.getCrossName() != null)
 			entity.setName(cross.getCrossName());
 		if (cross.getPlannedCrossDbId() != null) {
-			List<CrossEntity> plannedEntity = findCrossEntities(null, null, cross.getPlannedCrossDbId(), null, null, null, null, null, null, null, true, null).getContent();
+			List<CrossEntity> plannedEntity = findCrossEntities(null, cross.getPlannedCrossDbId(), null, null, true, null).getContent();
 			entity.setPlannedCross(plannedEntity.get(0));
 		}
 		if (cross.getPollinationEvents() != null) {

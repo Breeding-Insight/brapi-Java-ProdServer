@@ -40,7 +40,8 @@ public class GermplasmAttributeValueService {
 
 	public List<GermplasmAttributeValue> findGermplasmAttributeValues(String attributeValueDbId, String attributeDbId,
 			String attributeName, String germplasmDbId, String commonCropName, String programDbId,
-			String externalReferenceId, String externalReferenceID, String externalReferenceSource, Metadata metadata) {
+			String externalReferenceId, String externalReferenceID, String externalReferenceSource, Metadata metadata)
+		throws BrAPIServerException {
 
 		GermplasmAttributeValueSearchRequest request = new GermplasmAttributeValueSearchRequest();
 		if (attributeValueDbId != null)
@@ -62,7 +63,8 @@ public class GermplasmAttributeValueService {
 	}
 
 	public List<GermplasmAttributeValue> findGermplasmAttributeValues(
-			@Valid GermplasmAttributeValueSearchRequest request, Metadata metadata) {
+			@Valid GermplasmAttributeValueSearchRequest request, Metadata metadata)
+		throws BrAPIServerException {
 		Pageable pageReq = PagingUtility.getPageRequest(metadata);
 		SearchQueryBuilder<GermplasmAttributeValueEntity> searchQuery = new SearchQueryBuilder<GermplasmAttributeValueEntity>(
 				GermplasmAttributeValueEntity.class)

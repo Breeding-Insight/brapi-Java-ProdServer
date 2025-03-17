@@ -48,7 +48,8 @@ public class PlateService {
 	public List<Plate> findPlates(String sampleDbId, String sampleName, String sampleGroupDbId,
 			String observationUnitDbId, String plateDbId, String plateName, String germplasmDbId, String studyDbId,
 			String trialDbId, String commonCropName, String programDbId, String externalReferenceId,
-			String externalReferenceID, String externalReferenceSource, Metadata metadata) {
+			String externalReferenceID, String externalReferenceSource, Metadata metadata)
+		throws BrAPIServerException {
 		PlateSearchRequest request = new PlateSearchRequest();
 		if (sampleDbId != null)
 			request.addSampleDbIdsItem(sampleDbId);
@@ -78,7 +79,8 @@ public class PlateService {
 		return findPlates(request, metadata);
 	}
 
-	public List<Plate> findPlates(PlateSearchRequest request, Metadata metadata) {
+	public List<Plate> findPlates(PlateSearchRequest request, Metadata metadata)
+		throws BrAPIServerException {
 		Pageable pageReq = PagingUtility.getPageRequest(metadata);
 		SearchQueryBuilder<PlateEntity> searchQuery = new SearchQueryBuilder<PlateEntity>(PlateEntity.class);
 		if (request.getSampleDbIds() != null || request.getSampleNames() != null

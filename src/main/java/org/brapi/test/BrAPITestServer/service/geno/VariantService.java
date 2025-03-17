@@ -31,7 +31,8 @@ public class VariantService {
 	}
 
 	public List<Variant> findVariants(String variantDbId, String variantSetDbId, String referenceDbId,
-			String referenceSetDbId, String externalReferenceId, String externalReferenceSource, Metadata metadata) {
+			String referenceSetDbId, String externalReferenceId, String externalReferenceSource, Metadata metadata)
+	throws BrAPIServerException{
 
 		VariantsSearchRequest request = new VariantsSearchRequest();
 		if (variantSetDbId != null)
@@ -48,12 +49,14 @@ public class VariantService {
 		return findVariants(request, metadata);
 	}
 
-	public List<Variant> findVariants(VariantsSearchRequest request, Metadata metadata) {
+	public List<Variant> findVariants(VariantsSearchRequest request, Metadata metadata)
+		throws BrAPIServerException {
 		return findVariantEntities(request, metadata).stream().map(this::convertFromEntity)
 				.collect(Collectors.toList());
 	}
 
-	public List<VariantEntity> findVariantEntities(VariantsSearchRequest request, Metadata metadata) {
+	public List<VariantEntity> findVariantEntities(VariantsSearchRequest request, Metadata metadata)
+		throws BrAPIServerException {
 		Pageable pageReq = PagingUtility.getPageRequest(metadata);
 		SearchQueryBuilder<VariantEntity> searchQuery = new SearchQueryBuilder<VariantEntity>(VariantEntity.class);
 		if (request.getCallSetDbIds() != null && !request.getCallSetDbIds().isEmpty()) {

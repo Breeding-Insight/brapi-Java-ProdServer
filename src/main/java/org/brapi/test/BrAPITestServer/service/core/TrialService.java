@@ -71,7 +71,8 @@ public class TrialService {
 			@Valid String locationDbId, @Valid LocalDate searchDateRangeStart, @Valid LocalDate searchDateRangeEnd,
 			@Valid String studyDbId, @Valid String trialDbId, @Valid String trialName, @Valid String trialPUI,
 			@Valid String externalReferenceId, @Valid String externalReferenceID, @Valid String externalReferenceSource,
-			@Valid Boolean active, @Valid String sortBy, @Valid String sortOrder, Metadata metadata) {
+			@Valid Boolean active, @Valid String sortBy, @Valid String sortOrder, Metadata metadata)
+		throws BrAPIServerException {
 
 		TrialSearchRequest request = new TrialSearchRequest();
 		if (active != null)
@@ -105,7 +106,8 @@ public class TrialService {
 		return findTrials(request, metadata);
 	}
 
-	public List<Trial> findTrials(@Valid TrialSearchRequest request, Metadata metadata) {
+	public List<Trial> findTrials(@Valid TrialSearchRequest request, Metadata metadata)
+		throws BrAPIServerException {
 
 		Pageable pageReq = PagingUtility.getPageRequest(metadata);
 		SearchQueryBuilder<TrialEntity> searchQuery = new SearchQueryBuilder<TrialEntity>(TrialEntity.class);

@@ -68,7 +68,8 @@ public class ObservationVariableService {
 			String methodPUI, String scaleDbId, String scaleName, String scalePUI, String traitDbId, String traitName,
 			String traitPUI, String traitClass, String ontologyDbId, String commonCropName, String programDbId,
 			String trialDbId, String studyDbId, String externalReferenceId, String externalReferenceID,
-			String externalReferenceSource, Metadata metadata) {
+			String externalReferenceSource, Metadata metadata)
+		throws BrAPIServerException {
 
 		ObservationVariableSearchRequest request = new ObservationVariableSearchRequest();
 
@@ -113,7 +114,8 @@ public class ObservationVariableService {
 	}
 
 	public List<ObservationVariable> findObservationVariables(ObservationVariableSearchRequest request,
-			Metadata metadata) {
+			Metadata metadata)
+		throws BrAPIServerException {
 		Pageable pageReq = PagingUtility.getPageRequest(metadata);
 		SearchQueryBuilder<ObservationVariableEntity> searchQuery = new SearchQueryBuilder<ObservationVariableEntity>(
 				ObservationVariableEntity.class);

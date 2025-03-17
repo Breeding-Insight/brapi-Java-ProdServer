@@ -2,6 +2,7 @@ package org.brapi.test.BrAPITestServer.service.geno;
 
 import java.util.List;
 
+import org.brapi.test.BrAPITestServer.exceptions.BrAPIServerException;
 import org.brapi.test.BrAPITestServer.model.entity.geno.MarkerPositionEntity;
 import org.brapi.test.BrAPITestServer.repository.geno.MarkerPositionRepository;
 import org.brapi.test.BrAPITestServer.service.PagingUtility;
@@ -24,7 +25,8 @@ public class MarkerPositionService {
 	}
 
 	public List<MarkerPosition> findMarkerPositions(String mapDbId, String linkageGroupName, String variantDbId,
-			Integer maxPosition, Integer minPosition, Metadata metadata) {
+			Integer maxPosition, Integer minPosition, Metadata metadata)
+		throws BrAPIServerException {
 		MarkerPositionSearchRequest request = new MarkerPositionSearchRequest();
 		if (mapDbId != null)
 			request.addMapDbIdsItem(mapDbId);
@@ -38,7 +40,8 @@ public class MarkerPositionService {
 		return findMarkerPositions(request, metadata);
 	}
 
-	public List<MarkerPosition> findMarkerPositions(MarkerPositionSearchRequest request, Metadata metadata) {
+	public List<MarkerPosition> findMarkerPositions(MarkerPositionSearchRequest request, Metadata metadata)
+		throws BrAPIServerException  {
 		Pageable pageReq = PagingUtility.getPageRequest(metadata);
 		SearchQueryBuilder<MarkerPositionEntity> searchQuery = new SearchQueryBuilder<MarkerPositionEntity>(
 				MarkerPositionEntity.class).appendList(request.getLinkageGroupNames(), "linkageGroup.linkageGroupName")

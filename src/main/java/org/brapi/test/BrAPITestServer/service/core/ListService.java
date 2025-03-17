@@ -59,7 +59,7 @@ public class ListService {
 
 	public List<ListSummary> findLists(ListTypes listType, String listName, String listDbId, String listSource,
 			String programDbId, String commonCropName, String externalReferenceId, String externalReferenceID,
-			String externalReferenceSource, Metadata metadata) {
+			String externalReferenceSource, Metadata metadata) throws BrAPIServerException {
 		ListSearchRequest request = new ListSearchRequest();
 		if (listType != null) {
 			request.setListType(listType);
@@ -80,11 +80,11 @@ public class ListService {
 			request.addCommonCropNamesItem(commonCropName);
 		}
 		request.addExternalReferenceItem(externalReferenceId, externalReferenceID, externalReferenceSource);
-		
+
 		return findLists(request, metadata);
 	}
 
-	public List<ListSummary> findLists(ListSearchRequest request, Metadata metadata) {
+	public List<ListSummary> findLists(ListSearchRequest request, Metadata metadata) throws BrAPIServerException {
 		Pageable pageReq = PagingUtility.getPageRequest(metadata);
 		SearchQueryBuilder<ListEntity> searchQuery = buildQueryString(request);
 

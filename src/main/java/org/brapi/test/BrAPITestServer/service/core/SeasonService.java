@@ -32,7 +32,8 @@ public class SeasonService {
 	}
 
 	public List<Season> findSeasons(String seasonDbId, String season, String seasonName, Integer year,
-			Metadata metadata) {
+			Metadata metadata)
+		throws BrAPIServerException {
 		Pageable pageReq = PagingUtility.getPageRequest(metadata);
 		SearchQueryBuilder<SeasonEntity> searchQuery = new SearchQueryBuilder<SeasonEntity>(SeasonEntity.class);
 		if (seasonDbId != null)

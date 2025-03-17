@@ -58,7 +58,8 @@ public class GermplasmService {
 			String accessionNumber, String collection, String binomialName, String genus, String species,
 			String trialDbId, String studyDbId, String synonym, String parentDbId, String progenyDbId,
 			String commonCropName, String programDbId, String externalReferenceId, String externalReferenceID,
-			String externalReferenceSource, Metadata metadata) {
+			String externalReferenceSource, Metadata metadata)
+		throws BrAPIServerException {
 
 		GermplasmSearchRequest request = new GermplasmSearchRequest();
 		if (germplasmPUI != null)
@@ -97,7 +98,8 @@ public class GermplasmService {
 		return findGermplasm(request, metadata);
 	}
 
-	public List<Germplasm> findGermplasm(@Valid GermplasmSearchRequest request, Metadata metadata) {
+	public List<Germplasm> findGermplasm(@Valid GermplasmSearchRequest request, Metadata metadata)
+		throws BrAPIServerException {
 		log.debug("starting germplasm search");
 		Page<GermplasmEntity> page = findGermplasmEntities(request, metadata);
 		log.debug("germplasm search complete, converting germplasm entities");
@@ -112,7 +114,8 @@ public class GermplasmService {
 		return entities.stream().map(this::convertFromEntity).collect(Collectors.toList());
 	}
 
-	public Page<GermplasmEntity> findGermplasmEntities(@Valid GermplasmSearchRequest request, Metadata metadata) {
+	public Page<GermplasmEntity> findGermplasmEntities(@Valid GermplasmSearchRequest request, Metadata metadata)
+		throws BrAPIServerException {
 		Pageable pageReq = PagingUtility.getPageRequest(metadata);
 
 		SearchQueryBuilder<GermplasmEntity> searchQuery = buildGermplasmSearchQuery(request);
@@ -124,7 +127,7 @@ public class GermplasmService {
 		List<String> ids = germs.map(BrAPIBaseEntity::getId).toList();
 
 		if (!germs.isEmpty()) {
-			// If records were found, iterate through the rest of the lazyily loaded collections of the GermplasmEntity
+			// If records were found, iterate through the rest of the lazily loaded collections of the GermplasmEntity
 			// and LEFT JOIN FETCH all of them.
 			log.debug("Fetching xrefs");
 			fetchXrefs(ids, germs);
@@ -674,7 +677,8 @@ public class GermplasmService {
 		}
 	}
 
-	public GermplasmEntity findByUnknownIdentity(String germplasmStr) {
+	public GermplasmEntity findByUnknownIdentity(String germplasmStr)
+		throws BrAPIServerException {
 		List<String> germplasmList = Arrays.asList(germplasmStr);
 		Metadata metadata = new Metadata().pagination(new IndexPagination());
 

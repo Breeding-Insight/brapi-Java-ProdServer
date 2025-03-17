@@ -35,7 +35,8 @@ public class GenomeMapService {
 	}
 
 	public List<GenomeMap> findMaps(String commonCropName, String mapPUI, String scientificName, String type,
-			String programDbId, String trialDbId, String studyDbId, Metadata metadata) {
+			String programDbId, String trialDbId, String studyDbId, Metadata metadata)
+		throws BrAPIServerException {
 		SearchQueryBuilder<GenomeMapEntity> searchQuery = new SearchQueryBuilder<GenomeMapEntity>(GenomeMapEntity.class);
 
 		if (programDbId != null || trialDbId != null || studyDbId != null) {
@@ -68,7 +69,8 @@ public class GenomeMapService {
 		return map;
 	}
 
-	public List<LinkageGroup> findLinkageGroups(String mapDbId, Metadata metadata) {
+	public List<LinkageGroup> findLinkageGroups(String mapDbId, Metadata metadata)
+		throws BrAPIServerException {
 		SearchQueryBuilder<LinkageGroupEntity> searchQuery = new SearchQueryBuilder<LinkageGroupEntity>(
 				LinkageGroupEntity.class).appendSingle(mapDbId, "genomeMap.id");
 

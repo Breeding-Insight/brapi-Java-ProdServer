@@ -5,6 +5,7 @@ import io.swagger.model.core.BatchDeleteTypes;
 import io.swagger.model.core.ListSearchRequest;
 import io.swagger.model.core.ListSummary;
 import jakarta.validation.Valid;
+import org.brapi.test.BrAPITestServer.exceptions.BrAPIServerException;
 import org.brapi.test.BrAPITestServer.factory.BrAPIComponent;
 import org.brapi.test.BrAPITestServer.service.core.ListService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,7 +24,8 @@ public class ListComponent implements BrAPIComponent<ListSummary, ListSearchRequ
     }
 
     @Override
-    public List<ListSummary> findEntities(@Valid ListSearchRequest request, Metadata metadata) {
+    public List<ListSummary> findEntities(@Valid ListSearchRequest request, Metadata metadata)
+        throws BrAPIServerException {
         return listService.findLists(request, metadata);
     }
 

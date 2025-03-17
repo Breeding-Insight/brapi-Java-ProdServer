@@ -60,8 +60,8 @@ public class CrossingProjectsApiController extends BrAPIController implements Cr
 		validateAcceptHeader(request);
 		Metadata metadata = generateMetaDataTemplate(page, pageSize);
 		List<CrossingProject> data = crossingProjectService.findCrossingProjects(crossingProjectDbId,
-				crossingProjectName, includePotentialParents, commonCropName, programDbId, externalReferenceId,
-				externalReferenceID, externalReferenceSource, metadata);
+				crossingProjectName, includePotentialParents, commonCropName, programDbId,
+                externalReferenceID, externalReferenceSource, metadata);
 		return responseOK(new CrossingProjectsListResponse(), new CrossingProjectsListResponseResult(), data, metadata);
 	}
 

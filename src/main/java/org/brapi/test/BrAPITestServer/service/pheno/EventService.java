@@ -3,6 +3,7 @@ package org.brapi.test.BrAPITestServer.service.pheno;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.brapi.test.BrAPITestServer.exceptions.BrAPIServerException;
 import org.brapi.test.BrAPITestServer.model.entity.pheno.EventEntity;
 import org.brapi.test.BrAPITestServer.repository.pheno.EventRepository;
 import org.brapi.test.BrAPITestServer.service.DateUtility;
@@ -29,7 +30,8 @@ public class EventService {
 	}
 
 	public List<Event> findEvents(String eventDbId, String studyDbId, String observationUnitDbId, String eventType,
-			OffsetDateTime dateRangeStart, OffsetDateTime dateRangeEnd, Metadata metadata) {
+			OffsetDateTime dateRangeStart, OffsetDateTime dateRangeEnd, Metadata metadata)
+		throws BrAPIServerException  {
 		Pageable pageReq = PagingUtility.getPageRequest(metadata);
 		SearchQueryBuilder<EventEntity> searchQuery = new SearchQueryBuilder<EventEntity>(EventEntity.class);
 

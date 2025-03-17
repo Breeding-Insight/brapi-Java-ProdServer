@@ -4,11 +4,12 @@ import io.swagger.model.Metadata;
 import io.swagger.model.SearchRequest;
 import io.swagger.model.core.BatchDeleteTypes;
 import jakarta.validation.Valid;
+import org.brapi.test.BrAPITestServer.exceptions.BrAPIServerException;
 
 import java.util.List;
 
 public interface BrAPIComponent<T, R extends SearchRequest> {
-    List<T> findEntities(@Valid R request, Metadata metadata);
+    List<T> findEntities(@Valid R request, Metadata metadata) throws BrAPIServerException;
     BatchDeleteTypes getBatchDeleteType();
     List<String> collectDbIds(List<T> entities);
     void deleteBatchDeleteData(List<String> dbIds);
