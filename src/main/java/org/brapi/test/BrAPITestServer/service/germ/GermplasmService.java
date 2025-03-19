@@ -311,7 +311,7 @@ public class GermplasmService {
 		searchQuery.leftJoinFetch("pedigree", "pedigree")
 				   .leftJoinFetch("*pedigree.crossingProject", "crossingProject")
 				   .leftJoinFetch("*pedigree.edges", "pedigreeEdges")
-				   .leftJoinFetch("*pedigreeEdges.conncetedNode", "connectedNode")
+				   .leftJoinFetch("*pedigreeEdges.connectedNode", "connectedNode")
 				   .appendIds(ids);
 
 		List<GermplasmEntity> pedigree = germplasmRepository.findAllBySearch(searchQuery);
@@ -432,7 +432,7 @@ public class GermplasmService {
 						"typeOfGermplasmStorageCode")
 				.leftJoinFetch("*pedigree.crossingProject", "crossingProject")
 				.leftJoinFetch("*pedigree.edges", "pedigreeEdges")
-				.leftJoinFetch("*pedigreeEdges.conncetedNode", "connectedNode");
+				.leftJoinFetch("*pedigreeEdges.connectedNode", "connectedNode");
 
 		List<GermplasmEntity> pedigree = germplasmRepository.findAllBySearch(searchQuery);
 
