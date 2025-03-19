@@ -595,8 +595,8 @@ public class PedigreeService {
 	}
 
 	// This method should be used in use cases where there are existing node entities that may have edges.
-	private void updateEntitiesWithEdgesInBatch(Map<String, Pair<PedigreeNodeEntity,
-			PedigreeNode>> entityDtoPairsByGermId) throws BrAPIServerException {
+	private void updateEntitiesWithEdgesInBatch(Map<String, Pair<PedigreeNodeEntity, PedigreeNode>> entityDtoPairsByGermId)
+			throws BrAPIServerException {
 		List<String> germIds = new ArrayList<>(entityDtoPairsByGermId.keySet());
 		List<String> crossingProjIds = entityDtoPairsByGermId.values()
 				.stream()
@@ -627,115 +627,11 @@ public class PedigreeService {
 		}
 
 		if (!germIdsWithParentNodes.isEmpty()) {
-			List<String> parentEdgesToDelete = new ArrayList<>();
-
-			SearchQueryBuilder<PedigreeEdgeEntity> search = new SearchQueryBuilder<>(PedigreeEdgeEntity.class);
-			search.appendList(germIdsWithParentNodes, "connectedNode.germplasm.id");
-			search.appendEnum(PedigreeEdgeEntity.EdgeType.child, "edgeType");
-			// TODO: Does not need to be a paginated search.
-			Pageable defaultPageSize = PagingUtility.getPageRequest(new Metadata().pagination(new IndexPagination().pageSize(10000000)));
-			Page<PedigreeEdgeEntity> existingParentEdges = pedigreeEdgeRepository.findAllBySearchAndPaginate(search, defaultPageSize);
-
-			List<String> existingParentEdgesFromPassedEntities = entityDtoPairsByGermId.entrySet()
-					.stream()
-					.flatMap(entry -> entry.getValue().getLeft().getParentEdges().stream())
-					.map(BrAPIBaseEntity::getId)
-					.collect(Collectors.toList());
-
-			parentEdgesToDelete.addAll(existingParentEdgesFromPassedEntities);
-			parentEdgesToDelete.addAll(existingParentEdges.getContent().stream().map(BrAPIBaseEntity::getId).collect(Collectors.toList()));
-
-			if (!parentEdgesToDelete.isEmpty()) {
-				pedigreeEdgeRepository.deleteAllByIdInBatch(parentEdgesToDelete);
-			}
-
-			List<Pair<PedigreeNodeEntity, PedigreeNode>> nodesWithParents = entityDtoPairsByGermId.values()
-					.stream()
-					.filter(p -> !p.getRight().getParents().isEmpty())
-					.collect(Collectors.toList());
-
-			List<String> germIdsOfAllParents = nodesWithParents.stream()
-					.flatMap(p -> p.getRight().getParents().stream())
-					.map(PedigreeNodeParents::getGermplasmDbId)
-					.collect(Collectors.toList());
-
-
-			List<PedigreeNodeEntity> createdOrFoundParentNodes = findOrCreatePedigreeNodesFromGermplasmIds(germIdsOfAllParents);
-
-			for (Pair<PedigreeNodeEntity, PedigreeNode> nodeWithParent : nodesWithParents) {
-				PedigreeNodeEntity nodeEntity = nodeWithParent.getLeft();
-				PedigreeNode nodeDto = nodeWithParent.getRight();
-				for (PedigreeNodeParents parentNode : nodeDto.getParents()) {
-					// Is it possible that more that any of these parents share the same germplasm ID?  If so, we need to figure out how to handle that use case.
-					PedigreeNodeEntity parentEntity = createdOrFoundParentNodes.stream()
-							.filter(pne -> pne.getGermplasm().getId().equals(parentNode.getGermplasmDbId()))
-							.findFirst()
-							.orElse(null);
-
-					// Impossible to be null because of exception thrown in findOrCreatePedigreeNodesFromGermplasmIds().
-					// As long as the germIds of all the parents nodes in the rq were supplied, they will be found or created or this code is never executed.
-					if (parentEntity != null) {
-						nodeEntity.addParent(parentEntity, parentNode.getParentType());
-						parentEntity.addProgeny(nodeEntity, parentNode.getParentType());
-					}
-				}
-			}
+			updateParentEdges(germIdsWithParentNodes, entityDtoPairsByGermId);
 		}
 
 		if (!germIdsWithProgenyNodes.isEmpty()) {
-			List<String> progenyEdgesToDelete = new ArrayList<>();
-
-			SearchQueryBuilder<PedigreeEdgeEntity> search = new SearchQueryBuilder<PedigreeEdgeEntity>(PedigreeEdgeEntity.class);
-
-			search.appendList(germIdsWithProgenyNodes, "conncetedNode.germplasm.id");
-			search.appendEnum(PedigreeEdgeEntity.EdgeType.parent, "edgeType");
-			Pageable defaultPageSize = PagingUtility.getPageRequest(new Metadata().pagination(new IndexPagination().pageSize(10000000)));
-			Page<PedigreeEdgeEntity> existingProgenyEdges = pedigreeEdgeRepository.findAllBySearchAndPaginate(search, defaultPageSize);
-
-			List<String> existingProgenyEdgeFromPassedEntities = entityDtoPairsByGermId.entrySet()
-					.stream()
-					.flatMap(entry -> entry.getValue().getLeft().getProgenyEdges().stream())
-					.map(BrAPIBaseEntity::getId)
-					.collect(Collectors.toList());
-
-			progenyEdgesToDelete.addAll(existingProgenyEdgeFromPassedEntities);
-			progenyEdgesToDelete.addAll(existingProgenyEdges.getContent().stream().map(BrAPIBaseEntity::getId).collect(Collectors.toList()));
-
-			if (!progenyEdgesToDelete.isEmpty()) {
-				pedigreeEdgeRepository.deleteAllByIdInBatch(progenyEdgesToDelete);
-			}
-
-			List<Pair<PedigreeNodeEntity, PedigreeNode>> nodesWithProgeny = entityDtoPairsByGermId.values()
-					.stream()
-					.filter(p -> !p.getRight().getProgeny().isEmpty())
-					.collect(Collectors.toList());
-
-			List<String> germIdsOfAllProgeny = nodesWithProgeny.stream()
-					.flatMap(p -> p.getRight().getParents().stream())
-					.map(PedigreeNodeParents::getGermplasmDbId)
-					.collect(Collectors.toList());
-
-			List<PedigreeNodeEntity> createdOrFoundProgenyNodes = findOrCreatePedigreeNodesFromGermplasmIds(germIdsOfAllProgeny);
-
-			for (Pair<PedigreeNodeEntity, PedigreeNode> nodeWithProgeny : nodesWithProgeny) {
-				PedigreeNodeEntity nodeEntity = nodeWithProgeny.getLeft();
-				PedigreeNode nodeDto = nodeWithProgeny.getRight();
-				// Create a map of Nodes with progeny to its
-
-				for (PedigreeNodeParents childNode : nodeDto.getProgeny()) {
-					PedigreeNodeEntity childEntity = createdOrFoundProgenyNodes.stream()
-							.filter(pne -> pne.getGermplasm().getId().equals(childNode.getGermplasmDbId()))
-							.findFirst()
-							.orElse(null);
-
-					// Impossible to be null because of exception thrown in findOrCreatePedigreeNodesFromGermplasmIds().
-					// As long as the germIds of all the parents nodes in the rq were supplied, they will be found or created or this code is never executed.
-					if (childEntity != null) {
-						nodeEntity.addParent(childEntity, childNode.getParentType());
-						childEntity.addProgeny(nodeEntity, childNode.getParentType());
-					}
-				}
-			}
+			updateChildEdges(germIdsWithProgenyNodes, entityDtoPairsByGermId);
 		}
 
 		for (Entry<String, Pair<PedigreeNodeEntity, PedigreeNode>>  entityDtoPairByGermId: entityDtoPairsByGermId.entrySet()) {
@@ -761,6 +657,120 @@ public class PedigreeService {
 				String cpId = node.getCrossingProjectDbId();
 				Optional<CrossingProjectEntity> crossingProjectEntity = crossingProjs.stream().filter(cp -> cp.getId().equals(cpId)).findFirst();
 				crossingProjectEntity.ifPresent(entity::setCrossingProject);
+			}
+		}
+	}
+
+	private void updateParentEdges(List<String> germIdsWithParentNodes,
+								   Map<String, Pair<PedigreeNodeEntity, PedigreeNode>> entityDtoPairsByGermId)
+		throws BrAPIServerException {
+
+		List<String> parentEdgesToDelete = new ArrayList<>();
+
+		SearchQueryBuilder<PedigreeEdgeEntity> search = new SearchQueryBuilder<>(PedigreeEdgeEntity.class);
+		search.appendList(germIdsWithParentNodes, "connectedNode.germplasm.id");
+		search.appendEnum(PedigreeEdgeEntity.EdgeType.child, "edgeType");
+		List<PedigreeEdgeEntity> existingParentEdges = pedigreeEdgeRepository.findAllBySearch(search);
+
+		List<String> existingParentEdgesFromPassedEntities = entityDtoPairsByGermId.entrySet()
+				.stream()
+				.flatMap(entry -> entry.getValue().getLeft().getParentEdges().stream())
+				.map(BrAPIBaseEntity::getId)
+				.collect(Collectors.toList());
+
+		parentEdgesToDelete.addAll(existingParentEdgesFromPassedEntities);
+		parentEdgesToDelete.addAll(existingParentEdges.stream().map(BrAPIBaseEntity::getId).collect(Collectors.toList()));
+
+		if (!parentEdgesToDelete.isEmpty()) {
+			pedigreeEdgeRepository.deleteAllByIdInBatch(parentEdgesToDelete);
+		}
+
+		List<Pair<PedigreeNodeEntity, PedigreeNode>> nodesWithParents = entityDtoPairsByGermId.values()
+				.stream()
+				.filter(p -> !p.getRight().getParents().isEmpty())
+				.collect(Collectors.toList());
+
+		List<String> germIdsOfAllParents = nodesWithParents.stream()
+				.flatMap(p -> p.getRight().getParents().stream())
+				.map(PedigreeNodeParents::getGermplasmDbId)
+				.collect(Collectors.toList());
+
+
+		List<PedigreeNodeEntity> createdOrFoundParentNodes = findOrCreatePedigreeNodesFromGermplasmIds(germIdsOfAllParents);
+
+		for (Pair<PedigreeNodeEntity, PedigreeNode> nodeWithParent : nodesWithParents) {
+			PedigreeNodeEntity nodeEntity = nodeWithParent.getLeft();
+			PedigreeNode nodeDto = nodeWithParent.getRight();
+			for (PedigreeNodeParents parentNode : nodeDto.getParents()) {
+				// Is it possible that more that any of these parents share the same germplasm ID?  If so, we need to figure out how to handle that use case.
+				PedigreeNodeEntity parentEntity = createdOrFoundParentNodes.stream()
+						.filter(pne -> pne.getGermplasm().getId().equals(parentNode.getGermplasmDbId()))
+						.findFirst()
+						.orElse(null);
+
+				// Impossible to be null because of exception thrown in findOrCreatePedigreeNodesFromGermplasmIds().
+				// As long as the germIds of all the parents nodes in the rq were supplied, they will be found or created or this code is never executed.
+				if (parentEntity != null) {
+					nodeEntity.addParent(parentEntity, parentNode.getParentType());
+					parentEntity.addProgeny(nodeEntity, parentNode.getParentType());
+				}
+			}
+		}
+	}
+
+	private void updateChildEdges(List<String> germIdsWithProgenyNodes,
+								  Map<String, Pair<PedigreeNodeEntity, PedigreeNode>> entityDtoPairsByGermId)
+		throws BrAPIServerException {
+		List<String> progenyEdgesToDelete = new ArrayList<>();
+
+		SearchQueryBuilder<PedigreeEdgeEntity> search = new SearchQueryBuilder<PedigreeEdgeEntity>(PedigreeEdgeEntity.class);
+
+		search.appendList(germIdsWithProgenyNodes, "conncetedNode.germplasm.id");
+		search.appendEnum(PedigreeEdgeEntity.EdgeType.parent, "edgeType");
+		List<PedigreeEdgeEntity> existingProgenyEdges = pedigreeEdgeRepository.findAllBySearch(search);
+
+		List<String> existingProgenyEdgeFromPassedEntities = entityDtoPairsByGermId.entrySet()
+				.stream()
+				.flatMap(entry -> entry.getValue().getLeft().getProgenyEdges().stream())
+				.map(BrAPIBaseEntity::getId)
+				.collect(Collectors.toList());
+
+		progenyEdgesToDelete.addAll(existingProgenyEdgeFromPassedEntities);
+		progenyEdgesToDelete.addAll(existingProgenyEdges.stream().map(BrAPIBaseEntity::getId).collect(Collectors.toList()));
+
+		if (!progenyEdgesToDelete.isEmpty()) {
+			pedigreeEdgeRepository.deleteAllByIdInBatch(progenyEdgesToDelete);
+		}
+
+		List<Pair<PedigreeNodeEntity, PedigreeNode>> nodesWithProgeny = entityDtoPairsByGermId.values()
+				.stream()
+				.filter(p -> !p.getRight().getProgeny().isEmpty())
+				.collect(Collectors.toList());
+
+		List<String> germIdsOfAllProgeny = nodesWithProgeny.stream()
+				.flatMap(p -> p.getRight().getParents().stream())
+				.map(PedigreeNodeParents::getGermplasmDbId)
+				.collect(Collectors.toList());
+
+		List<PedigreeNodeEntity> createdOrFoundProgenyNodes = findOrCreatePedigreeNodesFromGermplasmIds(germIdsOfAllProgeny);
+
+		for (Pair<PedigreeNodeEntity, PedigreeNode> nodeWithProgeny : nodesWithProgeny) {
+			PedigreeNodeEntity nodeEntity = nodeWithProgeny.getLeft();
+			PedigreeNode nodeDto = nodeWithProgeny.getRight();
+			// Create a map of Nodes with progeny to its
+
+			for (PedigreeNodeParents childNode : nodeDto.getProgeny()) {
+				PedigreeNodeEntity childEntity = createdOrFoundProgenyNodes.stream()
+						.filter(pne -> pne.getGermplasm().getId().equals(childNode.getGermplasmDbId()))
+						.findFirst()
+						.orElse(null);
+
+				// Impossible to be null because of exception thrown in findOrCreatePedigreeNodesFromGermplasmIds().
+				// As long as the germIds of all the parents nodes in the rq were supplied, they will be found or created or this code is never executed.
+				if (childEntity != null) {
+					nodeEntity.addParent(childEntity, childNode.getParentType());
+					childEntity.addProgeny(nodeEntity, childNode.getParentType());
+				}
 			}
 		}
 	}
