@@ -201,7 +201,7 @@ public class GermplasmApiController extends BrAPIController implements Germplasm
 		validateAcceptHeader(request);
 
 		List<Germplasm> data = germplasmService.saveGermplasm(body);
-		pedigreeService.updateGermplasmPedigree(data);
+		pedigreeService.updateGermplasmPedigreeForPost(data);
 		return responseOK(new GermplasmListResponse(), new GermplasmListResponseResult(), data);
 	}
 

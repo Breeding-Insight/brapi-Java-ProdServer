@@ -356,33 +356,44 @@ public class PedigreeService {
 		}
 	}
 
+	// TODO: See if we can get the PUT from the GermplasmApiController to use this code as well instead of updateGermplasmPedigree()
+	public void updateGermplasmPedigreeForPost(List<Germplasm> data) throws BrAPIServerException {
+		// T = With pedigree, F = Without pedigree
+		Map<Boolean, List<Germplasm>> germsWithAndWithoutPedigree
+				= data.stream().collect(Collectors.partitioningBy(g -> g.getPedigree() != null));
+
+		if (!germsWithAndWithoutPedigree.get(true).isEmpty()) {
+			savePedigreeNodes(convertFromGermplasmToPedigreeBatchUsingNames(germsWithAndWithoutPedigree.get(true)), false);
+		}
+
+		if (!germsWithAndWithoutPedigree.get(false).isEmpty()) {
+			List<PedigreeNode> createPedigreeNodes = new ArrayList<>();
+
+			for (Germplasm germplasm : germsWithAndWithoutPedigree.get(false)) {
+				createPedigreeNodes.add(convertFromGermplasmToPedigree(germplasm));
+			}
+
+			savePedigreeNodes(createPedigreeNodes, false);
+		}
+	}
+
 	public void updateGermplasmPedigree(List<Germplasm> data) throws BrAPIServerException {
 		List<PedigreeNode> createPedigreeNodes = new ArrayList<>();
 		Map<String, PedigreeNode> updatePedigreeNodes = new HashMap<>();
 
-		// TODO: This always returns empty for the germplasm post path, since this method is always passed a newly created germplasm record.
 		Map<String, PedigreeNodeEntity> nodesByGermplasm = getExistingPedigreeNodes(
 				data.stream().map(p -> p.getGermplasmDbId()).collect(Collectors.toList()));
 
-		if (data.stream().noneMatch(g -> g.getPedigree() != null) || !nodesByGermplasm.isEmpty()) {
-			for (Germplasm germplasm : data) {
-				if (nodesByGermplasm.containsKey(germplasm.getGermplasmDbId())) {
-					updatePedigreeNodes.put(germplasm.getGermplasmDbId(), convertFromGermplasmToPedigree(germplasm));
-				} else {
-					createPedigreeNodes.add(convertFromGermplasmToPedigree(germplasm));
-				}
+		for (Germplasm germplasm : data) {
+			if (nodesByGermplasm.containsKey(germplasm.getGermplasmDbId())) {
+				updatePedigreeNodes.put(germplasm.getGermplasmDbId(), convertFromGermplasmToPedigree(germplasm));
+			} else {
+				createPedigreeNodes.add(convertFromGermplasmToPedigree(germplasm));
 			}
-
-			if (!createPedigreeNodes.isEmpty()) {
-				savePedigreeNodes(createPedigreeNodes, false);
-			}
-
-			if (!updatePedigreeNodes.isEmpty()) {
-				updatePedigreeNodes(updatePedigreeNodes, false);
-			}
-		} else {
-			savePedigreeNodes(convertFromGermplasmToPedigreeBatchUsingNames(data), false);
 		}
+
+		savePedigreeNodes(createPedigreeNodes);
+		updatePedigreeNodes(updatePedigreeNodes);
 
 	}
 
@@ -837,14 +848,12 @@ public class PedigreeService {
 
 	public PedigreeNode convertFromGermplasmToPedigree(Germplasm germplasm)
 		throws BrAPIServerException {
-		PedigreeNode node = new PedigreeNode();
 
 		List<String> pedigreeList = new ArrayList<>();
 		if (germplasm.getPedigree() != null) {
 			pedigreeList = Arrays.asList(germplasm.getPedigree().split("/"));
 		}
 
-		// TODO: Could split this up into one query in batch that returns a Map of Germplasm to its Nodes.
 		GermplasmEntity motherGerm = null;
 		GermplasmEntity fatherGerm = null;
 		if (pedigreeList.size() > 0) {
