@@ -2,8 +2,6 @@ package io.swagger.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import io.swagger.model.core.SortBy;
-import io.swagger.model.core.SortOrder;
 
 import java.util.ArrayList;
 import java.util.List;
