@@ -771,30 +771,13 @@ public class GermplasmService {
 		}
 	}
 
-	public List<GermplasmEntity> findByNames(List<String> germplasmNames)
-		throws BrAPIServerException {
-		GermplasmSearchRequest request = new GermplasmSearchRequest().germplasmNames(germplasmNames);
-		Metadata metadata = new Metadata().pagination(new IndexPagination());
-		Page<GermplasmEntity> page = findGermplasmEntities(request, metadata);
-
-		if (page.hasContent()) {
-			return page.getContent();
-		}
-
-		return null;
+	public List<GermplasmEntity> findByNames(List<String> germplasmNames) {
+		return germplasmRepository.findByGermplasmNameIn(germplasmNames);
 	}
 
 	public List<GermplasmEntity> findByIds(List<String> germplasmDbIds)
 		throws BrAPIServerException {
-		GermplasmSearchRequest request = new GermplasmSearchRequest().germplasmDbIds(germplasmDbIds);
-		Metadata metadata = new Metadata().pagination(new IndexPagination());
-		Page<GermplasmEntity> page = findGermplasmEntities(request, metadata);
-
-		if (!page.hasContent()) {
-			return null;
-		}
-
-		List<GermplasmEntity> germsFoundInDb = page.getContent();
+		List<GermplasmEntity> germsFoundInDb = germplasmRepository.findByIdIn(germplasmDbIds);
 
 		Set<String> germIdsFoundInDB = germsFoundInDb.stream()
 				.map(BrAPIBaseEntity::getId)

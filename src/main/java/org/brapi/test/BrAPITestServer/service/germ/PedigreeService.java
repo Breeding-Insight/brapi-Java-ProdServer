@@ -4,6 +4,8 @@ import java.util.*;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
+import io.swagger.model.IndexPagination;
+import io.swagger.model.Pagination;
 import org.apache.commons.lang3.tuple.Pair;
 import org.brapi.test.BrAPITestServer.exceptions.BrAPIServerDbIdNotFoundException;
 import org.brapi.test.BrAPITestServer.exceptions.BrAPIServerException;
@@ -406,10 +408,14 @@ public class PedigreeService {
 			searchReq.setPedigreeDepth(0);
 			searchReq.setProgenyDepth(0);
 
-			List<PedigreeNodeEntity> nodeEntities = findPedigreeEntities(searchReq, null);
+			Pagination pagination = new IndexPagination();
+			pagination.setPageSize(germplasmDbIds.size());
+			Metadata metadata = new Metadata();
+			metadata.setPagination(pagination);
+
+			List<PedigreeNodeEntity> nodeEntities = findPedigreeEntities(searchReq, metadata);
 
 			for (PedigreeNodeEntity nodeEntity : nodeEntities) {
-				// TODO: nodeEntity.getGermplasm() causes a lazy load
 				if (nodeEntity.getGermplasm() != null && nodeEntity.getGermplasm().getId() != null) {
 					nodesByGermplasm.put(nodeEntity.getGermplasm().getId(), nodeEntity);
 				}
