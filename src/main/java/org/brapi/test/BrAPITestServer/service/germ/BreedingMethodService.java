@@ -1,7 +1,9 @@
 package org.brapi.test.BrAPITestServer.service.germ;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import org.brapi.test.BrAPITestServer.exceptions.BrAPIServerDbIdNotFoundException;
 import org.brapi.test.BrAPITestServer.exceptions.BrAPIServerException;
@@ -50,6 +52,10 @@ public class BreedingMethodService {
 			throw new BrAPIServerDbIdNotFoundException("breedingMethod", breedingMethodDbId, errorStatus);
 		}
 		return breedingMethodEntity;
+	}
+
+	public List<BreedingMethodEntity> findBreedingMethodsByIds(List<String> ids) {
+		return breedingMethodRepository.findByIdIn(ids);
 	}
 
 	private BreedingMethod convertFromEntity(BreedingMethodEntity entity) {

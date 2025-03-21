@@ -63,6 +63,10 @@ public class CropService {
 		return entity;
 	}
 
+	public List<CropEntity> findCropsByNames(List<String> names) {
+		return cropRepository.findByCropNameIn(names);
+	}
+
 	public CropEntity saveCropEntity(String commonCropName)  throws BrAPIServerException {
 		CropEntity entity = null;
 		if (commonCropName != null) {

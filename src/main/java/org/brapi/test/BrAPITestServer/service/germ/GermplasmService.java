@@ -502,14 +502,8 @@ public class GermplasmService {
 	}
 
 	public List<Germplasm> saveGermplasm(@Valid List<GermplasmNewRequest> body) throws BrAPIServerException {
-		List<GermplasmEntity> toSave = new ArrayList<>();
-		for (GermplasmNewRequest germplasm : body) {
-			GermplasmEntity entity = new GermplasmEntity();
-			updateEntity(entity, germplasm);
-			toSave.add(entity);
-		}
 		// Save batch.
-		return germplasmRepository.saveAll(toSave)
+		return germplasmRepository.saveAll(createEntitiesInBatch(body))
 				.stream()
 				.map(this::convertFromEntity)
 				.collect(Collectors.toList());
@@ -570,6 +564,106 @@ public class GermplasmService {
 			germ.setTaxonIds(entity.getTaxonIds().stream().map(this::convertFromEntity).collect(Collectors.toList()));
 
 		return germ;
+	}
+
+	private List<GermplasmEntity> createEntitiesInBatch(List<GermplasmNewRequest> body)
+		throws BrAPIServerException {
+		List<GermplasmEntity> toSave = new ArrayList<>();
+
+		List<String> breedingMethodIds = body.stream()
+				.map(GermplasmNewRequest::getBreedingMethodDbId)
+				.filter(Objects::nonNull)
+				.collect(Collectors.toList());
+		// Use a set since all crop names are likely all or mostly the same.
+		Set<String> cropNames = body.stream()
+				.map(GermplasmNewRequest::getCommonCropName)
+				.filter(Objects::nonNull)
+				.collect(Collectors.toSet());
+
+		Map<String, BreedingMethodEntity> foundBreedingMethodsById
+				= breedingMethodService.findBreedingMethodsByIds(breedingMethodIds)
+				.stream()
+				.collect(Collectors.toMap(BrAPIBaseEntity::getId, e -> e));
+		Map<String, CropEntity> foundCropsByCropName
+				= cropService.findCropsByNames(new ArrayList<>(cropNames))
+				.stream()
+				.collect(Collectors.toMap(CropEntity::getCropName, e -> e));
+
+		for (GermplasmNewRequest request : body) {
+			GermplasmEntity entity = new GermplasmEntity();
+
+			UpdateUtility.updateEntity(request, entity);
+
+			if (request.getAccessionNumber() != null)
+				entity.setAccessionNumber(request.getAccessionNumber());
+			if (request.getAcquisitionDate() != null) {
+				entity.setAcquisitionDate(DateUtility.toDate(request.getAcquisitionDate()));
+				entity.setAcquisitionSourceCode(AcquisitionSourceCodeEnum._99);
+			}
+			if (request.getBiologicalStatusOfAccessionCode() != null)
+				entity.setBiologicalStatusOfAccessionCode(request.getBiologicalStatusOfAccessionCode());
+			if (request.getBreedingMethodDbId() != null) {
+				entity.setBreedingMethod(foundBreedingMethodsById.get(request.getBreedingMethodDbId()));
+			}
+			if (request.getCollection() != null)
+				entity.setCollection(request.getCollection());
+			if (request.getCommonCropName() != null) {
+				CropEntity crop = foundCropsByCropName.get(request.getCommonCropName());
+				if (crop == null) {
+					crop = cropService.saveCropEntity(request.getCommonCropName());
+				}
+				entity.setCrop(crop);
+			}
+			if (request.getCountryOfOriginCode() != null)
+				entity.setCountryOfOriginCode(request.getCountryOfOriginCode());
+			if (request.getDefaultDisplayName() != null)
+				entity.setDefaultDisplayName(request.getDefaultDisplayName());
+			if (request.getDocumentationURL() != null)
+				entity.setDocumentationURL(request.getDocumentationURL());
+			if (request.getDonors() != null)
+				updateDonorEntities(request.getDonors(), entity);
+			if (request.getGenus() != null)
+				entity.setGenus(request.getGenus());
+			if (request.getGermplasmName() != null)
+				entity.setGermplasmName(request.getGermplasmName());
+			if (request.getGermplasmOrigin() != null)
+				updateOriginEntities(request.getGermplasmOrigin(), entity);
+			if (request.getGermplasmPreprocessing() != null)
+				entity.setGermplasmPreprocessing(request.getGermplasmPreprocessing());
+			if (request.getGermplasmPUI() != null)
+				entity.setGermplasmPUI(request.getGermplasmPUI());
+			if (request.getInstituteCode() != null || request.getInstituteName() != null)
+				entity.setHostInstitute(request.getInstituteCode(), request.getInstituteName());
+			entity.setMlsStatus(MlsStatusEnum.EMPTY);
+			if (request.getPedigree() != null) {
+				if(entity.getPedigree() == null) {
+					entity.setPedigree(new PedigreeNodeEntity());
+				}
+				entity.getPedigree().setPedigreeString(request.getPedigree());
+			}
+			if (request.getSeedSource() != null)
+				entity.setSeedSource(request.getSeedSource());
+			if (request.getSeedSourceDescription() != null)
+				entity.setSeedSourceDescription(request.getSeedSourceDescription());
+			if (request.getSpecies() != null)
+				entity.setSpecies(request.getSpecies());
+			if (request.getSpeciesAuthority() != null)
+				entity.setSpeciesAuthority(request.getSpeciesAuthority());
+			if (request.getStorageTypes() != null)
+				entity.setTypeOfGermplasmStorageCode(request.getStorageTypes().stream().filter(Objects::nonNull)
+						.map(GermplasmStorageTypes::getCode).collect(Collectors.toList()));
+			if (request.getSubtaxa() != null)
+				entity.setSubtaxa(request.getSubtaxa());
+			if (request.getSubtaxaAuthority() != null)
+				entity.setSubtaxaAuthority(request.getSubtaxaAuthority());
+			if (request.getSynonyms() != null)
+				updateSynonymEntities(request.getSynonyms(), entity);
+			if (request.getTaxonIds() != null)
+				updateTaxonEntities(request.getTaxonIds(), entity);
+
+			toSave.add(entity);
+		}
+		return toSave;
 	}
 
 	private void updateEntity(GermplasmEntity entity, GermplasmNewRequest request) throws BrAPIServerException {
