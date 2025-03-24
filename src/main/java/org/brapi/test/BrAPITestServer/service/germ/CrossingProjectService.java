@@ -70,25 +70,8 @@ public class CrossingProjectService {
 		return crossingProjects;
 	}
 
-	public List<CrossingProjectEntity> findCrossingProjectsByIds(List<String> crossingProjectIds)
-		throws BrAPIServerException {
-		Metadata metadata = new Metadata().pagination(new IndexPagination());
-		Pageable pageReq = PagingUtility.getPageRequest(metadata);
-
-		SearchQueryBuilder<CrossingProjectEntity> searchQuery = new SearchQueryBuilder<CrossingProjectEntity>(
-				CrossingProjectEntity.class);
-
-		if (crossingProjectIds != null && !crossingProjectIds.isEmpty()) {
-			searchQuery = searchQuery.appendList(crossingProjectIds, "id");
-		}
-
-		Page<CrossingProjectEntity> page = crossingProjectRepository.findAllBySearchAndPaginate(searchQuery, pageReq);
-
-		if (page.hasContent()) {
-			return page.getContent();
-		}
-
-		return null;
+	public List<CrossingProjectEntity> findCrossingProjectsByIds(List<String> crossingProjectIds) {
+		return crossingProjectRepository.findByIdIn(crossingProjectIds);
 	}
 
 	public CrossingProject getCrossingProject(String crossingProjectDbId) throws BrAPIServerException {

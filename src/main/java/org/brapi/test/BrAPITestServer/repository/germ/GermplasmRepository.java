@@ -20,7 +20,5 @@ public interface GermplasmRepository extends BrAPIRepository<GermplasmEntity, St
     @Query("UPDATE GermplasmEntity g SET g.softDeleted = :softDeleted WHERE g.id IN :germplasmIds")
     int updateSoftDeletedStatusBatch(@Param("germplasmIds") List<String> germplasmIds, @Param("softDeleted") boolean softDeleted);
 
-    List<GermplasmEntity> findByIdIn(List<String> ids);
-
     List<GermplasmEntity> findByGermplasmNameIn(List<String> germplasmNames);
 }

@@ -119,6 +119,10 @@ public class BrAPIRepositoryImpl<T extends BrAPIPrimaryEntity, ID extends Serial
 		return response;
 	}
 
+	public List<T> findByIdIn(List<ID> ids) {
+		return super.findAllById(ids);
+	}
+
 	public <S extends T> S save(S entity) {
 		entity.setAuthUserId(SecurityUtils.getCurrentUserId());
 		return super.save(entity);
