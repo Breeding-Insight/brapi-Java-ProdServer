@@ -48,27 +48,27 @@ public class CrossService {
 	}
 
 	public List<Cross> findCrosses(String crossingProjectDbId, String crossDbId,
-								   String externalReferenceID, String externalReferenceSource, Metadata metadata)
+								   String externalReferenceId, String externalReferenceSource, Metadata metadata)
 		throws BrAPIServerException {
 		List<Cross> crosses = findCrossEntities(crossingProjectDbId, crossDbId,
-				externalReferenceID, externalReferenceSource, false,
+				externalReferenceId, externalReferenceSource, false,
 				metadata).map(this::convertToCross).getContent();
 		return crosses;
 	}
 
 	public List<PlannedCross> findPlannedCrosses(String crossingProjectDbId,
 												 String crossDbId,
-												 String externalReferenceID, String externalReferenceSource,
+												 String externalReferenceId, String externalReferenceSource,
 												 Metadata metadata)
 		throws BrAPIServerException {
 		List<PlannedCross> crosses = findCrossEntities(crossingProjectDbId, crossDbId,
-				externalReferenceID, externalReferenceSource, true,
+				externalReferenceId, externalReferenceSource, true,
 				metadata).map(this::convertToPlanned).getContent();
 		return crosses;
 	}
 
 	public Page<CrossEntity> findCrossEntities(String crossingProjectDbId, String crossDbId,
-											   String externalReferenceID, String externalReferenceSource,
+											   String externalReferenceId, String externalReferenceSource,
 											   Boolean plannedCross, Metadata metadata)
 		throws BrAPIServerException {
 
@@ -78,8 +78,8 @@ public class CrossService {
 			searchQuery = searchQuery.appendSingle(crossDbId, "id");
 		if (crossingProjectDbId != null)
 			searchQuery = searchQuery.appendSingle(crossingProjectDbId, "crossingProject.id");
-		if (externalReferenceID != null && externalReferenceSource != null)
-			searchQuery = searchQuery.withExRefs(Arrays.asList(externalReferenceID),
+		if (externalReferenceId != null && externalReferenceSource != null)
+			searchQuery = searchQuery.withExRefs(Arrays.asList(externalReferenceId),
 					Arrays.asList(externalReferenceSource));
 		if (plannedCross != null)
 			searchQuery = searchQuery.appendSingle(plannedCross, "planned");

@@ -62,7 +62,7 @@ public class PlannedCrossesApiController extends BrAPIController implements Plan
 		Metadata metadata = generateMetaDataTemplate(page, pageSize);
 		List<PlannedCross> data = crossService.findPlannedCrosses(crossingProjectDbId,
 				plannedCrossDbId,
-				externalReferenceID, externalReferenceSource, metadata);
+				externalReferenceId, externalReferenceSource, metadata);
 		return responseOK(new PlannedCrossesListResponse(), new PlannedCrossesListResponseResult(), data, metadata);
 	}
 

@@ -60,7 +60,7 @@ public class CrossesApiController extends BrAPIController implements CrossesApi 
 		validateAcceptHeader(request);
 		Metadata metadata = generateMetaDataTemplate(page, pageSize);
 		List<Cross> data = crossService.findCrosses(crossingProjectDbId, crossDbId,
-				externalReferenceID, externalReferenceSource,
+				externalReferenceId, externalReferenceSource,
 				metadata);
 		return responseOK(new CrossesListResponse(), new CrossesListResponseResult(), data, metadata);
 	}

@@ -140,7 +140,7 @@ public class SeedLotService {
 
 	public List<SeedLotTransaction> findSeedLotTransactions(String transactionDbId, String seedLotDbId,
 															String germplasmDbId, String germplasmName, String crossDbId, String crossName, String commonCropName,
-															String programDbId, String externalReferenceID, String externalReferenceSource,
+															String programDbId, String externalReferenceId, String externalReferenceSource,
 															Metadata metadata)
 		throws BrAPIServerException {
 		Pageable pageReq = PagingUtility.getPageRequest(metadata);
@@ -163,8 +163,8 @@ public class SeedLotService {
 		if (programDbId != null)
 			searchQuery = searchQuery.appendSingle(programDbId, "toSeedLot.program.id");
 
-		if (externalReferenceID != null && externalReferenceSource != null)
-			searchQuery = searchQuery.withExRefs(Arrays.asList(externalReferenceID),
+		if (externalReferenceId != null && externalReferenceSource != null)
+			searchQuery = searchQuery.withExRefs(Arrays.asList(externalReferenceId),
 					Arrays.asList(externalReferenceSource));
 
 		Page<SeedLotTransactionEntity> page = seedLotTransactionRepository.findAllBySearchAndPaginate(searchQuery, pageReq);
