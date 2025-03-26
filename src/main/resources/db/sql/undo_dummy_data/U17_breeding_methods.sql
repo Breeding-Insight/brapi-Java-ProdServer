@@ -1,0 +1,1 @@
+DELETE FROM breeding_method where id IN ('breeding_method1', 'breeding_method2');
