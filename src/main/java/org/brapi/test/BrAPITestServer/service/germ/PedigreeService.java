@@ -565,12 +565,12 @@ public class PedigreeService {
 	private List<PedigreeNodeEntity> createEntitiesInBatch(List<PedigreeNode> nodes)
 		throws BrAPIServerException {
 		List<String> germIds = nodes.stream()
-				.filter(Objects::nonNull)
 				.map(PedigreeNode::getGermplasmDbId)
+				.filter(Objects::nonNull)
 				.toList();
 		List<String> crossingProjIds = nodes.stream()
-				.filter(Objects::nonNull)
 				.map(PedigreeNode::getCrossingProjectDbId)
+				.filter(Objects::nonNull)
 				.toList();
 
 		Map<UUID, GermplasmEntity> foundGermsById = germplasmService.findByIds(germIds)
@@ -613,8 +613,8 @@ public class PedigreeService {
 		List<String> germIds = new ArrayList<>(entityDtoPairsByGermId.keySet());
 		List<String> crossingProjIds = entityDtoPairsByGermId.values()
 				.stream()
-				.filter(Objects::nonNull)
 				.map(nodePair -> nodePair.getRight().getCrossingProjectDbId())
+				.filter(Objects::nonNull)
 				.toList();
 
 		List<String> germIdsWithParentNodes = entityDtoPairsByGermId.entrySet()

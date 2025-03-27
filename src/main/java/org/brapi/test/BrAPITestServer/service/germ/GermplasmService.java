@@ -777,13 +777,21 @@ public class GermplasmService {
 
 	public List<GermplasmEntity> findByIds(List<String> germplasmDbIds)
 		throws BrAPIServerException {
-		List<GermplasmEntity> germsFoundInDb = germplasmRepository.findByIdIn(germplasmDbIds.stream().map(UUID::fromString).toList());
+
+		var result = new ArrayList<GermplasmEntity>();
+
+		if (germplasmDbIds.isEmpty()) {
+			return result;
+		}
+
+		List<UUID> germIdsAsUUIDs = germplasmDbIds.stream().map(UUID::fromString).toList();
+		List<GermplasmEntity> germsFoundInDb = germplasmRepository.findByIdIn(germIdsAsUUIDs);
 
 		Set<UUID> germIdsFoundInDB = germsFoundInDb.stream()
 				.map(BrAPIBaseEntity::getId)
 				.collect(Collectors.toSet());
 
-		if (!germIdsFoundInDB.containsAll(germplasmDbIds)) {
+		if (!germIdsFoundInDB.containsAll(germIdsAsUUIDs)) {
 			throw new BrAPIServerDbIdNotFoundException("Germplasm Ids passed to findByIds were not found in the DB", HttpStatus.BAD_REQUEST);
 		}
 

@@ -68,6 +68,12 @@ public class CrossingProjectService {
 	}
 
 	public List<CrossingProjectEntity> findCrossingProjectsByIds(List<String> crossingProjectIds) {
+		var result = new ArrayList<CrossingProjectEntity>();
+
+		if (crossingProjectIds.isEmpty()) {
+			return result;
+		}
+
 		return crossingProjectRepository.findByIdIn(crossingProjectIds.stream().map(UUID::fromString).toList());
 	}
 
