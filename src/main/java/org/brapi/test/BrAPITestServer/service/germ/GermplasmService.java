@@ -120,7 +120,8 @@ public class GermplasmService {
 
 		SearchQueryBuilder<GermplasmEntity> searchQuery = buildGermplasmSearchQuery(request);
 
-		// First run the query without the fetching all the entities, grabbing the IDs only and paginating and sorting them.
+		// Since the built searchQuery contains a lazily loaded collection retrieved with a LEFT JOIN FETCH,
+		// use findAllBySearchPaginatingWithFetches()
 		Page<GermplasmEntity> germs = germplasmRepository.findAllBySearchPaginatingWithFetches(searchQuery, pageReq);
 
 		// Hopefully this retains insertion order in the page?
@@ -336,7 +337,6 @@ public class GermplasmService {
 		searchQuery.leftJoinFetch("externalReferences",
 				"externalReferences");
 
-		// TODO: This method doesn't need to utilize a method that returns a page.
 		List<GermplasmEntity> xrefs = germplasmRepository.findAllBySearch(searchQuery);
 
 		Map<String, List<ExternalReferenceEntity>> xrefByEntity = new HashMap<>();
