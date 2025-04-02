@@ -60,8 +60,8 @@ public class PlannedCrossesApiController extends BrAPIController implements Plan
 		validateSecurityContext(request, "ROLE_ANONYMOUS", "ROLE_USER");
 		validateAcceptHeader(request);
 		Metadata metadata = generateMetaDataTemplate(page, pageSize);
-		List<PlannedCross> data = crossService.findPlannedCrosses(crossingProjectDbId,
-				plannedCrossDbId,
+		List<PlannedCross> data = crossService.findPlannedCrosses(crossingProjectDbId, crossingProjectName,
+				plannedCrossDbId, plannedCrossName, status, commonCropName, programDbId, externalReferenceId,
 				externalReferenceID, externalReferenceSource, metadata);
 		return responseOK(new PlannedCrossesListResponse(), new PlannedCrossesListResponseResult(), data, metadata);
 	}

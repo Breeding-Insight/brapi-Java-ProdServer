@@ -41,8 +41,8 @@ public class CrossingProjectService {
 	}
 
 	public List<CrossingProject> findCrossingProjects(String crossingProjectDbId, String crossingProjectName,
-			Boolean includePotentialParents, String commonCropName, String programDbId,
-													  String externalReferenceID, String externalReferenceSource, Metadata metadata)
+			Boolean includePotentialParents, String commonCropName, String programDbId, String externalReferenceId,
+			String externalReferenceID, String externalReferenceSource, Metadata metadata)
 		throws BrAPIServerException {
 		Pageable pageReq = PagingUtility.getPageRequest(metadata);
 
