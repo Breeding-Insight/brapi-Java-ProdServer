@@ -66,7 +66,7 @@ public class SeedLotsApiController extends BrAPIController implements SeedLotsAp
 		validateAcceptHeader(request);
 		Metadata metadata = generateMetaDataTemplate(page, pageSize);
 		List<SeedLot> data = seedLotService.findSeedLots(seedLotDbId, germplasmDbId, germplasmName, crossDbId,
-				crossName, commonCropName, programDbId, externalReferenceID,
+				crossName, commonCropName, programDbId, externalReferenceId, externalReferenceID,
 				externalReferenceSource, metadata);
 		return responseOK(new SeedLotListResponse(), new SeedLotListResponseResult(), data, metadata);
 	}
@@ -156,7 +156,7 @@ public class SeedLotsApiController extends BrAPIController implements SeedLotsAp
 		validateAcceptHeader(request);
 		Metadata metadata = generateMetaDataTemplate(page, pageSize);
 		List<SeedLotTransaction> data = seedLotService.findSeedLotTransactions(transactionDbId, seedLotDbId,
-				germplasmDbId, germplasmName, crossDbId, crossName, commonCropName, programDbId,
+				germplasmDbId, germplasmName, crossDbId, crossName, commonCropName, programDbId, externalReferenceId,
 				externalReferenceID, externalReferenceSource, metadata);
 		return responseOK(new SeedLotTransactionListResponse(), new SeedLotTransactionListResponseResult(), data,
 				metadata);

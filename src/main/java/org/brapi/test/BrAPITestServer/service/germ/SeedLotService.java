@@ -56,8 +56,8 @@ public class SeedLotService {
 	}
 
 	public List<SeedLot> findSeedLots(String seedLotDbId, String germplasmDbId, String germplasmName, String crossDbId,
-			String crossName, String commonCropName, String programDbId,
-									  String externalReferenceID, String externalReferenceSource, Metadata metadata)
+			String crossName, String commonCropName, String programDbId, String externalReferenceId,
+			String externalReferenceID, String externalReferenceSource, Metadata metadata)
 		throws BrAPIServerException {
 		Pageable pageReq = PagingUtility.getPageRequest(metadata);
 		SearchQueryBuilder<SeedLotEntity> searchQuery = new SearchQueryBuilder<SeedLotEntity>(SeedLotEntity.class);
@@ -137,16 +137,16 @@ public class SeedLotService {
 			String transactionDirection, Metadata metadata) throws BrAPIServerException {
 		SeedLot seedLot = getSeedLot(seedLotDbId);
 		if (seedLot != null) {
-			return findSeedLotTransactions(transactionDbId, seedLotDbId, null, null, null, null, null, null, null,
+			return findSeedLotTransactions(transactionDbId, seedLotDbId, null, null, null, null, null, null, null, null,
 					null, metadata);
 		}
 		return null;
 	}
 
 	public List<SeedLotTransaction> findSeedLotTransactions(String transactionDbId, String seedLotDbId,
-															String germplasmDbId, String germplasmName, String crossDbId, String crossName, String commonCropName,
-															String programDbId, String externalReferenceID, String externalReferenceSource,
-															Metadata metadata)
+			String germplasmDbId, String germplasmName, String crossDbId, String crossName, String commonCropName,
+			String programDbId, String externalReferenceId, String externalReferenceID, String externalReferenceSource,
+			Metadata metadata)
 		throws BrAPIServerException {
 		Pageable pageReq = PagingUtility.getPageRequest(metadata);
 		SearchQueryBuilder<SeedLotTransactionEntity> searchQuery = new SearchQueryBuilder<SeedLotTransactionEntity>(

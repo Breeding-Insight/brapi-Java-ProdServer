@@ -14,6 +14,7 @@ public class SearchQueryBuilder<T> {
 	private String selectClause;
 	private String selectOnlyIds;
 	private String whereClause;
+	private String defaultSort;
 	private String sortClause;
 	private Map<String, Object> params;
 	private Class<T> clazz;
@@ -22,6 +23,7 @@ public class SearchQueryBuilder<T> {
 		this.selectClause = "SELECT distinct entity FROM " + clazz.getSimpleName() + " entity ";
 		this.selectOnlyIds = "SELECT entity.id FROM " + clazz.getSimpleName() + " entity ";
 		this.whereClause = "WHERE 1=1 ";
+		this.defaultSort = " ORDER BY entity.id ASC ";
 		this.sortClause = "";
 		this.params = new HashMap<>();
 		this.clazz = clazz;
@@ -30,7 +32,7 @@ public class SearchQueryBuilder<T> {
 	public String getQuery() {
 		if (sortClause.isEmpty()) {
 			// By default, sort on entity id to have query result remain idempotent
-			sortClause = " ORDER BY entity.id ASC ";
+			sortClause = defaultSort;
 		}
 
 		return selectClause + whereClause + sortClause;
@@ -39,7 +41,7 @@ public class SearchQueryBuilder<T> {
 	public String getIdQuery() {
 		if (sortClause.isEmpty()) {
 			// By default, sort on entity id to have query result remain idempotent
-			sortClause = " ORDER BY entity.id ASC ";
+			sortClause = defaultSort;
 		}
 
 		return selectOnlyIds + whereClause + sortClause;

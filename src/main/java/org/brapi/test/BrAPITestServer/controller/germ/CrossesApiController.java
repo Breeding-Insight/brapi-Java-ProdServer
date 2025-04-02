@@ -59,8 +59,8 @@ public class CrossesApiController extends BrAPIController implements CrossesApi 
 		validateSecurityContext(request, "ROLE_ANONYMOUS", "ROLE_USER");
 		validateAcceptHeader(request);
 		Metadata metadata = generateMetaDataTemplate(page, pageSize);
-		List<Cross> data = crossService.findCrosses(crossingProjectDbId, crossDbId,
-				externalReferenceID, externalReferenceSource,
+		List<Cross> data = crossService.findCrosses(crossingProjectDbId, crossingProjectName, crossDbId, crossName,
+				commonCropName, programDbId, externalReferenceId, externalReferenceID, externalReferenceSource,
 				metadata);
 		return responseOK(new CrossesListResponse(), new CrossesListResponseResult(), data, metadata);
 	}

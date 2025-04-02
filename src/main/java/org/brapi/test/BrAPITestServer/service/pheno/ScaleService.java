@@ -45,7 +45,7 @@ public class ScaleService {
 		Pageable pageReq = PagingUtility.getPageRequest(metadata);
 		SearchQueryBuilder<ScaleEntity> searchQuery = new SearchQueryBuilder<ScaleEntity>(ScaleEntity.class);
 		if (observationVariableDbId != null) {
-			searchQuery = searchQuery.join("variables", "variabTle").appendSingle(observationVariableDbId,
+			searchQuery = searchQuery.join("variables", "variable").appendSingle(observationVariableDbId,
 					"*variable.id");
 		}
 		searchQuery = searchQuery.appendSingle(UUID.fromString(scaleDbId), "id").withExRefs(externalReferenceID,
