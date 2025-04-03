@@ -195,13 +195,12 @@ public class PedigreeService {
 
 	public List<PedigreeNodeEntity> findOrCreatePedigreeNodesFromGermplasmIds(List<String> germplasmDbIds) throws BrAPIServerException {
 
-        List<PedigreeNodeEntity> dbNodes = getPedigreeNodes(germplasmDbIds);
+		// First, grab nodes from the DB that match the germplasmDbIds passed through.
+        List<PedigreeNodeEntity> resultingNodes = getPedigreeNodes(germplasmDbIds);
 
-        List<PedigreeNodeEntity> resultingNodes = new ArrayList<>(dbNodes);
-
-		// Find out which germIds were not found in the DB. Use a set for improved performance on the contains check.
+		// Next, find out which germIds were not found in the DB. Use a set for improved performance on the contains check.
 		// TODO: Check if the germEntity is already populated by getPedigreeNodes, and if this block results in more DB transactions.
-		Set<String> germIdsOfFoundNodes = dbNodes.stream()
+		Set<String> germIdsOfFoundNodes = resultingNodes.stream()
 				.map(PedigreeNodeEntity::getGermplasm)
 				.map(BrAPIBaseEntity::getId)
 				.collect(Collectors.toSet());
@@ -758,7 +757,7 @@ public class PedigreeService {
 
 		SearchQueryBuilder<PedigreeEdgeEntity> search = new SearchQueryBuilder<PedigreeEdgeEntity>(PedigreeEdgeEntity.class);
 
-		search.appendList(germIdsWithProgenyNodes, "conncetedNode.germplasm.id");
+		search.appendList(germIdsWithProgenyNodes, "connected.germplasm.id");
 		search.appendEnum(PedigreeEdgeEntity.EdgeType.parent, "edgeType");
 		List<PedigreeEdgeEntity> existingProgenyEdges = pedigreeEdgeRepository.findAllBySearch(search);
 
