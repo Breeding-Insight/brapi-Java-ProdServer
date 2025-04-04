@@ -195,13 +195,12 @@ public class PedigreeService {
 
 	public List<PedigreeNodeEntity> findOrCreatePedigreeNodesFromGermplasmIds(List<String> germplasmDbIds) throws BrAPIServerException {
 
-        List<PedigreeNodeEntity> dbNodes = getPedigreeNodes(germplasmDbIds);
+		// First, grab nodes from the DB that match the germplasmDbIds passed through.
+        List<PedigreeNodeEntity> resultingNodes = getPedigreeNodes(germplasmDbIds);
 
-        List<PedigreeNodeEntity> resultingNodes = new ArrayList<>(dbNodes);
-
-		// Find out which germIds were not found in the DB. Use a set for improved performance on the contains check.
+		// Next, find out which germIds were not found in the DB. Use a set for improved performance on the contains check.
 		// TODO: Check if the germEntity is already populated by getPedigreeNodes, and if this block results in more DB transactions.
-		Set<String> germIdsOfFoundNodes = dbNodes.stream()
+		Set<String> germIdsOfFoundNodes = resultingNodes.stream()
 				.map(PedigreeNodeEntity::getGermplasm)
 				.map(e -> e.getId().toString())
 				.collect(Collectors.toSet());
@@ -801,7 +800,16 @@ public class PedigreeService {
 		}
 
 		List<GermplasmEntity> motherGerms = germplasmService.findByNames(new ArrayList<>(germsByPedigreeMother.values()));
+
+		if (motherGerms.isEmpty() && !germsByPedigreeMother.isEmpty()) {
+			log.warn("Could not find any germplasms looking up with mother names {}", germsByPedigreeMother.values());
+		}
+
 		List<GermplasmEntity> fatherGerms = germplasmService.findByNames(new ArrayList<>(germsByPedigreeFather.values()));
+
+		if (fatherGerms.isEmpty() && !germsByPedigreeFather.isEmpty()) {
+			log.warn("Could not find any germplasms looking up with father names {}", germsByPedigreeFather.values());
+		}
 
 		for (Germplasm germplasm : germplasms) {
 			GermplasmEntity motherGerm = null;

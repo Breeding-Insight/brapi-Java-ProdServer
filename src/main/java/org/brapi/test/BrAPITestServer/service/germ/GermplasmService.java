@@ -772,7 +772,13 @@ public class GermplasmService {
 	}
 
 	public List<GermplasmEntity> findByNames(List<String> germplasmNames) {
-		return germplasmRepository.findByGermplasmNameIn(germplasmNames);
+		List<GermplasmEntity> foundGerms = new ArrayList<>();
+
+		if (!germplasmNames.isEmpty()) {
+			foundGerms = germplasmRepository.findByGermplasmNameIn(germplasmNames);
+		}
+
+		return foundGerms;
 	}
 
 	public List<GermplasmEntity> findByIds(List<String> germplasmDbIds)
