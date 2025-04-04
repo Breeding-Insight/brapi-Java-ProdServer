@@ -757,7 +757,7 @@ public class PedigreeService {
 
 		SearchQueryBuilder<PedigreeEdgeEntity> search = new SearchQueryBuilder<PedigreeEdgeEntity>(PedigreeEdgeEntity.class);
 
-		search.appendList(germIdsWithProgenyNodes, "connected.germplasm.id");
+		search.appendList(germIdsWithProgenyNodes, "connectedNode.germplasm.id");
 		search.appendEnum(PedigreeEdgeEntity.EdgeType.parent, "edgeType");
 		List<PedigreeEdgeEntity> existingProgenyEdges = pedigreeEdgeRepository.findAllBySearch(search);
 
