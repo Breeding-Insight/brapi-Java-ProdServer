@@ -213,12 +213,37 @@ public class GermplasmApiController extends BrAPIController implements Germplasm
 		log.debug("Request: " + request.getRequestURI());
 		validateSecurityContext(request, "ROLE_ANONYMOUS", "ROLE_USER");
 		validateAcceptHeader(request);
-		Metadata metadata = generateMetaDataTemplate(body);
 
 		String searchReqDbId = searchService.saveSearchRequest(body, SearchRequestTypes.GERMPLASM);
 		if (searchReqDbId != null) {
 			return responseAccepted(searchReqDbId);
+		}
+
+		// WARN: This code was introduced to deal with a specific use case from BI which requires all data associated with
+		// a particular program to be retreived at once.  This method of data retreival is highly unadvised and can come
+		// with serious performance deficits, such as slow response times and exhausted memory allocation.
+		// Benchmarking suggests that at around 245-275k germplasm records returned 8GB of allocated memory will fail to
+		// be enough to return a result.
+
+		// This code is a stop-gap to allow BI to continue to do this improper retreival in a way that will be efficient
+		// for their specific use case.
+
+		// To get the data in this ill-advised way, forgo sending a page or pageSize attribute in the germplasm search request
+		// to this endpoint.  This will trigger the findGermplasmWithoutPaging code, which will grab all of the data without regard
+		// to data size.
+
+		// To use the endpoint the right way, ensure one or both of the aforementioned attributes are set and the germplasm
+		// records will be retrieved and returned paginated to limit resource consumption.  This way is much more fine tuned
+		// and will result in fast retrieval times with minimal memory allocation.
+		if (body.getPage() == null && body.getPageSize() == null) {
+			log.debug("Retrieving germs without pagination");
+			List<Germplasm> data = germplasmService.findGermplasmWithoutPaging(body);
+			Metadata metadata = generateEmptyMetadata();
+			metadata.getPagination().setTotalCount(data.size());
+			return responseOK(new GermplasmListResponse(), new GermplasmListResponseResult(), data, metadata);
 		} else {
+			log.debug("Retrieving germs with pagination");
+			Metadata metadata = generateMetaDataTemplate(body);
 			List<Germplasm> data = germplasmService.findGermplasm(body, metadata);
 			return responseOK(new GermplasmListResponse(), new GermplasmListResponseResult(), data, metadata);
 		}

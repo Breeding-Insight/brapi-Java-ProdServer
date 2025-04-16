@@ -55,7 +55,8 @@ public class VariantSetService {
 
 	public List<VariantSet> findVariantSets(String variantSetDbId, String variantDbId, String callSetDbId,
 			String studyDbId, String studyName, String referenceSetDbId, String commonCropName, String programDbId,
-			String externalReferenceId, String externalReferenceSource, Metadata metadata) {
+			String externalReferenceId, String externalReferenceSource, Metadata metadata)
+		throws BrAPIServerException {
 		VariantSetsSearchRequest request = new VariantSetsSearchRequest();
 		if (variantSetDbId != null)
 			request.addVariantSetDbIdsItem(variantSetDbId);
@@ -78,13 +79,15 @@ public class VariantSetService {
 		return findVariantSets(request, metadata);
 	}
 
-	public List<VariantSet> findVariantSets(VariantSetsSearchRequest request, Metadata metadata) {
+	public List<VariantSet> findVariantSets(VariantSetsSearchRequest request, Metadata metadata)
+		throws BrAPIServerException {
 		List<VariantSet> variantSets = findVariantSetEntities(request, metadata).stream().map(this::convertFromEntity)
 				.collect(Collectors.toList());
 		return variantSets;
 	}
 
-	private List<VariantSetEntity> findVariantSetEntities(VariantSetsSearchRequest request, Metadata metadata) {
+	private List<VariantSetEntity> findVariantSetEntities(VariantSetsSearchRequest request, Metadata metadata)
+		throws BrAPIServerException {
 		Pageable pageReq = PagingUtility.getPageRequest(metadata);
 		SearchQueryBuilder<VariantSetEntity> searchQuery = new SearchQueryBuilder<VariantSetEntity>(
 				VariantSetEntity.class);
@@ -97,7 +100,7 @@ public class VariantSetService {
 		searchQuery.appendList(request.getStudyDbIds(), "study.id")
 				.appendList(request.getStudyNames(), "study.studyName").appendList(request.getVariantSetDbIds(), "id");
 
-		Page<VariantSetEntity> page = variantSetRepository.findAllBySearch(searchQuery, pageReq);
+		Page<VariantSetEntity> page = variantSetRepository.findAllBySearchAndPaginate(searchQuery, pageReq);
 		PagingUtility.calculateMetaData(metadata, page);
 		return page.getContent();
 	}

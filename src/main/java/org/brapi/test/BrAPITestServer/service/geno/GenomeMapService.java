@@ -35,7 +35,8 @@ public class GenomeMapService {
 	}
 
 	public List<GenomeMap> findMaps(String commonCropName, String mapPUI, String scientificName, String type,
-			String programDbId, String trialDbId, String studyDbId, Metadata metadata) {
+			String programDbId, String trialDbId, String studyDbId, Metadata metadata)
+		throws BrAPIServerException {
 		SearchQueryBuilder<GenomeMapEntity> searchQuery = new SearchQueryBuilder<GenomeMapEntity>(GenomeMapEntity.class);
 
 		if (programDbId != null || trialDbId != null || studyDbId != null) {
@@ -51,7 +52,7 @@ public class GenomeMapService {
 				.appendSingle(studyDbId, "*study.id");
 
 		Pageable pageReq = PagingUtility.getPageRequest(metadata);
-		Page<GenomeMapEntity> page = genomeMapRepository.findAllBySearch(searchQuery, pageReq);
+		Page<GenomeMapEntity> page = genomeMapRepository.findAllBySearchAndPaginate(searchQuery, pageReq);
 		List<GenomeMap> maps = page.map(this::convertFromEntity).getContent();
 		PagingUtility.calculateMetaData(metadata, page);
 		return maps;
@@ -68,12 +69,13 @@ public class GenomeMapService {
 		return map;
 	}
 
-	public List<LinkageGroup> findLinkageGroups(String mapDbId, Metadata metadata) {
+	public List<LinkageGroup> findLinkageGroups(String mapDbId, Metadata metadata)
+		throws BrAPIServerException {
 		SearchQueryBuilder<LinkageGroupEntity> searchQuery = new SearchQueryBuilder<LinkageGroupEntity>(
 				LinkageGroupEntity.class).appendSingle(mapDbId, "genomeMap.id");
 
 		Pageable pageReq = PagingUtility.getPageRequest(metadata);
-		Page<LinkageGroupEntity> page = linkageGroupRepository.findAllBySearch(searchQuery, pageReq);
+		Page<LinkageGroupEntity> page = linkageGroupRepository.findAllBySearchAndPaginate(searchQuery, pageReq);
 		List<LinkageGroup> linkageGroups = page.map(this::convertFromEntity).getContent();
 		PagingUtility.calculateMetaData(metadata, page);
 		return linkageGroups;

@@ -64,7 +64,8 @@ public class PedigreeService {
 			String trialDbId, String studyDbId, String synonym, String commonCropName, String programDbId,
 			String externalReferenceId, String externalReferenceSource, Boolean includeParents, Boolean includeSiblings,
 			Boolean includeProgeny, Boolean includeFullTree, Integer pedigreeDepth, Integer progenyDepth,
-			Metadata metadata) {
+			Metadata metadata)
+		throws BrAPIServerException {
 
 		PedigreeSearchRequest request = new PedigreeSearchRequest();
 		if (germplasmPUI != null)
@@ -111,13 +112,15 @@ public class PedigreeService {
 		return findPedigree(request, metadata);
 	}
 
-	public List<PedigreeNode> findPedigree(PedigreeSearchRequest request, Metadata metadata) {
+	public List<PedigreeNode> findPedigree(PedigreeSearchRequest request, Metadata metadata)
+		throws BrAPIServerException {
 		List<PedigreeNodeEntity> page = findPedigreeEntities(request, metadata);
 		List<PedigreeNode> pedigreeNodes = convertFromEntities(page, request);
 		return pedigreeNodes;
 	}
 
-	public List<PedigreeNodeEntity> findPedigreeEntities(PedigreeSearchRequest request, Metadata metadata) {
+	public List<PedigreeNodeEntity> findPedigreeEntities(PedigreeSearchRequest request, Metadata metadata)
+		throws BrAPIServerException {
 		Pageable pageReq = PagingUtility.getPageRequest(metadata);
 		SearchQueryBuilder<PedigreeNodeEntity> searchQuery = new SearchQueryBuilder<PedigreeNodeEntity>(
 				PedigreeNodeEntity.class);
@@ -153,7 +156,7 @@ public class PedigreeService {
 				.appendNamesList(request.getBinomialNames(), "germplasm.genus", "germplasm.genus", "germplasm.species")
 				.appendList(request.getFamilyCodes(), "familyCode");
 
-		Page<PedigreeNodeEntity> page = pedigreeRepository.findAllBySearch(searchQuery, pageReq);
+		Page<PedigreeNodeEntity> page = pedigreeRepository.findAllBySearchAndPaginate(searchQuery, pageReq);
 
 		List<PedigreeNodeEntity> filteredNodes = filterGenerations(request, page.getContent());
 
@@ -304,7 +307,8 @@ public class PedigreeService {
 
 	}
 
-	private Map<String, PedigreeNodeEntity> getExistingPedigreeNodes(List<String> germplasmDbIds) {
+	private Map<String, PedigreeNodeEntity> getExistingPedigreeNodes(List<String> germplasmDbIds)
+		throws BrAPIServerException {
 		Map<String, PedigreeNodeEntity> nodesByGermplasm = new HashMap<>();
 
 		if (null != germplasmDbIds && !germplasmDbIds.isEmpty()) {
@@ -495,7 +499,7 @@ public class PedigreeService {
 			search.appendSingle(node.getGermplasmDbId(), "connectedNode.germplasm.id");
 			search.appendEnum(PedigreeEdgeEntity.EdgeType.child, "edgeType");
 			Pageable defaultPageSize = PagingUtility.getPageRequest(new Metadata().pagination(new IndexPagination().pageSize(10000000)));
-			Page<PedigreeEdgeEntity> existingParentEdges = pedigreeEdgeRepository.findAllBySearch(search, defaultPageSize);
+			Page<PedigreeEdgeEntity> existingParentEdges = pedigreeEdgeRepository.findAllBySearchAndPaginate(search, defaultPageSize);
 
 			List<String> edgeIdsToDelete = new ArrayList<>();
 			edgeIdsToDelete.addAll(entity.getParentEdges().stream().map(e -> e.getId()).collect(Collectors.toList()));
@@ -518,7 +522,7 @@ public class PedigreeService {
 			search.appendSingle(node.getGermplasmDbId(), "connectedNode.germplasm.id");
 			search.appendEnum(PedigreeEdgeEntity.EdgeType.parent, "edgeType");
 			Pageable defaultPageSize = PagingUtility.getPageRequest(new Metadata().pagination(new IndexPagination().pageSize(10000000)));
-			Page<PedigreeEdgeEntity> existingProgenyEdges = pedigreeEdgeRepository.findAllBySearch(search, defaultPageSize);
+			Page<PedigreeEdgeEntity> existingProgenyEdges = pedigreeEdgeRepository.findAllBySearchAndPaginate(search, defaultPageSize);
 
 			List<String> edgeIdsToDelete = new ArrayList<>();
 			edgeIdsToDelete.addAll(entity.getProgenyEdges().stream().map(e -> e.getId()).collect(Collectors.toList()));
@@ -537,7 +541,8 @@ public class PedigreeService {
 		}
 	}
 
-	public PedigreeNode convertFromGermplasmToPedigree(Germplasm germplasm) {
+	public PedigreeNode convertFromGermplasmToPedigree(Germplasm germplasm)
+		throws BrAPIServerException {
 		PedigreeNode node = new PedigreeNode();
 
 		List<String> pedigreeList = new ArrayList<>();

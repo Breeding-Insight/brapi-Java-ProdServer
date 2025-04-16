@@ -35,7 +35,8 @@ public class TraitService {
 
 	public List<Trait> findTraits(String traitDbId, String observationVariableDbId, String ontologyDbId,
 			String commonCropName, String programDbId, String externalReferenceId, String externalReferenceID,
-			String externalReferenceSource, Metadata metadata) {
+			String externalReferenceSource, Metadata metadata)
+		 throws BrAPIServerException {
 		Pageable pageReq = PagingUtility.getPageRequest(metadata);
 		SearchQueryBuilder<TraitEntity> searchQuery = new SearchQueryBuilder<TraitEntity>(TraitEntity.class);
 		if (observationVariableDbId != null) {
@@ -44,7 +45,7 @@ public class TraitService {
 		}
 		searchQuery = searchQuery.appendSingle(traitDbId, "id").withExRefs(externalReferenceID,
 				externalReferenceSource);
-		Page<TraitEntity> traitPage = traitRepository.findAllBySearch(searchQuery, pageReq);
+		Page<TraitEntity> traitPage = traitRepository.findAllBySearchAndPaginate(searchQuery, pageReq);
 		PagingUtility.calculateMetaData(metadata, traitPage);
 
 		List<Trait> traits = traitPage.map(this::convertFromEntity).getContent();

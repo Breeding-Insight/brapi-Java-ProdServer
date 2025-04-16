@@ -32,7 +32,8 @@ public class SeasonService {
 	}
 
 	public List<Season> findSeasons(String seasonDbId, String season, String seasonName, Integer year,
-			Metadata metadata) {
+			Metadata metadata)
+		throws BrAPIServerException {
 		Pageable pageReq = PagingUtility.getPageRequest(metadata);
 		SearchQueryBuilder<SeasonEntity> searchQuery = new SearchQueryBuilder<SeasonEntity>(SeasonEntity.class);
 		if (seasonDbId != null)
@@ -44,7 +45,7 @@ public class SeasonService {
 		if (year != null)
 			searchQuery = searchQuery.appendSingle(year, "year");
 
-		Page<SeasonEntity> entityPage = seasonRepository.findAllBySearch(searchQuery, pageReq);
+		Page<SeasonEntity> entityPage = seasonRepository.findAllBySearchAndPaginate(searchQuery, pageReq);
 
 		List<Season> data = entityPage.map(this::convertFromEntity).getContent();
 		PagingUtility.calculateMetaData(metadata, entityPage);

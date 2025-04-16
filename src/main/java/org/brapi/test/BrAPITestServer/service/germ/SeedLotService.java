@@ -60,7 +60,8 @@ public class SeedLotService {
 
 	public List<SeedLot> findSeedLots(String seedLotDbId, String germplasmDbId, String germplasmName, String crossDbId,
 			String crossName, String commonCropName, String programDbId, String externalReferenceId,
-			String externalReferenceID, String externalReferenceSource, Metadata metadata) {
+			String externalReferenceID, String externalReferenceSource, Metadata metadata)
+		throws BrAPIServerException {
 		Pageable pageReq = PagingUtility.getPageRequest(metadata);
 		SearchQueryBuilder<SeedLotEntity> searchQuery = new SearchQueryBuilder<SeedLotEntity>(SeedLotEntity.class);
 
@@ -81,7 +82,7 @@ public class SeedLotService {
 			searchQuery = searchQuery.withExRefs(Arrays.asList(externalReferenceID),
 					Arrays.asList(externalReferenceSource));
 
-		Page<SeedLotEntity> page = seedLotRepository.findAllBySearch(searchQuery, pageReq);
+		Page<SeedLotEntity> page = seedLotRepository.findAllBySearchAndPaginate(searchQuery, pageReq);
 		List<SeedLot> seedLots = page.map(this::convertFromEntity).getContent();
 		PagingUtility.calculateMetaData(metadata, page);
 		return seedLots;
@@ -140,7 +141,8 @@ public class SeedLotService {
 	public List<SeedLotTransaction> findSeedLotTransactions(String transactionDbId, String seedLotDbId,
 			String germplasmDbId, String germplasmName, String crossDbId, String crossName, String commonCropName,
 			String programDbId, String externalReferenceId, String externalReferenceID, String externalReferenceSource,
-			Metadata metadata) {
+			Metadata metadata)
+		throws BrAPIServerException {
 		Pageable pageReq = PagingUtility.getPageRequest(metadata);
 		SearchQueryBuilder<SeedLotTransactionEntity> searchQuery = new SearchQueryBuilder<SeedLotTransactionEntity>(
 				SeedLotTransactionEntity.class);
@@ -165,7 +167,7 @@ public class SeedLotService {
 			searchQuery = searchQuery.withExRefs(Arrays.asList(externalReferenceID),
 					Arrays.asList(externalReferenceSource));
 
-		Page<SeedLotTransactionEntity> page = seedLotTransactionRepository.findAllBySearch(searchQuery, pageReq);
+		Page<SeedLotTransactionEntity> page = seedLotTransactionRepository.findAllBySearchAndPaginate(searchQuery, pageReq);
 		List<SeedLotTransaction> transactions = page.map(this::convertFromEntity).getContent();
 		PagingUtility.calculateMetaData(metadata, page);
 		return transactions;

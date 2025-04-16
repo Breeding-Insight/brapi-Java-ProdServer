@@ -37,7 +37,8 @@ public class LocationService {
 
 	public List<Location> findLocations(String locationDbId, String locationType, String locationName,
 			String parentLocationDbId, String parentLocationName, String commonCropName, String programDbId,
-			String externalReferenceId, String externalReferenceID, String externalReferenceSource, Metadata metadata) {
+			String externalReferenceId, String externalReferenceID, String externalReferenceSource, Metadata metadata)
+		throws BrAPIServerException {
 		LocationSearchRequest request = new LocationSearchRequest();
 		if (locationDbId != null)
 			request.addLocationDbIdsItem(locationDbId);
@@ -59,7 +60,8 @@ public class LocationService {
 		return findLocations(request, metadata);
 	}
 
-	public List<Location> findLocations(LocationSearchRequest request, Metadata metadata) {
+	public List<Location> findLocations(LocationSearchRequest request, Metadata metadata)
+		throws BrAPIServerException {
 		Pageable pageReq = PagingUtility.getPageRequest(metadata);
 		SearchQueryBuilder<LocationEntity> searchQuery = new SearchQueryBuilder<LocationEntity>(LocationEntity.class);
 
@@ -83,7 +85,7 @@ public class LocationService {
 				.appendList(request.getParentLocationDbIds(), "parentLocation.id")
 				.appendList(request.getParentLocationNames(), "parentLocation.name");
 
-		Page<LocationEntity> entityPage = locationRepository.findAllBySearch(searchQuery, pageReq);
+		Page<LocationEntity> entityPage = locationRepository.findAllBySearchAndPaginate(searchQuery, pageReq);
 
 		List<Location> data = entityPage.map(this::convertFromEntity).getContent();
 		PagingUtility.calculateMetaData(metadata, entityPage);

@@ -41,7 +41,8 @@ public class CrossingProjectService {
 
 	public List<CrossingProject> findCrossingProjects(String crossingProjectDbId, String crossingProjectName,
 			Boolean includePotentialParents, String commonCropName, String programDbId, String externalReferenceId,
-			String externalReferenceID, String externalReferenceSource, Metadata metadata) {
+			String externalReferenceID, String externalReferenceSource, Metadata metadata)
+		throws BrAPIServerException {
 		Pageable pageReq = PagingUtility.getPageRequest(metadata);
 
 		SearchQueryBuilder<CrossingProjectEntity> searchQuery = new SearchQueryBuilder<CrossingProjectEntity>(
@@ -59,7 +60,7 @@ public class CrossingProjectService {
 			searchQuery = searchQuery.withExRefs(Arrays.asList(externalReferenceID),
 					Arrays.asList(externalReferenceSource));
 
-		Page<CrossingProjectEntity> page = crossingProjectRepository.findAllBySearch(searchQuery, pageReq);
+		Page<CrossingProjectEntity> page = crossingProjectRepository.findAllBySearchAndPaginate(searchQuery, pageReq);
 		List<CrossingProject> crossingProjects = new ArrayList<>();
 		for (CrossingProjectEntity entity : page) {
 			crossingProjects.add(convertFromEntity(entity, includePotentialParents));

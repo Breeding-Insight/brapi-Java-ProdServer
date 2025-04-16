@@ -49,7 +49,8 @@ public class CrossService {
 
 	public List<Cross> findCrosses(String crossingProjectDbId, String crossingProjectName, String crossDbId,
 			String crossName, String commonCropName, String programDbId, String externalReferenceId,
-			String externalReferenceID, String externalReferenceSource, Metadata metadata) {
+			String externalReferenceID, String externalReferenceSource, Metadata metadata)
+		throws BrAPIServerException {
 		List<Cross> crosses = findCrossEntities(crossingProjectDbId, crossingProjectName, crossDbId, crossName, null,
 				commonCropName, programDbId, externalReferenceId, externalReferenceID, externalReferenceSource, false,
 				metadata).map(this::convertToCross).getContent();
@@ -58,7 +59,8 @@ public class CrossService {
 
 	public List<PlannedCross> findPlannedCrosses(String crossingProjectDbId, String crossingProjectName,
 			String crossDbId, String crossName, String status, String commonCropName, String programDbId,
-			String externalReferenceId, String externalReferenceID, String externalReferenceSource, Metadata metadata) {
+			String externalReferenceId, String externalReferenceID, String externalReferenceSource, Metadata metadata)
+		throws BrAPIServerException {
 		List<PlannedCross> crosses = findCrossEntities(crossingProjectDbId, crossingProjectName, crossDbId, crossName, status,
 				commonCropName, programDbId, externalReferenceId, externalReferenceID, externalReferenceSource, true,
 				metadata).map(this::convertToPlanned).getContent();
@@ -67,7 +69,8 @@ public class CrossService {
 
 	public Page<CrossEntity> findCrossEntities(String crossingProjectDbId, String crossingProjectName, String crossDbId,
 			String crossName, String status, String commonCropName, String programDbId, String externalReferenceId,
-			String externalReferenceID, String externalReferenceSource, Boolean plannedCross, Metadata metadata) {
+			String externalReferenceID, String externalReferenceSource, Boolean plannedCross, Metadata metadata)
+		throws BrAPIServerException {
 
 		Pageable pageReq = PagingUtility.getPageRequest(metadata);
 		SearchQueryBuilder<CrossEntity> searchQuery = new SearchQueryBuilder<CrossEntity>(CrossEntity.class);
@@ -81,7 +84,7 @@ public class CrossService {
 		if (plannedCross != null)
 			searchQuery = searchQuery.appendSingle(plannedCross, "planned");
 
-		Page<CrossEntity> page = crossRepository.findAllBySearch(searchQuery, pageReq);
+		Page<CrossEntity> page = crossRepository.findAllBySearchAndPaginate(searchQuery, pageReq);
 		PagingUtility.calculateMetaData(metadata, page);
 		return page;
 	}

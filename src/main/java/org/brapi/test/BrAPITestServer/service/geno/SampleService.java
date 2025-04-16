@@ -87,7 +87,8 @@ public class SampleService {
 	public List<Sample> findSamples(String sampleDbId, String sampleName, String sampleGroupDbId,
 			String observationUnitDbId, String plateDbId, String plateName, String germplasmDbId, String studyDbId,
 			String trialDbId, String commonCropName, String programDbId, String externalReferenceId,
-			String externalReferenceID, String externalReferenceSource, Metadata metadata) {
+			String externalReferenceID, String externalReferenceSource, Metadata metadata)
+		throws BrAPIServerException {
 		SampleSearchRequest request = new SampleSearchRequest();
 		if (sampleDbId != null)
 			request.addSampleDbIdsItem(sampleDbId);
@@ -117,7 +118,8 @@ public class SampleService {
 		return findSamples(request, metadata);
 	}
 
-	public List<Sample> findSamples(SampleSearchRequest request, Metadata metadata) {
+	public List<Sample> findSamples(SampleSearchRequest request, Metadata metadata)
+		throws BrAPIServerException {
 		Pageable pageReq = PagingUtility.getPageRequest(metadata);
 		SearchQueryBuilder<SampleEntity> searchQuery = new SearchQueryBuilder<SampleEntity>(SampleEntity.class)
 				.withExRefs(request.getExternalReferenceIDs(), request.getExternalReferenceSources())
@@ -135,7 +137,7 @@ public class SampleService {
 				.appendList(request.getStudyDbIds(), "plate.study.id")
 				.appendList(request.getStudyNames(), "plate.study.studyName");
 
-		Page<SampleEntity> page = sampleRepository.findAllBySearch(searchQuery, pageReq);
+		Page<SampleEntity> page = sampleRepository.findAllBySearchAndPaginate(searchQuery, pageReq);
 		List<Sample> samples = page.map(this::convertFromEntity).getContent();
 		PagingUtility.calculateMetaData(metadata, page);
 		return samples;

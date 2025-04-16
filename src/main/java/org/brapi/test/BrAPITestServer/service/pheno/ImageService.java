@@ -42,7 +42,8 @@ public class ImageService {
 
 	public List<Image> findImages(String imageDbId, String imageName, String observationUnitDbId,
 			String observationDbId, String descriptiveOntologyTerm, String commonCropName, String programDbId,
-			String externalReferenceId, String externalReferenceID, String externalReferenceSource, Metadata metadata) {
+			String externalReferenceId, String externalReferenceID, String externalReferenceSource, Metadata metadata)
+		throws BrAPIServerException {
 		ImageSearchRequest request = new ImageSearchRequest();
 		if (imageDbId != null)
 			request.addImageDbIdsItem(imageDbId);
@@ -64,7 +65,8 @@ public class ImageService {
 		return findImages(request, metadata);
 	}
 
-	public List<ImageEntity> findImageEntities(ImageSearchRequest request, Metadata metadata) {
+	public List<ImageEntity> findImageEntities(ImageSearchRequest request, Metadata metadata)
+		throws BrAPIServerException {
 		Pageable pageReq = PagingUtility.getPageRequest(metadata);
 		SearchQueryBuilder<ImageEntity> searchQuery = new SearchQueryBuilder<ImageEntity>(ImageEntity.class);
 		if (request.getDescriptiveOntologyTerms() != null) {
@@ -86,12 +88,13 @@ public class ImageService {
 						"timeStamp")
 				.appendGeoJSONArea(request.getImageLocation());
 
-		Page<ImageEntity> imagePage = imageRepository.findAllBySearch(searchQuery, pageReq);
+		Page<ImageEntity> imagePage = imageRepository.findAllBySearchAndPaginate(searchQuery, pageReq);
 		PagingUtility.calculateMetaData(metadata, imagePage);
 		return imagePage.getContent();
 	}
 
-	public List<Image> findImages(ImageSearchRequest request, Metadata metadata) {
+	public List<Image> findImages(ImageSearchRequest request, Metadata metadata)
+		throws BrAPIServerException {
 		List<ImageEntity> imagePage = findImageEntities(request, metadata);
 		List<Image> images = imagePage.stream().map(this::convertFromEntity).collect(Collectors.toList());
 		return images;
@@ -170,7 +173,8 @@ public class ImageService {
 		return bytes;
 	}
 
-	public List<String> deleteImages(ImageSearchRequest body, Metadata metadata) {
+	public List<String> deleteImages(ImageSearchRequest body, Metadata metadata)
+		throws BrAPIServerException {
 		List<String> deletedImageDbIds = new ArrayList<>();
 
 		if (body.getTotalParameterCount() > 0) {

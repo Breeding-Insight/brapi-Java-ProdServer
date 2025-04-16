@@ -34,7 +34,8 @@ public class MethodService {
 
 	public List<Method> findMethods(String methodDbId, String observationVariableDbId, String ontologyDbId,
 			String commonCropName, String programDbId, String externalReferenceId, String externalReferenceID,
-			String externalReferenceSource, Metadata metadata) {
+			String externalReferenceSource, Metadata metadata)
+		throws BrAPIServerException {
 		Pageable pageReq = PagingUtility.getPageRequest(metadata);
 		SearchQueryBuilder<MethodEntity> searchQuery = new SearchQueryBuilder<MethodEntity>(MethodEntity.class);
 		if (observationVariableDbId != null) {
@@ -43,7 +44,7 @@ public class MethodService {
 		}
 		searchQuery = searchQuery.appendSingle(methodDbId, "id").withExRefs(externalReferenceID,
 				externalReferenceSource);
-		Page<MethodEntity> methodPage = methodRepository.findAllBySearch(searchQuery, pageReq);
+		Page<MethodEntity> methodPage = methodRepository.findAllBySearchAndPaginate(searchQuery, pageReq);
 		PagingUtility.calculateMetaData(metadata, methodPage);
 
 		List<Method> methods = methodPage.map(this::convertFromEntity).getContent();

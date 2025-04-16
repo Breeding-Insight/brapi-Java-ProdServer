@@ -75,7 +75,8 @@ public class ObservationUnitService {
 			String observationUnitLevelCode, String observationUnitLevelRelationshipName,
 			String observationUnitLevelRelationshipOrder, String observationUnitLevelRelationshipCode,
 			String observationUnitLevelRelationshipDbId, String commonCropName, Boolean includeObservations,
-			String externalReferenceId, String externalReferenceID, String externalReferenceSource, Metadata metadata) {
+			String externalReferenceId, String externalReferenceID, String externalReferenceSource, Metadata metadata)
+		throws BrAPIServerException {
 		ObservationUnitSearchRequest request = buildObservationUnitsSearchRequest(observationUnitDbId,
 				observationUnitName, germplasmDbId, studyDbId, locationDbId, trialDbId, programDbId, seasonDbId,
 				observationUnitLevelName, observationUnitLevelOrder, observationUnitLevelCode,
@@ -148,7 +149,8 @@ public class ObservationUnitService {
 			String seasonDbId, String observationLevel, String observationUnitLevelName,
 			String observationUnitLevelOrder, String observationUnitLevelCode,
 			String observationUnitLevelRelationshipName, String observationUnitLevelRelationshipOrder,
-			String observationUnitLevelRelationshipCode, String observationUnitLevelRelationshipDbId) {
+			String observationUnitLevelRelationshipCode, String observationUnitLevelRelationshipDbId)
+		throws BrAPIServerException {
 
 		ObservationUnitSearchRequest ouRequest = buildObservationUnitsSearchRequest(observationUnitDbId, null,
 				germplasmDbId, studyDbId, locationDbId, trialDbId, programDbId, seasonDbId, observationUnitLevelName,
@@ -169,7 +171,8 @@ public class ObservationUnitService {
 		return table;
 	}
 
-	public List<ObservationUnit> findObservationUnits(@Valid ObservationUnitSearchRequest request, Metadata metadata) {
+	public List<ObservationUnit> findObservationUnits(@Valid ObservationUnitSearchRequest request, Metadata metadata)
+		throws BrAPIServerException {
 		Page<ObservationUnitEntity> page = findObservationUnitEntities(request, metadata);
 
 		boolean includeObservations = request.isIncludeObservations() != null && request.isIncludeObservations();
@@ -191,7 +194,8 @@ public class ObservationUnitService {
 	}
 
 	public Page<ObservationUnitEntity> findObservationUnitEntities(@Valid ObservationUnitSearchRequest request,
-			Metadata metadata) {
+			Metadata metadata)
+		throws BrAPIServerException {
 		Pageable pageReq = PagingUtility.getPageRequest(metadata);
 		SearchQueryBuilder<ObservationUnitEntity> searchQuery = new SearchQueryBuilder<ObservationUnitEntity>(
 				ObservationUnitEntity.class);
@@ -261,7 +265,7 @@ public class ObservationUnitService {
 				.appendList(request.getTrialNames(), "trial.trailName");
 
 		log.debug("Starting search");
-		Page<ObservationUnitEntity> page = observationUnitRepository.findAllBySearch(searchQuery, pageReq);
+		Page<ObservationUnitEntity> page = observationUnitRepository.findAllBySearchAndPaginate(searchQuery, pageReq);
 		log.debug("Search complete");
 
 		if(!page.isEmpty()) {
@@ -272,13 +276,14 @@ public class ObservationUnitService {
 		return page;
 	}
 
-	private void fetchTreatments(Page<ObservationUnitEntity> page) {
+	private void fetchTreatments(Page<ObservationUnitEntity> page)
+		throws BrAPIServerException {
 		SearchQueryBuilder<ObservationUnitEntity> searchQuery = new SearchQueryBuilder<ObservationUnitEntity>(
 				ObservationUnitEntity.class);
 		searchQuery.leftJoinFetch("treatments", "treatments")
 				   .appendList(page.stream().map(BrAPIBaseEntity::getId).collect(Collectors.toList()), "id");
 
-		Page<ObservationUnitEntity> treatments = observationUnitRepository.findAllBySearch(searchQuery, PageRequest.of(0, page.getSize()));
+		Page<ObservationUnitEntity> treatments = observationUnitRepository.findAllBySearchAndPaginate(searchQuery, PageRequest.of(0, page.getSize()));
 
 		Map<String, List<TreatmentEntity>> treatmentsByOu = new HashMap<>();
 		treatments.forEach(ou -> treatmentsByOu.put(ou.getId(), ou.getTreatments()));
@@ -286,14 +291,15 @@ public class ObservationUnitService {
 		page.forEach(ou -> ou.setTreatments(treatmentsByOu.get(ou.getId())));
 	}
 
-	private void fetchObsUnitLevelRelationships(Page<ObservationUnitEntity> page) {
+	private void fetchObsUnitLevelRelationships(Page<ObservationUnitEntity> page)
+		throws BrAPIServerException {
 		SearchQueryBuilder<ObservationUnitEntity> searchQuery = new SearchQueryBuilder<ObservationUnitEntity>(
 				ObservationUnitEntity.class);
 		searchQuery.leftJoinFetch("position", "position")
 				   .leftJoinFetch("*position.observationLevelRelationships", "observationLevelRelationships")
 				   .appendList(page.stream().map(BrAPIBaseEntity::getId).collect(Collectors.toList()), "id");
 
-		Page<ObservationUnitEntity> positions = observationUnitRepository.findAllBySearch(searchQuery, PageRequest.of(0, page.getSize()));
+		Page<ObservationUnitEntity> positions = observationUnitRepository.findAllBySearchAndPaginate(searchQuery, PageRequest.of(0, page.getSize()));
 
 		Map<String, ObservationUnitPositionEntity> positionByOu = new HashMap<>();
 		positions.forEach(ou -> positionByOu.put(ou.getId(), ou.getPosition()));
@@ -367,7 +373,8 @@ public class ObservationUnitService {
 	}
 
 	public List<ObservationUnitHierarchyLevel> findObservationLevels(String studyDbId, String trialDbId,
-			String programDbId, Metadata metadata) {
+			String programDbId, Metadata metadata)
+		throws BrAPIServerException {
 
 		List<ObservationUnitLevel> allLevels = Arrays.asList(ObservationUnitHierarchyLevelEnum.values()).stream()
 				.map(levelEnum -> {

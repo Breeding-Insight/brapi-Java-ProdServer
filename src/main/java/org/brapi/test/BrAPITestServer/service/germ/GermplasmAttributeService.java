@@ -43,7 +43,8 @@ public class GermplasmAttributeService {
 			String attributeName, String attributePUI, String germplasmDbId, String methodDbId, String methodName,
 			String methodPUI, String scaleDbId, String scaleName, String scalePUI, String traitDbId, String traitName,
 			String traitPUI, String commonCropName, String programDbId, String externalReferenceId,
-			String externalReferenceID, String externalReferenceSource, Metadata metadata) {
+			String externalReferenceID, String externalReferenceSource, Metadata metadata)
+		throws BrAPIServerException {
 
 		GermplasmAttributeSearchRequest request = new GermplasmAttributeSearchRequest();
 		if (attributeCategory != null)
@@ -85,7 +86,7 @@ public class GermplasmAttributeService {
 	}
 
 	public List<GermplasmAttribute> findGermplasmAttributes(@Valid GermplasmAttributeSearchRequest request,
-			Metadata metadata) {
+			Metadata metadata) throws BrAPIServerException {
 		Pageable pageReq = PagingUtility.getPageRequest(metadata);
 		SearchQueryBuilder<GermplasmAttributeDefinitionEntity> searchQuery = new SearchQueryBuilder<GermplasmAttributeDefinitionEntity>(
 				GermplasmAttributeDefinitionEntity.class);
@@ -125,7 +126,7 @@ public class GermplasmAttributeService {
 				.appendList(request.getOntologyDbIds(), "ontology.id")
 				.appendList(request.getCommonCropNames(), "crop.crop_name");
 
-		Page<GermplasmAttributeDefinitionEntity> page = attributeRepository.findAllBySearch(searchQuery, pageReq);
+		Page<GermplasmAttributeDefinitionEntity> page = attributeRepository.findAllBySearchAndPaginate(searchQuery, pageReq);
 		List<GermplasmAttribute> attributes = page.map(this::convertFromEntity).getContent();
 		PagingUtility.calculateMetaData(metadata, page);
 		return attributes;

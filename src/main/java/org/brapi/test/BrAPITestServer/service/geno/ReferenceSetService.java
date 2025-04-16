@@ -33,7 +33,8 @@ public class ReferenceSetService {
 
 	public List<ReferenceSet> findReferenceSets(String referenceSetDbId, String accession, String assemblyPUI,
 			String md5checksum, String trialDbId, String studyDbId, String commonCropName, String programDbId,
-			String externalReferenceId, String externalReferenceSource, Metadata metadata) {
+			String externalReferenceId, String externalReferenceSource, Metadata metadata)
+		throws BrAPIServerException {
 		ReferenceSetsSearchRequest request = new ReferenceSetsSearchRequest();
 		if (referenceSetDbId != null)
 			request.addReferenceSetDbIdsItem(referenceSetDbId);
@@ -57,7 +58,8 @@ public class ReferenceSetService {
 		return findReferenceSets(request, metadata);
 	}
 
-	public List<ReferenceSet> findReferenceSets(ReferenceSetsSearchRequest request, Metadata metadata) {
+	public List<ReferenceSet> findReferenceSets(ReferenceSetsSearchRequest request, Metadata metadata)
+		throws BrAPIServerException {
 		Pageable pageReq = PagingUtility.getPageRequest(metadata);
 		SearchQueryBuilder<ReferenceSetEntity> searchQuery = new SearchQueryBuilder<ReferenceSetEntity>(
 				ReferenceSetEntity.class).appendList(request.getAccessions(), "sourceGermplasm.accessionNumber")
@@ -65,7 +67,7 @@ public class ReferenceSetService {
 						.appendList(request.getMd5checksums(), "md5checksum")
 						.appendList(request.getReferenceSetDbIds(), "id");
 
-		Page<ReferenceSetEntity> page = referenceSetRepository.findAllBySearch(searchQuery, pageReq);
+		Page<ReferenceSetEntity> page = referenceSetRepository.findAllBySearchAndPaginate(searchQuery, pageReq);
 		List<ReferenceSet> referenceSets = page.map(this::convertFromEntity).getContent();
 		PagingUtility.calculateMetaData(metadata, page);
 		return referenceSets;

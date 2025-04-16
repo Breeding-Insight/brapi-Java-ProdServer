@@ -69,7 +69,7 @@ public class ProgramService {
 				.appendList(request.getObjectives(), "objective").appendList(request.getProgramDbIds(), "id")
 				.appendList(request.getProgramNames(), "name").appendEnumList(request.getProgramTypes(), "programType");
 
-		Page<ProgramEntity> page = programRepository.findAllBySearch(searchQuery, pageReq);
+		Page<ProgramEntity> page = programRepository.findAllBySearchAndPaginate(searchQuery, pageReq);
 		List<Program> programs = page.map(this::convertFromEntity).getContent();
 		PagingUtility.calculateMetaData(metadata, page);
 		return programs;

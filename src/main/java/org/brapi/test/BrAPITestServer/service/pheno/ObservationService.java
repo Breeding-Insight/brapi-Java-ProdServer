@@ -146,7 +146,8 @@ public class ObservationService {
 		return findObservationsTable(obsRequest, metadata);
 	}
 
-	public ObservationTable findObservationsTable(ObservationSearchRequest obsRequest, Metadata metadata) {
+	public ObservationTable findObservationsTable(ObservationSearchRequest obsRequest, Metadata metadata)
+		throws BrAPIServerException {
 		Page<ObservationEntity> page = findObservationEntities(obsRequest, metadata);
 		log.debug("converting "+page.getSize()+" entities");
 
@@ -162,7 +163,8 @@ public class ObservationService {
 		return table;
 	}
 
-	public List<Observation> findObservations(@Valid ObservationSearchRequest request, Metadata metadata) {
+	public List<Observation> findObservations(@Valid ObservationSearchRequest request, Metadata metadata)
+		throws BrAPIServerException {
 		Page<ObservationEntity> page = findObservationEntities(request, metadata);
 		log.debug("converting "+page.getSize()+" entities");
 		List<Observation> observations = page.map(this::convertFromEntity).getContent();
@@ -171,7 +173,8 @@ public class ObservationService {
 		return observations;
 	}
 
-	public Page<ObservationEntity> findObservationEntities(@Valid ObservationSearchRequest request, Metadata metadata) {
+	public Page<ObservationEntity> findObservationEntities(@Valid ObservationSearchRequest request, Metadata metadata)
+		throws BrAPIServerException {
 		Pageable pageReq = PagingUtility.getPageRequest(metadata);
 		SearchQueryBuilder<ObservationEntity> searchQuery = new SearchQueryBuilder<ObservationEntity>(
 				ObservationEntity.class);
@@ -243,7 +246,7 @@ public class ObservationService {
 				.appendList(request.getTrialDbIds(), "trial.id").appendList(request.getTrialNames(), "trial.trialName");
 
 		log.debug("starting search");
-		Page<ObservationEntity> page = observationRepository.findAllBySearch(searchQuery, pageReq);
+		Page<ObservationEntity> page = observationRepository.findAllBySearchAndPaginate(searchQuery, pageReq);
 		log.debug("search complete");
 
 		if(!page.isEmpty()) {
@@ -297,7 +300,8 @@ public class ObservationService {
 		return savedObservations;
 	}
 
-	public List<String> deleteObservations(ObservationSearchRequest body, Metadata metadata) {
+	public List<String> deleteObservations(ObservationSearchRequest body, Metadata metadata)
+		throws BrAPIServerException {
 		List<String> deletedObservationDbIds = new ArrayList<>();
 
 		if (body.getTotalParameterCount() > 0) {

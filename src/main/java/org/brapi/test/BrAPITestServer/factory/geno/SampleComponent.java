@@ -4,6 +4,7 @@ import io.swagger.model.Metadata;
 import io.swagger.model.core.BatchDeleteTypes;
 import io.swagger.model.geno.Sample;
 import io.swagger.model.geno.SampleSearchRequest;
+import org.brapi.test.BrAPITestServer.exceptions.BrAPIServerException;
 import org.brapi.test.BrAPITestServer.factory.BrAPIComponent;
 import org.brapi.test.BrAPITestServer.service.geno.SampleService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,7 +23,8 @@ public class SampleComponent implements BrAPIComponent<Sample, SampleSearchReque
     }
 
     @Override
-    public List<Sample> findEntities(SampleSearchRequest request, Metadata metadata) {
+    public List<Sample> findEntities(SampleSearchRequest request, Metadata metadata)
+        throws BrAPIServerException {
         return sampleService.findSamples(request, metadata);
     }
 

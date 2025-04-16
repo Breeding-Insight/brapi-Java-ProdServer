@@ -47,7 +47,8 @@ public class ReferenceService {
 	public List<Reference> findReferences(String referenceDbId, String referenceSetDbId, String accession,
 			String md5checksum, Boolean isDerived, Integer minLength, Integer maxLength, String trialDbId,
 			String studyDbId, String commonCropName, String programDbId, String externalReferenceId,
-			String externalReferenceSource, Metadata metadata) {
+			String externalReferenceSource, Metadata metadata)
+		throws BrAPIServerException {
 		ReferencesSearchRequest request = new ReferencesSearchRequest();
 		if (referenceDbId != null)
 			request.addReferenceDbIdsItem(referenceDbId);
@@ -74,7 +75,8 @@ public class ReferenceService {
 		return findReferences(request, metadata);
 	}
 
-	public List<Reference> findReferences(@Valid ReferencesSearchRequest request, Metadata metadata) {
+	public List<Reference> findReferences(@Valid ReferencesSearchRequest request, Metadata metadata)
+		throws BrAPIServerException {
 		Pageable pageReq = PagingUtility.getPageRequest(metadata);
 		SearchQueryBuilder<ReferenceEntity> searchQuery = new SearchQueryBuilder<ReferenceEntity>(ReferenceEntity.class)
 				.appendList(request.getAccessions(), "referenceSet.sourceGermplasm.accessionNumber")
@@ -83,7 +85,7 @@ public class ReferenceService {
 				.appendNumberRange(request.getMinLength(), request.getMaxLength(), "length")
 				.appendSingle(request.isIsDerived(), "referenceSet.isDerived");
 
-		Page<ReferenceEntity> page = referenceRepository.findAllBySearch(searchQuery, pageReq);
+		Page<ReferenceEntity> page = referenceRepository.findAllBySearchAndPaginate(searchQuery, pageReq);
 		List<Reference> references = page.map(this::convertFromEntity).getContent();
 		PagingUtility.calculateMetaData(metadata, page);
 		return references;

@@ -30,7 +30,8 @@ public class CallSetService {
 	}
 
 	public List<CallSet> findCallSets(String callSetDbId, String callSetName, String variantSetDbId, String sampleDbId,
-			String germplasmDbId, String externalReferenceId, String externalReferenceSource, Metadata metadata) {
+			String germplasmDbId, String externalReferenceId, String externalReferenceSource, Metadata metadata)
+		throws BrAPIServerException {
 		CallSetsSearchRequest request = new CallSetsSearchRequest();
 		if (callSetDbId != null)
 			request.addCallSetDbIdsItem(callSetDbId);
@@ -47,11 +48,13 @@ public class CallSetService {
 		return findCallSets(request, metadata);
 	}
 
-	public List<CallSet> findCallSets(CallSetsSearchRequest request, Metadata metadata) {
+	public List<CallSet> findCallSets(CallSetsSearchRequest request, Metadata metadata)
+		throws BrAPIServerException {
 		return findCallSetEntities(request, metadata).stream().map(this::convertFromEntity).collect(Collectors.toList());
 	}
 
-	public List<CallSetEntity> findCallSetEntities(CallSetsSearchRequest request, Metadata metadata) {
+	public List<CallSetEntity> findCallSetEntities(CallSetsSearchRequest request, Metadata metadata)
+		throws BrAPIServerException {
 		Pageable pageReq = PagingUtility.getPageRequest(metadata);
 		SearchQueryBuilder<CallSetEntity> searchQuery = new SearchQueryBuilder<CallSetEntity>(CallSetEntity.class);
 		if(request.getVariantSetDbIds() != null) {
@@ -66,7 +69,7 @@ public class CallSetService {
 				.appendList(request.getSampleDbIds(), "sample.id")
 				.appendList(request.getSampleNames(), "sample.sampleName");
 
-		Page<CallSetEntity> page = callSetRepository.findAllBySearch(searchQuery, pageReq);
+		Page<CallSetEntity> page = callSetRepository.findAllBySearchAndPaginate(searchQuery, pageReq);
 		PagingUtility.calculateMetaData(metadata, page);
 		return page.getContent();
 	}

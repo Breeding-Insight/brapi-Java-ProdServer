@@ -78,7 +78,7 @@ public class StudyService {
 			String seasonDbId, String trialDbId, String studyDbId, String studyName, String studyCode, String studyPUI,
 			String germplasmDbId, String observationVariableDbId, String externalReferenceId,
 			String externalReferenceID, String externalReferenceSource, Boolean active, String sortBy, String sortOrder,
-			Metadata metadata) {
+			Metadata metadata)  throws BrAPIServerException {
 
 		StudySearchRequest request = new StudySearchRequest();
 		if (commonCropName != null)
@@ -117,7 +117,8 @@ public class StudyService {
 		return findStudies(request, metadata);
 	}
 
-	public List<Study> findStudies(StudySearchRequest request, Metadata metaData) {
+	public List<Study> findStudies(StudySearchRequest request, Metadata metaData)
+		throws BrAPIServerException {
 
 		Pageable pageReq = PagingUtility.getPageRequest(metaData);
 		SearchQueryBuilder<StudyEntity> searchQuery = new SearchQueryBuilder<StudyEntity>(StudyEntity.class);
@@ -149,7 +150,7 @@ public class StudyService {
 				.appendList(request.getTrialDbIds(), "trial.id").appendList(request.getTrialNames(), "trial.trialName")
 				.withSort(getSortByField(request.getSortBy()), request.getSortOrder());
 
-		Page<StudyEntity> studiesPage = studyRepository.findAllBySearch(searchQuery, pageReq);
+		Page<StudyEntity> studiesPage = studyRepository.findAllBySearchAndPaginate(searchQuery, pageReq);
 		PagingUtility.calculateMetaData(metaData, studiesPage);
 
 		List<Study> studies = studiesPage.map(this::convertFromEntity).getContent();

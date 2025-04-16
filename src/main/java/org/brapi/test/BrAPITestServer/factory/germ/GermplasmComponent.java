@@ -5,6 +5,7 @@ import io.swagger.model.core.BatchDeleteTypes;
 import io.swagger.model.germ.Germplasm;
 import io.swagger.model.germ.GermplasmSearchRequest;
 import jakarta.validation.Valid;
+import org.brapi.test.BrAPITestServer.exceptions.BrAPIServerException;
 import org.brapi.test.BrAPITestServer.factory.BrAPIComponent;
 import org.brapi.test.BrAPITestServer.service.germ.GermplasmService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,7 +24,8 @@ public class GermplasmComponent implements BrAPIComponent<Germplasm, GermplasmSe
     }
 
     @Override
-    public List<Germplasm> findEntities(@Valid GermplasmSearchRequest request, Metadata metadata) {
+    public List<Germplasm> findEntities(@Valid GermplasmSearchRequest request, Metadata metadata)
+        throws BrAPIServerException {
         return germplasmService.findGermplasm(request, metadata);
     }
 
