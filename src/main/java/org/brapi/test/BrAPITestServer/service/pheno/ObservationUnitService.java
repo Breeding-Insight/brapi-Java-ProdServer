@@ -217,7 +217,7 @@ public class ObservationUnitService {
 				   .leftJoinFetch("program", "program");
 
 		if (request.getObservationVariableDbIds() != null || request.getObservationVariableNames() != null) {
-			searchQuery = searchQuery.join("observations", "observation")
+			searchQuery = searchQuery.join("observationsUnits", "observation")
 					.appendList(request.getObservationVariableDbIds(), "*observation.variable.id")
 					.appendList(request.getObservationVariableNames(), "*observation.variable.name");
 		}
@@ -265,41 +265,41 @@ public class ObservationUnitService {
 				.appendList(request.getTrialNames(), "trial.trailName");
 
 		log.debug("Starting search");
-		Page<ObservationUnitEntity> page = observationUnitRepository.findAllBySearchAndPaginate(searchQuery, pageReq);
+		Page<ObservationUnitEntity> observationsUnits = observationUnitRepository.findAllBySearchPaginatingWithFetches(searchQuery, pageReq);
+
+		List<UUID> ids = observationsUnits.map(BrAPIBaseEntity::getId).toList();
 		log.debug("Search complete");
 
-		if(!page.isEmpty()) {
-			observationUnitRepository.fetchXrefs(page, ObservationUnitEntity.class);
-			fetchTreatments(page);
-			fetchObsUnitLevelRelationships(page);
+		if(!observationsUnits.isEmpty()) {
+			observationUnitRepository.fetchXrefs(ids, observationsUnits, ObservationUnitEntity.class);
+			fetchTreatments(ids, observationsUnits);
+			fetchObsUnitLevelRelationships(ids, observationsUnits);
 		}
-		return page;
+		return observationsUnits;
 	}
 
-	private void fetchTreatments(Page<ObservationUnitEntity> page)
-		throws BrAPIServerException {
+	private void fetchTreatments(List<UUID> ids, Page<ObservationUnitEntity> pagedOUs) {
 		SearchQueryBuilder<ObservationUnitEntity> searchQuery = new SearchQueryBuilder<ObservationUnitEntity>(
 				ObservationUnitEntity.class);
 		searchQuery.leftJoinFetch("treatments", "treatments")
-				   .appendList(page.stream().map(oue -> oue.getId().toString()).collect(Collectors.toList()), "id");
+				   .appendIds(ids);
 
-		Page<ObservationUnitEntity> treatments = observationUnitRepository.findAllBySearchAndPaginate(searchQuery, PageRequest.of(0, page.getSize()));
+		List<ObservationUnitEntity> treatments = observationUnitRepository.findAllBySearch(searchQuery);
 
 		Map<String, List<TreatmentEntity>> treatmentsByOu = new HashMap<>();
 		treatments.forEach(ou -> treatmentsByOu.put(ou.getId().toString(), ou.getTreatments()));
 
-		page.forEach(ou -> ou.setTreatments(treatmentsByOu.get(ou.getId().toString())));
+		pagedOUs.forEach(ou -> ou.setTreatments(treatmentsByOu.get(ou.getId().toString())));
 	}
 
-	private void fetchObsUnitLevelRelationships(Page<ObservationUnitEntity> page)
-		throws BrAPIServerException {
+	private void fetchObsUnitLevelRelationships(List<UUID> ids, Page<ObservationUnitEntity> page) {
 		SearchQueryBuilder<ObservationUnitEntity> searchQuery = new SearchQueryBuilder<ObservationUnitEntity>(
 				ObservationUnitEntity.class);
 		searchQuery.leftJoinFetch("position", "position")
 				   .leftJoinFetch("*position.observationLevelRelationships", "observationLevelRelationships")
-				   .appendList(page.stream().map(oue -> oue.getId().toString()).collect(Collectors.toList()), "id");
+				   .appendIds(ids);
 
-		Page<ObservationUnitEntity> positions = observationUnitRepository.findAllBySearchAndPaginate(searchQuery, PageRequest.of(0, page.getSize()));
+		List<ObservationUnitEntity> positions = observationUnitRepository.findAllBySearch(searchQuery);
 
 		Map<String, ObservationUnitPositionEntity> positionByOu = new HashMap<>();
 		positions.forEach(ou -> positionByOu.put(ou.getId().toString(), ou.getPosition()));

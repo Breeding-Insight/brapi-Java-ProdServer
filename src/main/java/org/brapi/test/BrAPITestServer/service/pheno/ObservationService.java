@@ -6,8 +6,10 @@ import io.swagger.model.pheno.*;
 import jakarta.validation.Valid;
 import org.brapi.test.BrAPITestServer.exceptions.BrAPIServerDbIdNotFoundException;
 import org.brapi.test.BrAPITestServer.exceptions.BrAPIServerException;
+import org.brapi.test.BrAPITestServer.model.entity.BrAPIBaseEntity;
 import org.brapi.test.BrAPITestServer.model.entity.core.SeasonEntity;
 import org.brapi.test.BrAPITestServer.model.entity.core.StudyEntity;
+import org.brapi.test.BrAPITestServer.model.entity.germ.GermplasmEntity;
 import org.brapi.test.BrAPITestServer.model.entity.pheno.ObservationEntity;
 import org.brapi.test.BrAPITestServer.model.entity.pheno.ObservationUnitEntity;
 import org.brapi.test.BrAPITestServer.model.entity.pheno.ObservationVariableEntity;
@@ -194,10 +196,7 @@ public class ObservationService {
 				.leftJoinFetch("*observationUnit.germplasm", "ouGermplasm")
 				.leftJoinFetch("*ouGermplasm.pedigree", "pedigree")
 				.leftJoinFetch("*observationUnit.study", "ouStudy")
-				.leftJoinFetch("study", "study")
-				.leftJoinFetch("*study.experimentalDesign", "experimentalDesign")
-				.leftJoinFetch("*study.growthFacility", "growthFacility")
-				.leftJoinFetch("*study.lastUpdate", "lastUpdate");
+				.leftJoinFetch("study", "study");
 		if (request.getObservationLevels() != null) {
 			searchQuery = searchQuery
 					.appendEnumList(
@@ -246,13 +245,15 @@ public class ObservationService {
 				.appendList(request.getTrialDbIds(), "trial.id").appendList(request.getTrialNames(), "trial.trialName");
 
 		log.debug("starting search");
-		Page<ObservationEntity> page = observationRepository.findAllBySearchAndPaginate(searchQuery, pageReq);
+		Page<ObservationEntity> observations = observationRepository.findAllBySearchPaginatingWithFetches(searchQuery, pageReq);
+
+		List<UUID> ids = observations.map(BrAPIBaseEntity::getId).toList();
 		log.debug("search complete");
 
-		if(!page.isEmpty()) {
-			observationRepository.fetchXrefs(page, ObservationEntity.class);
+		if(!observations.isEmpty()) {
+			observationRepository.fetchXrefs(ids, observations, ObservationEntity.class);
 		}
-		return page;
+		return observations;
 	}
 
 	public Observation getObservation(String observationDbId) throws BrAPIServerException {
