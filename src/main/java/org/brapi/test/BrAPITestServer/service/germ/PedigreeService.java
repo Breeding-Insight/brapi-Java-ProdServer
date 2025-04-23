@@ -206,7 +206,7 @@ public class PedigreeService {
 				.collect(Collectors.toSet());
 
 		List<String> germIdsWithNoPedigreeRecord = germplasmDbIds.stream()
-				.filter(gId -> !germIdsOfFoundNodes.contains(gId))
+				.filter(dbId -> !germIdsOfFoundNodes.contains(dbId))
 				.collect(Collectors.toList());
 
 		// Now see if there are germplasm records that exist from the list created above that have a pedigree associated.
