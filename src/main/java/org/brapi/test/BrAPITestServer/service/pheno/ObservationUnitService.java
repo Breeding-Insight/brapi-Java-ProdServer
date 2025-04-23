@@ -29,7 +29,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -338,14 +337,9 @@ public class ObservationUnitService {
 
 	public List<ObservationUnit> saveObservationUnits(@Valid List<ObservationUnitNewRequest> requests)
 			throws BrAPIServerException {
-		List<ObservationUnitEntity> toSave = new ArrayList<>();
-		for (ObservationUnitNewRequest request : requests) {
-			ObservationUnitEntity entity = new ObservationUnitEntity();
-			updateEntity(entity, request);  // TODO: does updateEntity need to hit the database?
-			toSave.add(entity);
-		}
+		var toSave = createEntitiesInBatch(requests);
 
-		return observationUnitRepository.saveAllAndFlush(toSave)
+		return observationUnitRepository.saveAll(toSave)
 				.stream()
 				.map(this::convertFromEntity)
 				.collect(Collectors.toList());
@@ -626,6 +620,116 @@ public class ObservationUnitService {
 		if (position.getPositionCoordinateYType() != null)
 			entity.setPositionCoordinateYType(position.getPositionCoordinateYType());
 
+	}
+
+	private List<ObservationUnitEntity> createEntitiesInBatch(List<ObservationUnitNewRequest> obsUnits)
+		throws BrAPIServerException {
+		// Gather all IDs we want to look up in a bulk lookup.
+		var germplasmIds = obsUnits.stream()
+				.map(ObservationUnitNewRequest::getGermplasmDbId)
+				.filter(Objects::nonNull)
+				.toList();
+
+		var crossIds = obsUnits.stream()
+				.map(ObservationUnitNewRequest::getCrossDbId)
+				.filter(Objects::nonNull)
+				.toList();
+
+		var seedLotIds = obsUnits.stream()
+				.map(ObservationUnitNewRequest::getSeedLotDbId)
+				.filter(Objects::nonNull)
+				.toList();
+
+		var studyIds = obsUnits.stream()
+				.map(ObservationUnitNewRequest::getStudyDbId)
+				.filter(Objects::nonNull)
+				.toList();
+
+		var trialIds = obsUnits.stream()
+				.map(ObservationUnitNewRequest::getTrialDbId)
+				.filter(Objects::nonNull)
+				.toList();
+
+		var programIds = obsUnits.stream()
+				.map(ObservationUnitNewRequest::getProgramDbId)
+				.filter(Objects::nonNull)
+				.toList();
+
+		// Now lookup all the IDs in bulk, creating a Map of the ID to the entity so the entities are easily
+		// retrievable by IDs in the bulk creating of entities later.
+		var foundGermsById = germplasmService.findByIds(germplasmIds)
+				.stream()
+				.collect(Collectors.toMap(BrAPIBaseEntity::getId, e -> e));
+
+		var foundCrossesById = crossService.findByIds(crossIds)
+				.stream()
+				.collect(Collectors.toMap(BrAPIBaseEntity::getId, e -> e));
+
+		var foundSeedLotsById = seedLotService.findByIds(seedLotIds)
+				.stream()
+				.collect(Collectors.toMap(BrAPIBaseEntity::getId, e -> e));
+
+		var foundStudiesById = studyService.findByIds(studyIds)
+				.stream()
+				.collect(Collectors.toMap(BrAPIBaseEntity::getId, e -> e));
+
+		var foundTrialsById = trialService.findByIds(trialIds)
+				.stream()
+				.collect(Collectors.toMap(BrAPIBaseEntity::getId, e -> e));
+
+		var foundProgramsById = programService.findByIds(programIds)
+				.stream()
+				.collect(Collectors.toMap(BrAPIBaseEntity::getId, e -> e));
+
+		List<ObservationUnitEntity> result = new ArrayList<>();
+
+		for (ObservationUnitNewRequest obsUnit : obsUnits) {
+			var entity = new ObservationUnitEntity();
+
+			UpdateUtility.updateEntity(obsUnit, entity);
+
+			if (obsUnit.getGermplasmDbId() != null) {
+				entity.setGermplasm(foundGermsById.get(UUID.fromString(obsUnit.getGermplasmDbId())));
+			}
+			if (obsUnit.getCrossDbId() != null) {
+				entity.setCross(foundCrossesById.get(UUID.fromString(obsUnit.getCrossDbId())));
+			}
+			if (obsUnit.getObservationUnitName() != null)
+				entity.setObservationUnitName(obsUnit.getObservationUnitName());
+			if (obsUnit.getObservationUnitPUI() != null)
+				entity.setObservationUnitPUI(obsUnit.getObservationUnitPUI());
+			if (obsUnit.getObservationUnitPosition() != null) {
+				if (entity.getPosition() == null)
+					entity.setPosition(new ObservationUnitPositionEntity());
+				ObservationUnitPositionEntity position = entity.getPosition();
+				updateEntity(position, obsUnit.getObservationUnitPosition());
+				position.setObservationUnit(entity);
+				entity.setPosition(position);
+			}
+			if (obsUnit.getSeedLotDbId() != null) {
+				entity.setSeedLot(foundSeedLotsById.get(UUID.fromString(obsUnit.getSeedLotDbId())));
+			}
+			if (obsUnit.getTreatments() != null)
+				entity.setTreatments(obsUnit.getTreatments().stream().map(t -> {
+					TreatmentEntity e = new TreatmentEntity();
+					e.setFactor(t.getFactor());
+					e.setModality(t.getModality());
+					e.setObservationUnit(entity);
+					return e;
+				}).collect(Collectors.toList()));
+
+			if (obsUnit.getStudyDbId() != null) {
+				entity.setStudy(foundStudiesById.get(UUID.fromString(obsUnit.getStudyDbId())));
+			} else if (obsUnit.getTrialDbId() != null) {
+				entity.setTrial(foundTrialsById.get(UUID.fromString(obsUnit.getTrialDbId())));
+			} else if (obsUnit.getProgramDbId() != null) {
+				entity.setProgram(foundProgramsById.get(UUID.fromString(obsUnit.getProgramDbId())));
+			}
+
+			result.add(entity);
+		}
+
+		return result;
 	}
 
 	private List<List<String>> buildDataMatrix(Page<ObservationUnitEntity> observationUnits,

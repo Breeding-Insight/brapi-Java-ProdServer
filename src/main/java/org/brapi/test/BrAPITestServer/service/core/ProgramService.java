@@ -76,6 +76,16 @@ public class ProgramService {
 		return programs;
 	}
 
+	public List<ProgramEntity> findByIds(List<String> programDbIds) {
+		var result = new ArrayList<ProgramEntity>();
+
+		if (programDbIds.isEmpty()) {
+			return result;
+		}
+
+		return programRepository.findByIdIn(programDbIds.stream().map(UUID::fromString).toList());
+	}
+
 	public Program getProgram(String programDbId) throws BrAPIServerException {
 		return convertFromEntity(getProgramEntity(programDbId, HttpStatus.NOT_FOUND));
 	}

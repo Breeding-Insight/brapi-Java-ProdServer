@@ -113,6 +113,16 @@ public class StudyService {
 		return findStudies(request, metadata);
 	}
 
+	public List<StudyEntity> findByIds(List<String> studyDbIds) {
+		var result = new ArrayList<StudyEntity>();
+
+		if (studyDbIds.isEmpty()) {
+			return result;
+		}
+
+		return studyRepository.findByIdIn(studyDbIds.stream().map(UUID::fromString).toList());
+	}
+
 	public List<Study> findStudies(StudySearchRequest request, Metadata metaData)
 		throws BrAPIServerException {
 
