@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
+import io.swagger.model.IndexPagination;
 import jakarta.validation.Valid;
 
 import org.brapi.test.BrAPITestServer.exceptions.BrAPIServerDbIdNotFoundException;
@@ -67,6 +68,10 @@ public class CrossingProjectService {
 		}
 		PagingUtility.calculateMetaData(metadata, page);
 		return crossingProjects;
+	}
+
+	public List<CrossingProjectEntity> findCrossingProjectsByIds(List<String> crossingProjectIds) {
+		return crossingProjectRepository.findByIdIn(crossingProjectIds);
 	}
 
 	public CrossingProject getCrossingProject(String crossingProjectDbId) throws BrAPIServerException {
