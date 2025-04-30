@@ -2,10 +2,12 @@ package org.brapi.test.BrAPITestServer.service.pheno;
 
 import io.swagger.model.IndexPagination;
 import io.swagger.model.Metadata;
+import io.swagger.model.germ.GermplasmSearchRequest;
 import io.swagger.model.pheno.*;
 import jakarta.validation.Valid;
 import org.brapi.test.BrAPITestServer.exceptions.BrAPIServerDbIdNotFoundException;
 import org.brapi.test.BrAPITestServer.exceptions.BrAPIServerException;
+import org.brapi.test.BrAPITestServer.model.dto.ObservationUnitGermplasmData;
 import org.brapi.test.BrAPITestServer.model.entity.BrAPIBaseEntity;
 import org.brapi.test.BrAPITestServer.model.entity.core.ProgramEntity;
 import org.brapi.test.BrAPITestServer.model.entity.core.StudyEntity;
@@ -190,6 +192,16 @@ public class ObservationUnitService {
 		PagingUtility.calculateMetaData(metadata, page);
 
 		return observationUnits;
+	}
+
+	public List<ObservationUnitEntity> findByIds(List<String> observationUnitIds) {
+		var result = new ArrayList<ObservationUnitEntity>();
+
+		if (!observationUnitIds.isEmpty()) {
+			return observationUnitRepository.findByIds(observationUnitIds);
+		}
+
+		return result;
 	}
 
 	public Page<ObservationUnitEntity> findObservationUnitEntities(@Valid ObservationUnitSearchRequest request,
@@ -628,36 +640,46 @@ public class ObservationUnitService {
 		var germplasmIds = obsUnits.stream()
 				.map(ObservationUnitNewRequest::getGermplasmDbId)
 				.filter(Objects::nonNull)
+				.distinct()
 				.toList();
 
 		var crossIds = obsUnits.stream()
 				.map(ObservationUnitNewRequest::getCrossDbId)
 				.filter(Objects::nonNull)
+				.distinct()
 				.toList();
 
 		var seedLotIds = obsUnits.stream()
 				.map(ObservationUnitNewRequest::getSeedLotDbId)
 				.filter(Objects::nonNull)
+				.distinct()
 				.toList();
 
 		var studyIds = obsUnits.stream()
 				.map(ObservationUnitNewRequest::getStudyDbId)
 				.filter(Objects::nonNull)
+				.distinct()
 				.toList();
 
 		var trialIds = obsUnits.stream()
 				.map(ObservationUnitNewRequest::getTrialDbId)
 				.filter(Objects::nonNull)
+				.distinct()
 				.toList();
 
 		var programIds = obsUnits.stream()
 				.map(ObservationUnitNewRequest::getProgramDbId)
 				.filter(Objects::nonNull)
+				.distinct()
 				.toList();
 
 		// Now lookup all the IDs in bulk, creating a Map of the ID to the entity so the entities are easily
 		// retrievable by IDs in the bulk creating of entities later.
-		var foundGermsById = germplasmService.findByIds(germplasmIds)
+
+		var germSearchRq = new GermplasmSearchRequest();
+		germSearchRq.setGermplasmDbIds(germplasmIds);
+
+		var foundGermsById = germplasmService.findGermplasmEntitiesWithoutPaging(germSearchRq)
 				.stream()
 				.collect(Collectors.toMap(BrAPIBaseEntity::getId, e -> e));
 
@@ -730,6 +752,21 @@ public class ObservationUnitService {
 		}
 
 		return result;
+	}
+
+	public Map<UUID, ObservationUnitGermplasmData> fetchObservationUnitGermplasmData(List<UUID> ouIds) {
+
+		if (ouIds.isEmpty()) {
+			return new HashMap<>();
+		}
+
+		var databaseResults = observationUnitRepository.fetchGermplasmDataForOUs(ouIds);
+
+		return databaseResults.stream()
+				.collect((Collectors.toMap(
+						rs -> (UUID) rs[0],
+						rs -> new ObservationUnitGermplasmData(rs[1].toString(), rs[2].toString()))
+				));
 	}
 
 	private List<List<String>> buildDataMatrix(Page<ObservationUnitEntity> observationUnits,

@@ -790,7 +790,7 @@ public class GermplasmService {
 			return result;
 		}
 
-		List<UUID> germIdsAsUUIDs = germplasmDbIds.stream().map(UUID::fromString).toList();
+		List<UUID> germIdsAsUUIDs = germplasmDbIds.stream().distinct().map(UUID::fromString).toList();
 		List<GermplasmEntity> germsFoundInDb = germplasmRepository.findByIdIn(germIdsAsUUIDs);
 
 		Set<UUID> germIdsFoundInDB = germsFoundInDb.stream()
