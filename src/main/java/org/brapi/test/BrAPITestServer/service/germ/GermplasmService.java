@@ -790,14 +790,16 @@ public class GermplasmService {
 			return result;
 		}
 
-		List<UUID> germIdsAsUUIDs = germplasmDbIds.stream().distinct().map(UUID::fromString).toList();
-		List<GermplasmEntity> germsFoundInDb = germplasmRepository.findByIdIn(germIdsAsUUIDs);
+		var searchRq = new GermplasmSearchRequest();
+		searchRq.setGermplasmDbIds(germplasmDbIds);
+
+		List<GermplasmEntity> germsFoundInDb = findGermplasmEntitiesWithoutPaging(searchRq);
 
 		Set<UUID> germIdsFoundInDB = germsFoundInDb.stream()
 				.map(BrAPIBaseEntity::getId)
 				.collect(Collectors.toSet());
 
-		if (!germIdsFoundInDB.containsAll(germIdsAsUUIDs)) {
+		if (!germIdsFoundInDB.containsAll(germplasmDbIds.stream().map(UUID::fromString).toList())) {
 			throw new BrAPIServerDbIdNotFoundException("Germplasm Ids passed to findByIds were not found in the DB", HttpStatus.BAD_REQUEST);
 		}
 

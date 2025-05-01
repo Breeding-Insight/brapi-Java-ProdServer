@@ -675,11 +675,7 @@ public class ObservationUnitService {
 
 		// Now lookup all the IDs in bulk, creating a Map of the ID to the entity so the entities are easily
 		// retrievable by IDs in the bulk creating of entities later.
-
-		var germSearchRq = new GermplasmSearchRequest();
-		germSearchRq.setGermplasmDbIds(germplasmIds);
-
-		var foundGermsById = germplasmService.findGermplasmEntitiesWithoutPaging(germSearchRq)
+		var foundGermsById = germplasmService.findByIds(germplasmIds)
 				.stream()
 				.collect(Collectors.toMap(BrAPIBaseEntity::getId, e -> e));
 
