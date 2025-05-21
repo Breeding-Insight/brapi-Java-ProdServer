@@ -15,7 +15,7 @@ import jakarta.validation.Valid;
  */
 @ApiModel(description = "`ListValue` is a wrapper around a repeated field of values.  The JSON representation for `ListValue` is JSON array.")
 @Validated
-@javax.annotation.Generated(value = "io.swagger.codegen.v3.generators.java.SpringCodegen", date = "2020-03-20T16:32:53.794Z[GMT]")
+@javax.annotation.processing.Generated(value = "io.swagger.codegen.v3.generators.java.SpringCodegen", date = "2020-03-20T16:32:53.794Z[GMT]")
 public class ListValue   {
   @JsonProperty("values")
   @Valid

@@ -3,6 +3,8 @@ package org.brapi.test.BrAPITestServer.service.germ;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
+
 import jakarta.validation.Valid;
 
 import org.brapi.test.BrAPITestServer.exceptions.BrAPIServerDbIdNotFoundException;
@@ -98,7 +100,7 @@ public class GermplasmAttributeValueService {
 	public GermplasmAttributeValueEntity getGermplasmAttributeValueEntity(String attributeValueDbId,
 			HttpStatus errorStatus) throws BrAPIServerException {
 		GermplasmAttributeValueEntity attributeValue = null;
-		Optional<GermplasmAttributeValueEntity> entityOpt = attributeValueRepository.findById(attributeValueDbId);
+		Optional<GermplasmAttributeValueEntity> entityOpt = attributeValueRepository.findById(UUID.fromString(attributeValueDbId));
 		if (entityOpt.isPresent()) {
 			attributeValue = entityOpt.get();
 		} else {
@@ -139,14 +141,14 @@ public class GermplasmAttributeValueService {
 
 		value.setAdditionalInfo(entity.getAdditionalInfo());
 		if (entity.getAttribute() != null) {
-			value.setAttributeDbId(entity.getAttribute().getId());
+			value.setAttributeDbId(entity.getAttribute().getId().toString());
 			value.setAttributeName(entity.getAttribute().getName());
 		}
-		value.setAttributeValueDbId(entity.getId());
+		value.setAttributeValueDbId(entity.getId().toString());
 		value.setDeterminedDate(DateUtility.toOffsetDateTime(entity.getDeterminedDate()));
 		value.setExternalReferences(entity.getExternalReferencesMap());
 		if (entity.getGermplasm() != null) {
-			value.setGermplasmDbId(entity.getGermplasm().getId());
+			value.setGermplasmDbId(entity.getGermplasm().getId().toString());
 			value.setGermplasmName(entity.getGermplasm().getGermplasmName());
 		}
 		value.setValue(entity.getValue());

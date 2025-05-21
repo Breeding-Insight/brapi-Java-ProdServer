@@ -1,14 +1,12 @@
 package org.brapi.test.BrAPITestServer.model.entity.germ;
 
-import javax.persistence.*;
-
+import io.swagger.model.germ.ParentType;
+import jakarta.persistence.*;
 import org.brapi.test.BrAPITestServer.model.entity.BrAPIBaseEntity;
 import org.brapi.test.BrAPITestServer.model.entity.pheno.ObservationUnitEntity;
 
-import io.swagger.model.germ.ParentType;
-
 @Entity
-@Table(name="cross_parent")
+@Table(name = "cross_parent")
 public class CrossParentEntity extends BrAPIBaseEntity {
 	@ManyToOne(fetch = FetchType.LAZY)
 	private GermplasmEntity germplasm;
@@ -50,5 +48,5 @@ public class CrossParentEntity extends BrAPIBaseEntity {
 	}
 	public void setParentType(ParentType parentType) {
 		this.parentType = parentType;
-	} 
+	}
 }

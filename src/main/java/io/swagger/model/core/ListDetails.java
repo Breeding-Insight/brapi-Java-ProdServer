@@ -14,7 +14,7 @@ import jakarta.validation.Valid;
  * ListDetails
  */
 @Validated
-@javax.annotation.Generated(value = "io.swagger.codegen.v3.generators.java.SpringCodegen", date = "2020-03-20T16:31:52.030Z[GMT]")
+@javax.annotation.processing.Generated(value = "io.swagger.codegen.v3.generators.java.SpringCodegen", date = "2020-03-20T16:31:52.030Z[GMT]")
 public class ListDetails extends ListSummary implements BrAPIResponseResult<String> {
   @JsonProperty("data")
   @Valid

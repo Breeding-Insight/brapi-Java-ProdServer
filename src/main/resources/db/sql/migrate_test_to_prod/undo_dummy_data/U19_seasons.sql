@@ -1,0 +1,1 @@
+DELETE FROM season where id in ('fall_2011', 'winter_2012', 'spring_2012', 'summer_2012', 'fall_2012', 'winter_2013', 'spring_2013', 'summer_2013', 'fall_2013', 'winter_2014');

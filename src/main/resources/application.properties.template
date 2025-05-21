@@ -30,6 +30,7 @@ spring.jpa.properties.hibernate.generate_statistics=false
 spring.mvc.dispatch-options-request=true
 
 security.oidc_discovery_url=https://example.com/auth/.well-known/openid-configuration
+security.issuer_url=http://example.com/issuerurl
 security.enabled=true
 security.issuer_url=http://example.com/issuerurl
 

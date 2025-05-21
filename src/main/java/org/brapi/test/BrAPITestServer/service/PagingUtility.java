@@ -15,7 +15,7 @@ import io.swagger.model.IndexPagination;
 import io.swagger.model.Metadata;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.PostConstruct;
+import jakarta.annotation.PostConstruct;
 
 @Component
 public class PagingUtility {

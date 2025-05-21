@@ -1,10 +1,6 @@
 package org.brapi.test.BrAPITestServer.service.geno;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import org.brapi.test.BrAPITestServer.exceptions.BrAPIServerDbIdNotFoundException;
@@ -116,7 +112,7 @@ public class VariantSetService {
 	public VariantSetEntity getVariantSetEntity(String variantSetDbId, HttpStatus errorStatus)
 			throws BrAPIServerException {
 		VariantSetEntity variantSet = null;
-		Optional<VariantSetEntity> entityOpt = variantSetRepository.findById(variantSetDbId);
+		Optional<VariantSetEntity> entityOpt = variantSetRepository.findById(UUID.fromString(variantSetDbId));
 		if (entityOpt.isPresent()) {
 			variantSet = entityOpt.get();
 		} else {
@@ -137,12 +133,12 @@ public class VariantSetService {
 		if (entity.getCallSets() != null)
 			variantSet.setCallSetCount(entity.getCallSets().size());
 		if (entity.getReferenceSet() != null)
-			variantSet.setReferenceSetDbId(entity.getReferenceSet().getId());
+			variantSet.setReferenceSetDbId(entity.getReferenceSet().getId().toString());
 		if (entity.getStudy() != null)
-			variantSet.setStudyDbId(entity.getStudy().getId());
+			variantSet.setStudyDbId(entity.getStudy().getId().toString());
 		if (entity.getVariants() != null)
 			variantSet.setVariantCount(entity.getVariants().size());
-		variantSet.setVariantSetDbId(entity.getId());
+		variantSet.setVariantSetDbId(entity.getId().toString());
 		variantSet.setVariantSetName(entity.getVariantSetName());
 
 		VariantSetMetadataFields metaDataFieldGT = new VariantSetMetadataFields();
@@ -168,7 +164,7 @@ public class VariantSetService {
 
 	private Analysis convertFromEntity(VariantSetAnalysisEntity entity) {
 		Analysis analysis = new Analysis();
-		analysis.setAnalysisDbId(entity.getId());
+		analysis.setAnalysisDbId(entity.getId().toString());
 		analysis.setAnalysisName(entity.getAnalysisName());
 		analysis.setCreated(DateUtility.toOffsetDateTime(entity.getCreated()));
 		analysis.setDescription(entity.getDescription());
@@ -251,7 +247,7 @@ public class VariantSetService {
 		Map<String, VariantEntity> newVariantMap = new HashMap<>();
 		for (VariantEntity variant : variants) {
 			VariantEntity entity = new VariantEntity(variant);
-			String oldId = entity.getId();
+			String oldId = entity.getId().toString();
 			entity.setId(null);
 			entity.setVariantSet(variantSetEntity);
 			VariantEntity saved = variantService.save(entity);
@@ -265,7 +261,7 @@ public class VariantSetService {
 		Map<String, CallSetEntity> newCallSetMap = new HashMap<>();
 		for (CallSetEntity callSet : callSets) {
 			CallSetEntity entity = new CallSetEntity(callSet);
-			String oldId = entity.getId();
+			String oldId = entity.getId().toString();
 			entity.setId(null);
 			entity.setVariantSets(new ArrayList<>());
 			entity.getVariantSets().add(variantSetEntity);
@@ -282,8 +278,8 @@ public class VariantSetService {
 		for (CallEntity call : calls) {
 			CallEntity entity = new CallEntity(call);
 			entity.setId(null);
-			entity.setCallSet(newCallSetMap.get(entity.getCallSet().getId()));
-			entity.setVariant(newVariantMap.get(entity.getVariant().getId()));
+			entity.setCallSet(newCallSetMap.get(entity.getCallSet().getId().toString()));
+			entity.setVariant(newVariantMap.get(entity.getVariant().getId().toString()));
 			newCalls.add(entity);
 		}
 		callService.save(newCalls);

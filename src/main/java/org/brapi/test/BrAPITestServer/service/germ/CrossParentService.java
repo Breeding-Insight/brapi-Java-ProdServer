@@ -2,6 +2,7 @@ package org.brapi.test.BrAPITestServer.service.germ;
 
 import java.util.ArrayList;
 import java.util.Optional;
+import java.util.UUID;
 
 import org.brapi.test.BrAPITestServer.exceptions.BrAPIServerDbIdNotFoundException;
 import org.brapi.test.BrAPITestServer.exceptions.BrAPIServerException;
@@ -36,11 +37,11 @@ public class CrossParentService {
 		CrossParent parent = new CrossParent();
 		if (entity != null) {
 			if (entity.getGermplasm() != null) {
-				parent.setGermplasmDbId(entity.getGermplasm().getId());
+				parent.setGermplasmDbId(entity.getGermplasm().getId().toString());
 				parent.setGermplasmName(entity.getGermplasm().getGermplasmName());
 			}
 			if (entity.getObservationUnit() != null) {
-				parent.setObservationUnitDbId(entity.getObservationUnit().getId());
+				parent.setObservationUnitDbId(entity.getObservationUnit().getId().toString());
 				parent.setObservationUnitName(entity.getObservationUnit().getObservationUnitName());
 			}
 			parent.setParentType(entity.getParentType());
@@ -109,7 +110,7 @@ public class CrossParentService {
 
 	public GermplasmEntity getGermplasmEntity(String germplasmDbId) throws BrAPIServerException {
 		GermplasmEntity germplasm = null;
-		Optional<GermplasmEntity> entityOpt = germplasmRepository.findById(germplasmDbId);
+		Optional<GermplasmEntity> entityOpt = germplasmRepository.findById(UUID.fromString(germplasmDbId));
 		if (entityOpt.isPresent()) {
 			germplasm = entityOpt.get();
 		} else {
@@ -120,7 +121,7 @@ public class CrossParentService {
 
 	public ObservationUnitEntity getObservationUnitEntity(String observationUnitDbId) throws BrAPIServerException {
 		ObservationUnitEntity observationUnit = null;
-		Optional<ObservationUnitEntity> entityOpt = observationUnitRepository.findById(observationUnitDbId);
+		Optional<ObservationUnitEntity> entityOpt = observationUnitRepository.findById(UUID.fromString(observationUnitDbId));
 		if (entityOpt.isPresent()) {
 			observationUnit = entityOpt.get();
 		} else {

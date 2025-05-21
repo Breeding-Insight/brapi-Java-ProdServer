@@ -28,7 +28,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import jakarta.validation.Valid;
 
-@javax.annotation.Generated(value = "io.swagger.codegen.v3.generators.java.SpringCodegen", date = "2020-03-20T16:32:53.794Z[GMT]")
+@javax.annotation.processing.Generated(value = "io.swagger.codegen.v3.generators.java.SpringCodegen", date = "2020-03-20T16:32:53.794Z[GMT]")
 @Api(value = "vendor", description = "the vendor API")
 public interface VendorApi {
 
@@ -142,6 +142,7 @@ public interface VendorApi {
 			@ApiResponse(code = 200, message = "OK", response = VendorSpecificationSingleResponse.class) })
 	@RequestMapping(value = "/vendor/specifications", produces = { "application/json" }, method = RequestMethod.GET)
 	ResponseEntity<VendorSpecificationSingleResponse> vendorSpecificationsGet(
+			@ApiParam(value = "The vendor specification id", required = true) @PathVariable("vendorSpecId") String vendorSpecId,
 			@ApiParam(value = "HTTP HEADER - Token used for Authorization   <strong> Bearer {token_string} </strong>") @RequestHeader(value = "Authorization", required = false) String authorization)
 			throws BrAPIServerException;
 

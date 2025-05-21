@@ -1,3 +1,42 @@
+UPDATE cross_entity SET planned_cross_id = null WHERE id = 'cross3';
+DELETE FROM cross_entity_external_references where cross_entity_id = 'cross4';
+DELETE FROM external_reference where id = 'cross_er_4';
+DELETE FROM cross_parent where cross_id = 'cross4';
+DELETE FROM cross_pollination_event where cross_id = 'cross4';
+DELETE FROM cross_entity where id = 'cross4';
+
+UPDATE seed_lot_content_mixture SET cross_id = null where id = 'seed_lot_content_mixture3';
+DELETE FROM cross_entity_external_references where cross_entity_id = 'cross3';
+DELETE FROM external_reference where id = 'cross_er_3';
+DELETE FROM cross_parent where cross_id = 'cross3';
+DELETE FROM cross_pollination_event where cross_id = 'cross3';
+DELETE FROM cross_entity_cross_attributes where cross_entity_id = 'cross3';
+DELETE FROM cross_entity where id = 'cross3';
+
+DELETE FROM crossing_project_external_references where crossing_project_entity_id = 'crossing_project2';
+DELETE FROM external_reference where id = 'crossing_project_er_2';
+DELETE FROM crossing_project where id = 'crossing_project2';
+
+UPDATE observation_unit SET cross_id = null where id = 'observation_unit3';
+UPDATE cross_entity SET planned_cross_id = null WHERE id = 'cross1';
+DELETE FROM cross_entity_external_references where cross_entity_id = 'cross2';
+DELETE FROM external_reference where id = 'cross_er_2';
+DELETE FROM cross_parent where cross_id = 'cross2';
+DELETE FROM cross_pollination_event where cross_id = 'cross2';
+DELETE FROM cross_entity where id = 'cross2';
+
+UPDATE observation_unit SET cross_id = null where id IN ('observation_unit2', 'observation_unit1');
+UPDATE seed_lot_content_mixture SET cross_id = null where id in ('seed_lot_content_mixture1', 'seed_lot_content_mixture2');
+DELETE FROM cross_entity_external_references where cross_entity_id = 'cross1';
+DELETE FROM external_reference where id = 'cross_er_1';
+DELETE FROM cross_parent where cross_id = 'cross1';
+DELETE FROM cross_pollination_event where cross_id = 'cross1';
+DELETE FROM cross_entity_cross_attributes where cross_entity_id = 'cross1';
+DELETE FROM cross_entity where id = 'cross1';
+
+DELETE FROM crossing_project_external_references where crossing_project_entity_id = 'crossing_project1';
+DELETE FROM external_reference where id = 'crossing_project_er_1';
+DELETE FROM crossing_project where id = 'crossing_project1';
 
 -- crossing project 1
 INSERT INTO crossing_project (auth_user_id, id, description, "name", program_id) VALUES('anonymousUser', 'crossing_project1', 'This is a crossing project', 'Crossing Project', 'program1');

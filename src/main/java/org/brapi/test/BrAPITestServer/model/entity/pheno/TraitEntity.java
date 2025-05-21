@@ -1,10 +1,9 @@
 package org.brapi.test.BrAPITestServer.model.entity.pheno;
 
-import java.util.List;
-
-import javax.persistence.*;
-
+import jakarta.persistence.*;
 import org.brapi.test.BrAPITestServer.model.entity.BrAPIPrimaryEntity;
+
+import java.util.List;
 
 @Entity
 @Table(name = "trait")

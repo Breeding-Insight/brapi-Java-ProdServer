@@ -13,10 +13,10 @@ import java.security.interfaces.RSAPublicKey;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import javax.servlet.FilterChain;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.apache.commons.codec.binary.Base64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,11 +41,16 @@ public class BrapiTestServerJWTAuthFilter extends BasicAuthenticationFilter {
 	private static final List<String> ADMIN_IDS = Arrays.asList("dummyAdmin", "ps664@cornell.edu");
 
 	private String oidcDiscoveryUrl;
+	private String issuerUrl;
 	private boolean authEnabled;
 
-	public BrapiTestServerJWTAuthFilter(AuthenticationManager authManager, String oidcDiscoveryUrl, boolean authEnabled) {
+	public BrapiTestServerJWTAuthFilter(AuthenticationManager authManager,
+										String oidcDiscoveryUrl,
+										String issuerUrl,
+										boolean authEnabled) {
 		super(authManager);
 		this.oidcDiscoveryUrl = oidcDiscoveryUrl;
+		this.issuerUrl = issuerUrl;
 		this.authEnabled = authEnabled;
 	}
 
@@ -60,7 +65,7 @@ public class BrapiTestServerJWTAuthFilter extends BasicAuthenticationFilter {
 			authorities.add(new SimpleGrantedAuthority("ROLE_USER"));
 			authorities.add(new SimpleGrantedAuthority("ROLE_ADMIN"));
 			AuthDetails bypassDetails = new AuthDetails();
-			bypassDetails.setUserId("anonymousUser");
+			bypassDetails.setUserId("AAAAAAAA-AAAA-AAAA-AAAA-AAAAAAAAAAAA");
 			bypassDetails.setExpirationTimestamp(Long.MAX_VALUE);
 			bypassDetails.setRoles(new ArrayList<>());
 			bypassDetails.getRoles().add("ROLE_USER");
@@ -146,7 +151,7 @@ public class BrapiTestServerJWTAuthFilter extends BasicAuthenticationFilter {
 			details.setExpirationTimestamp(Long.MAX_VALUE);
 		} else if (token.equals("ZZZZ")) {
 			details = new AuthDetails();
-			details.setUserId("anonymousUser");
+			details.setUserId("AAAAAAAA-AAAA-AAAA-AAAA-AAAAAAAAAAAA");
 			details.setExpirationTimestamp(Long.MAX_VALUE);
 		}
 		return details;

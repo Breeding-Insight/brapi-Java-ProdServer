@@ -16,7 +16,7 @@ import jakarta.validation.Valid;
  * StudyTypesResponse
  */
 @Validated
-@javax.annotation.Generated(value = "io.swagger.codegen.v3.generators.java.SpringCodegen", date = "2020-03-20T16:31:52.030Z[GMT]")
+@javax.annotation.processing.Generated(value = "io.swagger.codegen.v3.generators.java.SpringCodegen", date = "2020-03-20T16:31:52.030Z[GMT]")
 public class StudyTypesResponse implements BrAPIResponse<StudyTypesResponseResult>  {
   @JsonProperty("@context")
   private Context _atContext = null;

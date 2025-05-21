@@ -3,6 +3,7 @@ package org.brapi.test.BrAPITestServer.service.pheno;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 import org.brapi.test.BrAPITestServer.exceptions.BrAPIServerDbIdNotFoundException;
 import org.brapi.test.BrAPITestServer.exceptions.BrAPIServerException;
@@ -42,7 +43,7 @@ public class MethodService {
 			searchQuery = searchQuery.join("variables", "variable").appendSingle(observationVariableDbId,
 					"*variable.id");
 		}
-		searchQuery = searchQuery.appendSingle(methodDbId, "id").withExRefs(externalReferenceID,
+		searchQuery = searchQuery.appendSingle(UUID.fromString(methodDbId), "id").withExRefs(externalReferenceID,
 				externalReferenceSource);
 		Page<MethodEntity> methodPage = methodRepository.findAllBySearchAndPaginate(searchQuery, pageReq);
 		PagingUtility.calculateMetaData(metadata, methodPage);
@@ -86,7 +87,7 @@ public class MethodService {
 	public MethodEntity getMethodEntity(String methodDbId, HttpStatus errorStatus) throws BrAPIServerException {
 		MethodEntity method = null;
 		if (methodDbId != null) {
-			Optional<MethodEntity> entityOpt = methodRepository.findById(methodDbId);
+			Optional<MethodEntity> entityOpt = methodRepository.findById(UUID.fromString(methodDbId));
 			if (entityOpt.isPresent()) {
 				method = entityOpt.get();
 			} else {
@@ -122,7 +123,7 @@ public class MethodService {
 			method.setDescription(entity.getDescription());
 			method.setFormula(entity.getFormula());
 			method.setMethodClass(entity.getMethodClass());
-			method.setMethodDbId(entity.getId());
+			method.setMethodDbId(entity.getId().toString());
 			method.setMethodName(entity.getName());
 			method.setMethodPUI(entity.getMethodPUI());
 			method.setOntologyReference(ontologyService.convertFromEntity(entity));

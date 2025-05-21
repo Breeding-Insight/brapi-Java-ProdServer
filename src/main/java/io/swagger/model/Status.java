@@ -16,7 +16,7 @@ import org.springframework.validation.annotation.Validated;
  */
 @ApiModel(description = "An array of status messages to convey technical logging information from the server to the client.")
 @Validated
-@javax.annotation.Generated(value = "io.swagger.codegen.v3.generators.java.SpringCodegen", date = "2020-03-20T16:31:52.030Z[GMT]")
+@javax.annotation.processing.Generated(value = "io.swagger.codegen.v3.generators.java.SpringCodegen", date = "2020-03-20T16:31:52.030Z[GMT]")
 public class Status   {
   @JsonProperty("message")
   private String message = null;
@@ -32,8 +32,7 @@ public class Status   {
     WARNING("WARNING"),
     
     INFO("INFO");
-
-    private String value;
+private String value;
 
     MessageTypeEnum(String value) {
       this.value = value;

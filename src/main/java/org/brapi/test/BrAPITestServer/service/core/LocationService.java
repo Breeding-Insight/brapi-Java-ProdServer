@@ -3,6 +3,7 @@ package org.brapi.test.BrAPITestServer.service.core;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 import jakarta.validation.Valid;
 
@@ -103,7 +104,7 @@ public class LocationService {
 
 	public LocationEntity getLocationEntity(String locationDbId, HttpStatus errorStatus) throws BrAPIServerException {
 		LocationEntity location = null;
-		Optional<LocationEntity> entityOpt = locationRepository.findById(locationDbId);
+		Optional<LocationEntity> entityOpt = locationRepository.findById(UUID.fromString(locationDbId));
 		if (entityOpt.isPresent()) {
 			location = entityOpt.get();
 		} else {
@@ -150,7 +151,7 @@ public class LocationService {
 		location.setExposure(entity.getExposure());
 		location.setInstituteAddress(entity.getInstituteAddress());
 		location.setInstituteName(entity.getInstituteName());
-		location.setLocationDbId(entity.getId());
+		location.setLocationDbId(entity.getId().toString());
 		location.setLocationName(entity.getLocationName());
 		location.setLocationType(entity.getLocationType());
 		location.setSiteStatus(entity.getSiteStatus());
@@ -158,7 +159,7 @@ public class LocationService {
 		location.setTopography(entity.getTopography());
 		location.setCoordinates(GeoJSONUtility.convertFromEntity(entity.getCoordinates()));
 		if (entity.getParentLocation() != null) {
-			location.setParentLocationDbId(entity.getParentLocation().getId());
+			location.setParentLocationDbId(entity.getParentLocation().getId().toString());
 			location.setParentLocationName(entity.getParentLocation().getLocationName());
 		}
 

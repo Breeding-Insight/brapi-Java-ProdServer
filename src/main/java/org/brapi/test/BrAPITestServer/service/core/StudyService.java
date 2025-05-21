@@ -1,10 +1,6 @@
 package org.brapi.test.BrAPITestServer.service.core;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import org.brapi.test.BrAPITestServer.exceptions.BrAPIServerDbIdNotFoundException;
@@ -166,7 +162,7 @@ public class StudyService {
 	}
 
 	public StudyEntity getStudyEntity(String studyDbId, HttpStatus errorStatus) throws BrAPIServerException {
-		Optional<StudyEntity> entityOption = studyRepository.findById(studyDbId);
+		Optional<StudyEntity> entityOption = studyRepository.findById(UUID.fromString(studyDbId));
 		StudyEntity study = null;
 		if (entityOption.isPresent()) {
 			study = entityOption.get();
@@ -334,7 +330,7 @@ public class StudyService {
 		study.setLicense(entity.getLicense());
 
 		if (entity.getLocation() != null) {
-			study.setLocationDbId(entity.getLocation().getId());
+			study.setLocationDbId(entity.getLocation().getId().toString());
 			study.setLocationName(entity.getLocation().getLocationName());
 		}
 
@@ -347,26 +343,26 @@ public class StudyService {
 
 		if (entity.getObservationVariables() != null) {
 			study.setObservationVariableDbIds(entity.getObservationVariables().stream().map(e -> {
-				return e.getId();
+				return e.getId().toString();
 			}).collect(Collectors.toList()));
 		}
 
 		if (entity.getSeasons() != null) {
 			study.setSeasons(entity.getSeasons().stream().map(e -> {
-				return e.getId();
+				return e.getId().toString();
 			}).collect(Collectors.toList()));
 		}
 
 		study.setStartDate(DateUtility.toOffsetDateTime(entity.getStartDate()));
 		study.setStudyCode(entity.getStudyCode());
-		study.setStudyDbId(entity.getId());
+		study.setStudyDbId(entity.getId().toString());
 		study.setStudyDescription(entity.getStudyDescription());
 		study.setStudyName(entity.getStudyName());
 		study.setStudyPUI(entity.getStudyPUI());
 		study.setStudyType(entity.getStudyType());
 
 		if (entity.getTrial() != null) {
-			study.setTrialDbId(entity.getTrial().getId());
+			study.setTrialDbId(entity.getTrial().getId().toString());
 			study.setTrialName(entity.getTrial().getTrialName());
 			if (entity.getTrial().getProgram() != null) {
 				if (entity.getTrial().getProgram().getCrop() != null) {

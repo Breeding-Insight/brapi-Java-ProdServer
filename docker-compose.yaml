@@ -30,10 +30,10 @@ services:
       - KC_DB_USERNAME
       - KC_DB_PASSWORD
   postgres:
-    image: postgres:13
-    restart: unless-stopped
+    image: postgres:17.2
     volumes:
-      - /home/jenkins/brapi.org/brapi-test-server/data:/var/lib/postgresql/data
+      # Update this path with the path your pipeline tool expects
+      - /home/jenkins/brapi.org/brapi-test-server/17-2:/var/lib/postgresql/data
 networks:
     default:
         external:

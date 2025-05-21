@@ -28,7 +28,7 @@ import io.swagger.annotations.*;
 import java.util.List;
 import java.util.Map;
 
-@javax.annotation.Generated(value = "io.swagger.codegen.v3.generators.java.SpringCodegen", date = "2022-06-02T18:30:00.206Z[GMT]")
+@javax.annotation.processing.Generated(value = "io.swagger.codegen.v3.generators.java.SpringCodegen", date = "2022-06-02T18:30:00.206Z[GMT]")
 @Validated
 public interface PlatesApi {
 

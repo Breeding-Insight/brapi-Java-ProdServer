@@ -3,6 +3,7 @@ package org.brapi.test.BrAPITestServer.service.geno;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 import jakarta.validation.Valid;
 
@@ -102,7 +103,7 @@ public class ReferenceService {
 	public ReferenceEntity getReferenceEntity(String referenceDbId, HttpStatus errorStatus)
 			throws BrAPIServerException {
 		ReferenceEntity reference = null;
-		Optional<ReferenceEntity> entityOpt = referenceRepository.findById(referenceDbId);
+		Optional<ReferenceEntity> entityOpt = referenceRepository.findById(UUID.fromString(referenceDbId));
 		if (entityOpt.isPresent()) {
 			reference = entityOpt.get();
 		} else {
@@ -117,12 +118,12 @@ public class ReferenceService {
 
 		ref.setLength(entity.getLength());
 		ref.setMd5checksum(entity.getMd5checksum());
-		ref.setReferenceDbId(entity.getId());
+		ref.setReferenceDbId(entity.getId().toString());
 		ref.setReferenceName(entity.getReferenceName());
 
 		if (entity.getReferenceSet() != null) {
 			ReferenceSetEntity refSetEntity = entity.getReferenceSet();
-			ref.setReferenceSetDbId(refSetEntity.getId());
+			ref.setReferenceSetDbId(refSetEntity.getId().toString());
 			ref.setReferenceName(refSetEntity.getReferenceSetName());
 			ref.setIsDerived(refSetEntity.getIsDerived());
 			ref.setSourceURI(entity.getReferenceSet().getSourceURI());
@@ -133,7 +134,7 @@ public class ReferenceService {
 			if (refSetEntity.getSourceGermplasm() != null) {
 				ref.setCommonCropName(refSetEntity.getSourceGermplasm().getCrop().getCropName());
 				ReferenceSourceGermplasm sourceGerm = new ReferenceSourceGermplasm();
-				sourceGerm.setGermplasmDbId(refSetEntity.getSourceGermplasm().getId());
+				sourceGerm.setGermplasmDbId(refSetEntity.getSourceGermplasm().getId().toString());
 				sourceGerm.setGermplasmName(refSetEntity.getSourceGermplasm().getGermplasmName());
 				ref.setSourceGermplasm(Arrays.asList(sourceGerm));
 

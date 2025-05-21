@@ -14,7 +14,7 @@ import java.util.Objects;
  * BatchessBatchResponse
  */
 @Validated
-@javax.annotation.Generated(value = "io.swagger.codegen.v3.generators.java.SpringCodegen", date = "2020-03-20T16:31:52.030Z[GMT]")
+@jakarta.annotation.Generated(value = "io.swagger.codegen.v3.generators.java.SpringCodegen", date = "2020-03-20T16:31:52.030Z[GMT]")
 public class BatchDeletesListResponse implements BrAPIResponse<BatchDeletesListResponseResult> {
 	@JsonProperty("@context")
 	private Context _atContext = null;

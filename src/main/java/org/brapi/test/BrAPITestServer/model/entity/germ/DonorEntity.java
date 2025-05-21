@@ -1,13 +1,12 @@
 package org.brapi.test.BrAPITestServer.model.entity.germ;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 
-import org.brapi.test.BrAPITestServer.model.entity.BrAPIBaseEntity;
 import org.brapi.test.BrAPITestServer.model.entity.BrAPIPrimaryEntity;
 
 @Entity
 @Table(name="germplasm_donor")
-public class DonorEntity extends BrAPIPrimaryEntity{
+public class DonorEntity extends BrAPIPrimaryEntity {
 	@ManyToOne(fetch = FetchType.LAZY)
 	private GermplasmEntity germplasm;
 	@Column
@@ -49,5 +48,4 @@ public class DonorEntity extends BrAPIPrimaryEntity{
 	public void setGermplasm(GermplasmEntity germplasm) {
 		this.germplasm = germplasm;
 	}
-	
 }

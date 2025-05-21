@@ -1,3 +1,39 @@
+DELETE FROM study_external_references where study_entity_id = 'study3';
+DELETE FROM external_reference where id = 'study_er_3';
+DELETE FROM study_season where study_db_id = 'study3';
+DELETE FROM study_observation_level where study_id = 'study3';
+DELETE FROM study_last_update where study_id = 'study3';
+DELETE FROM study_contact where study_db_id = 'study3';
+DELETE FROM person where id = 'study_contact_3';
+DELETE FROM study where id = 'study3';
+
+DELETE FROM study_external_references where study_entity_id = 'study2';
+DELETE FROM external_reference where id = 'study_er_2';
+DELETE FROM study_season where study_db_id = 'study2';
+DELETE FROM study_observation_level where study_id = 'study2';
+DELETE FROM study_last_update where study_id = 'study2';
+DELETE FROM study_growth_facility where study_id = 'study2';
+DELETE FROM study_experimental_design where study_id = 'study2';
+DELETE FROM study_environment_parameter where study_id = 'study2';
+DELETE FROM study_data_link where study_id = 'study2';
+DELETE FROM study_contact where study_db_id = 'study2';
+DELETE FROM person where id = 'study_contact_2';
+DELETE FROM study where id = 'study2';
+
+DELETE FROM study_external_references where study_entity_id = 'study1';
+DELETE FROM external_reference where id = 'study_er_1';
+DELETE FROM study_season where study_db_id = 'study1';
+DELETE FROM study_observation_level where study_id = 'study1';
+DELETE FROM study_last_update where study_id = 'study1';
+DELETE FROM study_growth_facility where study_id = 'study1';
+DELETE FROM study_experimental_design where study_id = 'study1';
+DELETE FROM study_environment_parameter where study_id = 'study1';
+DELETE FROM study_data_link where study_id = 'study1';
+DELETE FROM study_contact where study_db_id = 'study1';
+DELETE FROM person where id = 'study_contact_1';
+DELETE FROM study where id = 'study1';
+
+
 --study 1
 INSERT INTO study(auth_user_id, id, active, cultural_practices, documentationurl, end_date, license, observation_units_description, start_date, study_code, study_description, study_name, studypui, study_type, location_id, trial_id, program_id, crop_id) VALUES ('anonymousUser', 'study1', true, 'Irrigation was applied according needs during summer to prevent water stress', 'https://brapi.org', '2014-01-01', 'https://creativecommons.org/licenses/by/4.0', 'Observation units consisted in individual plots themselves consisting of a row of 15 plants at a density of approximately six plants per square meter.', '2013-01-01', 'Yield_2013', 'This is a yield trial for 2013', 'Paw paw 2013 yield trial', 'doi:10.155454/fake/12345', 'Phenotyping','location_01', 'trial1', 'program1', '1');
 

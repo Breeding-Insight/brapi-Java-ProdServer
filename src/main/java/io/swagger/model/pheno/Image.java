@@ -12,7 +12,7 @@ import org.springframework.validation.annotation.Validated;
  * Image
  */
 @Validated
-@javax.annotation.Generated(value = "io.swagger.codegen.v3.generators.java.SpringCodegen", date = "2020-03-20T16:32:22.556Z[GMT]")
+@javax.annotation.processing.Generated(value = "io.swagger.codegen.v3.generators.java.SpringCodegen", date = "2020-03-20T16:32:22.556Z[GMT]")
 public class Image extends ImageNewRequest  {
   @JsonProperty("imageDbId")
   private String imageDbId = null;

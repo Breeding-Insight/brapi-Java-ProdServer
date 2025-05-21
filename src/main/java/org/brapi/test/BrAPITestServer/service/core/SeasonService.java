@@ -3,6 +3,7 @@ package org.brapi.test.BrAPITestServer.service.core;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 import jakarta.validation.Valid;
 
@@ -37,7 +38,7 @@ public class SeasonService {
 		Pageable pageReq = PagingUtility.getPageRequest(metadata);
 		SearchQueryBuilder<SeasonEntity> searchQuery = new SearchQueryBuilder<SeasonEntity>(SeasonEntity.class);
 		if (seasonDbId != null)
-			searchQuery = searchQuery.appendSingle(seasonDbId, "id");
+			searchQuery = searchQuery.appendSingle(UUID.fromString(seasonDbId), "id");
 		if (season != null)
 			searchQuery = searchQuery.appendSingle(season, "season");
 		if (seasonName != null)
@@ -63,7 +64,7 @@ public class SeasonService {
 
 	public SeasonEntity getSeasonEntity(String seasonDbId, HttpStatus errorStatus) throws BrAPIServerException {
 		SeasonEntity season = null;
-		Optional<SeasonEntity> entityOpt = seasonRepository.findById(seasonDbId);
+		Optional<SeasonEntity> entityOpt = seasonRepository.findById(UUID.fromString(seasonDbId));
 		if (entityOpt.isPresent()) {
 			season = entityOpt.get();
 		} else {
@@ -101,7 +102,7 @@ public class SeasonService {
 		if (entity != null) {
 			season = new Season();
 			season.setSeasonName(entity.getSeason());
-			season.setSeasonDbId(entity.getId());
+			season.setSeasonDbId(entity.getId().toString());
 			season.setYear(entity.getYear());
 		}
 

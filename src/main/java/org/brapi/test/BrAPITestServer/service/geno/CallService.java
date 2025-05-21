@@ -106,7 +106,7 @@ public class CallService {
 		Call call = new Call();
 		call.setAdditionalInfo(entity.getAdditionalInfo());
 		if (entity.getCallSet() != null) {
-			call.setCallSetDbId(entity.getCallSet().getId());
+			call.setCallSetDbId(entity.getCallSet().getId().toString());
 			call.setCallSetName(entity.getCallSet().getCallSetName());
 		}
 		if (entity.getGenotype() != null) {
@@ -142,9 +142,9 @@ public class CallService {
 		}
 		call.setPhaseSet(entity.getPhaseSet());
 		if (entity.getVariant() != null) {
-			call.setVariantDbId(entity.getVariant().getId());
+			call.setVariantDbId(entity.getVariant().getId().toString());
 			call.setVariantName(entity.getVariant().getVariantName());
-			call.setVariantSetDbId(entity.getVariant().getVariantSet().getId());
+			call.setVariantSetDbId(entity.getVariant().getVariantSet().getId().toString());
 			call.setVariantSetName(entity.getVariant().getVariantSet().getVariantSetName());
 		}
 		return call;
@@ -174,8 +174,8 @@ public class CallService {
 		List<CallEntity> entities = findCallEntities(searchReq, null);
 		List<CallEntity> savedEntities = new ArrayList<>();
 		for (CallEntity entity : entities) {
-			String compositeKey = entity.getVariant().getVariantSet().getId() + entity.getVariant().getId()
-					+ entity.getCallSet().getId();
+			String compositeKey = entity.getVariant().getVariantSet().getId().toString() + entity.getVariant().getId().toString()
+					+ entity.getCallSet().getId().toString();
 			Call updateCall = callsMap.get(compositeKey);
 			if (updateCall != null) {
 				updateEntity(entity, updateCall);

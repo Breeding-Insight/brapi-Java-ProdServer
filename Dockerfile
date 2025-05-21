@@ -2,7 +2,7 @@
 # run container (dev): `docker run --name=brapi-test-server --network=bridge -p 8081:8081 -d brapicoordinatorselby/brapi-java-server`
 # run container (prod): `docker run --name=brapi-test-server --restart always --network=brapi_net -d brapicoordinatorselby/brapi-java-server`
 
-FROM adoptopenjdk/openjdk8
+FROM amazoncorretto:21
 
 EXPOSE 8080
 

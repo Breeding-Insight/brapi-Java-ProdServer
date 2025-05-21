@@ -18,7 +18,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
-import javax.transaction.Transactional;
+import jakarta.transaction.Transactional;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -114,7 +114,7 @@ public class ListService {
 	public ListDetails getList(String listDbId) throws BrAPIServerException {
 		ListEntity entity;
 
-		Optional<ListEntity> entityOpt = listRepository.findById(listDbId);
+		Optional<ListEntity> entityOpt = listRepository.findById(UUID.fromString(listDbId));
 		if (entityOpt.isPresent()) {
 			entity = entityOpt.get();
 		} else {
@@ -126,7 +126,7 @@ public class ListService {
 
 	public ListDetails updateListItems(String listDbId, List<String> listItems) throws BrAPIServerException {
 		ListEntity savedEntity;
-		Optional<ListEntity> entityOpt = listRepository.findById(listDbId);
+		Optional<ListEntity> entityOpt = listRepository.findById(UUID.fromString(listDbId));
 		if (entityOpt.isPresent()) {
 			ListEntity entity = entityOpt.get();
 			entity.setDateModified(new Date());
@@ -150,7 +150,7 @@ public class ListService {
 
 	public ListDetails updateList(String listDbId, ListNewRequest list) throws BrAPIServerException {
 		ListEntity savedEntity;
-		Optional<ListEntity> entityOpt = listRepository.findById(listDbId);
+		Optional<ListEntity> entityOpt = listRepository.findById(UUID.fromString(listDbId));
 		if (entityOpt.isPresent()) {
 			ListEntity entity = entityOpt.get();
 			updateEntity(entity, list);
@@ -165,7 +165,7 @@ public class ListService {
 	}
 
 	public void deleteListBatch(List<String> listDbIds) {
-		listRepository.deleteAllByIdInBatch(listDbIds);
+		listRepository.deleteAllByIdInBatch(listDbIds.stream().map(UUID::fromString).toList());
 	}
 
 	public void softDeleteListBatch(List<String> listDbIds) {
@@ -177,7 +177,7 @@ public class ListService {
 		softDeleteList(listDbId);
 
 		// Hard delete the list
-		listRepository.deleteAllByIdInBatch(Arrays.asList(listDbId));
+		listRepository.deleteAllByIdInBatch(List.of(UUID.fromString(listDbId)));
 	}
 
 	public void softDeleteList(String listDbId) throws BrAPIServerDbIdNotFoundException {
@@ -210,7 +210,7 @@ public class ListService {
 	private ListDetails convertToDetails(ListEntity entity) {
 		ListDetails details = new ListDetails();
 		details = (ListDetails) convertToBaseFields(entity, details);
-		details.setListDbId(entity.getId());
+		details.setListDbId(entity.getId().toString());
 		details.setData(entity.getData().stream().map((e) -> {
 			return e.getItem();
 		}).collect(Collectors.toList()));
@@ -221,7 +221,7 @@ public class ListService {
 	private ListSummary convertToSummary(ListEntity entity) {
 		ListSummary summary = new ListSummary();
 		summary = (ListSummary) convertToBaseFields(entity, summary);
-		summary.setListDbId(entity.getId());
+		summary.setListDbId(entity.getId().toString());
 
 		return summary;
 
@@ -239,7 +239,7 @@ public class ListService {
 		base.setExternalReferences(entity.getExternalReferencesMap());
 
 		if (entity.getListOwnerPerson() != null) {
-			base.setListOwnerPersonDbId(entity.getListOwnerPerson().getId());
+			base.setListOwnerPersonDbId(entity.getListOwnerPerson().getId().toString());
 		}
 		if (entity.getData() != null) {
 			base.setListSize(entity.getData().size());

@@ -1,9 +1,6 @@
 package org.brapi.test.BrAPITestServer.service.core;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import io.swagger.model.core.*;
@@ -147,7 +144,7 @@ public class TrialService {
 	}
 
 	public TrialEntity getTrialEntity(String trialDbId, HttpStatus errorStatus) throws BrAPIServerException {
-		Optional<TrialEntity> entityOption = trialRepository.findById(trialDbId);
+		Optional<TrialEntity> entityOption = trialRepository.findById(UUID.fromString(trialDbId));
 		TrialEntity entity = null;
 		if (entityOption.isPresent()) {
 			entity = entityOption.get();
@@ -174,7 +171,7 @@ public class TrialService {
 	}
 
 	public void deleteTrialBatch(List<String> trialDbIds) {
-		trialRepository.deleteAllByIdInBatch(trialDbIds);
+		trialRepository.deleteAllByIdInBatch(trialDbIds.stream().map(UUID::fromString).toList());
 	}
 
 	public void softDeleteTrialBatch(List<String> trialDbIds) {
@@ -193,7 +190,7 @@ public class TrialService {
 		softDeleteTrial(trialDbId);
 
 		// Hard delete the trial
-		trialRepository.deleteAllByIdInBatch(Arrays.asList(trialDbId));
+		trialRepository.deleteAllByIdInBatch(List.of(UUID.fromString(trialDbId)));
 	}
 
 	public Trial updateTrial(String trialDbId, TrialNewRequest body) throws BrAPIServerException {
@@ -212,7 +209,7 @@ public class TrialService {
 		trial.setEndDate(DateUtility.toLocalDate(entity.getEndDate()));
 		trial.setExternalReferences(entity.getExternalReferencesMap());
 		trial.setStartDate(DateUtility.toLocalDate(entity.getStartDate()));
-		trial.setTrialDbId(entity.getId());
+		trial.setTrialDbId(entity.getId().toString());
 		trial.setTrialDescription(entity.getTrialDescription());
 		trial.setTrialName(entity.getTrialName());
 		trial.setTrialPUI(entity.getTrialPUI());
@@ -232,7 +229,7 @@ public class TrialService {
 		}
 
 		if (entity.getProgram() != null) {
-			trial.setProgramDbId(entity.getProgram().getId());
+			trial.setProgramDbId(entity.getProgram().getId().toString());
 			trial.setProgramName(entity.getProgram().getName());
 			if (entity.getProgram().getCrop() != null) {
 				trial.setCommonCropName(entity.getProgram().getCrop().getCropName());

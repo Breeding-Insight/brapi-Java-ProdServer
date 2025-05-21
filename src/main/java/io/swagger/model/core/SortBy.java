@@ -32,8 +32,7 @@ public enum SortBy {
     GERMPLASMDBID("germplasmDbId"),
     
     OBSERVATIONVARIABLEDBID("observationVariableDbId");
-
-    private String value;
+private String value;
 
     SortBy(String value) {
       this.value = value;

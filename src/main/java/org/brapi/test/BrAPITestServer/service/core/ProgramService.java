@@ -3,6 +3,7 @@ package org.brapi.test.BrAPITestServer.service.core;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 import org.brapi.test.BrAPITestServer.exceptions.BrAPIServerDbIdNotFoundException;
 import org.brapi.test.BrAPITestServer.exceptions.BrAPIServerException;
@@ -85,7 +86,7 @@ public class ProgramService {
 
 	public ProgramEntity getProgramEntity(String programDbId, HttpStatus errorStatus) throws BrAPIServerException {
 		ProgramEntity program = null;
-		Optional<ProgramEntity> entityOpt = programRepository.findById(programDbId);
+		Optional<ProgramEntity> entityOpt = programRepository.findById(UUID.fromString(programDbId));
 		if (entityOpt.isPresent()) {
 			program = entityOpt.get();
 		} else {
@@ -122,7 +123,7 @@ public class ProgramService {
 		program.setAbbreviation(entity.getAbbreviation());
 		program.setDocumentationURL(entity.getDocumentationURL());
 		program.setObjective(entity.getObjective());
-		program.setProgramDbId(entity.getId());
+		program.setProgramDbId(entity.getId().toString());
 		program.setProgramName(entity.getName());
 		program.setProgramType(entity.getProgramType());
 		program.setFundingInformation(entity.getFundingInformation());
@@ -131,7 +132,7 @@ public class ProgramService {
 			program.setCommonCropName(entity.getCrop().getCropName());
 		}
 		if (entity.getLeadPerson() != null) {
-			program.setLeadPersonDbId(entity.getLeadPerson().getId());
+			program.setLeadPersonDbId(entity.getLeadPerson().getId().toString());
 			program.setLeadPersonName(entity.getLeadPerson().getName());
 		}
 
@@ -157,7 +158,7 @@ public class ProgramService {
 
 		String leadPersonDbId = entity.getLeadPerson() == null
 				? UpdateUtility.replaceField(request.getLeadPersonDbId(), null)
-				: UpdateUtility.replaceField(request.getLeadPersonDbId(), entity.getLeadPerson().getId());
+				: UpdateUtility.replaceField(request.getLeadPersonDbId(), entity.getLeadPerson().getId().toString());
 		PersonEntity person = peopleService.getPersonEntity(leadPersonDbId);
 		entity.setLeadPerson(person);
 

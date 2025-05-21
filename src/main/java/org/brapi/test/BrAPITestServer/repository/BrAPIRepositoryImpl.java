@@ -1,30 +1,33 @@
 package org.brapi.test.BrAPITestServer.repository;
 
 import java.io.Serializable;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
-import io.swagger.model.Metadata;
-import io.swagger.model.germ.GermplasmSearchRequest;
-import javax.persistence.EntityManager;
-import javax.persistence.TypedQuery;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.TypedQuery;
 
 import org.brapi.test.BrAPITestServer.exceptions.InvalidPagingException;
-import org.brapi.test.BrAPITestServer.model.entity.BrAPIBaseEntity;
 import org.brapi.test.BrAPITestServer.model.entity.BrAPIPrimaryEntity;
 import org.brapi.test.BrAPITestServer.model.entity.ExternalReferenceEntity;
 import org.brapi.test.BrAPITestServer.service.SearchQueryBuilder;
 import org.brapi.test.BrAPITestServer.service.SecurityUtils;
-import org.hibernate.jpa.QueryHints;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.support.JpaEntityInformation;
 import org.springframework.data.jpa.repository.support.SimpleJpaRepository;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
+
+import java.util.*;
 
 public class BrAPIRepositoryImpl<T extends BrAPIPrimaryEntity, ID extends Serializable>
 		extends SimpleJpaRepository<T, ID> implements BrAPIRepository<T, ID> {
@@ -62,7 +65,7 @@ public class BrAPIRepositoryImpl<T extends BrAPIPrimaryEntity, ID extends Serial
 	 * one-to-many collection attributes. Call this method with the query you've built.
 	 * WARN: To avoid multiple bag fetch hibernate errors, only one collection that is one-many can be fetched at a time.
 	 * Ensure only one of these types of entity members is being fetched at time.
-	 * See {@link org.brapi.test.BrAPITestServer.service.germ.GermplasmService#findGermplasmEntities(GermplasmSearchRequest, Metadata)} for example usage.
+	 * See {@link org.brapi.test.BrAPITestServer.service.germ.GermplasmService#findGermplasmEntities for example usage.}
 	 *
 	 * Once you fetch the first lazy loaded collection, if there are others you need to fetch for your entity it is
 	 * recommended to utilize the non-paging findAllBySearch() method, creating a searchQuery that inserts all the ids
@@ -81,9 +84,9 @@ public class BrAPIRepositoryImpl<T extends BrAPIPrimaryEntity, ID extends Serial
 		validatePageNumber(pageReq, totalCount);
 
 		// First grab all the ids of the entities according to the criteria of the searchQuery, paging as specified in the pageReq.
-		List<String> content = getPagedContentIdsOnly(searchQuery, pageReq);
+		List<UUID> content = getPagedContentIdsOnly(searchQuery, pageReq);
 
-		Page<String> pagedIds = new PageImpl<>(content, pageReq, totalCount);
+		Page<UUID> pagedIds = new PageImpl<>(content, pageReq, totalCount);
 
 		// Now execute another query to fetch all the entities requested in the searchQuery, passing the pagedIds found
 		// in the previous query.  We will fetch them utilizing the ids from the paged query, avoiding the hibernate
@@ -91,7 +94,7 @@ public class BrAPIRepositoryImpl<T extends BrAPIPrimaryEntity, ID extends Serial
         return findAllBySearchUsingIds(searchQuery, pagedIds, pageReq);
 	}
 
-	private Page<T> findAllBySearchUsingIds(SearchQueryBuilder<T> searchQuery, Page<String> pagedIds, Pageable pageReq) {
+	private Page<T> findAllBySearchUsingIds(SearchQueryBuilder<T> searchQuery, Page<UUID> pagedIds, Pageable pageReq) {
 		List<T> entities = searchEntitiesWithIds(searchQuery, pagedIds.toList());
 
 		return new PageImpl<>(entities, pageReq, pagedIds.getTotalElements());
@@ -109,10 +112,10 @@ public class BrAPIRepositoryImpl<T extends BrAPIPrimaryEntity, ID extends Serial
 	public Optional<T> findById(ID id) {
 		Optional<T> response = super.findById(id);
 		if (response.isPresent()) {
-			String userId = SecurityUtils.getCurrentUserId();
+			UUID userId = SecurityUtils.getCurrentUserId();
 			if (!(null == response.get().getAuthUserId()
 					|| userId.equals(response.get().getAuthUserId())
-					|| "anonymousUser".equals(response.get().getAuthUserId()))) {
+					|| UUID.fromString("AAAAAAAA-AAAA-AAAA-AAAA-AAAAAAAAAAAA").equals(response.get().getAuthUserId()))) {
 				response = Optional.empty();
 			}
 		}
@@ -127,14 +130,13 @@ public class BrAPIRepositoryImpl<T extends BrAPIPrimaryEntity, ID extends Serial
 		entity.setAuthUserId(SecurityUtils.getCurrentUserId());
 		return super.save(entity);
 	}
-
 	public <S extends T> List<S> saveAll(Iterable<S> entities) {
 		for (S entity : entities) {
 			entity.setAuthUserId(SecurityUtils.getCurrentUserId());
 		}
 		return super.saveAll(entities);
 	}
-	
+
 	public <S extends T> void refresh(S entity) {
 		this.entityManager.refresh(entity);
 	}
@@ -142,11 +144,11 @@ public class BrAPIRepositoryImpl<T extends BrAPIPrimaryEntity, ID extends Serial
 	public void fetchXrefs(Page<T> page, Class<T> searchClass) throws InvalidPagingException {
 		SearchQueryBuilder<T> searchQuery = new SearchQueryBuilder<T>(searchClass);
 		searchQuery.leftJoinFetch("externalReferences", "externalReferences")
-				   .appendList(page.stream().map(BrAPIBaseEntity::getId).collect(Collectors.toList()), "id");
+				   .appendList(page.stream().map(p -> p.getId().toString()).collect(Collectors.toList()), "id");
 
 		Page<T> xrefs = findAllBySearchAndPaginate(searchQuery, PageRequest.of(0, page.getSize()));
 
-		Map<String, List<ExternalReferenceEntity>> xrefByEntity = new HashMap<>();
+		Map<UUID, List<ExternalReferenceEntity>> xrefByEntity = new HashMap<>();
 		xrefs.forEach(entity -> xrefByEntity.put(entity.getId(), entity.getExternalReferences()));
 
 		page.forEach(entity -> entity.setExternalReferences(xrefByEntity.get(entity.getId())));
@@ -156,14 +158,14 @@ public class BrAPIRepositoryImpl<T extends BrAPIPrimaryEntity, ID extends Serial
 
 		SecurityContext context = SecurityContextHolder.getContext();
 		Set<String> userRolesSet = context.getAuthentication().getAuthorities().stream()
-				.map(auth -> auth.getAuthority()).collect(Collectors.toSet());
+				.map(GrantedAuthority::getAuthority).collect(Collectors.toSet());
 
 		List<String> userIds = new ArrayList<>();
-		userIds.add(SecurityUtils.getCurrentUserId());
+		userIds.add(SecurityUtils.getCurrentUserId().toString());
 		if (userRolesSet.contains("ROLE_ADMIN")) {
 			return;
 		} else if (userRolesSet.contains("ROLE_USER")) {
-			userIds.add("anonymousUser");
+			userIds.add("AAAAAAAA-AAAA-AAAA-AAAA-AAAAAAAAAAAA");
 		}
 
 		searchQuery.appendList(userIds, "authUserId");
@@ -171,7 +173,6 @@ public class BrAPIRepositoryImpl<T extends BrAPIPrimaryEntity, ID extends Serial
 
 	private List<T> getPagedContent(SearchQueryBuilder<T> searchQuery, Pageable pageReq) {
 		TypedQuery<T> query = entityManager.createQuery(searchQuery.getQuery(), searchQuery.getClazz());
-		query.setHint(QueryHints.HINT_PASS_DISTINCT_THROUGH, false);
 
 		setQueryParams(query, searchQuery);
 
@@ -181,7 +182,7 @@ public class BrAPIRepositoryImpl<T extends BrAPIPrimaryEntity, ID extends Serial
         return query.getResultList();
 	}
 
-	private List<T> searchEntitiesWithIds(SearchQueryBuilder<T> searchQuery, List<String> ids) {
+	private List<T> searchEntitiesWithIds(SearchQueryBuilder<T> searchQuery, List<UUID> ids) {
 		searchQuery.appendList(ids.stream().map(Object::toString).collect(Collectors.toList()), "id");
 
 		TypedQuery<T> query = entityManager.createQuery(searchQuery.getQuery(), searchQuery.getClazz());
@@ -205,9 +206,9 @@ public class BrAPIRepositoryImpl<T extends BrAPIPrimaryEntity, ID extends Serial
 		}
 	}
 
-	private List<String> getPagedContentIdsOnly(SearchQueryBuilder<T> searchQuery, Pageable pageReq) {
+	private List<UUID> getPagedContentIdsOnly(SearchQueryBuilder<T> searchQuery, Pageable pageReq) {
 
-		TypedQuery<String> query = entityManager.createQuery(searchQuery.getIdQuery(), String.class);
+		TypedQuery<UUID> query = entityManager.createQuery(searchQuery.getIdQuery(), UUID.class);
 
 		for (Entry<String, Object> entry : searchQuery.getParams().entrySet()) {
 			query.setParameter(entry.getKey(), entry.getValue());

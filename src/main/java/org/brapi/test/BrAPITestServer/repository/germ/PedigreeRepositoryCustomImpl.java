@@ -2,9 +2,9 @@ package org.brapi.test.BrAPITestServer.repository.germ;
 
 import java.util.List;
 
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
-import javax.persistence.TypedQuery;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
+import jakarta.persistence.TypedQuery;
 
 import org.brapi.test.BrAPITestServer.model.entity.germ.PedigreeNodeEntity;
 

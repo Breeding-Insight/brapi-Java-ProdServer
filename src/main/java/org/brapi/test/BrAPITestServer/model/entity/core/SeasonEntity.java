@@ -1,10 +1,8 @@
 package org.brapi.test.BrAPITestServer.model.entity.core;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Table;
-
-import org.brapi.test.BrAPITestServer.model.entity.BrAPIBaseEntity;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Table;
 import org.brapi.test.BrAPITestServer.model.entity.BrAPIPrimaryEntity;
 
 @Entity

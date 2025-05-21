@@ -2,13 +2,14 @@ package io.swagger.model.geno;
 
 import java.util.Objects;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.JsonNode;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class Call {
 	@JsonProperty("additionalInfo")
-	private Object additionalInfo = null;
+	private JsonNode additionalInfo = null;
 
 	@JsonProperty("callSetDbId")
 	private String callSetDbId = null;
@@ -76,17 +77,17 @@ public class Call {
 		this.genotypeMetadata.add(genotypeMetadata);
 		return this;
 	}
-	
-	public Call additionalInfo(Object additionalInfo) {
+
+	public Call additionalInfo(JsonNode additionalInfo) {
 		this.additionalInfo = additionalInfo;
 		return this;
 	}
 
-	public Object getAdditionalInfo() {
+	public JsonNode getAdditionalInfo() {
 		return additionalInfo;
 	}
 
-	public void setAdditionalInfo(Object additionalInfo) {
+	public void setAdditionalInfo(JsonNode additionalInfo) {
 		this.additionalInfo = additionalInfo;
 	}
 

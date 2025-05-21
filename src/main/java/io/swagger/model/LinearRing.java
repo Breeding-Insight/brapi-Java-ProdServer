@@ -13,7 +13,7 @@ import org.springframework.validation.annotation.Validated;
  */
 @ApiModel(description = "An array of at least four positions where the first equals the last")
 @Validated
-@javax.annotation.Generated(value = "io.swagger.codegen.v3.generators.java.SpringCodegen", date = "2020-03-20T16:31:52.030Z[GMT]")
+@javax.annotation.processing.Generated(value = "io.swagger.codegen.v3.generators.java.SpringCodegen", date = "2020-03-20T16:31:52.030Z[GMT]")
 public class LinearRing extends ArrayList<Position> {
 	private static final long serialVersionUID = 7354489886197117499L;
 

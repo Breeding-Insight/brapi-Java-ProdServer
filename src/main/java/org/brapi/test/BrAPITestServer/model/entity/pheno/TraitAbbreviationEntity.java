@@ -1,6 +1,6 @@
 package org.brapi.test.BrAPITestServer.model.entity.pheno;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 
 import org.brapi.test.BrAPITestServer.model.entity.BrAPIBaseEntity;
 
@@ -24,6 +24,4 @@ public class TraitAbbreviationEntity extends BrAPIBaseEntity{
 	public void setAbbreviation(String abbreviation) {
 		this.abbreviation = abbreviation;
 	}
-	
-	
 }
