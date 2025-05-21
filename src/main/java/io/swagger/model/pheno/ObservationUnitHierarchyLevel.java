@@ -7,21 +7,18 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 public class ObservationUnitHierarchyLevel {
 
 	@JsonProperty("levelName")
-	private ObservationUnitHierarchyLevelEnum levelName = null;
+	private String levelName = null;
 
 	@JsonProperty("levelOrder")
 	private Integer levelOrder = null;
 
-	public ObservationUnitHierarchyLevel levelName(ObservationUnitHierarchyLevelEnum levelName) {
-		this.levelName = levelName;
-		return this;
-	}
+	// TODO: Put programId on this?  Makes it more obvious it is required for level name lookups.
 
-	public ObservationUnitHierarchyLevelEnum getLevelName() {
+	public String getLevelName() {
 		return levelName;
 	}
 
-	public void setLevelName(ObservationUnitHierarchyLevelEnum levelName) {
+	public void setLevelName(String levelName) {
 		this.levelName = levelName;
 	}
 

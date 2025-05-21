@@ -103,7 +103,7 @@ public class ObservationService {
 		if (observationUnitLevelName != null || observationUnitLevelOrder != null || observationUnitLevelCode != null) {
 			ObservationUnitLevel level = new ObservationUnitLevel();
 			if (observationUnitLevelName != null)
-				level.setLevelName(ObservationUnitHierarchyLevelEnum.fromValue(observationUnitLevelName));
+				level.setLevelName(observationUnitLevelName);
 			if (observationUnitLevelOrder != null)
 				level.setLevelOrder(Integer.decode(observationUnitLevelOrder));
 			if (observationUnitLevelCode != null)
@@ -114,7 +114,7 @@ public class ObservationService {
 				|| observationUnitLevelRelationshipCode != null) {
 			ObservationUnitLevelRelationship level = new ObservationUnitLevelRelationship();
 			if (observationUnitLevelRelationshipName != null)
-				level.setLevelName(ObservationUnitHierarchyLevelEnum.fromValue(observationUnitLevelRelationshipName));
+				level.setLevelName(observationUnitLevelRelationshipName);
 			if (observationUnitLevelRelationshipOrder != null)
 				level.setLevelOrder(Integer.decode(observationUnitLevelRelationshipOrder));
 			if (observationUnitLevelRelationshipCode != null)
@@ -159,6 +159,7 @@ public class ObservationService {
 				.filter(Objects::nonNull).distinct().collect(Collectors.toList());
 
 		ObservationTable table = new ObservationTable();
+		// TODO: Add support for dynamic observation unit level names for ouPosition in both buildDataMatrix() and buildHeaderRow(), using rq as input
 		table.setData(buildDataMatrix(page, variables));
 		table.setHeaderRow(buildHeaderRow());
 		table.setObservationVariables(variables.stream().map(this::convertVariables).collect(Collectors.toList()));
@@ -201,7 +202,8 @@ public class ObservationService {
 				.leftJoinFetch("study", "study");
 		if (request.getObservationLevels() != null) {
 			searchQuery = searchQuery
-					.appendEnumList(
+					// TODO: This will likely need to be updated so the search works by program and with globally available level names
+					.appendList(
 							request.getObservationLevels().stream().filter(r -> r.getLevelName() != null)
 									.map(r -> r.getLevelName()).collect(Collectors.toList()),
 							"observationUnit.position.level.levelName")
@@ -216,7 +218,8 @@ public class ObservationService {
 		}
 		if (request.getObservationLevelRelationships() != null) {
 			searchQuery = searchQuery.join("observationUnit.position.levelRelationships", "levelRelationship")
-					.appendEnumList(
+					// TODO: This will likely need to be updated so the search works by program and with globally available level names
+					.appendList(
 							request.getObservationLevelRelationships().stream().filter(r -> r.getLevelName() != null)
 									.map(r -> r.getLevelName()).collect(Collectors.toList()),
 							"levelRelationship.levelName")
@@ -563,21 +566,9 @@ public class ObservationService {
 				if (obsUnit.getPosition() != null) {
 					row.add(printIfNotNull(obsUnit.getPosition().getPositionCoordinateX())); // POSITIONCOORDINATEX
 					row.add(printIfNotNull(obsUnit.getPosition().getPositionCoordinateY())); // POSITIONCOORDINATEY
-					row.add(printIfNotNull(obsUnit.getPosition().getFieldCode())); // FIELD
-					row.add(printIfNotNull(obsUnit.getPosition().getBlockCode())); // BLOCK
-					row.add(printIfNotNull(obsUnit.getPosition().getEntryCode())); // ENTRY
-					row.add(printIfNotNull(obsUnit.getPosition().getRepCode())); // REP
-					row.add(printIfNotNull(obsUnit.getPosition().getPlotCode())); // PLOT
-					row.add(printIfNotNull(obsUnit.getPosition().getPlantCode())); // PLANT
 				} else {
 					row.add(""); // POSITIONCOORDINATEX
 					row.add(""); // POSITIONCOORDINATEY
-					row.add(""); // FIELD
-					row.add(""); // BLOCK
-					row.add(""); // ENTRY
-					row.add(""); // REP
-					row.add(""); // PLOT
-					row.add(""); // PLANT
 				}
 
 			} else {
@@ -618,12 +609,6 @@ public class ObservationService {
 		headers.add(ObservationTableHeaderRowEnum.OBSERVATIONUNITNAME);
 		headers.add(ObservationTableHeaderRowEnum.POSITIONCOORDINATEX);
 		headers.add(ObservationTableHeaderRowEnum.POSITIONCOORDINATEY);
-		headers.add(ObservationTableHeaderRowEnum.FIELD);
-		headers.add(ObservationTableHeaderRowEnum.BLOCK);
-		headers.add(ObservationTableHeaderRowEnum.ENTRY);
-		headers.add(ObservationTableHeaderRowEnum.REP);
-		headers.add(ObservationTableHeaderRowEnum.PLOT);
-		headers.add(ObservationTableHeaderRowEnum.PLANT);
 		headers.add(ObservationTableHeaderRowEnum.OBSERVATIONTIMESTAMP);
 		return headers;
 	}

@@ -24,6 +24,7 @@ import org.brapi.test.BrAPITestServer.service.PagingUtility;
 import org.brapi.test.BrAPITestServer.service.SearchQueryBuilder;
 import org.brapi.test.BrAPITestServer.service.UpdateUtility;
 import org.brapi.test.BrAPITestServer.service.pheno.ObservationVariableService;
+import org.brapi.test.BrAPITestServer.service.pheno.ObservationUnitLevelNameService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -43,7 +44,6 @@ import io.swagger.model.core.StudyNewRequest;
 import io.swagger.model.core.StudyLastUpdate;
 import io.swagger.model.core.StudySearchRequest;
 import io.swagger.model.pheno.ObservationUnitHierarchyLevel;
-import io.swagger.model.pheno.ObservationUnitHierarchyLevelEnum;
 
 @Service
 public class StudyService {
@@ -55,11 +55,12 @@ public class StudyService {
 	private final PeopleService peopleService;
 	private final SeasonService seasonService;
 	private final ObservationVariableService variableService;
+	private final ObservationUnitLevelNameService observationUnitLevelNameService;
 
 	@Autowired
 	public StudyService(StudyRepository studyRepository, TrialService trialService, CropService cropService,
 			LocationService locationService, PeopleService peopleService, SeasonService seasonService,
-			ObservationVariableService variableService) {
+			ObservationVariableService variableService, ObservationUnitLevelNameService observationUnitLevelNameService) {
 		this.studyRepository = studyRepository;
 
 		this.locationService = locationService;
@@ -68,6 +69,7 @@ public class StudyService {
 		this.trialService = trialService;
 		this.cropService = cropService;
 		this.variableService = variableService;
+		this.observationUnitLevelNameService = observationUnitLevelNameService;
 	}
 
 	public List<Study> findStudies(String commonCropName, String studyType, String programDbId, String locationDbId,
@@ -267,8 +269,7 @@ public class StudyService {
 			entity.setLocation(location);
 		}
 		if (body.getObservationLevels() != null) {
-			entity.setObservationLevels(
-					body.getObservationLevels().stream().map(this::convertToEntity).collect(Collectors.toList()));
+			entity.setObservationLevels(convertToEntity(body.getObservationLevels(), body.getProgramDbId()));
 		}
 		if (body.getObservationUnitsDescription() != null)
 			entity.setObservationUnitsDescription(body.getObservationUnitsDescription());
@@ -396,20 +397,26 @@ public class StudyService {
 		ObservationUnitHierarchyLevel level = null;
 		if (entity != null) {
 			level = new ObservationUnitHierarchyLevel();
-			level.setLevelName(ObservationUnitHierarchyLevelEnum.fromValue(entity.getLevelName()));
-			level.setLevelOrder(entity.getLevelOrder());
+			level.setLevelName(entity.getLevelName().getLevelName());
+			level.setLevelOrder(entity.getLevelName().getLevelOrder());
 		}
 		return level;
 	}
 
-	private ObservationLevelEntity convertToEntity(ObservationUnitHierarchyLevel level) {
-		ObservationLevelEntity entity = null;
-		if (level != null) {
-			entity = new ObservationLevelEntity();
-			entity.setLevelName(level.getLevelName().toString());
-			entity.setLevelOrder(level.getLevelOrder());
+	private List<ObservationLevelEntity> convertToEntity(List<ObservationUnitHierarchyLevel> levels, String programDbId)
+		throws BrAPIServerException {
+		List<ObservationLevelEntity> entities = new ArrayList<>();
+
+		var submittedLevelNames = levels.stream().map(ObservationUnitHierarchyLevel::getLevelName).toList();
+		var foundLevelNames = observationUnitLevelNameService.retrieveAndVerifyObservationUnitLevelNames(programDbId, submittedLevelNames);
+
+		for (ObservationUnitHierarchyLevel level : levels) {
+			var entity = new ObservationLevelEntity();
+
+			entity.setLevelName(foundLevelNames.get(level.getLevelName()));
+			entities.add(entity);
 		}
-		return entity;
+		return entities;
 	}
 
 	private StudyLastUpdate convertFromEntity(StudyLastUpdateEntity entity) {

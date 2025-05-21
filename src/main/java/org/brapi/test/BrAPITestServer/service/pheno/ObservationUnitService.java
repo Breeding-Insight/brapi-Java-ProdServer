@@ -2,7 +2,6 @@ package org.brapi.test.BrAPITestServer.service.pheno;
 
 import io.swagger.model.IndexPagination;
 import io.swagger.model.Metadata;
-import io.swagger.model.germ.GermplasmSearchRequest;
 import io.swagger.model.pheno.*;
 import jakarta.validation.Valid;
 import org.brapi.test.BrAPITestServer.exceptions.BrAPIServerDbIdNotFoundException;
@@ -52,12 +51,13 @@ public class ObservationUnitService {
 	private final ProgramService programService;
 	private final SeedLotService seedLotService;
 	private final ObservationVariableService observationVariableService;
+	private final ObservationUnitLevelNameService observationUnitLevelNameService;
 
 	@Autowired
 	public ObservationUnitService(ObservationUnitRepository observationUnitRepository, StudyService studyService,
 			TrialService trialService, ProgramService programService, ObservationService observationService,
 			GermplasmService germplasmService, SeedLotService seedLotService, CrossService crossService,
-			ObservationVariableService observationVariableService) {
+			ObservationVariableService observationVariableService, ObservationUnitLevelNameService observationUnitLevelNameService) {
 		this.observationUnitRepository = observationUnitRepository;
 
 		this.studyService = studyService;
@@ -68,6 +68,7 @@ public class ObservationUnitService {
 		this.observationService = observationService;
 		this.seedLotService = seedLotService;
 		this.observationVariableService = observationVariableService;
+		this.observationUnitLevelNameService = observationUnitLevelNameService;
 	}
 
 	public List<ObservationUnit> findObservationUnits(String observationUnitDbId, String observationUnitName,
@@ -117,7 +118,7 @@ public class ObservationUnitService {
 		if (observationUnitLevelName != null || observationUnitLevelOrder != null || observationUnitLevelCode != null) {
 			ObservationUnitLevel level = new ObservationUnitLevel();
 			if (observationUnitLevelName != null)
-				level.setLevelName(ObservationUnitHierarchyLevelEnum.fromValue(observationUnitLevelName));
+				level.setLevelName(observationUnitLevelName);
 			if (observationUnitLevelOrder != null)
 				level.setLevelOrder(Integer.decode(observationUnitLevelOrder));
 			if (observationUnitLevelCode != null)
@@ -128,7 +129,7 @@ public class ObservationUnitService {
 				|| observationUnitLevelRelationshipCode != null) {
 			ObservationUnitLevelRelationship level = new ObservationUnitLevelRelationship();
 			if (observationUnitLevelRelationshipName != null)
-				level.setLevelName(ObservationUnitHierarchyLevelEnum.fromValue(observationUnitLevelRelationshipName));
+				level.setLevelName(observationUnitLevelRelationshipName);
 			if (observationUnitLevelRelationshipOrder != null)
 				level.setLevelOrder(Integer.decode(observationUnitLevelRelationshipOrder));
 			if (observationUnitLevelRelationshipCode != null)
@@ -166,6 +167,7 @@ public class ObservationUnitService {
 		List<ObservationVariable> variables = observationVariableService.findObservationVariables(varRequest, null);
 
 		ObservationUnitTable table = new ObservationUnitTable();
+		// TODO: Add support for dynamic observation unit level names for ouPosition in both buildDataMatrix() and buildHeaderRow(), using rq as input
 		table.setData(buildDataMatrix(observationUnits, variables));
 		table.setHeaderRow(buildHeaderRow());
 		table.setObservationVariables(variables.stream().map(this::convertVariables).collect(Collectors.toList()));
@@ -237,18 +239,22 @@ public class ObservationUnitService {
 					"*season.id");
 
 		}
+
 		if (request.getObservationLevels() != null) {
+
 			searchQuery = searchQuery
-					.appendEnumList(request.getObservationLevels().stream().filter(r -> r.getLevelName() != null)
+					// TODO: This will likely need to be updated so the search works by program and with globally available level names
+					.appendList(request.getObservationLevels().stream().filter(r -> r.getLevelName() != null)
 							.map(r -> r.getLevelName()).collect(Collectors.toList()), "position.levelName")
 					.appendList(request.getObservationLevels().stream().filter(r -> r.getLevelCode() != null)
-							.map(r -> r.getLevelCode()).collect(Collectors.toList()), "position.levelCode")
+							.map(ObservationUnitLevel::getLevelCode).collect(Collectors.toList()), "position.levelCode")
 					.appendIntList(request.getObservationLevels().stream().filter(r -> r.getLevelOrder() != null)
-							.map(r -> r.getLevelOrder()).collect(Collectors.toList()), "position.levelOrder");
+							.map(ObservationUnitHierarchyLevel::getLevelOrder).collect(Collectors.toList()), "position.levelOrder");
 		}
 		if (request.getObservationLevelRelationships() != null) {
 			searchQuery = searchQuery.join("position.observationLevelRelationships", "levelRelationship")
-					.appendEnumList(
+					// TODO: This will likely need to be updated so the search works by program and with globally available level names
+					.appendList(
 							request.getObservationLevelRelationships().stream().filter(r -> r.getLevelName() != null)
 									.map(r -> r.getLevelName()).collect(Collectors.toList()),
 							"*levelRelationship.levelName")
@@ -382,10 +388,12 @@ public class ObservationUnitService {
 			String programDbId, Metadata metadata)
 		throws BrAPIServerException {
 
-		List<ObservationUnitLevel> allLevels = Arrays.asList(ObservationUnitHierarchyLevelEnum.values()).stream()
+		List<ObservationUnitLevelNameEntity> foundObsLevelNameEntities = observationUnitLevelNameService.findObservationUnitLevelNames(programDbId);
+
+		List<ObservationUnitLevel> levelNames = foundObsLevelNameEntities.stream()
 				.map(levelEnum -> {
 					ObservationUnitLevel rel = new ObservationUnitLevel();
-					rel.setLevelName(levelEnum);
+					rel.setLevelName(levelEnum.getLevelName());
 					return rel;
 				}).collect(Collectors.toList());
 
@@ -393,13 +401,13 @@ public class ObservationUnitService {
 				null, trialDbId, programDbId, null, null, null, null, null, null, null, null, null, false, null, null,
 				null);
 
-		levelsSearch.setObservationLevels(allLevels);
+		levelsSearch.setObservationLevels(levelNames);
 		List<ObservationUnit> units = new ArrayList<>();
 		List<ObservationUnit> someunits = findObservationUnits(levelsSearch,
 				new Metadata().pagination(new IndexPagination()));
 		units.addAll(someunits);
 
-		levelsSearch.setObservationLevelRelationships(allLevels.stream().map(lvl -> {
+		levelsSearch.setObservationLevelRelationships(levelNames.stream().map(lvl -> {
 			ObservationUnitLevelRelationship rel = new ObservationUnitLevelRelationship();
 			rel.setLevelCode(lvl.getLevelCode());
 			rel.setLevelName(lvl.getLevelName());
@@ -424,11 +432,13 @@ public class ObservationUnitService {
 					}
 					list.add(unit.getObservationUnitPosition().getObservationLevel());
 					return list;
-				}).flatMap(list -> list.stream()).map(level -> level.getLevelName()).distinct().sorted()
-				.map(levelName -> {
+				}).flatMap(Collection::stream)
+				.distinct()
+				.sorted()
+				.map(obsUnitLevel -> {
 					ObservationUnitHierarchyLevel level = new ObservationUnitHierarchyLevel();
-					level.setLevelName(levelName);
-					level.setLevelOrder(levelName.ordinal());
+					level.setLevelName(obsUnitLevel.getLevelName());
+					level.setLevelOrder(obsUnitLevel.getLevelOrder());
 					return level;
 				}).collect(Collectors.toList());
 
@@ -509,8 +519,8 @@ public class ObservationUnitService {
 			position.setGeoCoordinates(GeoJSONUtility.convertFromEntity(entity.getGeoCoordinates()));
 			ObservationUnitLevel level = new ObservationUnitLevel();
 			level.setLevelCode(entity.getLevelCode());
-			level.setLevelName(entity.getLevelName());
-			level.setLevelOrder(entity.getLevelOrder());
+			level.setLevelName(entity.getLevelName().getLevelName());
+			level.setLevelOrder(entity.getLevelName().getLevelOrder());
 			position.setObservationLevel(level);
 			if (entity.getObservationLevelRelationships() != null) {
 				position.setObservationLevelRelationships(entity.getObservationLevelRelationships().stream()
@@ -534,8 +544,8 @@ public class ObservationUnitService {
 	private ObservationUnitLevelRelationship convertFromEntity(ObservationUnitLevelRelationshipEntity entity, String ouDbId) {
 		ObservationUnitLevelRelationship level = new ObservationUnitLevelRelationship();
 		level.setLevelCode(entity.getLevelCode());
-		level.setLevelName(entity.getLevelName());
-		level.setLevelOrder(entity.getLevelOrder());
+		level.setLevelName(entity.getLevelName().getLevelName());
+		level.setLevelOrder(entity.getLevelName().getLevelOrder());
 		if (ouDbId != null)
 			level.setObservationUnitDbId(ouDbId);
 		return level;
@@ -561,7 +571,7 @@ public class ObservationUnitService {
 			if (entity.getPosition() == null)
 				entity.setPosition(new ObservationUnitPositionEntity());
 			ObservationUnitPositionEntity position = entity.getPosition();
-			updateEntity(position, unit.getObservationUnitPosition());
+			updateEntity(position, unit.getObservationUnitPosition(), entity);
 			position.setObservationUnit(entity);
 			entity.setPosition(position);
 		}
@@ -592,7 +602,9 @@ public class ObservationUnitService {
 		return entity;
 	}
 
-	private void updateEntity(ObservationUnitPositionEntity entity, ObservationUnitPosition position) {
+	private void updateEntity(ObservationUnitPositionEntity entity,
+							  ObservationUnitPosition position,
+							  ObservationUnitEntity ouEntity) throws BrAPIServerException {
 
 		if (position.getEntryType() != null)
 			entity.setEntryType(position.getEntryType());
@@ -601,28 +613,16 @@ public class ObservationUnitService {
 		if (position.getObservationLevel() != null) {
 			if (position.getObservationLevel().getLevelCode() != null)
 				entity.setLevelCode(position.getObservationLevel().getLevelCode());
-			if (position.getObservationLevel().getLevelName() != null)
-				entity.setLevelName(position.getObservationLevel().getLevelName());
-			if (position.getObservationLevel().getLevelOrder() != null)
-				entity.setLevelOrder(position.getObservationLevel().getLevelOrder());
+			if (position.getObservationLevel().getLevelName() != null) {
+				var programDbId = Optional.ofNullable(ouEntity.getProgram())
+						.map(p -> p.getId().toString())
+						.orElse(null);
+				var foundLevelName = observationUnitLevelNameService.retrieveAndVerifyObservationUnitLevelNames(programDbId, List.of(position.getObservationLevel().getLevelName()));
+				entity.setLevelName(foundLevelName.get(position.getObservationLevel().getLevelName()));
+			}
 		}
 		if (position.getObservationLevelRelationships() != null)
-			entity.setObservationLevelRelationships(position.getObservationLevelRelationships().stream().map(level -> {
-				ObservationUnitLevelRelationshipEntity relationshipEntity = new ObservationUnitLevelRelationshipEntity();
-				try {
-					relationshipEntity.setLevelCode(level.getLevelCode());
-					relationshipEntity.setLevelName(level.getLevelName());
-					relationshipEntity.setLevelOrder(level.getLevelOrder());
-					if (level.getObservationUnitDbId() != null) {
-						ObservationUnitEntity parentEntity = getObservationUnitEntity(level.getObservationUnitDbId());
-						relationshipEntity.setObservationUnit(parentEntity);
-					}
-					relationshipEntity.setPosition(entity);
-				} catch (BrAPIServerException e) {
-					e.printStackTrace();
-				}
-				return relationshipEntity;
-			}).collect(Collectors.toList()));
+			updateOULevelRelationships(ouEntity, entity, position);
 		if (position.getPositionCoordinateX() != null)
 			entity.setPositionCoordinateX(position.getPositionCoordinateX());
 		if (position.getPositionCoordinateXType() != null)
@@ -632,6 +632,38 @@ public class ObservationUnitService {
 		if (position.getPositionCoordinateYType() != null)
 			entity.setPositionCoordinateYType(position.getPositionCoordinateYType());
 
+	}
+
+	private void updateOULevelRelationships(ObservationUnitEntity ouEntity,
+											ObservationUnitPositionEntity pEntity,
+											ObservationUnitPosition position)
+		throws BrAPIServerException {
+
+		var submittedLevelNames = position.getObservationLevelRelationships().stream()
+				.map(ObservationUnitHierarchyLevel::getLevelName)
+				.toList();
+
+		var programDbId = Optional.ofNullable(ouEntity.getProgram())
+				.map(p -> p.getId().toString())
+				.orElse(null);
+
+		var foundOULevelNames = observationUnitLevelNameService.retrieveAndVerifyObservationUnitLevelNames(programDbId, submittedLevelNames);
+
+		var relationshipEntities = new ArrayList<ObservationUnitLevelRelationshipEntity>();
+
+		for (ObservationUnitLevelRelationship level : position.getObservationLevelRelationships()) {
+			ObservationUnitLevelRelationshipEntity relationshipEntity = new ObservationUnitLevelRelationshipEntity();
+			relationshipEntity.setLevelCode(level.getLevelCode());
+			relationshipEntity.setLevelName(foundOULevelNames.get(level.getLevelName()));
+			if (level.getObservationUnitDbId() != null) {
+				ObservationUnitEntity parentEntity = getObservationUnitEntity(level.getObservationUnitDbId());
+				relationshipEntity.setObservationUnit(parentEntity);
+			}
+			relationshipEntity.setPosition(pEntity);
+			relationshipEntities.add(relationshipEntity);
+		}
+
+		pEntity.setObservationLevelRelationships(relationshipEntities);
 	}
 
 	private List<ObservationUnitEntity> createEntitiesInBatch(List<ObservationUnitNewRequest> obsUnits)
@@ -716,14 +748,6 @@ public class ObservationUnitService {
 				entity.setObservationUnitName(obsUnit.getObservationUnitName());
 			if (obsUnit.getObservationUnitPUI() != null)
 				entity.setObservationUnitPUI(obsUnit.getObservationUnitPUI());
-			if (obsUnit.getObservationUnitPosition() != null) {
-				if (entity.getPosition() == null)
-					entity.setPosition(new ObservationUnitPositionEntity());
-				ObservationUnitPositionEntity position = entity.getPosition();
-				updateEntity(position, obsUnit.getObservationUnitPosition());
-				position.setObservationUnit(entity);
-				entity.setPosition(position);
-			}
 			if (obsUnit.getSeedLotDbId() != null) {
 				entity.setSeedLot(foundSeedLotsById.get(UUID.fromString(obsUnit.getSeedLotDbId())));
 			}
@@ -742,6 +766,16 @@ public class ObservationUnitService {
 				entity.setTrial(foundTrialsById.get(UUID.fromString(obsUnit.getTrialDbId())));
 			} else if (obsUnit.getProgramDbId() != null) {
 				entity.setProgram(foundProgramsById.get(UUID.fromString(obsUnit.getProgramDbId())));
+			}
+
+			// TODO: This will have to be fixed to batchable
+			if (obsUnit.getObservationUnitPosition() != null) {
+				if (entity.getPosition() == null)
+					entity.setPosition(new ObservationUnitPositionEntity());
+				ObservationUnitPositionEntity position = entity.getPosition();
+				updateEntity(position, obsUnit.getObservationUnitPosition(), entity);
+				position.setObservationUnit(entity);
+				entity.setPosition(position);
 			}
 
 			result.add(entity);
@@ -812,21 +846,9 @@ public class ObservationUnitService {
 			if (obsUnit.getPosition() != null) {
 				row.add(printIfNotNull(obsUnit.getPosition().getPositionCoordinateX())); // POSITIONCOORDINATEX
 				row.add(printIfNotNull(obsUnit.getPosition().getPositionCoordinateY())); // POSITIONCOORDINATEY
-				row.add(printIfNotNull(obsUnit.getPosition().getFieldCode())); // FIELD
-				row.add(printIfNotNull(obsUnit.getPosition().getBlockCode())); // BLOCK
-				row.add(printIfNotNull(obsUnit.getPosition().getEntryCode())); // ENTRY
-				row.add(printIfNotNull(obsUnit.getPosition().getRepCode())); // REP
-				row.add(printIfNotNull(obsUnit.getPosition().getPlotCode())); // PLOT
-				row.add(printIfNotNull(obsUnit.getPosition().getPlantCode())); // PLANT
 			} else {
 				row.add(""); // POSITIONCOORDINATEX
 				row.add(""); // POSITIONCOORDINATEY
-				row.add(""); // FIELD
-				row.add(""); // BLOCK
-				row.add(""); // ENTRY
-				row.add(""); // REP
-				row.add(""); // PLOT
-				row.add(""); // PLANT
 			}
 
 			for (ObservationVariable var : variables) {
@@ -864,12 +886,6 @@ public class ObservationUnitService {
 		headers.add(ObservationTableHeaderRowEnum.OBSERVATIONUNITNAME);
 		headers.add(ObservationTableHeaderRowEnum.POSITIONCOORDINATEX);
 		headers.add(ObservationTableHeaderRowEnum.POSITIONCOORDINATEY);
-		headers.add(ObservationTableHeaderRowEnum.FIELD);
-		headers.add(ObservationTableHeaderRowEnum.BLOCK);
-		headers.add(ObservationTableHeaderRowEnum.ENTRY);
-		headers.add(ObservationTableHeaderRowEnum.REP);
-		headers.add(ObservationTableHeaderRowEnum.PLOT);
-		headers.add(ObservationTableHeaderRowEnum.PLANT);
 
 		return headers;
 	}
