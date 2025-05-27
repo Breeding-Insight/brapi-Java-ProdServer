@@ -7,7 +7,7 @@ import jakarta.validation.Valid;
 import org.brapi.test.BrAPITestServer.exceptions.BrAPIServerDbIdNotFoundException;
 import org.brapi.test.BrAPITestServer.exceptions.BrAPIServerException;
 import org.brapi.test.BrAPITestServer.model.entity.germ.GermplasmAttributeDefinitionEntity;
-import org.brapi.test.BrAPITestServer.repository.germ.GermplasmAttributeDefinitionRepository;
+import org.brapi.test.BrAPITestServer.repository.primaryEntities.germ.GermplasmAttributeDefinitionRepository;
 import org.brapi.test.BrAPITestServer.service.PagingUtility;
 import org.brapi.test.BrAPITestServer.service.SearchQueryBuilder;
 import org.brapi.test.BrAPITestServer.service.pheno.ObservationVariableService;

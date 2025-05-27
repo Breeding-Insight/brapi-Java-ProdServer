@@ -11,7 +11,7 @@ import org.brapi.test.BrAPITestServer.model.entity.geno.VariantEntity;
 import org.brapi.test.BrAPITestServer.model.entity.geno.VariantSetAnalysisEntity;
 import org.brapi.test.BrAPITestServer.model.entity.geno.VariantSetAvailableFormatEntity;
 import org.brapi.test.BrAPITestServer.model.entity.geno.VariantSetEntity;
-import org.brapi.test.BrAPITestServer.repository.geno.VariantSetRepository;
+import org.brapi.test.BrAPITestServer.repository.primaryEntities.geno.VariantSetRepository;
 import org.brapi.test.BrAPITestServer.service.DateUtility;
 import org.brapi.test.BrAPITestServer.service.PagingUtility;
 import org.brapi.test.BrAPITestServer.service.SearchQueryBuilder;

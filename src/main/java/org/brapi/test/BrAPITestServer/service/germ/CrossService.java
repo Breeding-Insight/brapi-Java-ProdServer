@@ -10,7 +10,7 @@ import org.brapi.test.BrAPITestServer.exceptions.BrAPIServerException;
 import org.brapi.test.BrAPITestServer.model.entity.germ.CrossEntity;
 import org.brapi.test.BrAPITestServer.model.entity.germ.CrossPollinationEventEntity;
 import org.brapi.test.BrAPITestServer.model.entity.germ.CrossingProjectEntity;
-import org.brapi.test.BrAPITestServer.repository.germ.CrossRepository;
+import org.brapi.test.BrAPITestServer.repository.primaryEntities.germ.CrossRepository;
 import org.brapi.test.BrAPITestServer.service.DateUtility;
 import org.brapi.test.BrAPITestServer.service.PagingUtility;
 import org.brapi.test.BrAPITestServer.service.SearchQueryBuilder;

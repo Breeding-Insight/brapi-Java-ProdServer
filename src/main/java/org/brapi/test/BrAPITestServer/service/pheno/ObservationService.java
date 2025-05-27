@@ -12,7 +12,7 @@ import org.brapi.test.BrAPITestServer.model.entity.core.StudyEntity;
 import org.brapi.test.BrAPITestServer.model.entity.pheno.ObservationEntity;
 import org.brapi.test.BrAPITestServer.model.entity.pheno.ObservationUnitEntity;
 import org.brapi.test.BrAPITestServer.model.entity.pheno.ObservationVariableEntity;
-import org.brapi.test.BrAPITestServer.repository.pheno.ObservationRepository;
+import org.brapi.test.BrAPITestServer.repository.primaryEntities.pheno.ObservationRepository;
 import org.brapi.test.BrAPITestServer.service.*;
 import org.brapi.test.BrAPITestServer.service.core.SeasonService;
 import org.brapi.test.BrAPITestServer.service.core.StudyService;

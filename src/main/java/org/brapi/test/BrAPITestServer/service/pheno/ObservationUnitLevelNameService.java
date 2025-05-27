@@ -5,7 +5,7 @@ import io.swagger.model.pheno.ObservationUnitHierarchyLevel;
 import org.brapi.test.BrAPITestServer.exceptions.BrAPIServerDbIdNotFoundException;
 import org.brapi.test.BrAPITestServer.exceptions.BrAPIServerException;
 import org.brapi.test.BrAPITestServer.model.entity.pheno.ObservationUnitLevelNameEntity;
-import org.brapi.test.BrAPITestServer.repository.nonBaseRepos.ObservationUnitLevelNameRepository;
+import org.brapi.test.BrAPITestServer.repository.baseEntities.ObservationUnitLevelNameRepository;
 import org.brapi.test.BrAPITestServer.service.core.ProgramService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;

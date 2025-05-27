@@ -11,8 +11,8 @@ import org.brapi.test.BrAPITestServer.model.entity.germ.CrossParentEntity;
 import org.brapi.test.BrAPITestServer.model.entity.germ.CrossingProjectEntity;
 import org.brapi.test.BrAPITestServer.model.entity.germ.GermplasmEntity;
 import org.brapi.test.BrAPITestServer.model.entity.pheno.ObservationUnitEntity;
-import org.brapi.test.BrAPITestServer.repository.germ.GermplasmRepository;
-import org.brapi.test.BrAPITestServer.repository.pheno.ObservationUnitRepository;
+import org.brapi.test.BrAPITestServer.repository.primaryEntities.germ.GermplasmRepository;
+import org.brapi.test.BrAPITestServer.repository.primaryEntities.pheno.ObservationUnitRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
