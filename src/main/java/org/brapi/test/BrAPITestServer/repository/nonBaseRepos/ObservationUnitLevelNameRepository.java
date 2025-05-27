@@ -1,7 +1,8 @@
-package org.brapi.test.BrAPITestServer.repository.pheno;
+package org.brapi.test.BrAPITestServer.repository.nonBaseRepos;
 
 import org.brapi.test.BrAPITestServer.model.entity.pheno.ObservationUnitLevelNameEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -16,6 +17,17 @@ public interface ObservationUnitLevelNameRepository extends JpaRepository<Observ
     List<ObservationUnitLevelNameEntity> findObservationUnitLevelNamesByProgram(@Param("programIds") List<String> programDbIds);
 
     @Query("SELECT ouln FROM ObservationUnitLevelNameEntity ouln " +
-            "WHERE ouln.program = NULL")
+            "WHERE ouln.program IS NULL")
     List<ObservationUnitLevelNameEntity> findDefaultObservationUnitLevelNames();
+
+    @Query("SELECT ouln FROM ObservationUnitLevelNameEntity ouln")
+    List<ObservationUnitLevelNameEntity> findAllObservationUnitLevelNames();
+//
+//    @Modifying
+//    @Query("DELETE FROM ObservationUnitLevelNameEntity WHERE id = :levelNameDbId")
+//    void deleteObservationUnitLevelNameById(@Param("levelNameDbId") String levelNameDbId);
+//
+//    @Modifying
+//    @Query("INSERT INTO ObservationUnitLevelNameEntity ")
+
 }

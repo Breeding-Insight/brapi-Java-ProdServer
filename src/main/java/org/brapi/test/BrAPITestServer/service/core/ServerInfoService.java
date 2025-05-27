@@ -51,6 +51,7 @@ public class ServerInfoService {
 				.setBase("observationunits").GET().POST().PUT().addPath("{observationUnitDbId}").GET().PUT().setPath("table").GET().withSearch()
 				.setBase("observations").GET().POST().PUT().addPath("{observationDbId}").GET().PUT().setPath("table").GET().withSearch()
 				.setBase("observationlevels").GET().build()
+				.setBase("observationlevelnames").GET().POST().addPath("{observationlevelnameDbId}").build()
 				//GENOTYPING
 				.setBase("calls").GET().withSearch()
 				.setBase("callsets").GET().addPath("{callSetDbId}").GET().addPath("calls").GET().withSearch()

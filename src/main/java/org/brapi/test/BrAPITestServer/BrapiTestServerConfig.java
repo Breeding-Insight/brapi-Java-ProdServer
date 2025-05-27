@@ -8,9 +8,7 @@ import org.brapi.test.BrAPITestServer.serializer.CustomSerializationModule;
 import org.brapi.test.BrAPITestServer.serializer.CustomStringToEnumConverter;
 import org.brapi.test.BrAPITestServer.serializer.CustomTimeStampSerializer;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.PropertySource;
+import org.springframework.context.annotation.*;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.format.FormatterRegistry;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
@@ -22,7 +20,13 @@ import java.time.LocalDate;
 import java.time.OffsetDateTime;
 
 @Configuration
-@EnableJpaRepositories(basePackages = "org.brapi.test.BrAPITestServer.repository", repositoryBaseClass = BrAPIRepositoryImpl.class)
+@EnableJpaRepositories(
+		basePackages = "org.brapi.test.BrAPITestServer.repository",
+		excludeFilters = @ComponentScan.Filter(
+				type = FilterType.REGEX,
+				pattern = "org\\.brapi\\.test\\.BrAPITestServer\\.repository\\.nonBaseRepos\\..*"
+		),
+		repositoryBaseClass = BrAPIRepositoryImpl.class)
 @PropertySource(value = "classpath:properties/application.properties")
 public class BrapiTestServerConfig {
 	@Bean

@@ -2,9 +2,13 @@ package io.swagger.model.pheno;
 
 import java.util.Objects;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class ObservationUnitHierarchyLevel {
+
+	@JsonProperty("levelNameDbId")
+	private String levelNameDbId = null;
 
 	@JsonProperty("levelName")
 	private String levelName = null;
@@ -12,7 +16,20 @@ public class ObservationUnitHierarchyLevel {
 	@JsonProperty("levelOrder")
 	private Integer levelOrder = null;
 
-	// TODO: Put programId on this?  Makes it more obvious it is required for level name lookups.
+	@JsonProperty("programDbId")
+	private String programDbId = null;
+
+	// NOTE: This property is NOT used for lookups, only responses.
+	@JsonProperty("programName")
+	private String programName = null;
+
+	public String getLevelNameDbId() {
+		return levelNameDbId;
+	}
+
+	public void setLevelNameDbId(String value) {
+		this.levelNameDbId = value;
+	}
 
 	public String getLevelName() {
 		return levelName;
@@ -33,6 +50,22 @@ public class ObservationUnitHierarchyLevel {
 
 	public void setLevelOrder(Integer levelOrder) {
 		this.levelOrder = levelOrder;
+	}
+
+	public String getProgramDbId() {
+		return programDbId;
+	}
+
+	public void setProgramDbId(String value) {
+		this.programDbId = value;
+	}
+
+	public String getProgramName() {
+		return programName;
+	}
+
+	public void setProgramName(String value) {
+		this.programName = value;
 	}
 
 	@Override
