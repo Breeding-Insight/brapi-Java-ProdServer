@@ -14,10 +14,10 @@ public interface ListRepository extends BrAPIRepository<ListEntity, UUID>{
     @Modifying
     @Transactional
     @Query("UPDATE ListEntity l SET l.softDeleted = :softDeleted WHERE l.id = :listId")
-    int updateSoftDeletedStatus(@Param("listId") String listId, @Param("softDeleted") boolean softDeleted);
+    int updateSoftDeletedStatus(@Param("listId") UUID listId, @Param("softDeleted") boolean softDeleted);
 
     @Modifying
     @Transactional
     @Query("UPDATE ListEntity l SET l.softDeleted = :softDeleted WHERE l.id IN :listIds")
-    int updateSoftDeletedStatusBatch(@Param("listIds") List<String> listIds, @Param("softDeleted") boolean softDeleted);
+    int updateSoftDeletedStatusBatch(@Param("listIds") List<UUID> listIds, @Param("softDeleted") boolean softDeleted);
 }
