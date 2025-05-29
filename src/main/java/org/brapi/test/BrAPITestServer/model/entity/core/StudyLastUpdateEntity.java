@@ -5,23 +5,12 @@ import org.brapi.test.BrAPITestServer.model.entity.BrAPIBaseEntity;
 
 import java.util.Date;
 
-@Entity
-@Table(name = "study_last_update")
-public class StudyLastUpdateEntity extends BrAPIBaseEntity {
-	@Column
+@Embeddable
+public class StudyLastUpdateEntity {
+	@Column(name = "timestamp", table = "study_last_update")
 	private Date timestamp;
-	@Column
+	@Column(name = "version", table = "study_last_update")
 	private String version;
-	@OneToOne(fetch = FetchType.LAZY)
-	private StudyEntity study;
-
-    public StudyEntity getStudy() {
-        return study;
-    }
-
-    public void setStudy(StudyEntity study) {
-        this.study = study;
-    }
 
     public Date getTimestamp() {
         return timestamp;
