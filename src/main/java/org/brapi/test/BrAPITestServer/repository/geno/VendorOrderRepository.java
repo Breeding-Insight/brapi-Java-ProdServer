@@ -5,6 +5,8 @@ import org.springframework.data.domain.Pageable;
 import org.brapi.test.BrAPITestServer.model.entity.geno.vendor.VendorOrderEntity;
 import org.brapi.test.BrAPITestServer.repository.BrAPIRepository;
 
-public interface VendorOrderRepository extends BrAPIRepository<VendorOrderEntity, String> {
+import java.util.UUID;
+
+public interface VendorOrderRepository extends BrAPIRepository<VendorOrderEntity, UUID> {
 	public Page<VendorOrderEntity> findByPlateSubmission_Id(String submissionId, Pageable pageReq);
 }

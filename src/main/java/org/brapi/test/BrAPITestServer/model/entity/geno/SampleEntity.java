@@ -1,8 +1,6 @@
 package org.brapi.test.BrAPITestServer.model.entity.geno;
 
-import java.util.Date;
-
-import javax.persistence.*;
+import jakarta.persistence.*;
 
 import org.brapi.test.BrAPITestServer.model.entity.BrAPIPrimaryEntity;
 import org.brapi.test.BrAPITestServer.model.entity.core.ProgramEntity;
@@ -11,6 +9,9 @@ import org.brapi.test.BrAPITestServer.model.entity.core.TrialEntity;
 import org.brapi.test.BrAPITestServer.model.entity.pheno.ObservationUnitEntity;
 import org.brapi.test.BrAPITestServer.model.entity.pheno.TaxonEntity;
 import org.hibernate.annotations.Where;
+
+import java.util.Date;
+import java.util.UUID;
 
 @Entity
 @Table(name="sample")
@@ -37,7 +38,7 @@ public class SampleEntity extends BrAPIPrimaryEntity{
 	@Column
 	private String sampleDescription;
 	@Column
-	private String sampleGroupDbId;
+	private UUID sampleGroupDbId;
 	@Column
 	private String sampleName;
 	@Column
@@ -83,10 +84,10 @@ public class SampleEntity extends BrAPIPrimaryEntity{
 	public void setWell(String well) {
 		this.well = well;
 	}
-	public String getSampleGroupDbId() {
+	public UUID getSampleGroupDbId() {
 		return sampleGroupDbId;
 	}
-	public void setSampleGroupDbId(String sampleGroupDbId) {
+	public void setSampleGroupDbId(UUID sampleGroupDbId) {
 		this.sampleGroupDbId = sampleGroupDbId;
 	}
 	public String getConcentration() {
@@ -181,5 +182,4 @@ public class SampleEntity extends BrAPIPrimaryEntity{
 	}
 	public boolean getSoftDeleted() { return softDeleted; }
 	public void setSoftDeleted(boolean sofDeleted) { this.softDeleted = sofDeleted; }
-
 }

@@ -11,7 +11,7 @@ services:
     volumes:
       - .\src\main\resources\properties\application.properties:/home/brapi/properties/application.properties
   brapi-db:
-    image: postgres:13
+    image: postgres:17.2
     environment:
       POSTGRES_USER: brapi
       POSTGRES_PASSWORD: password

@@ -1,14 +1,13 @@
 package org.brapi.test.BrAPITestServer.model.entity.germ;
 
-import java.math.BigDecimal;
-import java.util.Date;
-import java.util.List;
-
-import javax.persistence.*;
-
+import jakarta.persistence.*;
 import org.brapi.test.BrAPITestServer.model.entity.BrAPIPrimaryEntity;
 import org.brapi.test.BrAPITestServer.model.entity.core.LocationEntity;
 import org.brapi.test.BrAPITestServer.model.entity.core.ProgramEntity;
+
+import java.math.BigDecimal;
+import java.util.Date;
+import java.util.List;
 
 @Entity
 @Table(name = "seed_lot")
@@ -102,5 +101,4 @@ public class SeedLotEntity extends BrAPIPrimaryEntity {
 	public void setUnits(String units) {
 		this.units = units;
 	}
-
 }

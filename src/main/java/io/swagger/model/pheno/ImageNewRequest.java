@@ -1,6 +1,7 @@
 package io.swagger.model.pheno;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.JsonNode;
 import io.swagger.annotations.ApiModelProperty;
 import io.swagger.model.ExternalReferences;
 import io.swagger.model.GeoJSON;
@@ -18,11 +19,11 @@ import java.util.Objects;
  * ImageNewRequest
  */
 @Validated
-@javax.annotation.Generated(value = "io.swagger.codegen.v3.generators.java.SpringCodegen", date = "2020-03-20T16:32:22.556Z[GMT]")
+@javax.annotation.processing.Generated(value = "io.swagger.codegen.v3.generators.java.SpringCodegen", date = "2020-03-20T16:32:22.556Z[GMT]")
 public class ImageNewRequest   {
   @JsonProperty("additionalInfo")
   @Valid
-  private Object additionalInfo = null;
+  private JsonNode additionalInfo = null;
 
   @JsonProperty("copyright")
   private String copyright = null;
@@ -71,7 +72,7 @@ public class ImageNewRequest   {
   @JsonProperty("observationUnitDbId")
   private String observationUnitDbId = null;
 
-  public ImageNewRequest additionalInfo(Object additionalInfo) {
+  public ImageNewRequest additionalInfo(JsonNode additionalInfo) {
     this.additionalInfo = additionalInfo;
     return this;
   }
@@ -81,12 +82,11 @@ public class ImageNewRequest   {
    * @return additionalInfo
   **/
   @ApiModelProperty(value = "")
-  
-    public Object getAdditionalInfo() {
+  public JsonNode getAdditionalInfo() {
     return additionalInfo;
   }
 
-  public void setAdditionalInfo(Object additionalInfo) {
+  public void setAdditionalInfo(JsonNode additionalInfo) {
     this.additionalInfo = additionalInfo;
   }
 

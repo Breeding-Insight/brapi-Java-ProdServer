@@ -7,8 +7,7 @@ public enum SortOrder {
     ASC("ASC"),
     
     DESC("DESC");
-
-    private String value;
+private String value;
 
     SortOrder(String value) {
       this.value = value;

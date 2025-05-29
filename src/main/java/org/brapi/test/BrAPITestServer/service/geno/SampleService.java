@@ -1,10 +1,6 @@
 package org.brapi.test.BrAPITestServer.service.geno;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.Map.Entry;
 
 import io.swagger.model.core.BatchDeleteDetails;
@@ -87,7 +83,8 @@ public class SampleService {
 	public List<Sample> findSamples(String sampleDbId, String sampleName, String sampleGroupDbId,
 			String observationUnitDbId, String plateDbId, String plateName, String germplasmDbId, String studyDbId,
 			String trialDbId, String commonCropName, String programDbId, String externalReferenceId,
-			String externalReferenceID, String externalReferenceSource, Metadata metadata) {
+			String externalReferenceID, String externalReferenceSource, Metadata metadata)
+		throws BrAPIServerException {
 		SampleSearchRequest request = new SampleSearchRequest();
 		if (sampleDbId != null)
 			request.addSampleDbIdsItem(sampleDbId);
@@ -117,7 +114,8 @@ public class SampleService {
 		return findSamples(request, metadata);
 	}
 
-	public List<Sample> findSamples(SampleSearchRequest request, Metadata metadata) {
+	public List<Sample> findSamples(SampleSearchRequest request, Metadata metadata)
+		throws BrAPIServerException {
 		Pageable pageReq = PagingUtility.getPageRequest(metadata);
 		SearchQueryBuilder<SampleEntity> searchQuery = new SearchQueryBuilder<SampleEntity>(SampleEntity.class)
 				.withExRefs(request.getExternalReferenceIDs(), request.getExternalReferenceSources())
@@ -135,7 +133,7 @@ public class SampleService {
 				.appendList(request.getStudyDbIds(), "plate.study.id")
 				.appendList(request.getStudyNames(), "plate.study.studyName");
 
-		Page<SampleEntity> page = sampleRepository.findAllBySearch(searchQuery, pageReq);
+		Page<SampleEntity> page = sampleRepository.findAllBySearchAndPaginate(searchQuery, pageReq);
 		List<Sample> samples = page.map(this::convertFromEntity).getContent();
 		PagingUtility.calculateMetaData(metadata, page);
 		return samples;
@@ -151,7 +149,7 @@ public class SampleService {
 
 	public SampleEntity getSampleEntity(String sampleDbId, HttpStatus errorStatus) throws BrAPIServerException {
 		SampleEntity sample = null;
-		Optional<SampleEntity> entityOpt = sampleRepository.findById(sampleDbId);
+		Optional<SampleEntity> entityOpt = sampleRepository.findById(UUID.fromString(sampleDbId));
 		if (entityOpt.isPresent()) {
 			sample = entityOpt.get();
 		} else {
@@ -174,7 +172,7 @@ public class SampleService {
 	}
 
 	public void deleteSampleBatch(List<String> sampleDbIds) {
-		sampleRepository.deleteAllByIdInBatch(sampleDbIds);
+		sampleRepository.deleteAllByIdInBatch(sampleDbIds.stream().map(UUID::fromString).toList());
 	}
 
 	public void softDeleteSampleBatch(List<String> sampleDbIds) {
@@ -186,7 +184,7 @@ public class SampleService {
 		softDeleteSample(sampleDbId);
 
 		// Hard delete the sample
-		sampleRepository.deleteAllByIdInBatch(Arrays.asList(sampleDbId));
+		sampleRepository.deleteAllByIdInBatch(List.of(UUID.fromString(sampleDbId)));
 	}
 
 	public void softDeleteSample(String sampleDbId) throws BrAPIServerDbIdNotFoundException {
@@ -223,44 +221,44 @@ public class SampleService {
 
 		if (entity.getObservationUnit() != null) {
 			ObservationUnitEntity unit = entity.getObservationUnit();
-			sample.setObservationUnitDbId(unit.getId());
+			sample.setObservationUnitDbId(unit.getId().toString());
 			if (unit.getGermplasm() != null)
-				sample.setGermplasmDbId(unit.getGermplasm().getId());
+				sample.setGermplasmDbId(unit.getGermplasm().getId().toString());
 			if (unit.getStudy() != null) {
-				sample.setStudyDbId(unit.getStudy().getId());
+				sample.setStudyDbId(unit.getStudy().getId().toString());
 				if (unit.getStudy().getTrial() != null) {
-					sample.setTrialDbId(unit.getStudy().getTrial().getId());
+					sample.setTrialDbId(unit.getStudy().getTrial().getId().toString());
 					if (unit.getStudy().getTrial().getProgram() != null) {
-						sample.setProgramDbId(unit.getStudy().getTrial().getProgram().getId());
+						sample.setProgramDbId(unit.getStudy().getTrial().getProgram().getId().toString());
 					}
 				}
 			}
 		} else if (entity.getStudy() != null) {
-			sample.setStudyDbId(entity.getStudy().getId());
+			sample.setStudyDbId(entity.getStudy().getId().toString());
 			if (entity.getStudy().getTrial() != null) {
-				sample.setTrialDbId(entity.getStudy().getTrial().getId());
+				sample.setTrialDbId(entity.getStudy().getTrial().getId().toString());
 				if (entity.getStudy().getTrial().getProgram() != null) {
-					sample.setProgramDbId(entity.getStudy().getTrial().getProgram().getId());
+					sample.setProgramDbId(entity.getStudy().getTrial().getProgram().getId().toString());
 				}
 			}
 		} else if (entity.getTrial() != null) {
-			sample.setTrialDbId(entity.getTrial().getId());
+			sample.setTrialDbId(entity.getTrial().getId().toString());
 			if (entity.getTrial().getProgram() != null) {
-				sample.setProgramDbId(entity.getTrial().getProgram().getId());
+				sample.setProgramDbId(entity.getTrial().getProgram().getId().toString());
 			}
 		} else if (entity.getProgram() != null) {
-			sample.setProgramDbId(entity.getProgram().getId());
+			sample.setProgramDbId(entity.getProgram().getId().toString());
 		}
 
 		if (entity.getPlate() != null) {
-			sample.setPlateDbId(entity.getPlate().getId());
+			sample.setPlateDbId(entity.getPlate().getId().toString());
 			sample.setPlateName(entity.getPlate().getPlateName());
 		}
 		sample.setRow(entity.getPlateRow());
 		sample.setSampleBarcode(entity.getSampleBarcode());
-		sample.setSampleDbId(entity.getId());
+		sample.setSampleDbId(entity.getId().toString());
 		sample.setSampleDescription(entity.getSampleDescription());
-		sample.setSampleGroupDbId(entity.getSampleGroupDbId());
+		sample.setSampleGroupDbId(entity.getSampleGroupDbId().toString());
 		sample.setSampleName(entity.getSampleName());
 		sample.setSamplePUI(entity.getSamplePUI());
 		sample.setSampleTimestamp(DateUtility.toOffsetDateTime(entity.getSampleTimestamp()));
@@ -320,7 +318,7 @@ public class SampleService {
 		if (sample.getSampleDescription() != null)
 			entity.setSampleDescription(sample.getSampleDescription());
 		if (sample.getSampleGroupDbId() != null)
-			entity.setSampleGroupDbId(sample.getSampleGroupDbId());
+			entity.setSampleGroupDbId(UUID.fromString(sample.getSampleGroupDbId()));
 		if (sample.getSampleName() != null)
 			entity.setSampleName(sample.getSampleName());
 		if (sample.getSamplePUI() != null)

@@ -1,0 +1,35 @@
+DELETE FROM germplasm_external_references where germplasm_entity_id = 'germplasm3';
+DELETE FROM external_reference where id = 'germplasm_er_3';
+DELETE FROM germplasm_taxon where germplasm_id = 'germplasm3';
+DELETE FROM germplasm_synonym where germplasm_id = 'germplasm3';
+DELETE FROM germplasm_entity_type_of_germplasm_storage_code where germplasm_entity_id = 'germplasm3';
+DELETE FROM germplasm_institute where germplasm_id = 'germplasm3';
+DELETE FROM germplasm_origin where germplasm_id = 'germplasm3';
+DELETE FROM coordinate where id = 'germplasm_origin_coor_3';
+DELETE FROM geojson where id = 'germplasm_origin_geo_3';
+DELETE FROM germplasm_donor where germplasm_id = 'germplasm3';
+DELETE FROM germplasm where id = 'germplasm3';
+
+DELETE FROM germplasm_external_references where germplasm_entity_id = 'germplasm2';
+DELETE FROM external_reference where id = 'germplasm_er_2';
+DELETE FROM germplasm_taxon where germplasm_id = 'germplasm2';
+DELETE FROM germplasm_synonym where germplasm_id = 'germplasm2';
+DELETE FROM germplasm_entity_type_of_germplasm_storage_code where germplasm_entity_id = 'germplasm2';
+DELETE FROM germplasm_institute where germplasm_id = 'germplasm2';
+DELETE FROM germplasm_origin where germplasm_id = 'germplasm2';
+DELETE FROM coordinate where id = 'germplasm_origin_coor_2';
+DELETE FROM geojson where id = 'germplasm_origin_geo_2';
+DELETE FROM germplasm_donor where germplasm_id = 'germplasm2';
+DELETE FROM germplasm where id = 'germplasm2';
+
+DELETE FROM germplasm_external_references where germplasm_entity_id = 'germplasm1';
+DELETE FROM external_reference where id = 'germplasm_er_1';
+DELETE FROM germplasm_taxon where germplasm_id = 'germplasm1';
+DELETE FROM germplasm_synonym where germplasm_id = 'germplasm1';
+DELETE FROM germplasm_entity_type_of_germplasm_storage_code where germplasm_entity_id = 'germplasm1';
+DELETE FROM germplasm_institute where germplasm_id = 'germplasm1';
+DELETE FROM germplasm_origin where germplasm_id = 'germplasm1';
+DELETE FROM coordinate where id = 'germplasm_origin_coor_1';
+DELETE FROM geojson where id = 'germplasm_origin_geo_1';
+DELETE FROM germplasm_donor where germplasm_id = 'germplasm1';
+DELETE FROM germplasm where id = 'germplasm1';

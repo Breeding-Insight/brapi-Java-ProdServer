@@ -1,6 +1,7 @@
 package io.swagger.model.geno;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.JsonNode;
 import io.swagger.annotations.ApiModelProperty;
 import io.swagger.model.ExternalReferences;
 import jakarta.validation.Valid;
@@ -14,11 +15,11 @@ import java.util.Objects;
  * SampleNewRequest
  */
 @Validated
-@javax.annotation.Generated(value = "io.swagger.codegen.v3.generators.java.SpringCodegen", date = "2020-03-20T16:32:53.794Z[GMT]")
+@javax.annotation.processing.Generated(value = "io.swagger.codegen.v3.generators.java.SpringCodegen", date = "2020-03-20T16:32:53.794Z[GMT]")
 public class SampleNewRequest   {
   @JsonProperty("additionalInfo")
   @Valid
-  private Object additionalInfo = null;
+  private JsonNode additionalInfo = null;
 
   @JsonProperty("column")
   private Integer column = null;
@@ -80,7 +81,7 @@ public class SampleNewRequest   {
   @JsonProperty("well")
   private String well = null;
 
-  public SampleNewRequest additionalInfo(Object additionalInfo) {
+  public SampleNewRequest additionalInfo(JsonNode additionalInfo) {
     this.additionalInfo = additionalInfo;
     return this;
   }
@@ -90,12 +91,11 @@ public class SampleNewRequest   {
    * @return additionalInfo
   **/
   @ApiModelProperty(value = "Additional arbitrary info")
-  
-    public Object getAdditionalInfo() {
+    public JsonNode getAdditionalInfo() {
     return additionalInfo;
   }
 
-  public void setAdditionalInfo(Object additionalInfo) {
+  public void setAdditionalInfo(JsonNode additionalInfo) {
     this.additionalInfo = additionalInfo;
   }
 

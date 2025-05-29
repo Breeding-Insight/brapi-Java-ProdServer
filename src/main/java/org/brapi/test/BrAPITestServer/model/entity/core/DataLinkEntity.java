@@ -1,7 +1,6 @@
 package org.brapi.test.BrAPITestServer.model.entity.core;
 
-import javax.persistence.*;
-
+import jakarta.persistence.*;
 import org.brapi.test.BrAPITestServer.model.entity.BrAPIBaseEntity;
 
 @Entity
@@ -26,68 +25,69 @@ public class DataLinkEntity extends BrAPIBaseEntity {
 	@ManyToOne(fetch = FetchType.LAZY)
 	private StudyEntity study;
 
-	public String getDataFormat() {
-		return dataFormat;
-	}
 
-	public void setDataFormat(String dataFormat) {
-		this.dataFormat = dataFormat;
-	}
+    public String getDataFormat() {
+        return dataFormat;
+    }
 
-	public String getDescription() {
-		return description;
-	}
+    public void setDataFormat(String dataFormat) {
+        this.dataFormat = dataFormat;
+    }
 
-	public void setDescription(String description) {
-		this.description = description;
-	}
+    public String getDescription() {
+        return description;
+    }
 
-	public String getFileFormat() {
-		return fileFormat;
-	}
+    public void setDescription(String description) {
+        this.description = description;
+    }
 
-	public void setFileFormat(String fileFormat) {
-		this.fileFormat = fileFormat;
-	}
+    public String getFileFormat() {
+        return fileFormat;
+    }
 
-	public String getName() {
-		return name;
-	}
+    public void setFileFormat(String fileFormat) {
+        this.fileFormat = fileFormat;
+    }
 
-	public void setName(String name) {
-		this.name = name;
-	}
+    public String getName() {
+        return name;
+    }
 
-	public String getProvenance() {
-		return provenance;
-	}
+    public void setName(String name) {
+        this.name = name;
+    }
 
-	public void setProvenance(String provenance) {
-		this.provenance = provenance;
-	}
+    public String getProvenance() {
+        return provenance;
+    }
 
-	public String getScientificType() {
-		return scientificType;
-	}
+    public void setProvenance(String provenance) {
+        this.provenance = provenance;
+    }
 
-	public void setScientificType(String scientificType) {
-		this.scientificType = scientificType;
-	}
+    public String getScientificType() {
+        return scientificType;
+    }
 
-	public String getUrl() {
-		return url;
-	}
+    public void setScientificType(String scientificType) {
+        this.scientificType = scientificType;
+    }
 
-	public void setUrl(String url) {
-		this.url = url;
-	}
+    public String getUrl() {
+        return url;
+    }
 
-	public String getVersion() {
-		return version;
-	}
+    public void setUrl(String url) {
+        this.url = url;
+    }
 
-	public void setVersion(String version) {
-		this.version = version;
-	}
+    public String getVersion() {
+        return version;
+    }
+
+    public void setVersion(String version) {
+        this.version = version;
+    }
 
 }

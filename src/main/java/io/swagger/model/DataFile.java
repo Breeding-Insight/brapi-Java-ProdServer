@@ -12,7 +12,7 @@ import org.springframework.validation.annotation.Validated;
  */
 @ApiModel(description = "A dataFile contains a URL and the relevant file metadata to represent a file")
 @Validated
-@javax.annotation.Generated(value = "io.swagger.codegen.v3.generators.java.SpringCodegen", date = "2020-03-20T16:31:52.030Z[GMT]")
+@javax.annotation.processing.Generated(value = "io.swagger.codegen.v3.generators.java.SpringCodegen", date = "2020-03-20T16:31:52.030Z[GMT]")
 public class DataFile   {
   @JsonProperty("fileDescription")
   private String fileDescription = null;

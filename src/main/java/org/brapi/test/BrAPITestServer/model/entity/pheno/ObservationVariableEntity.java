@@ -1,8 +1,8 @@
 package org.brapi.test.BrAPITestServer.model.entity.pheno;
 
-import java.util.List;
+import jakarta.persistence.*;
 
-import javax.persistence.*;
+import java.util.List;
 
 @Entity
 @Table(name="observation_variable")
@@ -32,5 +32,4 @@ public class ObservationVariableEntity extends VariableBaseEntity{
 	public void setObservations(List<ObservationEntity> observations) {
 		this.observations = observations;
 	}
-	
 }

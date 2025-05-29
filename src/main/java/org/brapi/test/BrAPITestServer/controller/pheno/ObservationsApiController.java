@@ -31,11 +31,11 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestParam;
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 import java.util.List;
 import java.util.Map;
 
-@javax.annotation.Generated(value = "io.swagger.codegen.v3.generators.java.SpringCodegen", date = "2020-03-20T16:32:22.556Z[GMT]")
+@javax.annotation.processing.Generated(value = "io.swagger.codegen.v3.generators.java.SpringCodegen", date = "2020-03-20T16:32:22.556Z[GMT]")
 @Controller
 public class ObservationsApiController extends BrAPIController implements ObservationsApi {
 
@@ -173,11 +173,14 @@ public class ObservationsApiController extends BrAPIController implements Observ
 			@RequestParam(value = "observationUnitLevelRelationshipOrder", required = false) String observationUnitLevelRelationshipOrder,
 			@RequestParam(value = "observationUnitLevelRelationshipCode", required = false) String observationUnitLevelRelationshipCode,
 			@RequestParam(value = "observationUnitLevelRelationshipDbId", required = false) String observationUnitLevelRelationshipDbId,
+		    @RequestParam(value = "page", required = false) Integer page,
+		    @RequestParam(value = "pageSize", required = false) Integer pageSize,
 			@RequestHeader(value = "Authorization", required = false) String authorization)
 			throws BrAPIServerException {
 
 		log.debug("Request: " + request.getRequestURI());
 		validateSecurityContext(request, "ROLE_ANONYMOUS", "ROLE_USER");
+		Metadata metadata = generateMetaDataTemplate(page, pageSize);
 
 		String sep = "";
 		if ("text/csv".equals(accept)) {
@@ -193,7 +196,8 @@ public class ObservationsApiController extends BrAPIController implements Observ
 			SearchRequestEntity request = searchService.findById(searchResultsDbId);
 			if (request != null) {
 				ObservationSearchRequest body = request.getParameters(ObservationSearchRequest.class);
-				data = observationService.findObservationsTable(body);
+				//TODO: revisit paging for this case; metadata=null
+				data = observationService.findObservationsTable(body, null);
 			} else {
 				return responseAccepted(searchResultsDbId);
 			}
@@ -204,11 +208,11 @@ public class ObservationsApiController extends BrAPIController implements Observ
 					observationUnitLevelName, observationUnitLevelOrder, observationUnitLevelCode,
 					observationUnitLevelRelationshipName, observationUnitLevelRelationshipOrder,
 					observationUnitLevelRelationshipCode, observationUnitLevelRelationshipDbId,
-					observationTimeStampRangeStart, observationTimeStampRangeEnd, searchResultsDbId);
+					observationTimeStampRangeStart, observationTimeStampRangeEnd, searchResultsDbId, metadata);
 		}
 
 		if (sep.isEmpty()) {
-			return responseOK(new ObservationTableResponse(), data);
+			return responseOK(new ObservationTableResponse(), data, metadata);
 		} else {
 			String textTable = observationService.getObservationTableText(data, sep);
 			return new ResponseEntity<String>(textTable, HttpStatus.OK);

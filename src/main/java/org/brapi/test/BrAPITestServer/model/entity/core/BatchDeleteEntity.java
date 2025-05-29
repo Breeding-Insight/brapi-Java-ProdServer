@@ -3,7 +3,7 @@ package org.brapi.test.BrAPITestServer.model.entity.core;
 import io.swagger.model.core.BatchDeleteTypes;
 import org.brapi.test.BrAPITestServer.model.entity.BrAPIPrimaryEntity;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import java.util.Date;
 import java.util.List;
 

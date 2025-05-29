@@ -3,6 +3,7 @@ package org.brapi.test.BrAPITestServer.service.pheno;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.math.NumberUtils;
@@ -39,16 +40,17 @@ public class ScaleService {
 
 	public List<Scale> findScales(String scaleDbId, String observationVariableDbId, String ontologyDbId,
 			String commonCropName, String programDbId, String externalReferenceId, String externalReferenceID,
-			String externalReferenceSource, Metadata metadata) {
+			String externalReferenceSource, Metadata metadata)
+		throws BrAPIServerException {
 		Pageable pageReq = PagingUtility.getPageRequest(metadata);
 		SearchQueryBuilder<ScaleEntity> searchQuery = new SearchQueryBuilder<ScaleEntity>(ScaleEntity.class);
 		if (observationVariableDbId != null) {
 			searchQuery = searchQuery.join("variables", "variable").appendSingle(observationVariableDbId,
 					"*variable.id");
 		}
-		searchQuery = searchQuery.appendSingle(scaleDbId, "id").withExRefs(externalReferenceID,
+		searchQuery = searchQuery.appendSingle(UUID.fromString(scaleDbId), "id").withExRefs(externalReferenceID,
 				externalReferenceSource);
-		Page<ScaleEntity> scalePage = scaleRepository.findAllBySearch(searchQuery, pageReq);
+		Page<ScaleEntity> scalePage = scaleRepository.findAllBySearchAndPaginate(searchQuery, pageReq);
 		PagingUtility.calculateMetaData(metadata, scalePage);
 
 		List<Scale> scales = scalePage.map(this::convertFromEntity).getContent();
@@ -90,7 +92,7 @@ public class ScaleService {
 	public ScaleEntity getScaleEntity(String scaleDbId, HttpStatus errorStatus) throws BrAPIServerException {
 		ScaleEntity scale = null;
 		if (scaleDbId != null) {
-			Optional<ScaleEntity> entityOpt = scaleRepository.findById(scaleDbId);
+			Optional<ScaleEntity> entityOpt = scaleRepository.findById(UUID.fromString(scaleDbId));
 			if (entityOpt.isPresent()) {
 				scale = entityOpt.get();
 			} else {
@@ -166,7 +168,7 @@ public class ScaleService {
 			scale.setDataType(entity.getDataType());
 			scale.setDecimalPlaces(entity.getDecimalPlaces());
 			scale.setUnits(entity.getUnits());
-			scale.setScaleDbId(entity.getId());
+			scale.setScaleDbId(entity.getId().toString());
 			scale.setScaleName(entity.getScaleName());
 			scale.setScalePUI(entity.getScalePUI());
 			scale.setOntologyReference(ontologyService.convertFromEntity(entity));

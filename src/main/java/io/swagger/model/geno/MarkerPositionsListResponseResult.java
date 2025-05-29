@@ -17,7 +17,7 @@ import jakarta.validation.Valid;
  * MarkerPositionListResponseResult
  */
 @Validated
-@javax.annotation.Generated(value = "io.swagger.codegen.v3.generators.java.SpringCodegen", date = "2020-03-20T16:32:53.794Z[GMT]")
+@javax.annotation.processing.Generated(value = "io.swagger.codegen.v3.generators.java.SpringCodegen", date = "2020-03-20T16:32:53.794Z[GMT]")
 public class MarkerPositionsListResponseResult implements BrAPIResponseResult<MarkerPosition>  {
   @JsonProperty("data")
   @Valid

@@ -3,5 +3,7 @@ package org.brapi.test.BrAPITestServer.repository.core;
 import org.brapi.test.BrAPITestServer.model.entity.core.StudyEntity;
 import org.brapi.test.BrAPITestServer.repository.BrAPIRepository;
 
-public interface StudyRepository extends BrAPIRepository<StudyEntity, String> {
+import java.util.UUID;
+
+public interface StudyRepository extends BrAPIRepository<StudyEntity, UUID> {
 }

@@ -1,10 +1,8 @@
 package org.brapi.test.BrAPITestServer.service.germ;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
+import io.swagger.model.IndexPagination;
 import jakarta.validation.Valid;
 
 import org.brapi.test.BrAPITestServer.exceptions.BrAPIServerDbIdNotFoundException;
@@ -41,31 +39,42 @@ public class CrossingProjectService {
 
 	public List<CrossingProject> findCrossingProjects(String crossingProjectDbId, String crossingProjectName,
 			Boolean includePotentialParents, String commonCropName, String programDbId, String externalReferenceId,
-			String externalReferenceID, String externalReferenceSource, Metadata metadata) {
+			String externalReferenceID, String externalReferenceSource, Metadata metadata)
+		throws BrAPIServerException {
 		Pageable pageReq = PagingUtility.getPageRequest(metadata);
 
 		SearchQueryBuilder<CrossingProjectEntity> searchQuery = new SearchQueryBuilder<CrossingProjectEntity>(
 				CrossingProjectEntity.class);
 
 		if (crossingProjectDbId != null)
-			searchQuery = searchQuery.appendSingle(crossingProjectDbId, "id");
+			searchQuery = searchQuery.appendSingle(UUID.fromString(crossingProjectDbId), "id");
 		if (crossingProjectName != null)
 			searchQuery = searchQuery.appendSingle(crossingProjectName, "name");
 		if (commonCropName != null)
 			searchQuery = searchQuery.appendSingle(commonCropName, "crop.crop_name");
 		if (programDbId != null)
-			searchQuery = searchQuery.appendSingle(programDbId, "program.id");
+			searchQuery = searchQuery.appendSingle(UUID.fromString(programDbId), "program.id");
 		if (externalReferenceID != null && externalReferenceSource != null)
-			searchQuery = searchQuery.withExRefs(Arrays.asList(externalReferenceID),
-					Arrays.asList(externalReferenceSource));
+			searchQuery = searchQuery.withExRefs(List.of(externalReferenceID),
+                    List.of(externalReferenceSource));
 
-		Page<CrossingProjectEntity> page = crossingProjectRepository.findAllBySearch(searchQuery, pageReq);
+		Page<CrossingProjectEntity> page = crossingProjectRepository.findAllBySearchAndPaginate(searchQuery, pageReq);
 		List<CrossingProject> crossingProjects = new ArrayList<>();
 		for (CrossingProjectEntity entity : page) {
 			crossingProjects.add(convertFromEntity(entity, includePotentialParents));
 		}
 		PagingUtility.calculateMetaData(metadata, page);
 		return crossingProjects;
+	}
+
+	public List<CrossingProjectEntity> findCrossingProjectsByIds(List<String> crossingProjectIds) {
+		var result = new ArrayList<CrossingProjectEntity>();
+
+		if (crossingProjectIds.isEmpty()) {
+			return result;
+		}
+
+		return crossingProjectRepository.findByIdIn(crossingProjectIds.stream().map(UUID::fromString).toList());
 	}
 
 	public CrossingProject getCrossingProject(String crossingProjectDbId) throws BrAPIServerException {
@@ -79,7 +88,7 @@ public class CrossingProjectService {
 	public CrossingProjectEntity getCrossingProjectEntity(String crossingProjectDbId, HttpStatus errorStatus)
 			throws BrAPIServerException {
 		CrossingProjectEntity crossingProject = null;
-		Optional<CrossingProjectEntity> entityOpt = crossingProjectRepository.findById(crossingProjectDbId);
+		Optional<CrossingProjectEntity> entityOpt = crossingProjectRepository.findById(UUID.fromString(crossingProjectDbId));
 		if (entityOpt.isPresent()) {
 			crossingProject = entityOpt.get();
 		} else {
@@ -122,11 +131,11 @@ public class CrossingProjectService {
 		CrossingProject project = new CrossingProject();
 		UpdateUtility.convertFromEntity(entity, project);
 
-		project.setCrossingProjectDbId(entity.getId());
+		project.setCrossingProjectDbId(entity.getId().toString());
 		project.setCrossingProjectDescription(entity.getDescription());
 		project.setCrossingProjectName(entity.getName());
 		if (entity.getProgram() != null) {
-			project.setProgramDbId(entity.getProgram().getId());
+			project.setProgramDbId(entity.getProgram().getId().toString());
 			project.setProgramName(entity.getProgram().getName());
 			if (entity.getProgram().getCrop() != null) {
 				project.setCommonCropName(entity.getProgram().getCrop().getCropName());

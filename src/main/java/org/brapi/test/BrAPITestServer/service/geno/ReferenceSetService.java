@@ -3,6 +3,7 @@ package org.brapi.test.BrAPITestServer.service.geno;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 import org.brapi.test.BrAPITestServer.exceptions.BrAPIServerDbIdNotFoundException;
 import org.brapi.test.BrAPITestServer.exceptions.BrAPIServerException;
@@ -33,7 +34,8 @@ public class ReferenceSetService {
 
 	public List<ReferenceSet> findReferenceSets(String referenceSetDbId, String accession, String assemblyPUI,
 			String md5checksum, String trialDbId, String studyDbId, String commonCropName, String programDbId,
-			String externalReferenceId, String externalReferenceSource, Metadata metadata) {
+			String externalReferenceId, String externalReferenceSource, Metadata metadata)
+		throws BrAPIServerException {
 		ReferenceSetsSearchRequest request = new ReferenceSetsSearchRequest();
 		if (referenceSetDbId != null)
 			request.addReferenceSetDbIdsItem(referenceSetDbId);
@@ -57,7 +59,8 @@ public class ReferenceSetService {
 		return findReferenceSets(request, metadata);
 	}
 
-	public List<ReferenceSet> findReferenceSets(ReferenceSetsSearchRequest request, Metadata metadata) {
+	public List<ReferenceSet> findReferenceSets(ReferenceSetsSearchRequest request, Metadata metadata)
+		throws BrAPIServerException {
 		Pageable pageReq = PagingUtility.getPageRequest(metadata);
 		SearchQueryBuilder<ReferenceSetEntity> searchQuery = new SearchQueryBuilder<ReferenceSetEntity>(
 				ReferenceSetEntity.class).appendList(request.getAccessions(), "sourceGermplasm.accessionNumber")
@@ -65,7 +68,7 @@ public class ReferenceSetService {
 						.appendList(request.getMd5checksums(), "md5checksum")
 						.appendList(request.getReferenceSetDbIds(), "id");
 
-		Page<ReferenceSetEntity> page = referenceSetRepository.findAllBySearch(searchQuery, pageReq);
+		Page<ReferenceSetEntity> page = referenceSetRepository.findAllBySearchAndPaginate(searchQuery, pageReq);
 		List<ReferenceSet> referenceSets = page.map(this::convertFromEntity).getContent();
 		PagingUtility.calculateMetaData(metadata, page);
 		return referenceSets;
@@ -82,7 +85,7 @@ public class ReferenceSetService {
 	public ReferenceSetEntity getReferenceSetEntity(String referenceSetDbId, HttpStatus errorStatus)
 			throws BrAPIServerException {
 		ReferenceSetEntity referenceSet = null;
-		Optional<ReferenceSetEntity> entityOpt = referenceSetRepository.findById(referenceSetDbId);
+		Optional<ReferenceSetEntity> entityOpt = referenceSetRepository.findById(UUID.fromString(referenceSetDbId));
 		if (entityOpt.isPresent()) {
 			referenceSet = entityOpt.get();
 		} else {
@@ -99,7 +102,7 @@ public class ReferenceSetService {
 		refSet.setDescription(entity.getDescription());
 		refSet.setIsDerived(entity.getIsDerived());
 		refSet.setMd5checksum(entity.getMd5checksum());
-		refSet.setReferenceSetDbId(entity.getId());
+		refSet.setReferenceSetDbId(entity.getId().toString());
 		refSet.setReferenceSetName(entity.getReferenceSetName());
 		refSet.setSourceURI(entity.getSourceURI());
 
@@ -116,7 +119,7 @@ public class ReferenceSetService {
 			}
 			refSet.setCommonCropName(entity.getSourceGermplasm().getCrop().getCropName());
 			ReferenceSourceGermplasm sourceGerm = new ReferenceSourceGermplasm();
-			sourceGerm.setGermplasmDbId(entity.getSourceGermplasm().getId());
+			sourceGerm.setGermplasmDbId(entity.getSourceGermplasm().getId().toString());
 			sourceGerm.setGermplasmName(entity.getSourceGermplasm().getGermplasmName());
 			refSet.setSourceGermplasm(Arrays.asList(sourceGerm));
 		}

@@ -12,7 +12,7 @@ import io.swagger.annotations.*;
 
 import java.util.List;
 
-import javax.websocket.server.PathParam;
+import jakarta.websocket.server.PathParam;
 
 import org.brapi.test.BrAPITestServer.exceptions.BrAPIServerException;
 import org.springframework.http.ResponseEntity;
@@ -24,7 +24,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import jakarta.validation.Valid;
 
-@javax.annotation.Generated(value = "io.swagger.codegen.v3.generators.java.SpringCodegen", date = "2020-03-20T16:32:22.556Z[GMT]")
+@javax.annotation.processing.Generated(value = "io.swagger.codegen.v3.generators.java.SpringCodegen", date = "2020-03-20T16:32:22.556Z[GMT]")
 @Api(value = "ontologies", description = "the ontologies API")
 public interface OntologiesApi {
 

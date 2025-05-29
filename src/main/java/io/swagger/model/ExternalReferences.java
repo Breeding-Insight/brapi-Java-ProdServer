@@ -14,7 +14,7 @@ import org.springframework.validation.annotation.Validated;
  */
 @ApiModel(description = "An array of external reference ids. These are references to this piece of data in an external system. Could be a simple string or a URI.")
 @Validated
-@javax.annotation.Generated(value = "io.swagger.codegen.v3.generators.java.SpringCodegen", date = "2020-03-20T16:31:52.030Z[GMT]")
+@javax.annotation.processing.Generated(value = "io.swagger.codegen.v3.generators.java.SpringCodegen", date = "2020-03-20T16:31:52.030Z[GMT]")
 public class ExternalReferences extends ArrayList<ExternalReferencesInner> {
 
 	private static final long serialVersionUID = -4795437173672218910L;

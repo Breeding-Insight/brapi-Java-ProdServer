@@ -1,10 +1,6 @@
 package org.brapi.test.BrAPITestServer.service.germ;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.Map.Entry;
 
@@ -49,7 +45,8 @@ public class CrossService {
 
 	public List<Cross> findCrosses(String crossingProjectDbId, String crossingProjectName, String crossDbId,
 			String crossName, String commonCropName, String programDbId, String externalReferenceId,
-			String externalReferenceID, String externalReferenceSource, Metadata metadata) {
+			String externalReferenceID, String externalReferenceSource, Metadata metadata)
+		throws BrAPIServerException {
 		List<Cross> crosses = findCrossEntities(crossingProjectDbId, crossingProjectName, crossDbId, crossName, null,
 				commonCropName, programDbId, externalReferenceId, externalReferenceID, externalReferenceSource, false,
 				metadata).map(this::convertToCross).getContent();
@@ -58,7 +55,8 @@ public class CrossService {
 
 	public List<PlannedCross> findPlannedCrosses(String crossingProjectDbId, String crossingProjectName,
 			String crossDbId, String crossName, String status, String commonCropName, String programDbId,
-			String externalReferenceId, String externalReferenceID, String externalReferenceSource, Metadata metadata) {
+			String externalReferenceId, String externalReferenceID, String externalReferenceSource, Metadata metadata)
+		throws BrAPIServerException {
 		List<PlannedCross> crosses = findCrossEntities(crossingProjectDbId, crossingProjectName, crossDbId, crossName, status,
 				commonCropName, programDbId, externalReferenceId, externalReferenceID, externalReferenceSource, true,
 				metadata).map(this::convertToPlanned).getContent();
@@ -67,21 +65,22 @@ public class CrossService {
 
 	public Page<CrossEntity> findCrossEntities(String crossingProjectDbId, String crossingProjectName, String crossDbId,
 			String crossName, String status, String commonCropName, String programDbId, String externalReferenceId,
-			String externalReferenceID, String externalReferenceSource, Boolean plannedCross, Metadata metadata) {
+			String externalReferenceID, String externalReferenceSource, Boolean plannedCross, Metadata metadata)
+		throws BrAPIServerException {
 
 		Pageable pageReq = PagingUtility.getPageRequest(metadata);
 		SearchQueryBuilder<CrossEntity> searchQuery = new SearchQueryBuilder<CrossEntity>(CrossEntity.class);
 		if (crossDbId != null)
-			searchQuery = searchQuery.appendSingle(crossDbId, "id");
+			searchQuery = searchQuery.appendSingle(UUID.fromString(crossDbId), "id");
 		if (crossingProjectDbId != null)
-			searchQuery = searchQuery.appendSingle(crossingProjectDbId, "crossingProject.id");
+			searchQuery = searchQuery.appendSingle(UUID.fromString(crossingProjectDbId), "crossingProject.id");
 		if (externalReferenceID != null && externalReferenceSource != null)
-			searchQuery = searchQuery.withExRefs(Arrays.asList(externalReferenceID),
-					Arrays.asList(externalReferenceSource));
+			searchQuery = searchQuery.withExRefs(List.of(externalReferenceID),
+                    List.of(externalReferenceSource));
 		if (plannedCross != null)
 			searchQuery = searchQuery.appendSingle(plannedCross, "planned");
 
-		Page<CrossEntity> page = crossRepository.findAllBySearch(searchQuery, pageReq);
+		Page<CrossEntity> page = crossRepository.findAllBySearchAndPaginate(searchQuery, pageReq);
 		PagingUtility.calculateMetaData(metadata, page);
 		return page;
 	}
@@ -90,10 +89,7 @@ public class CrossService {
 		if(isPlanned == null) {
 			isPlanned = false;
 		}
-		if(crossDbId == null) {
-			crossDbId = "";
-		}
-		return crossRepository.findByIdAndPlanned(crossDbId, isPlanned);
+		return crossRepository.findByIdAndPlanned(UUID.fromString(crossDbId), isPlanned);
 	}
 	
 	public List<Cross> saveCrosses(@Valid List<CrossNewRequest> body) throws BrAPIServerException {
@@ -132,7 +128,7 @@ public class CrossService {
 		List<Cross> savedValues = new ArrayList<>();
 
 		for (Entry<String, CrossNewRequest> crossEntry : body.entrySet()) {
-			Optional<CrossEntity> entityOpt = crossRepository.findById(crossEntry.getKey());
+			Optional<CrossEntity> entityOpt = crossRepository.findById(UUID.fromString(crossEntry.getKey()));
 			if (entityOpt.isPresent()) {
 				CrossEntity entity = entityOpt.get();
 				updateEntity(entity, crossEntry.getValue());
@@ -151,7 +147,7 @@ public class CrossService {
 		List<PlannedCross> savedValues = new ArrayList<>();
 
 		for (Entry<String, PlannedCrossNewRequest> crossEntry : body.entrySet()) {
-			Optional<CrossEntity> entityOpt = crossRepository.findById(crossEntry.getKey());
+			Optional<CrossEntity> entityOpt = crossRepository.findById(UUID.fromString(crossEntry.getKey()));
 			if (entityOpt.isPresent()) {
 				CrossEntity entity = entityOpt.get();
 				updateEntity(entity, crossEntry.getValue());
@@ -171,14 +167,14 @@ public class CrossService {
 			UpdateUtility.convertFromEntity(entity, cross);
 			convertFromEntity(entity, cross);
 			cross.setCrossAttributes(convertFromEntity(entity.getCrossAttributes()));
-			cross.setCrossDbId(entity.getId());
+			cross.setCrossDbId(entity.getId().toString());
 			cross.setCrossName(entity.getName());
 			if (entity.getPollinationEvents() != null && !entity.getPollinationEvents().isEmpty()) {
 				cross.setPollinationTimeStamp(
 						DateUtility.toOffsetDateTime(entity.getPollinationEvents().get(0).getPollinationTimeStamp()));
 			}
 			if (entity.getPlannedCross() != null) {
-				cross.setPlannedCrossDbId(entity.getPlannedCross().getId());
+				cross.setPlannedCrossDbId(entity.getPlannedCross().getId().toString());
 				cross.setPlannedCrossName(entity.getPlannedCross().getName());
 			}
 			if (entity.getPollinationEvents() != null) {
@@ -199,7 +195,7 @@ public class CrossService {
 		if (entity != null) {
 			UpdateUtility.convertFromEntity(entity, planned);
 			convertFromEntity(entity, planned);
-			planned.setPlannedCrossDbId(entity.getId());
+			planned.setPlannedCrossDbId(entity.getId().toString());
 			planned.setPlannedCrossName(entity.getName());
 			planned.setStatus(entity.getStatus());
 		}
@@ -208,7 +204,7 @@ public class CrossService {
 
 	private void convertFromEntity(CrossEntity entity, CrossInterface cross) {
 		if (entity.getCrossingProject() != null) {
-			cross.setCrossingProjectDbId(entity.getCrossingProject().getId());
+			cross.setCrossingProjectDbId(entity.getCrossingProject().getId().toString());
 			cross.setCrossingProjectName(entity.getCrossingProject().getName());
 		}
 		cross.setCrossType(entity.getCrossType());

@@ -31,7 +31,7 @@ public class BatchService {
 	public BatchDeleteDetails getBatch(String batchDbId) throws BrAPIServerException {
 		BatchDeleteEntity entity;
 
-		Optional<BatchDeleteEntity> entityOpt = batchDeleteRepository.findById(batchDbId);
+		Optional<BatchDeleteEntity> entityOpt = batchDeleteRepository.findById(UUID.fromString(batchDbId));
 		if (entityOpt.isPresent()) {
 			entity = entityOpt.get();
 		} else {
@@ -43,7 +43,7 @@ public class BatchService {
 
 	public BatchDeleteDetails updateBatchItems(String batchDbId, List<String> batchItems) throws BrAPIServerException {
 		BatchDeleteEntity savedEntity;
-		Optional<BatchDeleteEntity> entityOpt = batchDeleteRepository.findById(batchDbId);
+		Optional<BatchDeleteEntity> entityOpt = batchDeleteRepository.findById(UUID.fromString(batchDbId));
 		if (entityOpt.isPresent()) {
 			BatchDeleteEntity entity = entityOpt.get();
 			entity.setDateModified(new Date());
@@ -67,7 +67,7 @@ public class BatchService {
 
 	public BatchDeleteDetails updateBatch(String batchDbId, BatchDeleteNewRequest batch) throws BrAPIServerException {
 		BatchDeleteEntity savedEntity;
-		Optional<BatchDeleteEntity> entityOpt = batchDeleteRepository.findById(batchDbId);
+		Optional<BatchDeleteEntity> entityOpt = batchDeleteRepository.findById(UUID.fromString(batchDbId));
 		if (entityOpt.isPresent()) {
 			BatchDeleteEntity entity = entityOpt.get();
 			updateEntity(entity, batch);
@@ -102,13 +102,13 @@ public class BatchService {
 	}
 
 	public void deleteBatch(String batchDbId) throws BrAPIServerException {
-		batchDeleteRepository.deleteAllByIdInBatch(Arrays.asList(batchDbId));
+		batchDeleteRepository.deleteAllByIdInBatch(Arrays.asList(UUID.fromString(batchDbId)));
 	}
 
 	private BatchDeleteDetails convertToDetails(BatchDeleteEntity entity) {
 		BatchDeleteDetails details = new BatchDeleteDetails();
 		details = (BatchDeleteDetails) convertToBaseFields(entity, details);
-		details.setBatchDeleteDbId(entity.getId());
+		details.setBatchDeleteDbId(entity.getId().toString());
 		details.setData(entity.getData().stream().map((e) -> e.getItem()).collect(Collectors.toList()));
 
 		return details;
@@ -117,7 +117,7 @@ public class BatchService {
 	private BatchDeleteSummary convertToSummary(BatchDeleteEntity entity) {
 		BatchDeleteSummary summary = new BatchDeleteSummary();
 		summary = (BatchDeleteSummary) convertToBaseFields(entity, summary);
-		summary.setBatchDeleteDbId(entity.getId());
+		summary.setBatchDeleteDbId(entity.getId().toString());
 
 		return summary;
 	}
@@ -134,7 +134,7 @@ public class BatchService {
 		base.setExternalReferences(entity.getExternalReferencesMap());
 
 		if (entity.getBatchDeleteOwnerPerson() != null) {
-			base.setBatchDeleteOwnerPersonDbId(entity.getBatchDeleteOwnerPerson().getId());
+			base.setBatchDeleteOwnerPersonDbId(entity.getBatchDeleteOwnerPerson().getId().toString());
 		}
 		if (entity.getData() != null) {
 			base.setBatchDeleteSize(entity.getData().size());

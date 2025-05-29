@@ -1,13 +1,13 @@
 package org.brapi.test.BrAPITestServer.model.entity.geno;
 
-import java.math.BigDecimal;
-import javax.persistence.*;
-
+import jakarta.persistence.*;
 import org.brapi.test.BrAPITestServer.model.entity.BrAPIPrimaryEntity;
+
+import java.math.BigDecimal;
 
 
 @Entity
-@Table(name="reference")
+@Table(name = "reference")
 public class ReferenceEntity extends BrAPIPrimaryEntity {
 	@Column
 	private Integer length;
@@ -50,5 +50,4 @@ public class ReferenceEntity extends BrAPIPrimaryEntity {
 	public void setSourceDivergence(BigDecimal sourceDivergence) {
 		this.sourceDivergence = sourceDivergence;
 	}
-
 }

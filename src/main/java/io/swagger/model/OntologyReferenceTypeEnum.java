@@ -7,8 +7,7 @@ public enum OntologyReferenceTypeEnum {
     OBO("OBO"),
     RDF("RDF"),
     WEBPAGE("WEBPAGE");
-
-    private String value;
+private String value;
 
     OntologyReferenceTypeEnum(String value) {
       this.value = value;

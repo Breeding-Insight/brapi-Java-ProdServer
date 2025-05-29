@@ -1,17 +1,18 @@
 package org.brapi.test.BrAPITestServer.model.entity.core;
 
-import java.util.Date;
-import java.util.List;
-
-import javax.persistence.*;
-
+import jakarta.persistence.*;
 import org.brapi.test.BrAPITestServer.model.entity.BrAPIPrimaryEntity;
 import org.brapi.test.BrAPITestServer.model.entity.pheno.ObservationEntity;
 import org.brapi.test.BrAPITestServer.model.entity.pheno.ObservationUnitEntity;
 import org.brapi.test.BrAPITestServer.model.entity.pheno.ObservationVariableEntity;
+import org.hibernate.annotations.Where;
+
+import java.util.Date;
+import java.util.List;
 
 @Entity
 @Table(name = "study")
+@Where(clause = "soft_deleted = false")
 public class StudyEntity extends BrAPIPrimaryEntity {
 
 	@Column
@@ -75,231 +76,231 @@ public class StudyEntity extends BrAPIPrimaryEntity {
 	@ManyToOne(fetch = FetchType.LAZY)
 	private TrialEntity trial;
 
-	@OneToMany(mappedBy="study")
-	private List<ObservationUnitEntity> observationUnits;
-	@OneToMany(mappedBy="study")
-	private List<ObservationEntity> observations;
+    @OneToMany(mappedBy = "study")
+    private List<ObservationUnitEntity> observationUnits;
+    @OneToMany(mappedBy = "study")
+    private List<ObservationEntity> observations;
 
-	
-	public List<ObservationVariableEntity> getObservationVariables() {
-		return observationVariables;
-	}
 
-	public void setObservationVariables(List<ObservationVariableEntity> observationVariables) {
-		this.observationVariables = observationVariables;
-	}
+    public List<ObservationVariableEntity> getObservationVariables() {
+        return observationVariables;
+    }
 
-	public CropEntity getCrop() {
-		return crop;
-	}
+    public void setObservationVariables(List<ObservationVariableEntity> observationVariables) {
+        this.observationVariables = observationVariables;
+    }
 
-	public void setCrop(CropEntity crop) {
-		this.crop = crop;
-	}
+    public CropEntity getCrop() {
+        return crop;
+    }
 
-	public ProgramEntity getProgram() {
-		return program;
-	}
+    public void setCrop(CropEntity crop) {
+        this.crop = crop;
+    }
 
-	public void setProgram(ProgramEntity program) {
-		this.program = program;
-		if (program.getCrop() != null)
-			setCrop(program.getCrop());
-	}
+    public ProgramEntity getProgram() {
+        return program;
+    }
 
-	public List<ObservationUnitEntity> getObservationUnits() {
-		return observationUnits;
-	}
+    public void setProgram(ProgramEntity program) {
+        this.program = program;
+        if (program.getCrop() != null)
+            setCrop(program.getCrop());
+    }
 
-	public void setObservationUnits(List<ObservationUnitEntity> observationUnits) {
-		this.observationUnits = observationUnits;
-	}
+    public List<ObservationUnitEntity> getObservationUnits() {
+        return observationUnits;
+    }
 
-	public List<ObservationEntity> getObservations() {
-		return observations;
-	}
+    public void setObservationUnits(List<ObservationUnitEntity> observationUnits) {
+        this.observationUnits = observationUnits;
+    }
 
-	public void setObservations(List<ObservationEntity> observations) {
-		this.observations = observations;
-	}
+    public List<ObservationEntity> getObservations() {
+        return observations;
+    }
 
-	public boolean isActive() {
-		return active;
-	}
+    public void setObservations(List<ObservationEntity> observations) {
+        this.observations = observations;
+    }
 
-	public void setActive(boolean active) {
-		this.active = active;
-	}
+    public boolean isActive() {
+        return active;
+    }
 
-	public List<PersonEntity> getContacts() {
-		return contacts;
-	}
+    public void setActive(boolean active) {
+        this.active = active;
+    }
 
-	public void setContacts(List<PersonEntity> contacts) {
-		this.contacts = contacts;
-	}
+    public List<PersonEntity> getContacts() {
+        return contacts;
+    }
 
-	public String getCulturalPractices() {
-		return culturalPractices;
-	}
+    public void setContacts(List<PersonEntity> contacts) {
+        this.contacts = contacts;
+    }
 
-	public void setCulturalPractices(String culturalPractices) {
-		this.culturalPractices = culturalPractices;
-	}
+    public String getCulturalPractices() {
+        return culturalPractices;
+    }
 
-	public List<DataLinkEntity> getDataLinks() {
-		return dataLinks;
-	}
+    public void setCulturalPractices(String culturalPractices) {
+        this.culturalPractices = culturalPractices;
+    }
 
-	public void setDataLinks(List<DataLinkEntity> dataLinks) {
-		this.dataLinks = dataLinks;
-	}
+    public List<DataLinkEntity> getDataLinks() {
+        return dataLinks;
+    }
 
-	public String getDocumentationURL() {
-		return documentationURL;
-	}
+    public void setDataLinks(List<DataLinkEntity> dataLinks) {
+        this.dataLinks = dataLinks;
+    }
 
-	public void setDocumentationURL(String documentationURL) {
-		this.documentationURL = documentationURL;
-	}
+    public String getDocumentationURL() {
+        return documentationURL;
+    }
 
-	public Date getEndDate() {
-		return endDate;
-	}
+    public void setDocumentationURL(String documentationURL) {
+        this.documentationURL = documentationURL;
+    }
 
-	public void setEndDate(Date endDate) {
-		this.endDate = endDate;
-	}
+    public Date getEndDate() {
+        return endDate;
+    }
 
-	public List<EnvironmentParametersEntity> getEnvironmentParameters() {
-		return environmentParameters;
-	}
+    public void setEndDate(Date endDate) {
+        this.endDate = endDate;
+    }
 
-	public void setEnvironmentParameters(List<EnvironmentParametersEntity> environmentParameters) {
-		this.environmentParameters = environmentParameters;
-	}
+    public List<EnvironmentParametersEntity> getEnvironmentParameters() {
+        return environmentParameters;
+    }
 
-	public ExperimentalDesignEntity getExperimentalDesign() {
-		return experimentalDesign;
-	}
+    public void setEnvironmentParameters(List<EnvironmentParametersEntity> environmentParameters) {
+        this.environmentParameters = environmentParameters;
+    }
 
-	public void setExperimentalDesign(ExperimentalDesignEntity experimentalDesign) {
-		this.experimentalDesign = experimentalDesign;
-	}
+    public ExperimentalDesignEntity getExperimentalDesign() {
+        return experimentalDesign;
+    }
 
-	public GrowthFacilityEntity getGrowthFacility() {
-		return growthFacility;
-	}
+    public void setExperimentalDesign(ExperimentalDesignEntity experimentalDesign) {
+        this.experimentalDesign = experimentalDesign;
+    }
 
-	public void setGrowthFacility(GrowthFacilityEntity growthFacility) {
-		this.growthFacility = growthFacility;
-	}
+    public GrowthFacilityEntity getGrowthFacility() {
+        return growthFacility;
+    }
 
-	public StudyLastUpdateEntity getLastUpdate() {
-		return lastUpdate;
-	}
+    public void setGrowthFacility(GrowthFacilityEntity growthFacility) {
+        this.growthFacility = growthFacility;
+    }
 
-	public void setLastUpdate(StudyLastUpdateEntity lastUpdate) {
-		this.lastUpdate = lastUpdate;
-	}
+    public StudyLastUpdateEntity getLastUpdate() {
+        return lastUpdate;
+    }
 
-	public String getLicense() {
-		return license;
-	}
+    public void setLastUpdate(StudyLastUpdateEntity lastUpdate) {
+        this.lastUpdate = lastUpdate;
+    }
 
-	public void setLicense(String license) {
-		this.license = license;
-	}
+    public String getLicense() {
+        return license;
+    }
 
-	public LocationEntity getLocation() {
-		return location;
-	}
+    public void setLicense(String license) {
+        this.license = license;
+    }
 
-	public void setLocation(LocationEntity location) {
-		this.location = location;
-	}
+    public LocationEntity getLocation() {
+        return location;
+    }
 
-	public List<ObservationLevelEntity> getObservationLevels() {
-		return observationLevels;
-	}
+    public void setLocation(LocationEntity location) {
+        this.location = location;
+    }
 
-	public void setObservationLevels(List<ObservationLevelEntity> observationLevels) {
-		this.observationLevels = observationLevels;
-	}
+    public List<ObservationLevelEntity> getObservationLevels() {
+        return observationLevels;
+    }
 
-	public String getObservationUnitsDescription() {
-		return observationUnitsDescription;
-	}
+    public void setObservationLevels(List<ObservationLevelEntity> observationLevels) {
+        this.observationLevels = observationLevels;
+    }
 
-	public void setObservationUnitsDescription(String observationUnitsDescription) {
-		this.observationUnitsDescription = observationUnitsDescription;
-	}
+    public String getObservationUnitsDescription() {
+        return observationUnitsDescription;
+    }
 
-	public List<SeasonEntity> getSeasons() {
-		return seasons;
-	}
+    public void setObservationUnitsDescription(String observationUnitsDescription) {
+        this.observationUnitsDescription = observationUnitsDescription;
+    }
 
-	public void setSeasons(List<SeasonEntity> seasons) {
-		this.seasons = seasons;
-	}
+    public List<SeasonEntity> getSeasons() {
+        return seasons;
+    }
 
-	public Date getStartDate() {
-		return startDate;
-	}
+    public void setSeasons(List<SeasonEntity> seasons) {
+        this.seasons = seasons;
+    }
 
-	public void setStartDate(Date startDate) {
-		this.startDate = startDate;
-	}
+    public Date getStartDate() {
+        return startDate;
+    }
 
-	public String getStudyCode() {
-		return studyCode;
-	}
+    public void setStartDate(Date startDate) {
+        this.startDate = startDate;
+    }
 
-	public void setStudyCode(String studyCode) {
-		this.studyCode = studyCode;
-	}
+    public String getStudyCode() {
+        return studyCode;
+    }
 
-	public String getStudyDescription() {
-		return studyDescription;
-	}
+    public void setStudyCode(String studyCode) {
+        this.studyCode = studyCode;
+    }
 
-	public void setStudyDescription(String studyDescription) {
-		this.studyDescription = studyDescription;
-	}
+    public String getStudyDescription() {
+        return studyDescription;
+    }
 
-	public String getStudyName() {
-		return studyName;
-	}
+    public void setStudyDescription(String studyDescription) {
+        this.studyDescription = studyDescription;
+    }
 
-	public void setStudyName(String studyName) {
-		this.studyName = studyName;
-	}
+    public String getStudyName() {
+        return studyName;
+    }
 
-	public String getStudyPUI() {
-		return studyPUI;
-	}
+    public void setStudyName(String studyName) {
+        this.studyName = studyName;
+    }
 
-	public void setStudyPUI(String studyPUI) {
-		this.studyPUI = studyPUI;
-	}
+    public String getStudyPUI() {
+        return studyPUI;
+    }
 
-	public String getStudyType() {
-		return studyType;
-	}
+    public void setStudyPUI(String studyPUI) {
+        this.studyPUI = studyPUI;
+    }
 
-	public void setStudyType(String studyType) {
-		this.studyType = studyType;
-	}
+    public String getStudyType() {
+        return studyType;
+    }
 
-	public TrialEntity getTrial() {
-		return trial;
-	}
+    public void setStudyType(String studyType) {
+        this.studyType = studyType;
+    }
 
-	public void setTrial(TrialEntity trial) {
-		this.trial = trial;
-		if (trial.getProgram() != null)
-			setProgram(trial.getProgram());
-		if (trial.getCrop() != null)
-			setCrop(trial.getCrop());
-	}
+    public TrialEntity getTrial() {
+        return trial;
+    }
+
+    public void setTrial(TrialEntity trial) {
+        this.trial = trial;
+        if (trial.getProgram() != null)
+            setProgram(trial.getProgram());
+        if (trial.getCrop() != null)
+            setCrop(trial.getCrop());
+    }
 }

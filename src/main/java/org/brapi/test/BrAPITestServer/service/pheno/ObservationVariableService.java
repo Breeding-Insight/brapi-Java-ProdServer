@@ -68,7 +68,8 @@ public class ObservationVariableService {
 			String methodPUI, String scaleDbId, String scaleName, String scalePUI, String traitDbId, String traitName,
 			String traitPUI, String traitClass, String ontologyDbId, String commonCropName, String programDbId,
 			String trialDbId, String studyDbId, String externalReferenceId, String externalReferenceID,
-			String externalReferenceSource, Metadata metadata) {
+			String externalReferenceSource, Metadata metadata)
+		throws BrAPIServerException {
 
 		ObservationVariableSearchRequest request = new ObservationVariableSearchRequest();
 
@@ -113,7 +114,8 @@ public class ObservationVariableService {
 	}
 
 	public List<ObservationVariable> findObservationVariables(ObservationVariableSearchRequest request,
-			Metadata metadata) {
+			Metadata metadata)
+		throws BrAPIServerException {
 		Pageable pageReq = PagingUtility.getPageRequest(metadata);
 		SearchQueryBuilder<ObservationVariableEntity> searchQuery = new SearchQueryBuilder<ObservationVariableEntity>(
 				ObservationVariableEntity.class);
@@ -137,7 +139,7 @@ public class ObservationVariableService {
 				.appendEnumList(request.getDataTypes(), "scale.dataType");
 
 		log.debug("Starting variable search");
-		Page<ObservationVariableEntity> page = observationVariableRepository.findAllBySearch(searchQuery, pageReq);
+		Page<ObservationVariableEntity> page = observationVariableRepository.findAllBySearchAndPaginate(searchQuery, pageReq);
 		log.debug("Variable search complete");
 
 
@@ -183,7 +185,7 @@ public class ObservationVariableService {
 	public ObservationVariableEntity getObservationVariableEntity(String observationVariableDbId,
 			HttpStatus errorStatus) throws BrAPIServerException {
 		ObservationVariableEntity observationVariable = null;
-		Optional<ObservationVariableEntity> entityOpt = observationVariableRepository.findById(observationVariableDbId);
+		Optional<ObservationVariableEntity> entityOpt = observationVariableRepository.findById(UUID.fromString(observationVariableDbId));
 		if (entityOpt.isPresent()) {
 			observationVariable = entityOpt.get();
 		} else {
@@ -193,11 +195,11 @@ public class ObservationVariableService {
 	}
 
 	private ObservationVariable convertFromEntity(ObservationVariableEntity entity) {
-		log.trace("converting variable: " + entity.getId());
+		log.trace("converting variable: " + entity.getId().toString());
 		ObservationVariable var = new ObservationVariable();
 		convertFromBaseEntity(entity, var);
 		var.setObservationVariableName(entity.getName());
-		var.setObservationVariableDbId(entity.getId());
+		var.setObservationVariableDbId(entity.getId().toString());
 
 		return var;
 	}

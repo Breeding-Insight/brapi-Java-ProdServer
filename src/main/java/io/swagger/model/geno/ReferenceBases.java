@@ -12,7 +12,7 @@ import org.springframework.validation.annotation.Validated;
  */
 @ApiModel(description = "A string representation of the reference base alleles.")
 @Validated
-@javax.annotation.Generated(value = "io.swagger.codegen.v3.generators.java.SpringCodegen", date = "2020-03-20T16:32:53.794Z[GMT]")
+@javax.annotation.processing.Generated(value = "io.swagger.codegen.v3.generators.java.SpringCodegen", date = "2020-03-20T16:32:53.794Z[GMT]")
 public class ReferenceBases   {
   @JsonProperty("nextPageToken")
   private String nextPageToken = null;

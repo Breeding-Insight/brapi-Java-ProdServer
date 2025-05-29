@@ -9,8 +9,7 @@ public enum GenoFileDataFormatEnum {
     HAPMAP("Hapmap"),
     TABULAR("tabular"),
     JSON("JSON");
-
-    private String value;
+private String value;
 
     GenoFileDataFormatEnum(String value) {
       this.value = value;

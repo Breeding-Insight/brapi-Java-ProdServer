@@ -1,15 +1,15 @@
 package org.brapi.test.BrAPITestServer.model.entity.geno;
 
+import jakarta.persistence.*;
+import org.brapi.test.BrAPITestServer.model.entity.BrAPIPrimaryEntity;
+import org.hibernate.annotations.Where;
+
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-
-import javax.persistence.*;
-
-import org.brapi.test.BrAPITestServer.model.entity.BrAPIPrimaryEntity;
-
 @Entity
 @Table(name = "callset")
+@Where(clause = "soft_deleted = false")
 public class CallSetEntity extends BrAPIPrimaryEntity {
 	@Column
 	private String callSetName;
@@ -25,58 +25,58 @@ public class CallSetEntity extends BrAPIPrimaryEntity {
 				inverseJoinColumns = {@JoinColumn(referencedColumnName = "id") })
 	private List<VariantSetEntity> variantSets;
 
-	public CallSetEntity() {
-		super();
-	}
+    public CallSetEntity() {
+        super();
+    }
 
-	public CallSetEntity(CallSetEntity callSet) {
-		this.setCallSetName(callSet.getCallSetName());
-		this.setCreated(callSet.getCreated());
-		this.setId(callSet.getId());
-		this.setSample(callSet.getSample());
-		this.setUpdated(callSet.getUpdated());
-		this.setVariantSets(new ArrayList<>());
-		this.getVariantSets().addAll(callSet.getVariantSets());
-	}
+    public CallSetEntity(CallSetEntity callSet) {
+        this.setCallSetName(callSet.getCallSetName());
+        this.setCreated(callSet.getCreated());
+        this.setId(callSet.getId());
+        this.setSample(callSet.getSample());
+        this.setUpdated(callSet.getUpdated());
+        this.setVariantSets(new ArrayList<>());
+        this.getVariantSets().addAll(callSet.getVariantSets());
+    }
 
-	public Date getCreated() {
-		return created;
-	}
+    public Date getCreated() {
+        return created;
+    }
 
-	public void setCreated(Date created) {
-		this.created = created;
-	}
+    public void setCreated(Date created) {
+        this.created = created;
+    }
 
-	public SampleEntity getSample() {
-		return sample;
-	}
+    public SampleEntity getSample() {
+        return sample;
+    }
 
-	public void setSample(SampleEntity sample) {
-		this.sample = sample;
-	}
+    public void setSample(SampleEntity sample) {
+        this.sample = sample;
+    }
 
-	public Date getUpdated() {
-		return updated;
-	}
+    public Date getUpdated() {
+        return updated;
+    }
 
-	public void setUpdated(Date updated) {
-		this.updated = updated;
-	}
+    public void setUpdated(Date updated) {
+        this.updated = updated;
+    }
 
-	public List<VariantSetEntity> getVariantSets() {
-		return variantSets;
-	}
+    public List<VariantSetEntity> getVariantSets() {
+        return variantSets;
+    }
 
-	public void setVariantSets(List<VariantSetEntity> variantSets) {
-		this.variantSets = variantSets;
-	}
+    public void setVariantSets(List<VariantSetEntity> variantSets) {
+        this.variantSets = variantSets;
+    }
 
-	public String getCallSetName() {
-		return callSetName;
-	}
+    public String getCallSetName() {
+        return callSetName;
+    }
 
-	public void setCallSetName(String callSetName) {
-		this.callSetName = callSetName;
-	}
+    public void setCallSetName(String callSetName) {
+        this.callSetName = callSetName;
+    }
 
 }

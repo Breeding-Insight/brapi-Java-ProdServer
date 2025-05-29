@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.math.NumberUtils;
+import org.brapi.test.BrAPITestServer.exceptions.BrAPIServerException;
 import org.brapi.test.BrAPITestServer.model.entity.geno.CallEntity;
 import org.brapi.test.BrAPITestServer.model.entity.geno.CallSetEntity;
 import org.brapi.test.BrAPITestServer.model.entity.geno.VariantEntity;
@@ -43,7 +44,8 @@ public class AlleleMatrixService {
 			Integer dimensionCallSetPage, Integer dimensionCallSetPageSize, Boolean preview,
 			String dataMatrixNames, String dataMatrixAbbreviations, String positionRange, String germplasmDbId,
 			String germplasmName, String germplasmPUI, String callSetDbId, String variantDbId, String variantSetDbId,
-			Boolean expandHomozygotes, String unknownString, String sepPhased, String sepUnphased, Metadata metadata) {
+			Boolean expandHomozygotes, String unknownString, String sepPhased, String sepUnphased, Metadata metadata)
+		throws BrAPIServerException {
 
 		AlleleMatrixSearchRequestPagination variantPage = new AlleleMatrixSearchRequestPagination()
 				.dimension(DimensionEnum.VARIANTS);
@@ -111,18 +113,19 @@ public class AlleleMatrixService {
 		return findAlleleMatrix(request, metadata);
 	}
 
-	public AlleleMatrix findAlleleMatrix(AlleleMatrixSearchRequest request, Metadata metadata) {
+	public AlleleMatrix findAlleleMatrix(AlleleMatrixSearchRequest request, Metadata metadata)
+		throws BrAPIServerException {
 		AlleleMatrix matrixResponse = new AlleleMatrix();
 		AlleleMatrixPagination variantPage = new AlleleMatrixPagination().dimension(DimensionEnum.VARIANTS);
 		AlleleMatrixPagination callSetPage = new AlleleMatrixPagination().dimension(DimensionEnum.CALLSETS);
 
 		List<CallSetEntity> callSets = findCallSets(request, callSetPage);
-		matrixResponse.setCallSetDbIds(callSets.stream().map(callSet -> callSet.getId()).collect(Collectors.toList()));
+		matrixResponse.setCallSetDbIds(callSets.stream().map(callSet -> callSet.getId().toString()).collect(Collectors.toList()));
 
 		List<VariantEntity> variants = findVariants(request, variantPage);
-		matrixResponse.setVariantDbIds(variants.stream().map(variant -> variant.getId()).collect(Collectors.toList()));
+		matrixResponse.setVariantDbIds(variants.stream().map(variant -> variant.getId().toString()).collect(Collectors.toList()));
 
-		matrixResponse.setVariantSetDbIds(variants.stream().unordered().map(variant -> variant.getVariantSet().getId())
+		matrixResponse.setVariantSetDbIds(variants.stream().unordered().map(variant -> variant.getVariantSet().getId().toString())
 				.distinct().collect(Collectors.toList()));
 
 		matrixResponse
@@ -140,8 +143,8 @@ public class AlleleMatrixService {
 
 			List<CallEntity> calls = findCalls(matrixResponse, request);
 			for (CallEntity call : calls) {
-				int callSetPos = callSetIndex.get(call.getCallSet().getId());
-				int variantPos = variantIndex.get(call.getVariant().getId());
+				int callSetPos = callSetIndex.get(call.getCallSet().getId().toString());
+				int variantPos = variantIndex.get(call.getVariant().getId().toString());
 				for (AlleleMatrixDataMatrices matrix : matrixResponse.getDataMatrices()) {
 					String value = "";
 					if (matrix.getDataMatrixAbbreviation() == "GT") {
@@ -221,7 +224,8 @@ public class AlleleMatrixService {
 		}
 	}
 
-	private List<CallEntity> findCalls(AlleleMatrix matrixResponse, AlleleMatrixSearchRequest request) {
+	private List<CallEntity> findCalls(AlleleMatrix matrixResponse, AlleleMatrixSearchRequest request)
+		throws BrAPIServerException {
 		CallsSearchRequest callSearchReq = new CallsSearchRequest();
 		callSearchReq.setCallSetDbIds(matrixResponse.getCallSetDbIds());
 		callSearchReq.setVariantDbIds(matrixResponse.getVariantDbIds());
@@ -241,7 +245,8 @@ public class AlleleMatrixService {
 		return callService.findCallEntities(callSearchReq, metadata);
 	}
 
-	private List<VariantEntity> findVariants(AlleleMatrixSearchRequest request, AlleleMatrixPagination page) {
+	private List<VariantEntity> findVariants(AlleleMatrixSearchRequest request, AlleleMatrixPagination page)
+		throws BrAPIServerException {
 		VariantsSearchRequest variantSearchReq = new VariantsSearchRequest();
 		variantSearchReq.setCallSetDbIds(request.getCallSetDbIds());
 		variantSearchReq.setVariantDbIds(request.getVariantDbIds());
@@ -269,7 +274,8 @@ public class AlleleMatrixService {
 		return variants;
 	}
 
-	private List<CallSetEntity> findCallSets(AlleleMatrixSearchRequest request, AlleleMatrixPagination page) {
+	private List<CallSetEntity> findCallSets(AlleleMatrixSearchRequest request, AlleleMatrixPagination page)
+		throws BrAPIServerException {
 		CallSetsSearchRequest callSetSearchReq = new CallSetsSearchRequest();
 		callSetSearchReq.setCallSetDbIds(request.getCallSetDbIds());
 		callSetSearchReq.setGermplasmDbIds(request.getGermplasmDbIds());

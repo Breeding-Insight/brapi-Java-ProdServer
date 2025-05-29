@@ -1,13 +1,9 @@
 package org.brapi.test.BrAPITestServer.model.entity.geno;
 
-import javax.persistence.*;
-
-import org.brapi.test.BrAPITestServer.model.entity.BrAPIBaseEntity;
-
-import com.fasterxml.jackson.annotation.JsonProperty;
-
 import io.swagger.model.WSMIMEDataTypes;
 import io.swagger.model.geno.GenoFileDataFormatEnum;
+import jakarta.persistence.*;
+import org.brapi.test.BrAPITestServer.model.entity.BrAPIBaseEntity;
 
 @Entity
 @Table(name = "variantset_format")

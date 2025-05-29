@@ -28,7 +28,7 @@ import jakarta.validation.Valid;
 import java.util.ArrayList;
 import java.util.List;
 
-@javax.annotation.Generated(value = "io.swagger.codegen.v3.generators.java.SpringCodegen", date = "2020-03-20T16:31:52.030Z[GMT]")
+@javax.annotation.processing.Generated(value = "io.swagger.codegen.v3.generators.java.SpringCodegen", date = "2020-03-20T16:31:52.030Z[GMT]")
 @Api(value = "lists", description = "the lists API")
 public interface ListsApi {
 

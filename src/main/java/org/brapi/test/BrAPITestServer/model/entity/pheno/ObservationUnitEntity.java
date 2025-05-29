@@ -1,8 +1,6 @@
 package org.brapi.test.BrAPITestServer.model.entity.pheno;
 
-import java.util.List;
-
-import javax.persistence.*;
+import jakarta.persistence.*;
 
 import org.brapi.test.BrAPITestServer.model.entity.BrAPIPrimaryEntity;
 import org.brapi.test.BrAPITestServer.model.entity.core.CropEntity;
@@ -12,9 +10,13 @@ import org.brapi.test.BrAPITestServer.model.entity.core.TrialEntity;
 import org.brapi.test.BrAPITestServer.model.entity.germ.CrossEntity;
 import org.brapi.test.BrAPITestServer.model.entity.germ.GermplasmEntity;
 import org.brapi.test.BrAPITestServer.model.entity.germ.SeedLotEntity;
+import org.hibernate.annotations.Where;
+
+import java.util.List;
 
 @Entity
 @Table(name = "observation_unit")
+@Where(clause = "soft_deleted = false")
 public class ObservationUnitEntity extends BrAPIPrimaryEntity {
 	@ManyToOne(fetch = FetchType.LAZY)
 	private CrossEntity cross;

@@ -2,6 +2,7 @@ package io.swagger.model.core;
 
 import java.util.Objects;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.JsonNode;
 import io.swagger.annotations.ApiModelProperty;
 import io.swagger.model.ExternalReferences;
 
@@ -13,11 +14,11 @@ import jakarta.validation.Valid;
  * BatchBaseFields
  */
 @Validated
-@javax.annotation.Generated(value = "io.swagger.codegen.v3.generators.java.SpringCodegen", date = "2020-03-20T16:31:52.030Z[GMT]")
+@jakarta.annotation.Generated(value = "io.swagger.codegen.v3.generators.java.SpringCodegen", date = "2020-03-20T16:31:52.030Z[GMT]")
 public class BatchDeleteBaseFields implements BatchDeleteBaseFieldsInterface {
   @JsonProperty("additionalInfo")
   @Valid
-  private Object additionalInfo = null;
+  private JsonNode additionalInfo = null;
 
   @JsonProperty("dateCreated")
   private OffsetDateTime dateCreated = null;
@@ -49,7 +50,7 @@ public class BatchDeleteBaseFields implements BatchDeleteBaseFieldsInterface {
   @JsonProperty("batchDeleteType")
   private BatchDeleteTypes batchDeleteType = null;
 
-  public BatchDeleteBaseFields additionalInfo(Object additionalInfo) {
+  public BatchDeleteBaseFields additionalInfo(JsonNode additionalInfo) {
     this.additionalInfo = additionalInfo;
     return this;
   }
@@ -60,12 +61,12 @@ public class BatchDeleteBaseFields implements BatchDeleteBaseFieldsInterface {
    * @return additionalInfo
    **/
   @ApiModelProperty(example = "{}", value = "Additional arbitrary info")
-  
-    public Object getAdditionalInfo() {
+
+    public JsonNode getAdditionalInfo() {
     return additionalInfo;
   }
 
-  public void setAdditionalInfo(Object additionalInfo) {
+  public void setAdditionalInfo(JsonNode additionalInfo) {
     this.additionalInfo = additionalInfo;
   }
 

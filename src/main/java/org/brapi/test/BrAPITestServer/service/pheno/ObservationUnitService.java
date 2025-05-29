@@ -75,7 +75,8 @@ public class ObservationUnitService {
 			String observationUnitLevelCode, String observationUnitLevelRelationshipName,
 			String observationUnitLevelRelationshipOrder, String observationUnitLevelRelationshipCode,
 			String observationUnitLevelRelationshipDbId, String commonCropName, Boolean includeObservations,
-			String externalReferenceId, String externalReferenceID, String externalReferenceSource, Metadata metadata) {
+			String externalReferenceId, String externalReferenceID, String externalReferenceSource, Metadata metadata)
+		throws BrAPIServerException {
 		ObservationUnitSearchRequest request = buildObservationUnitsSearchRequest(observationUnitDbId,
 				observationUnitName, germplasmDbId, studyDbId, locationDbId, trialDbId, programDbId, seasonDbId,
 				observationUnitLevelName, observationUnitLevelOrder, observationUnitLevelCode,
@@ -148,7 +149,8 @@ public class ObservationUnitService {
 			String seasonDbId, String observationLevel, String observationUnitLevelName,
 			String observationUnitLevelOrder, String observationUnitLevelCode,
 			String observationUnitLevelRelationshipName, String observationUnitLevelRelationshipOrder,
-			String observationUnitLevelRelationshipCode, String observationUnitLevelRelationshipDbId) {
+			String observationUnitLevelRelationshipCode, String observationUnitLevelRelationshipDbId)
+		throws BrAPIServerException {
 
 		ObservationUnitSearchRequest ouRequest = buildObservationUnitsSearchRequest(observationUnitDbId, null,
 				germplasmDbId, studyDbId, locationDbId, trialDbId, programDbId, seasonDbId, observationUnitLevelName,
@@ -159,7 +161,7 @@ public class ObservationUnitService {
 
 		ObservationVariableSearchRequest varRequest = new ObservationVariableSearchRequest();
 		varRequest
-				.setObservationUnitDbIds(observationUnits.stream().map(ou -> ou.getId()).collect(Collectors.toList()));
+				.setObservationUnitDbIds(observationUnits.stream().map(ou -> ou.getId().toString()).collect(Collectors.toList()));
 		List<ObservationVariable> variables = observationVariableService.findObservationVariables(varRequest, null);
 
 		ObservationUnitTable table = new ObservationUnitTable();
@@ -169,7 +171,8 @@ public class ObservationUnitService {
 		return table;
 	}
 
-	public List<ObservationUnit> findObservationUnits(@Valid ObservationUnitSearchRequest request, Metadata metadata) {
+	public List<ObservationUnit> findObservationUnits(@Valid ObservationUnitSearchRequest request, Metadata metadata)
+		throws BrAPIServerException {
 		Page<ObservationUnitEntity> page = findObservationUnitEntities(request, metadata);
 
 		boolean includeObservations = request.isIncludeObservations() != null && request.isIncludeObservations();
@@ -177,7 +180,7 @@ public class ObservationUnitService {
 		if(includeObservations) {
 			log.debug("Fetching observations for OUs");
 			for(ObservationUnitEntity entity : page) {
-				log.trace("Fetching observations for OU: " + entity.getId());
+				log.trace("Fetching observations for OU: " + entity.getId().toString());
 				entity.getObservations();
 			}
 		}
@@ -191,7 +194,8 @@ public class ObservationUnitService {
 	}
 
 	public Page<ObservationUnitEntity> findObservationUnitEntities(@Valid ObservationUnitSearchRequest request,
-			Metadata metadata) {
+			Metadata metadata)
+		throws BrAPIServerException {
 		Pageable pageReq = PagingUtility.getPageRequest(metadata);
 		SearchQueryBuilder<ObservationUnitEntity> searchQuery = new SearchQueryBuilder<ObservationUnitEntity>(
 				ObservationUnitEntity.class);
@@ -261,7 +265,7 @@ public class ObservationUnitService {
 				.appendList(request.getTrialNames(), "trial.trailName");
 
 		log.debug("Starting search");
-		Page<ObservationUnitEntity> page = observationUnitRepository.findAllBySearch(searchQuery, pageReq);
+		Page<ObservationUnitEntity> page = observationUnitRepository.findAllBySearchAndPaginate(searchQuery, pageReq);
 		log.debug("Search complete");
 
 		if(!page.isEmpty()) {
@@ -272,36 +276,38 @@ public class ObservationUnitService {
 		return page;
 	}
 
-	private void fetchTreatments(Page<ObservationUnitEntity> page) {
+	private void fetchTreatments(Page<ObservationUnitEntity> page)
+		throws BrAPIServerException {
 		SearchQueryBuilder<ObservationUnitEntity> searchQuery = new SearchQueryBuilder<ObservationUnitEntity>(
 				ObservationUnitEntity.class);
 		searchQuery.leftJoinFetch("treatments", "treatments")
-				   .appendList(page.stream().map(BrAPIBaseEntity::getId).collect(Collectors.toList()), "id");
+				   .appendList(page.stream().map(oue -> oue.getId().toString()).collect(Collectors.toList()), "id");
 
-		Page<ObservationUnitEntity> treatments = observationUnitRepository.findAllBySearch(searchQuery, PageRequest.of(0, page.getSize()));
+		Page<ObservationUnitEntity> treatments = observationUnitRepository.findAllBySearchAndPaginate(searchQuery, PageRequest.of(0, page.getSize()));
 
 		Map<String, List<TreatmentEntity>> treatmentsByOu = new HashMap<>();
-		treatments.forEach(ou -> treatmentsByOu.put(ou.getId(), ou.getTreatments()));
+		treatments.forEach(ou -> treatmentsByOu.put(ou.getId().toString(), ou.getTreatments()));
 
-		page.forEach(ou -> ou.setTreatments(treatmentsByOu.get(ou.getId())));
+		page.forEach(ou -> ou.setTreatments(treatmentsByOu.get(ou.getId().toString())));
 	}
 
-	private void fetchObsUnitLevelRelationships(Page<ObservationUnitEntity> page) {
+	private void fetchObsUnitLevelRelationships(Page<ObservationUnitEntity> page)
+		throws BrAPIServerException {
 		SearchQueryBuilder<ObservationUnitEntity> searchQuery = new SearchQueryBuilder<ObservationUnitEntity>(
 				ObservationUnitEntity.class);
 		searchQuery.leftJoinFetch("position", "position")
 				   .leftJoinFetch("*position.observationLevelRelationships", "observationLevelRelationships")
-				   .appendList(page.stream().map(BrAPIBaseEntity::getId).collect(Collectors.toList()), "id");
+				   .appendList(page.stream().map(oue -> oue.getId().toString()).collect(Collectors.toList()), "id");
 
-		Page<ObservationUnitEntity> positions = observationUnitRepository.findAllBySearch(searchQuery, PageRequest.of(0, page.getSize()));
+		Page<ObservationUnitEntity> positions = observationUnitRepository.findAllBySearchAndPaginate(searchQuery, PageRequest.of(0, page.getSize()));
 
 		Map<String, ObservationUnitPositionEntity> positionByOu = new HashMap<>();
-		positions.forEach(ou -> positionByOu.put(ou.getId(), ou.getPosition()));
+		positions.forEach(ou -> positionByOu.put(ou.getId().toString(), ou.getPosition()));
 
 		page.forEach(ou -> {
 			if(ou.getPosition() != null) {
 				ou.getPosition()
-				  .setObservationLevelRelationships(positionByOu.get(ou.getId())
+				  .setObservationLevelRelationships(positionByOu.get(ou.getId().toString())
 																.getObservationLevelRelationships());
 			}
 		});
@@ -321,7 +327,7 @@ public class ObservationUnitService {
 			throw new BrAPIServerDbIdNotFoundException("observationUnit", "null", errorStatus);
 		}
 		ObservationUnitEntity observationUnit = null;
-		Optional<ObservationUnitEntity> entityOpt = observationUnitRepository.findById(observationUnitDbId);
+		Optional<ObservationUnitEntity> entityOpt = observationUnitRepository.findById(UUID.fromString(observationUnitDbId));
 		if (entityOpt.isPresent()) {
 			observationUnit = entityOpt.get();
 		} else {
@@ -367,7 +373,8 @@ public class ObservationUnitService {
 	}
 
 	public List<ObservationUnitHierarchyLevel> findObservationLevels(String studyDbId, String trialDbId,
-			String programDbId, Metadata metadata) {
+			String programDbId, Metadata metadata)
+		throws BrAPIServerException {
 
 		List<ObservationUnitLevel> allLevels = Arrays.asList(ObservationUnitHierarchyLevelEnum.values()).stream()
 				.map(levelEnum -> {
@@ -427,28 +434,28 @@ public class ObservationUnitService {
 	}
 
 	private ObservationUnit convertFromEntity(ObservationUnitEntity entity, boolean convertObservations) {
-		log.trace("converting ou: " + entity.getId());
+		log.trace("converting ou: " + entity.getId().toString());
 		ObservationUnit unit = new ObservationUnit();
 		UpdateUtility.convertFromEntity(entity, unit);
 
 		if (entity.getGermplasm() != null) {
-			unit.setGermplasmDbId(entity.getGermplasm().getId());
+			unit.setGermplasmDbId(entity.getGermplasm().getId().toString());
 			unit.setGermplasmName(entity.getGermplasm().getGermplasmName());
 		}
 		if (entity.getCross() != null) {
-			unit.setCrossDbId(entity.getCross().getId());
+			unit.setCrossDbId(entity.getCross().getId().toString());
 			unit.setCrossName(entity.getCross().getName());
 		}
 		if (convertObservations && entity.getObservations() != null) {
 			unit.setObservations(entity.getObservations().stream().map(this.observationService::convertFromEntity)
 					.collect(Collectors.toList()));
 		}
-		unit.setObservationUnitDbId(entity.getId());
+		unit.setObservationUnitDbId(entity.getId().toString());
 		unit.setObservationUnitName(entity.getObservationUnitName());
-		unit.setObservationUnitPosition(convertFromEntity(entity.getPosition(), entity.getId()));
+		unit.setObservationUnitPosition(convertFromEntity(entity.getPosition(), entity.getId().toString()));
 		unit.setObservationUnitPUI(entity.getObservationUnitPUI());
 		if (entity.getSeedLot() != null) {
-			unit.setSeedLotDbId(entity.getSeedLot().getId());
+			unit.setSeedLotDbId(entity.getSeedLot().getId().toString());
 			unit.setSeedLotName(entity.getSeedLot().getName());
 		}
 		if (entity.getTreatments() != null)
@@ -456,31 +463,31 @@ public class ObservationUnitService {
 					entity.getTreatments().stream().map(this::convertFromEntity).collect(Collectors.toList()));
 
 		if (entity.getStudy() != null) {
-			unit.setStudyDbId(entity.getStudy().getId());
+			unit.setStudyDbId(entity.getStudy().getId().toString());
 			unit.setStudyName(entity.getStudy().getStudyName());
 			if (entity.getStudy().getLocation() != null) {
-				unit.setLocationDbId(entity.getStudy().getLocation().getId());
+				unit.setLocationDbId(entity.getStudy().getLocation().getId().toString());
 				unit.setLocationName(entity.getStudy().getLocation().getLocationName());
 			}
 			if (entity.getStudy().getTrial() != null) {
-				unit.setTrialDbId(entity.getStudy().getTrial().getId());
+				unit.setTrialDbId(entity.getStudy().getTrial().getId().toString());
 				unit.setTrialName(entity.getStudy().getTrial().getTrialName());
 				if (entity.getStudy().getTrial().getProgram() != null) {
-					unit.setProgramDbId(entity.getStudy().getTrial().getProgram().getId());
+					unit.setProgramDbId(entity.getStudy().getTrial().getProgram().getId().toString());
 					unit.setProgramName(entity.getStudy().getTrial().getProgram().getName());
 				}
 			}
 		} 
 		if (entity.getTrial() != null) {
-			unit.setTrialDbId(entity.getTrial().getId());
+			unit.setTrialDbId(entity.getTrial().getId().toString());
 			unit.setTrialName(entity.getTrial().getTrialName());
 			if (entity.getTrial().getProgram() != null) {
-				unit.setProgramDbId(entity.getTrial().getProgram().getId());
+				unit.setProgramDbId(entity.getTrial().getProgram().getId().toString());
 				unit.setProgramName(entity.getTrial().getProgram().getName());
 			}
 		} 
 		if (entity.getProgram() != null) {
-			unit.setProgramDbId(entity.getProgram().getId());
+			unit.setProgramDbId(entity.getProgram().getId().toString());
 			unit.setProgramName(entity.getProgram().getName());
 		}
 
@@ -635,11 +642,11 @@ public class ObservationUnitService {
 					row.add(""); // YEAR
 				}
 
-				row.add(printIfNotNull(study.getId())); // STUDYDBID
+				row.add(printIfNotNull(study.getId().toString())); // STUDYDBID
 				row.add(printIfNotNull(study.getStudyName())); // STUDYNAME
 //
 //				if (study.getLocation() != null) {
-//					row.add(printIfNotNull(study.getLocation().getId())); // LOCATIONDBID
+//					row.add(printIfNotNull(study.getLocation().getId().toString())); // LOCATIONDBID
 //					row.add(printIfNotNull(study.getLocation().getLocationName())); // LOCATIONNAME
 //				} else {
 //					row.add(""); // LOCATIONDBID
@@ -655,14 +662,14 @@ public class ObservationUnitService {
 			}
 
 			if (obsUnit.getGermplasm() != null) {
-				row.add(printIfNotNull(obsUnit.getGermplasm().getId())); // GERMPLASMDBID
+				row.add(printIfNotNull(obsUnit.getGermplasm().getId().toString())); // GERMPLASMDBID
 				row.add(printIfNotNull(obsUnit.getGermplasm().getGermplasmName())); // GERMPLASMNAME
 			} else {
 				row.add(""); // GERMPLASMDBID
 				row.add(""); // GERMPLASMNAME
 			}
 
-			row.add(printIfNotNull(obsUnit.getId())); // OBSERVATIONUNITDBID
+			row.add(printIfNotNull(obsUnit.getId().toString())); // OBSERVATIONUNITDBID
 			row.add(printIfNotNull(obsUnit.getObservationUnitName())); // OBSERVATIONUNITNAME
 
 			if (obsUnit.getPosition() != null) {
@@ -687,7 +694,7 @@ public class ObservationUnitService {
 
 			for (ObservationVariable var : variables) {
 				Optional<ObservationEntity> obsOption = obsUnit.getObservations().stream().filter((obs) -> {
-					return obs.getObservationVariable().getId() == var.getObservationVariableDbId();
+					return obs.getObservationVariable().getId().toString() == var.getObservationVariableDbId();
 				}).findFirst();
 				if (obsOption.isPresent()) {
 					row.add(obsOption.get().getValue());
