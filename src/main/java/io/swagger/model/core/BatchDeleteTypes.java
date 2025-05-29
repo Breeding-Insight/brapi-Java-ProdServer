@@ -11,7 +11,8 @@ public enum BatchDeleteTypes {
   GERMPLASM("germplasm"),
   LISTS("lists"),
   TRIALS("trials"),
-  SAMPLES("samples");
+  SAMPLES("samples"),
+  PLATES("plates");
 
 
   private final String value;

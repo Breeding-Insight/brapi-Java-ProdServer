@@ -29,7 +29,7 @@ import jakarta.validation.Valid;
 import java.util.List;
 import java.util.Map;
 
-@javax.annotation.Generated(value = "io.swagger.codegen.v3.generators.java.SpringCodegen", date = "2022-06-03T22:50:47.807Z[GMT]")
+@javax.annotation.processing.Generated(value = "io.swagger.codegen.v3.generators.java.SpringCodegen", date = "2022-06-03T22:50:47.807Z[GMT]")
 @Validated
 public interface PedigreeApi {
 

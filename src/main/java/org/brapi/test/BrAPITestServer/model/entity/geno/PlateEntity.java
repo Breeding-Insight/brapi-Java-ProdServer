@@ -1,40 +1,41 @@
 package org.brapi.test.BrAPITestServer.model.entity.geno;
 
-import java.util.Date;
-import java.util.List;
+import io.swagger.model.geno.PlateFormat;
+import io.swagger.model.geno.SampleType;
+import jakarta.persistence.*;
 
-import javax.persistence.*;
-
-import org.brapi.test.BrAPITestServer.model.entity.BrAPIBaseEntity;
 import org.brapi.test.BrAPITestServer.model.entity.BrAPIPrimaryEntity;
 import org.brapi.test.BrAPITestServer.model.entity.core.ProgramEntity;
 import org.brapi.test.BrAPITestServer.model.entity.core.StudyEntity;
 import org.brapi.test.BrAPITestServer.model.entity.core.TrialEntity;
 import org.brapi.test.BrAPITestServer.model.entity.geno.vendor.VendorPlateSubmissionEntity;
+import org.hibernate.annotations.Where;
 
-import io.swagger.model.geno.PlateFormat;
-import io.swagger.model.geno.SampleType;
+import java.util.Date;
+import java.util.List;
+import java.util.UUID;
 
 @Entity
-@Table(name="plate")
-public class PlateEntity extends BrAPIPrimaryEntity{
-	@Column
-    private String clientPlateDbId;
-	@Column
+@Table(name = "plate")
+@Where(clause = "soft_deleted = false")
+public class PlateEntity extends BrAPIPrimaryEntity {
+    @Column
+    private UUID clientPlateDbId;
+    @Column
     private String clientPlateBarcode;
-	@Column
+    @Column
     private String plateName;
-	@Column
+    @Column
     private String plateBarcode;
-	@Column
-    private PlateFormat plateFormat ;
-	@Column
+    @Column
+    private PlateFormat plateFormat;
+    @Column
     private SampleType sampleType;
-	@Column
+    @Column
     private PlateFormat sampleSubmissionFormat;
-	@Column
+    @Column
     private Date statusTimeStamp;
-	@OneToMany(mappedBy="plate", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "plate", cascade = CascadeType.ALL)
     private List<SampleEntity> samples;
 	@ManyToOne(fetch = FetchType.LAZY)
 	private VendorPlateSubmissionEntity submission;	
@@ -93,10 +94,10 @@ public class PlateEntity extends BrAPIPrimaryEntity{
 	public void setSubmission(VendorPlateSubmissionEntity submission) {
 		this.submission = submission;
 	}
-	public String getClientPlateDbId() {
+	public UUID getClientPlateDbId() {
 		return clientPlateDbId;
 	}
-	public void setClientPlateDbId(String clientPlateDbId) {
+	public void setClientPlateDbId(UUID clientPlateDbId) {
 		this.clientPlateDbId = clientPlateDbId;
 	}
 	public String getClientPlateBarcode() {
@@ -123,6 +124,4 @@ public class PlateEntity extends BrAPIPrimaryEntity{
 	public void setSamples(List<SampleEntity> samples) {
 		this.samples = samples;
 	}
-	
-	
 }

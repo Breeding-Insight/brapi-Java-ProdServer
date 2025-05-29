@@ -1,0 +1,1 @@
+DELETE FROM crop where id IN ('1', '2', '3');

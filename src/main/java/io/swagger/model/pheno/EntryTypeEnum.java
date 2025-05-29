@@ -7,8 +7,7 @@ public enum EntryTypeEnum {
     CHECK("CHECK"),
     TEST("TEST"),
     FILLER("FILLER");
-
-    private String value;
+private String value;
 
     EntryTypeEnum(String value) {
       this.value = value;

@@ -1,8 +1,10 @@
 package org.brapi.test.BrAPITestServer.service.pheno;
 
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
+import org.brapi.test.BrAPITestServer.exceptions.BrAPIServerException;
 import org.brapi.test.BrAPITestServer.model.entity.pheno.EventEntity;
 import org.brapi.test.BrAPITestServer.repository.pheno.EventRepository;
 import org.brapi.test.BrAPITestServer.service.DateUtility;
@@ -29,12 +31,13 @@ public class EventService {
 	}
 
 	public List<Event> findEvents(String eventDbId, String studyDbId, String observationUnitDbId, String eventType,
-			OffsetDateTime dateRangeStart, OffsetDateTime dateRangeEnd, Metadata metadata) {
+			OffsetDateTime dateRangeStart, OffsetDateTime dateRangeEnd, Metadata metadata)
+		throws BrAPIServerException  {
 		Pageable pageReq = PagingUtility.getPageRequest(metadata);
 		SearchQueryBuilder<EventEntity> searchQuery = new SearchQueryBuilder<EventEntity>(EventEntity.class);
 
-		searchQuery = searchQuery.appendSingle(eventDbId, "id");
-		searchQuery = searchQuery.appendSingle(studyDbId, "study.id");
+		searchQuery = searchQuery.appendSingle(UUID.fromString(eventDbId), "id");
+		searchQuery = searchQuery.appendSingle(UUID.fromString(studyDbId), "study.id");
 		searchQuery = searchQuery.appendSingle(eventType, "eventType");
 		if (observationUnitDbId != null) {
 			searchQuery = searchQuery.join("observationUnits", "observationUnit").appendSingle(observationUnitDbId,
@@ -45,7 +48,7 @@ public class EventService {
 					"*dateOccured");
 		}
 
-		Page<EventEntity> page = eventRepository.findAllBySearch(searchQuery, pageReq);
+		Page<EventEntity> page = eventRepository.findAllBySearchAndPaginate(searchQuery, pageReq);
 		List<Event> crossingProjects = page.map(this::convertFromEntity).getContent();
 		PagingUtility.calculateMetaData(metadata, page);
 		return crossingProjects;
@@ -55,10 +58,10 @@ public class EventService {
 		Event event = new Event();
 		UpdateUtility.convertFromEntity(entity, event);
 
-		event.setEventDbId(entity.getId());
+		event.setEventDbId(entity.getId().toString());
 		event.setEventDescription(entity.getEventDescription());
 		event.setEventType(entity.getEventType());
-		event.setEventTypeDbId(entity.getEventTypeDbId());
+		event.setEventTypeDbId(entity.getEventTypeDbId().toString());
 
 		if (entity.getDates() != null) {
 			event.setDate(
@@ -86,10 +89,10 @@ public class EventService {
 		}
 		if (entity.getObservationUnits() != null) {
 			event.setObservationUnitDbIds(
-					entity.getObservationUnits().stream().map(ou -> ou.getId()).collect(Collectors.toList()));
+					entity.getObservationUnits().stream().map(ou -> ou.getId().toString()).collect(Collectors.toList()));
 		}
 		if (entity.getStudy() != null) {
-			event.setStudyDbId(entity.getStudy().getId());
+			event.setStudyDbId(entity.getStudy().getId().toString());
 			event.setStudyName(entity.getStudy().getStudyName());
 		}
 

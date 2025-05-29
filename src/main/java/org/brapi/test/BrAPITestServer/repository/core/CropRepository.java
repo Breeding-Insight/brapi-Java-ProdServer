@@ -5,6 +5,11 @@ import org.brapi.test.BrAPITestServer.repository.BrAPIRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
-public interface CropRepository extends BrAPIRepository<CropEntity, String>{
+import java.util.List;
+import java.util.UUID;
+
+public interface CropRepository extends BrAPIRepository<CropEntity, UUID> {
 	public Page<CropEntity> findByCropName(String cropName, Pageable pageRequest);
+
+	public List<CropEntity> findByCropNameIn(List<String> names);
 }

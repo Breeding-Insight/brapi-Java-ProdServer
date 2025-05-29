@@ -1,11 +1,12 @@
 package org.brapi.test.BrAPITestServer.model.entity.pheno;
 
-import java.util.Date;
-import java.util.List;
-import javax.persistence.*;
-
+import jakarta.persistence.*;
 import org.brapi.test.BrAPITestServer.model.entity.BrAPIPrimaryEntity;
 import org.brapi.test.BrAPITestServer.model.entity.core.StudyEntity;
+
+import java.util.Date;
+import java.util.List;
+import java.util.UUID;
 
 @Entity
 @Table(name = "event")
@@ -19,67 +20,67 @@ public class EventEntity extends BrAPIPrimaryEntity {
 	@Column
 	private String eventType = null;
 	@Column
-	private String eventTypeDbId = null;
+	private UUID eventTypeDbId = null;
 	@ManyToMany
 	@JoinTable
 	private List<ObservationUnitEntity> observationUnits;
 	@ManyToOne(fetch = FetchType.LAZY)
 	private StudyEntity study;
 
-	public List<Date> getDates() {
-		return dates;
-	}
+    public List<Date> getDates() {
+        return dates;
+    }
 
-	public void setDates(List<Date> dates) {
-		this.dates = dates;
-	}
+    public void setDates(List<Date> dates) {
+        this.dates = dates;
+    }
 
-	public String getEventDescription() {
-		return eventDescription;
-	}
+    public String getEventDescription() {
+        return eventDescription;
+    }
 
-	public void setEventDescription(String eventDescription) {
-		this.eventDescription = eventDescription;
-	}
+    public void setEventDescription(String eventDescription) {
+        this.eventDescription = eventDescription;
+    }
 
-	public List<EventParameterEntity> getEventParameters() {
-		return eventParameters;
-	}
+    public List<EventParameterEntity> getEventParameters() {
+        return eventParameters;
+    }
 
-	public void setEventParameters(List<EventParameterEntity> eventParameters) {
-		this.eventParameters = eventParameters;
-	}
+    public void setEventParameters(List<EventParameterEntity> eventParameters) {
+        this.eventParameters = eventParameters;
+    }
 
-	public String getEventType() {
-		return eventType;
-	}
+    public String getEventType() {
+        return eventType;
+    }
 
-	public void setEventType(String eventType) {
-		this.eventType = eventType;
-	}
+    public void setEventType(String eventType) {
+        this.eventType = eventType;
+    }
 
-	public String getEventTypeDbId() {
-		return eventTypeDbId;
-	}
+    public UUID getEventTypeDbId() {
+        return eventTypeDbId;
+    }
 
-	public void setEventTypeDbId(String eventTypeDbId) {
-		this.eventTypeDbId = eventTypeDbId;
-	}
+    public void setEventTypeDbId(UUID eventTypeDbId) {
+        this.eventTypeDbId = eventTypeDbId;
+    }
 
-	public List<ObservationUnitEntity> getObservationUnits() {
-		return observationUnits;
-	}
+    public List<ObservationUnitEntity> getObservationUnits() {
+        return observationUnits;
+    }
 
-	public void setObservationUnits(List<ObservationUnitEntity> observationUnits) {
-		this.observationUnits = observationUnits;
-	}
+    public void setObservationUnits(List<ObservationUnitEntity> observationUnits) {
+        this.observationUnits = observationUnits;
+    }
 
-	public StudyEntity getStudy() {
-		return study;
-	}
+    public StudyEntity getStudy() {
+        return study;
+    }
 
-	public void setStudy(StudyEntity study) {
-		this.study = study;
-	}
+    public void setStudy(StudyEntity study) {
+        this.study = study;
+    }
 
 }

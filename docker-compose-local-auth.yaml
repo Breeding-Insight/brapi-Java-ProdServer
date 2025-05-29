@@ -39,7 +39,7 @@ services:
     ports:
       - "8008:8008"
   brapi-db:
-    image: postgres:13
+    image: postgres:17.2
     environment:
       POSTGRES_USER: brapi
       POSTGRES_PASSWORD: password
@@ -48,7 +48,7 @@ services:
     ports:
       - "5433:5432"
   keycloak-db:
-    image: postgres:13
+    image: postgres:17.2
     volumes:
       - keycloak-data:/var/lib/postgresql/data
     environment:

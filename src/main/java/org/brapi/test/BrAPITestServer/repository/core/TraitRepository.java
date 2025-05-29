@@ -3,5 +3,7 @@ package org.brapi.test.BrAPITestServer.repository.core;
 import org.brapi.test.BrAPITestServer.model.entity.pheno.TraitEntity;
 import org.brapi.test.BrAPITestServer.repository.BrAPIRepository;
 
-public interface TraitRepository extends BrAPIRepository<TraitEntity, String> {
+import java.util.UUID;
+
+public interface TraitRepository extends BrAPIRepository<TraitEntity, UUID> {
 }

@@ -1,10 +1,8 @@
 package org.brapi.test.BrAPITestServer.model.entity.pheno;
 
-import javax.persistence.*;
-
-import org.brapi.test.BrAPITestServer.model.entity.BrAPIBaseEntity;
-
 import io.swagger.model.pheno.ObservationUnitHierarchyLevelEnum;
+import jakarta.persistence.*;
+import org.brapi.test.BrAPITestServer.model.entity.BrAPIBaseEntity;
 
 @Entity
 @Table(name = "observation_unit_level")

@@ -5,13 +5,13 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
 import io.swagger.model.core.BatchDeletesListResponse;
 import io.swagger.model.core.BatchDeletesListResponseResult;
 import org.brapi.test.BrAPITestServer.auth.AuthDetails;
 import org.brapi.test.BrAPITestServer.exceptions.BrAPIServerException;
-import org.brapi.test.BrAPITestServer.exceptions.InvalidPagingException;
+import org.brapi.test.BrAPITestServer.service.PagingUtility;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -33,21 +33,6 @@ import io.swagger.model.TokenPagination;
 
 public class BrAPIController {
 	private static final Logger log = LoggerFactory.getLogger(ServerInfoApiController.class);
-	
-	protected Metadata generateMetaDataTemplateForSearch(Integer originalRequestedPage, Integer newRequestedPage,
-			Integer originalRequestedPageSize, Integer newRequestedPageSize) throws BrAPIServerException {
-		Integer page = newRequestedPage;
-		Integer pageSize = newRequestedPageSize;
-
-		if (page == null) {
-			page = originalRequestedPage;
-		}
-		if (pageSize == null) {
-			pageSize = originalRequestedPageSize;
-		}
-
-		return generateMetaDataTemplate(page, pageSize);
-	}
 
 	protected Metadata generateMetaDataTemplate(SearchRequest request) throws BrAPIServerException {
 		return generateMetaDataTemplate(request.getPage(), request.getPageSize());
@@ -55,7 +40,7 @@ public class BrAPIController {
 
 	protected Metadata generateMetaDataTemplate(String pageToken, Integer pageSize) {
 		if (pageSize == null) {
-			pageSize = 1000;
+			pageSize = PagingUtility.getDefaultPageSize();
 		}
 
 		Metadata metaData = generateEmptyMetadataToken();
@@ -65,30 +50,20 @@ public class BrAPIController {
 	}
 
 	protected Metadata generateMetaDataTemplate(Integer page, Integer pageSize) throws BrAPIServerException {
-		validatePaging(page, pageSize);
+		PagingUtility.validatePaging(page, pageSize);
 
 		// defaults
 		if (page == null) {
 			page = 0;
 		}
 		if (pageSize == null) {
-			pageSize = 1000;
+			pageSize = PagingUtility.getDefaultPageSize();
 		}
 
 		Metadata metaData = generateEmptyMetadata();
 		metaData.getPagination().setCurrentPage(page);
 		metaData.getPagination().setPageSize(pageSize);
 		return metaData;
-	}
-
-	private void validatePaging(Integer page, Integer pageSize) throws BrAPIServerException {
-		boolean pageValid = (page == null) || (page >= 0);
-		if (!pageValid)
-			throw new InvalidPagingException("page");
-		boolean pageSizeValid = (pageSize == null) || (pageSize >= 1);
-		if (!pageSizeValid)
-			throw new InvalidPagingException("pageSize");
-
 	}
 
 	protected Metadata generateEmptyMetadata() {

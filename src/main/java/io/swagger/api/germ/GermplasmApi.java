@@ -7,6 +7,8 @@ package io.swagger.api.germ;
 
 import io.swagger.model.BrAPIResponse;
 import io.swagger.model.Model202AcceptedSearchResponse;
+import io.swagger.model.core.ListsListResponse;
+import io.swagger.model.core.ListsSingleResponse;
 import io.swagger.model.germ.GermplasmListResponse;
 import io.swagger.model.germ.GermplasmMCPDResponse;
 import io.swagger.model.germ.GermplasmNewRequest;
@@ -28,7 +30,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import jakarta.validation.Valid;
 import java.util.List;
 
-@javax.annotation.Generated(value = "io.swagger.codegen.v3.generators.java.SpringCodegen", date = "2020-03-20T16:33:36.513Z[GMT]")
+@javax.annotation.processing.Generated(value = "io.swagger.codegen.v3.generators.java.SpringCodegen", date = "2020-03-20T16:33:36.513Z[GMT]")
 @Api(value = "germplasm", description = "the germplasm API")
 public interface GermplasmApi {
 
@@ -42,6 +44,20 @@ public interface GermplasmApi {
 	@RequestMapping(value = "/germplasm/{germplasmDbId}", produces = { "application/json" }, method = RequestMethod.GET)
 	ResponseEntity<GermplasmSingleResponse> germplasmGermplasmDbIdGet(
 			@ApiParam(value = "The internal id of the germplasm", required = true) @PathVariable("germplasmDbId") String germplasmDbId,
+			@ApiParam(value = "HTTP HEADER - Token used for Authorization   <strong> Bearer {token_string} </strong>") @RequestHeader(value = "Authorization", required = false) String authorization)
+			throws BrAPIServerException;
+
+	@ApiOperation(value = "Delete an existing germplasm", nickname = "germplasmGermplasmDbIdDelete", notes = "Delete an existing germplasm", response = GermplasmSingleResponse.class, authorizations = {
+			@Authorization(value = "AuthorizationToken") }, tags = { "Germplasm", })
+	@ApiResponses(value = { @ApiResponse(code = 204, message = "OK", response = GermplasmSingleResponse.class),
+			@ApiResponse(code = 400, message = "Bad Request", response = String.class),
+			@ApiResponse(code = 401, message = "Unauthorized", response = String.class),
+			@ApiResponse(code = 403, message = "Forbidden", response = String.class),
+			@ApiResponse(code = 404, message = "Not Found", response = String.class) })
+	@RequestMapping(value = "/germplasm/{germplasmDbId}", produces = { "application/json" }, method = RequestMethod.DELETE)
+	ResponseEntity<GermplasmSingleResponse> germplasmGermplasmDbIdDelete(
+			@ApiParam(value = "The unique ID of this germplasm", required = true) @PathVariable("germplasmDbId") String germplasmDbId,
+			@ApiParam(value = "hardDelete") @Valid @RequestParam(value = "hardDelete", defaultValue = "false", required = false) boolean hardDelete,
 			@ApiParam(value = "HTTP HEADER - Token used for Authorization   <strong> Bearer {token_string} </strong>") @RequestHeader(value = "Authorization", required = false) String authorization)
 			throws BrAPIServerException;
 

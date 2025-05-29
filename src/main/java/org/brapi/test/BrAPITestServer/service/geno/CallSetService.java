@@ -2,6 +2,7 @@ package org.brapi.test.BrAPITestServer.service.geno;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import org.brapi.test.BrAPITestServer.exceptions.BrAPIServerDbIdNotFoundException;
@@ -30,7 +31,8 @@ public class CallSetService {
 	}
 
 	public List<CallSet> findCallSets(String callSetDbId, String callSetName, String variantSetDbId, String sampleDbId,
-			String germplasmDbId, String externalReferenceId, String externalReferenceSource, Metadata metadata) {
+			String germplasmDbId, String externalReferenceId, String externalReferenceSource, Metadata metadata)
+		throws BrAPIServerException {
 		CallSetsSearchRequest request = new CallSetsSearchRequest();
 		if (callSetDbId != null)
 			request.addCallSetDbIdsItem(callSetDbId);
@@ -47,11 +49,13 @@ public class CallSetService {
 		return findCallSets(request, metadata);
 	}
 
-	public List<CallSet> findCallSets(CallSetsSearchRequest request, Metadata metadata) {
+	public List<CallSet> findCallSets(CallSetsSearchRequest request, Metadata metadata)
+		throws BrAPIServerException {
 		return findCallSetEntities(request, metadata).stream().map(this::convertFromEntity).collect(Collectors.toList());
 	}
 
-	public List<CallSetEntity> findCallSetEntities(CallSetsSearchRequest request, Metadata metadata) {
+	public List<CallSetEntity> findCallSetEntities(CallSetsSearchRequest request, Metadata metadata)
+		throws BrAPIServerException {
 		Pageable pageReq = PagingUtility.getPageRequest(metadata);
 		SearchQueryBuilder<CallSetEntity> searchQuery = new SearchQueryBuilder<CallSetEntity>(CallSetEntity.class);
 		if(request.getVariantSetDbIds() != null) {
@@ -66,7 +70,7 @@ public class CallSetService {
 				.appendList(request.getSampleDbIds(), "sample.id")
 				.appendList(request.getSampleNames(), "sample.sampleName");
 
-		Page<CallSetEntity> page = callSetRepository.findAllBySearch(searchQuery, pageReq);
+		Page<CallSetEntity> page = callSetRepository.findAllBySearchAndPaginate(searchQuery, pageReq);
 		PagingUtility.calculateMetaData(metadata, page);
 		return page.getContent();
 	}
@@ -81,7 +85,7 @@ public class CallSetService {
 
 	public CallSetEntity getCallSetEntity(String callSetDbId, HttpStatus errorStatus) throws BrAPIServerException {
 		CallSetEntity callSet = null;
-		Optional<CallSetEntity> entityOpt = callSetRepository.findById(callSetDbId);
+		Optional<CallSetEntity> entityOpt = callSetRepository.findById(UUID.fromString(callSetDbId));
 		if (entityOpt.isPresent()) {
 			callSet = entityOpt.get();
 		} else {
@@ -93,17 +97,17 @@ public class CallSetService {
 	private CallSet convertFromEntity(CallSetEntity entity) {
 		CallSet callSet = new CallSet();
 		callSet.setAdditionalInfo(entity.getAdditionalInfo());
-		callSet.setCallSetDbId(entity.getId());
+		callSet.setCallSetDbId(entity.getId().toString());
 		callSet.setCallSetName(entity.getCallSetName());
 		callSet.setCreated(DateUtility.toOffsetDateTime(entity.getCreated()));
 		if (entity.getSample() != null) {
-			callSet.setSampleDbId(entity.getSample().getId());
+			callSet.setSampleDbId(entity.getSample().getId().toString());
 			if (entity.getSample().getObservationUnit() != null && entity.getSample().getObservationUnit().getStudy() != null)
-				callSet.setStudyDbId(entity.getSample().getObservationUnit().getStudy().getId());
+				callSet.setStudyDbId(entity.getSample().getObservationUnit().getStudy().getId().toString());
 		}
 		callSet.setUpdated(DateUtility.toOffsetDateTime(entity.getUpdated()));
 		if (entity.getVariantSets() != null)
-			callSet.setVariantSetDbIds(entity.getVariantSets().stream().map(e -> e.getId()).collect(Collectors.toList()));
+			callSet.setVariantSetDbIds(entity.getVariantSets().stream().map(e -> e.getId().toString()).collect(Collectors.toList()));
 
 		return callSet;
 	}

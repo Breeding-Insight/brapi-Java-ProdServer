@@ -1,9 +1,6 @@
 package org.brapi.test.BrAPITestServer.service.geno;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.Map.Entry;
 
 import org.brapi.test.BrAPITestServer.exceptions.BrAPIServerDbIdNotFoundException;
@@ -48,7 +45,8 @@ public class PlateService {
 	public List<Plate> findPlates(String sampleDbId, String sampleName, String sampleGroupDbId,
 			String observationUnitDbId, String plateDbId, String plateName, String germplasmDbId, String studyDbId,
 			String trialDbId, String commonCropName, String programDbId, String externalReferenceId,
-			String externalReferenceID, String externalReferenceSource, Metadata metadata) {
+			String externalReferenceID, String externalReferenceSource, Metadata metadata)
+		throws BrAPIServerException {
 		PlateSearchRequest request = new PlateSearchRequest();
 		if (sampleDbId != null)
 			request.addSampleDbIdsItem(sampleDbId);
@@ -78,7 +76,8 @@ public class PlateService {
 		return findPlates(request, metadata);
 	}
 
-	public List<Plate> findPlates(PlateSearchRequest request, Metadata metadata) {
+	public List<Plate> findPlates(PlateSearchRequest request, Metadata metadata)
+		throws BrAPIServerException {
 		Pageable pageReq = PagingUtility.getPageRequest(metadata);
 		SearchQueryBuilder<PlateEntity> searchQuery = new SearchQueryBuilder<PlateEntity>(PlateEntity.class);
 		if (request.getSampleDbIds() != null || request.getSampleNames() != null
@@ -101,7 +100,7 @@ public class PlateService {
 				.appendList(request.getTrialNames(), "trial.trialName").appendList(request.getStudyDbIds(), "study.id")
 				.appendList(request.getStudyNames(), "study.studyName");
 
-		Page<PlateEntity> page = plateRepository.findAllBySearch(searchQuery, pageReq);
+		Page<PlateEntity> page = plateRepository.findAllBySearchAndPaginate(searchQuery, pageReq);
 		List<Plate> plates = page.map(this::convertFromEntity).getContent();
 		PagingUtility.calculateMetaData(metadata, page);
 		return plates;
@@ -117,7 +116,7 @@ public class PlateService {
 
 	public PlateEntity getPlateEntity(String plateDbId, HttpStatus errorStatus) throws BrAPIServerException {
 		PlateEntity plate = null;
-		Optional<PlateEntity> entityOpt = plateRepository.findById(plateDbId);
+		Optional<PlateEntity> entityOpt = plateRepository.findById(UUID.fromString(plateDbId));
 		if (entityOpt.isPresent()) {
 			plate = entityOpt.get();
 		} else {
@@ -154,6 +153,10 @@ public class PlateService {
 
 	}
 
+	public void deletePlateBatch(List<String> plateDbIds) {
+		plateRepository.deleteAllByIdInBatch(plateDbIds.stream().map(UUID::fromString).toList());
+	}
+
 	private void updateEntity(PlateEntity entity, PlateNewRequest plate) throws BrAPIServerException {
 		UpdateUtility.updateEntity(plate, entity);
 		if (plate.getPlateName() != null) {
@@ -183,27 +186,27 @@ public class PlateService {
 	private Plate convertFromEntity(PlateEntity entity) {
 		Plate plate = new Plate();
 		UpdateUtility.convertFromEntity(entity, plate);
-		plate.setPlateDbId(entity.getId());
+		plate.setPlateDbId(entity.getId().toString());
 		plate.setPlateName(entity.getPlateName());
 		plate.setPlateBarcode(entity.getPlateBarcode());
 		plate.setPlateFormat(entity.getPlateFormat());
 		plate.setSampleType(entity.getSampleType());
 
 		if (entity.getStudy() != null) {
-			plate.setStudyDbId(entity.getStudy().getId());
+			plate.setStudyDbId(entity.getStudy().getId().toString());
 			if (entity.getStudy().getTrial() != null) {
-				plate.setTrialDbId(entity.getStudy().getTrial().getId());
+				plate.setTrialDbId(entity.getStudy().getTrial().getId().toString());
 				if (entity.getStudy().getTrial().getProgram() != null) {
-					plate.setProgramDbId(entity.getStudy().getTrial().getProgram().getId());
+					plate.setProgramDbId(entity.getStudy().getTrial().getProgram().getId().toString());
 				}
 			}
 		} else if (entity.getTrial() != null) {
-			plate.setTrialDbId(entity.getTrial().getId());
+			plate.setTrialDbId(entity.getTrial().getId().toString());
 			if (entity.getTrial().getProgram() != null) {
-				plate.setProgramDbId(entity.getTrial().getProgram().getId());
+				plate.setProgramDbId(entity.getTrial().getProgram().getId().toString());
 			}
 		} else if (entity.getProgram() != null) {
-			plate.setProgramDbId(entity.getProgram().getId());
+			plate.setProgramDbId(entity.getProgram().getId().toString());
 		}
 		return plate;
 	}

@@ -1,9 +1,6 @@
 package org.brapi.test.BrAPITestServer.service.core;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import io.swagger.model.core.*;
@@ -71,7 +68,8 @@ public class TrialService {
 			@Valid String locationDbId, @Valid LocalDate searchDateRangeStart, @Valid LocalDate searchDateRangeEnd,
 			@Valid String studyDbId, @Valid String trialDbId, @Valid String trialName, @Valid String trialPUI,
 			@Valid String externalReferenceId, @Valid String externalReferenceID, @Valid String externalReferenceSource,
-			@Valid Boolean active, @Valid String sortBy, @Valid String sortOrder, Metadata metadata) {
+			@Valid Boolean active, @Valid String sortBy, @Valid String sortOrder, Metadata metadata)
+		throws BrAPIServerException {
 
 		TrialSearchRequest request = new TrialSearchRequest();
 		if (active != null)
@@ -105,7 +103,8 @@ public class TrialService {
 		return findTrials(request, metadata);
 	}
 
-	public List<Trial> findTrials(@Valid TrialSearchRequest request, Metadata metadata) {
+	public List<Trial> findTrials(@Valid TrialSearchRequest request, Metadata metadata)
+		throws BrAPIServerException {
 
 		Pageable pageReq = PagingUtility.getPageRequest(metadata);
 		SearchQueryBuilder<TrialEntity> searchQuery = new SearchQueryBuilder<TrialEntity>(TrialEntity.class);
@@ -129,7 +128,7 @@ public class TrialService {
 				.appendDateRange(request.getSearchDateRangeStart(), request.getSearchDateRangeEnd(), "startDate")
 				.withSort(getSortByField(request.getSortBy()), request.getSortOrder());
 
-		Page<TrialEntity> trialsPage = trialRepository.findAllBySearch(searchQuery, pageReq);
+		Page<TrialEntity> trialsPage = trialRepository.findAllBySearchAndPaginate(searchQuery, pageReq);
 		PagingUtility.calculateMetaData(metadata, trialsPage);
 
 		List<Trial> trials = trialsPage.map(this::convertFromEntity).getContent();
@@ -145,7 +144,7 @@ public class TrialService {
 	}
 
 	public TrialEntity getTrialEntity(String trialDbId, HttpStatus errorStatus) throws BrAPIServerException {
-		Optional<TrialEntity> entityOption = trialRepository.findById(trialDbId);
+		Optional<TrialEntity> entityOption = trialRepository.findById(UUID.fromString(trialDbId));
 		TrialEntity entity = null;
 		if (entityOption.isPresent()) {
 			entity = entityOption.get();
@@ -172,7 +171,7 @@ public class TrialService {
 	}
 
 	public void deleteTrialBatch(List<String> trialDbIds) {
-		trialRepository.deleteAllByIdInBatch(trialDbIds);
+		trialRepository.deleteAllByIdInBatch(trialDbIds.stream().map(UUID::fromString).toList());
 	}
 
 	public void softDeleteTrialBatch(List<String> trialDbIds) {
@@ -191,7 +190,7 @@ public class TrialService {
 		softDeleteTrial(trialDbId);
 
 		// Hard delete the trial
-		trialRepository.deleteAllByIdInBatch(Arrays.asList(trialDbId));
+		trialRepository.deleteAllByIdInBatch(List.of(UUID.fromString(trialDbId)));
 	}
 
 	public Trial updateTrial(String trialDbId, TrialNewRequest body) throws BrAPIServerException {
@@ -210,7 +209,7 @@ public class TrialService {
 		trial.setEndDate(DateUtility.toLocalDate(entity.getEndDate()));
 		trial.setExternalReferences(entity.getExternalReferencesMap());
 		trial.setStartDate(DateUtility.toLocalDate(entity.getStartDate()));
-		trial.setTrialDbId(entity.getId());
+		trial.setTrialDbId(entity.getId().toString());
 		trial.setTrialDescription(entity.getTrialDescription());
 		trial.setTrialName(entity.getTrialName());
 		trial.setTrialPUI(entity.getTrialPUI());
@@ -230,7 +229,7 @@ public class TrialService {
 		}
 
 		if (entity.getProgram() != null) {
-			trial.setProgramDbId(entity.getProgram().getId());
+			trial.setProgramDbId(entity.getProgram().getId().toString());
 			trial.setProgramName(entity.getProgram().getName());
 			if (entity.getProgram().getCrop() != null) {
 				trial.setCommonCropName(entity.getProgram().getCrop().getCropName());

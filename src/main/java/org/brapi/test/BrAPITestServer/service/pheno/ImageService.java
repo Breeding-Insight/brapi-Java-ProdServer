@@ -3,6 +3,7 @@ package org.brapi.test.BrAPITestServer.service.pheno;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import jakarta.validation.Valid;
@@ -42,7 +43,8 @@ public class ImageService {
 
 	public List<Image> findImages(String imageDbId, String imageName, String observationUnitDbId,
 			String observationDbId, String descriptiveOntologyTerm, String commonCropName, String programDbId,
-			String externalReferenceId, String externalReferenceID, String externalReferenceSource, Metadata metadata) {
+			String externalReferenceId, String externalReferenceID, String externalReferenceSource, Metadata metadata)
+		throws BrAPIServerException {
 		ImageSearchRequest request = new ImageSearchRequest();
 		if (imageDbId != null)
 			request.addImageDbIdsItem(imageDbId);
@@ -64,7 +66,8 @@ public class ImageService {
 		return findImages(request, metadata);
 	}
 
-	public List<ImageEntity> findImageEntities(ImageSearchRequest request, Metadata metadata) {
+	public List<ImageEntity> findImageEntities(ImageSearchRequest request, Metadata metadata)
+		throws BrAPIServerException {
 		Pageable pageReq = PagingUtility.getPageRequest(metadata);
 		SearchQueryBuilder<ImageEntity> searchQuery = new SearchQueryBuilder<ImageEntity>(ImageEntity.class);
 		if (request.getDescriptiveOntologyTerms() != null) {
@@ -86,12 +89,13 @@ public class ImageService {
 						"timeStamp")
 				.appendGeoJSONArea(request.getImageLocation());
 
-		Page<ImageEntity> imagePage = imageRepository.findAllBySearch(searchQuery, pageReq);
+		Page<ImageEntity> imagePage = imageRepository.findAllBySearchAndPaginate(searchQuery, pageReq);
 		PagingUtility.calculateMetaData(metadata, imagePage);
 		return imagePage.getContent();
 	}
 
-	public List<Image> findImages(ImageSearchRequest request, Metadata metadata) {
+	public List<Image> findImages(ImageSearchRequest request, Metadata metadata)
+		throws BrAPIServerException {
 		List<ImageEntity> imagePage = findImageEntities(request, metadata);
 		List<Image> images = imagePage.stream().map(this::convertFromEntity).collect(Collectors.toList());
 		return images;
@@ -101,7 +105,7 @@ public class ImageService {
 		Image image = null;
 
 		if (imageDbId != null && !imageDbId.isEmpty()) {
-			Optional<ImageEntity> imageOption = imageRepository.findById(imageDbId);
+			Optional<ImageEntity> imageOption = imageRepository.findById(UUID.fromString(imageDbId));
 			if (imageOption.isPresent()) {
 				image = convertFromEntity(imageOption.get());
 			} else {
@@ -115,7 +119,7 @@ public class ImageService {
 	public Image updateImageContent(String imageDbId, String requestURL, byte[] imageData) throws BrAPIServerException {
 		Image result = null;
 		if (imageDbId != null && !imageDbId.isEmpty()) {
-			Optional<ImageEntity> imageOption = imageRepository.findById(imageDbId);
+			Optional<ImageEntity> imageOption = imageRepository.findById(UUID.fromString(imageDbId));
 			if (imageOption.isPresent()) {
 				ImageEntity newEntity = imageOption.get();
 				newEntity.setImageData(imageData);
@@ -134,7 +138,7 @@ public class ImageService {
 
 	public Image updateImage(String imageDbId, ImageNewRequest body) throws BrAPIServerException {
 		ImageEntity savedEntity;
-		Optional<ImageEntity> entityOpt = imageRepository.findById(imageDbId);
+		Optional<ImageEntity> entityOpt = imageRepository.findById(UUID.fromString(imageDbId));
 		if (entityOpt.isPresent()) {
 			ImageEntity entity = entityOpt.get();
 			updateEntity(entity, body);
@@ -162,7 +166,7 @@ public class ImageService {
 	public byte[] getImageData(String imageDbId) {
 		byte[] bytes = null;
 		if (imageDbId != null && !imageDbId.isEmpty()) {
-			Optional<ImageEntity> imageOption = imageRepository.findById(imageDbId);
+			Optional<ImageEntity> imageOption = imageRepository.findById(UUID.fromString(imageDbId));
 			if (imageOption.isPresent()) {
 				bytes = imageOption.get().getImageData();
 			}
@@ -170,13 +174,14 @@ public class ImageService {
 		return bytes;
 	}
 
-	public List<String> deleteImages(ImageSearchRequest body, Metadata metadata) {
+	public List<String> deleteImages(ImageSearchRequest body, Metadata metadata)
+		throws BrAPIServerException {
 		List<String> deletedImageDbIds = new ArrayList<>();
 
 		if (body.getTotalParameterCount() > 0) {
 			List<ImageEntity> deletedImages = findImageEntities(body, metadata);
 			imageRepository.deleteAll(deletedImages);
-			deletedImageDbIds = deletedImages.stream().map(image -> image.getId()).collect(Collectors.toList());
+			deletedImageDbIds = deletedImages.stream().map(image -> image.getId().toString()).collect(Collectors.toList());
 		}
 		return deletedImageDbIds;
 	}
@@ -246,7 +251,7 @@ public class ImageService {
 		img.setDescription(entity.getDescription());
 		img.setDescriptiveOntologyTerms(entity.getDescriptiveOntologyTerms());
 		img.setExternalReferences(entity.getExternalReferencesMap());
-		img.setImageDbId(entity.getId());
+		img.setImageDbId(entity.getId().toString());
 		img.setImageFileName(entity.getImageFileName());
 		img.setImageFileSize(entity.getImageFileSize());
 		img.setImageHeight(entity.getImageHeight());
@@ -258,11 +263,11 @@ public class ImageService {
 		img.setMimeType(entity.getImageMIMEType());
 		if (entity.getObservations() != null) {
 			img.setObservationDbIds(entity.getObservations().stream().map(o -> {
-				return o.getId();
+				return o.getId().toString();
 			}).collect(Collectors.toList()));
 		}
 		if (entity.getObservationUnit() != null)
-			img.setObservationUnitDbId(entity.getObservationUnit().getId());
+			img.setObservationUnitDbId(entity.getObservationUnit().getId().toString());
 
 		return img;
 	}

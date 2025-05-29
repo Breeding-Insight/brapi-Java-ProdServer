@@ -1,14 +1,14 @@
 package org.brapi.test.BrAPITestServer.model.entity.germ;
 
-import java.util.Date;
-
-import javax.persistence.*;
+import jakarta.persistence.*;
 
 import org.brapi.test.BrAPITestServer.model.entity.BrAPIPrimaryEntity;
 
+import java.util.Date;
+
 @Entity
 @Table(name="germplasm_attribute_value")
-public class GermplasmAttributeValueEntity extends BrAPIPrimaryEntity{
+public class GermplasmAttributeValueEntity extends BrAPIPrimaryEntity {
 	@ManyToOne(fetch = FetchType.LAZY)
 	private GermplasmAttributeDefinitionEntity attribute;
 	@ManyToOne(fetch = FetchType.LAZY)
@@ -43,6 +43,4 @@ public class GermplasmAttributeValueEntity extends BrAPIPrimaryEntity{
 	public void setDeterminedDate(Date determinedDate) {
 		this.determinedDate = determinedDate;
 	}
-
-
 }

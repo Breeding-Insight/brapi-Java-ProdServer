@@ -29,7 +29,7 @@ import jakarta.validation.Valid;
 import java.util.List;
 import java.util.Map;
 
-@javax.annotation.Generated(value = "io.swagger.codegen.v3.generators.java.SpringCodegen", date = "2020-03-20T16:32:22.556Z[GMT]")
+@javax.annotation.processing.Generated(value = "io.swagger.codegen.v3.generators.java.SpringCodegen", date = "2020-03-20T16:32:22.556Z[GMT]")
 @Api(value = "observations", description = "the observations API")
 public interface ObservationsApi {
 
@@ -154,6 +154,8 @@ public interface ObservationsApi {
 			@ApiParam(value = "observationUnitLevelRelationshipOrder") @Valid @RequestParam(value = "observationUnitLevelRelationshipOrder", required = false) String observationUnitLevelRelationshipOrder,
 			@ApiParam(value = "observationUnitLevelRelationshipCode") @Valid @RequestParam(value = "observationUnitLevelRelationshipCode", required = false) String observationUnitLevelRelationshipCode,
 			@ApiParam(value = "observationUnitLevelRelationshipDbId") @Valid @RequestParam(value = "observationUnitLevelRelationshipDbId", required = false) String observationUnitLevelRelationshipDbId,
+			@ApiParam(value = "page") @Valid @RequestParam(value = "page", required = false) Integer page,
+			@ApiParam(value = "pageSize") @Valid @RequestParam(value = "pageSize", required = false) Integer pageSize,
 			@ApiParam(value = "HTTP HEADER - Token used for Authorization   <strong> Bearer {token_string} </strong>") @RequestHeader(value = "Authorization", required = false) String authorization)
 			throws BrAPIServerException;
 

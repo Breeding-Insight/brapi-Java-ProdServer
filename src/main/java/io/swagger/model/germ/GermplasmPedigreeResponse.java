@@ -18,7 +18,7 @@ import jakarta.validation.Valid;
  * GermplasmPedigreeResponse
  */
 @Validated
-@javax.annotation.Generated(value = "io.swagger.codegen.v3.generators.java.SpringCodegen", date = "2020-03-20T16:33:36.513Z[GMT]")
+@javax.annotation.processing.Generated(value = "io.swagger.codegen.v3.generators.java.SpringCodegen", date = "2020-03-20T16:33:36.513Z[GMT]")
 public class GermplasmPedigreeResponse implements BrAPIResponse<PedigreeNode>  {
   @JsonProperty("@context")
   private Context _atContext = null;

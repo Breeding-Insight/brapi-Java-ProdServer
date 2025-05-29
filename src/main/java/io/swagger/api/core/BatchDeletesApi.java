@@ -23,7 +23,7 @@ import jakarta.validation.Valid;
 
 import java.util.ArrayList;
 
-@javax.annotation.Generated(value = "io.swagger.codegen.v3.generators.java.SpringCodegen", date = "2020-03-20T16:31:52.030Z[GMT]")
+@jakarta.annotation.Generated(value = "io.swagger.codegen.v3.generators.java.SpringCodegen", date = "2020-03-20T16:31:52.030Z[GMT]")
 @Api(value = "batchDeletes", description = "the batch deletes API")
 public interface BatchDeletesApi {
 

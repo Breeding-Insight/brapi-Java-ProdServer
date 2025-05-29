@@ -18,7 +18,7 @@ import jakarta.validation.Valid;
  */
 @ApiModel(description = "Information about the collection of this germplasm")
 @Validated
-@javax.annotation.Generated(value = "io.swagger.codegen.v3.generators.java.SpringCodegen", date = "2020-03-20T16:33:36.513Z[GMT]")
+@javax.annotation.processing.Generated(value = "io.swagger.codegen.v3.generators.java.SpringCodegen", date = "2020-03-20T16:33:36.513Z[GMT]")
 public class GermplasmMCPDCollectingInfo   {
   @JsonProperty("collectingDate")
   private LocalDate collectingDate = null;

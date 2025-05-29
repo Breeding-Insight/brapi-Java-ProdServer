@@ -1,10 +1,6 @@
 package org.brapi.test.BrAPITestServer.service.germ;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 import jakarta.validation.Valid;
 
@@ -43,7 +39,8 @@ public class GermplasmAttributeService {
 			String attributeName, String attributePUI, String germplasmDbId, String methodDbId, String methodName,
 			String methodPUI, String scaleDbId, String scaleName, String scalePUI, String traitDbId, String traitName,
 			String traitPUI, String commonCropName, String programDbId, String externalReferenceId,
-			String externalReferenceID, String externalReferenceSource, Metadata metadata) {
+			String externalReferenceID, String externalReferenceSource, Metadata metadata)
+		throws BrAPIServerException {
 
 		GermplasmAttributeSearchRequest request = new GermplasmAttributeSearchRequest();
 		if (attributeCategory != null)
@@ -85,7 +82,7 @@ public class GermplasmAttributeService {
 	}
 
 	public List<GermplasmAttribute> findGermplasmAttributes(@Valid GermplasmAttributeSearchRequest request,
-			Metadata metadata) {
+			Metadata metadata) throws BrAPIServerException {
 		Pageable pageReq = PagingUtility.getPageRequest(metadata);
 		SearchQueryBuilder<GermplasmAttributeDefinitionEntity> searchQuery = new SearchQueryBuilder<GermplasmAttributeDefinitionEntity>(
 				GermplasmAttributeDefinitionEntity.class);
@@ -125,7 +122,7 @@ public class GermplasmAttributeService {
 				.appendList(request.getOntologyDbIds(), "ontology.id")
 				.appendList(request.getCommonCropNames(), "crop.crop_name");
 
-		Page<GermplasmAttributeDefinitionEntity> page = attributeRepository.findAllBySearch(searchQuery, pageReq);
+		Page<GermplasmAttributeDefinitionEntity> page = attributeRepository.findAllBySearchAndPaginate(searchQuery, pageReq);
 		List<GermplasmAttribute> attributes = page.map(this::convertFromEntity).getContent();
 		PagingUtility.calculateMetaData(metadata, page);
 		return attributes;
@@ -143,7 +140,7 @@ public class GermplasmAttributeService {
 	public GermplasmAttributeDefinitionEntity getGermplasmAttributeDefinitionEntity(String attributeDbId,
 			HttpStatus errorStatus) throws BrAPIServerException {
 		GermplasmAttributeDefinitionEntity attribute = null;
-		Optional<GermplasmAttributeDefinitionEntity> entityOpt = attributeRepository.findById(attributeDbId);
+		Optional<GermplasmAttributeDefinitionEntity> entityOpt = attributeRepository.findById(UUID.fromString(attributeDbId));
 		if (entityOpt.isPresent()) {
 			attribute = entityOpt.get();
 		} else {
@@ -195,7 +192,7 @@ public class GermplasmAttributeService {
 
 		attrib.setAttributeName(entity.getName());
 		attrib.setAttributeCategory(entity.getAttributeCategory());
-		attrib.setAttributeDbId(entity.getId());
+		attrib.setAttributeDbId(entity.getId().toString());
 		attrib.setAttributeDescription(entity.getDescription());
 		attrib.setAttributePUI(entity.getPUI());
 

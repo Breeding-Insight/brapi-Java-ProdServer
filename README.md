@@ -10,8 +10,8 @@ Use [/calls](https://test-server.brapi.org/brapi/v1/call) (V1) or [/serverinfo](
 
 ## Prerequisites
 * Maven 3.9
-* Java 8
-* Postgres 13
+* Java 21
+* Postgres 17.2
 
 ## Auth Configuration
 BrAPI has provided a [sample central authentication service for the test server](https://brapi.org/oauth).

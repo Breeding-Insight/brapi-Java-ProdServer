@@ -41,7 +41,8 @@ public class CallService {
 	}
 
 	public CallsListResponseResult findCalls(String callSetDbId, String variantDbId, String variantSetDbId,
-			Boolean expandHomozygotes, String unknownString, String sepPhased, String sepUnphased, Metadata metadata) {
+			Boolean expandHomozygotes, String unknownString, String sepPhased, String sepUnphased, Metadata metadata)
+		throws BrAPIServerException {
 		CallsSearchRequest request = new CallsSearchRequest();
 		if (callSetDbId != null)
 			request.addCallSetDbIdsItem(callSetDbId);
@@ -57,7 +58,8 @@ public class CallService {
 		return findCalls(request, metadata);
 	}
 
-	public CallsListResponseResult findCalls(CallsSearchRequest request, Metadata metadata) {
+	public CallsListResponseResult findCalls(CallsSearchRequest request, Metadata metadata)
+		throws BrAPIServerException {
 		List<Call> calls = findCallEntities(request, metadata).stream().map(e -> {
 			return convertFromEntityWithFormatting(e, request);
 		}).collect(Collectors.toList());
@@ -65,13 +67,14 @@ public class CallService {
 		return result;
 	}
 
-	public List<CallEntity> findCallEntities(CallsSearchRequest request, Metadata metadata) {
+	public List<CallEntity> findCallEntities(CallsSearchRequest request, Metadata metadata)
+		throws BrAPIServerException {
 		Pageable pageReq = PagingUtility.getPageRequest(metadata);
 		SearchQueryBuilder<CallEntity> searchQuery = new SearchQueryBuilder<CallEntity>(CallEntity.class)
 				.appendList(request.getCallSetDbIds(), "callSet.id").appendList(request.getVariantDbIds(), "variant.id")
 				.appendList(request.getVariantSetDbIds(), "variant.variantSet.id");
 
-		Page<CallEntity> page = callRepository.findAllBySearch(searchQuery, pageReq);
+		Page<CallEntity> page = callRepository.findAllBySearchAndPaginate(searchQuery, pageReq);
 		PagingUtility.calculateMetaData(metadata, page);
 		return page.getContent();
 	}
@@ -103,7 +106,7 @@ public class CallService {
 		Call call = new Call();
 		call.setAdditionalInfo(entity.getAdditionalInfo());
 		if (entity.getCallSet() != null) {
-			call.setCallSetDbId(entity.getCallSet().getId());
+			call.setCallSetDbId(entity.getCallSet().getId().toString());
 			call.setCallSetName(entity.getCallSet().getCallSetName());
 		}
 		if (entity.getGenotype() != null) {
@@ -139,9 +142,9 @@ public class CallService {
 		}
 		call.setPhaseSet(entity.getPhaseSet());
 		if (entity.getVariant() != null) {
-			call.setVariantDbId(entity.getVariant().getId());
+			call.setVariantDbId(entity.getVariant().getId().toString());
 			call.setVariantName(entity.getVariant().getVariantName());
-			call.setVariantSetDbId(entity.getVariant().getVariantSet().getId());
+			call.setVariantSetDbId(entity.getVariant().getVariantSet().getId().toString());
 			call.setVariantSetName(entity.getVariant().getVariantSet().getVariantSetName());
 		}
 		return call;
@@ -171,8 +174,8 @@ public class CallService {
 		List<CallEntity> entities = findCallEntities(searchReq, null);
 		List<CallEntity> savedEntities = new ArrayList<>();
 		for (CallEntity entity : entities) {
-			String compositeKey = entity.getVariant().getVariantSet().getId() + entity.getVariant().getId()
-					+ entity.getCallSet().getId();
+			String compositeKey = entity.getVariant().getVariantSet().getId().toString() + entity.getVariant().getId().toString()
+					+ entity.getCallSet().getId().toString();
 			Call updateCall = callsMap.get(compositeKey);
 			if (updateCall != null) {
 				updateEntity(entity, updateCall);

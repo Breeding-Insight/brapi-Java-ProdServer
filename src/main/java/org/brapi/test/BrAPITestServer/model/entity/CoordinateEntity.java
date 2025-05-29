@@ -1,7 +1,8 @@
 package org.brapi.test.BrAPITestServer.model.entity;
 
+import jakarta.persistence.*;
+
 import java.math.BigDecimal;
-import javax.persistence.*;
 
 @Entity
 @Table(name="coordinate")

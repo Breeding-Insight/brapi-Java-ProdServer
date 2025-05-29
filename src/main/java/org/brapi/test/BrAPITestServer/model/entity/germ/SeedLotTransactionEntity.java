@@ -1,11 +1,10 @@
 package org.brapi.test.BrAPITestServer.model.entity.germ;
 
+import jakarta.persistence.*;
+import org.brapi.test.BrAPITestServer.model.entity.BrAPIPrimaryEntity;
+
 import java.math.BigDecimal;
 import java.util.Date;
-
-import javax.persistence.*;
-
-import org.brapi.test.BrAPITestServer.model.entity.BrAPIPrimaryEntity;
 
 @Entity
 @Table(name = "seed_lot_transaction")

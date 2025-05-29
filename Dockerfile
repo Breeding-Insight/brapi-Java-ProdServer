@@ -2,7 +2,7 @@
 # run container (dev): `docker run --name=brapi-test-server --network=bridge -p 8081:8081 -d docker-username/image-stack-name`
 # run container (prod): `docker run --name=brapi-test-server --restart always --network=brapi_net -d docker-username/image-stack-name`
 
-FROM adoptopenjdk/openjdk8
+FROM amazoncorretto:21
 
 # 8080 - brapi app port | 5005 - brapi app debug port | 8008 - keycloak app port
 EXPOSE 8080 5005 8008

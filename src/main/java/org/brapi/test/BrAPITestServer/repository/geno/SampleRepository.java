@@ -8,8 +8,9 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.UUID;
 
-public interface SampleRepository extends BrAPIRepository<SampleEntity, String> {
+public interface SampleRepository extends BrAPIRepository<SampleEntity, UUID> {
     @Modifying
     @Transactional
     @Query("UPDATE SampleEntity s SET s.softDeleted = :softDeleted WHERE s.id = :sampleId")

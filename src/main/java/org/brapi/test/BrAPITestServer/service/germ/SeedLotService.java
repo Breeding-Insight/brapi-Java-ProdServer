@@ -1,9 +1,6 @@
 package org.brapi.test.BrAPITestServer.service.germ;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import jakarta.validation.Valid;
@@ -60,28 +57,37 @@ public class SeedLotService {
 
 	public List<SeedLot> findSeedLots(String seedLotDbId, String germplasmDbId, String germplasmName, String crossDbId,
 			String crossName, String commonCropName, String programDbId, String externalReferenceId,
-			String externalReferenceID, String externalReferenceSource, Metadata metadata) {
+			String externalReferenceID, String externalReferenceSource, Metadata metadata)
+		throws BrAPIServerException {
 		Pageable pageReq = PagingUtility.getPageRequest(metadata);
 		SearchQueryBuilder<SeedLotEntity> searchQuery = new SearchQueryBuilder<SeedLotEntity>(SeedLotEntity.class);
 
-		if (seedLotDbId != null)
-			searchQuery = searchQuery.appendSingle(seedLotDbId, "id");
-		if (crossDbId != null || crossName != null || germplasmDbId != null || germplasmName != null) {
+		if (seedLotDbId != null) {
+			searchQuery = searchQuery.appendSingle(UUID.fromString(seedLotDbId), "id");
+		}
+
+		if (crossDbId != null) {
+			searchQuery.appendSingle(UUID.fromString(crossDbId), "*contentMixture.cross.id");
+		}
+
+		if (germplasmDbId != null) {
+			searchQuery.appendSingle(UUID.fromString(germplasmDbId), "*contentMixture.germplasm.id");
+		}
+
+		if (crossName != null || germplasmName != null) {
 			searchQuery = searchQuery.join("contentMixture", "contentMixture")
-					.appendSingle(crossDbId, "*contentMixture.cross.id")
 					.appendSingle(crossName, "*contentMixture.cross.name")
-					.appendSingle(germplasmDbId, "*contentMixture.germplasm.id")
 					.appendSingle(germplasmName, "*contentMixture.germplasm.name");
 		}
 		if (commonCropName != null)
 			searchQuery = searchQuery.appendSingle(commonCropName, "program.crop.crop_name");
 		if (programDbId != null)
-			searchQuery = searchQuery.appendSingle(programDbId, "program.id");
+			searchQuery = searchQuery.appendSingle(UUID.fromString(programDbId), "program.id");
 		if (externalReferenceID != null && externalReferenceSource != null)
-			searchQuery = searchQuery.withExRefs(Arrays.asList(externalReferenceID),
-					Arrays.asList(externalReferenceSource));
+			searchQuery = searchQuery.withExRefs(List.of(externalReferenceID),
+                    List.of(externalReferenceSource));
 
-		Page<SeedLotEntity> page = seedLotRepository.findAllBySearch(searchQuery, pageReq);
+		Page<SeedLotEntity> page = seedLotRepository.findAllBySearchAndPaginate(searchQuery, pageReq);
 		List<SeedLot> seedLots = page.map(this::convertFromEntity).getContent();
 		PagingUtility.calculateMetaData(metadata, page);
 		return seedLots;
@@ -97,7 +103,7 @@ public class SeedLotService {
 
 	public SeedLotEntity getSeedLotEntity(String seedLotDbId, HttpStatus errorStatus) throws BrAPIServerException {
 		SeedLotEntity seedLot = null;
-		Optional<SeedLotEntity> entityOpt = seedLotRepository.findById(seedLotDbId);
+		Optional<SeedLotEntity> entityOpt = seedLotRepository.findById(UUID.fromString(seedLotDbId));
 		if (entityOpt.isPresent()) {
 			seedLot = entityOpt.get();
 		} else {
@@ -140,32 +146,40 @@ public class SeedLotService {
 	public List<SeedLotTransaction> findSeedLotTransactions(String transactionDbId, String seedLotDbId,
 			String germplasmDbId, String germplasmName, String crossDbId, String crossName, String commonCropName,
 			String programDbId, String externalReferenceId, String externalReferenceID, String externalReferenceSource,
-			Metadata metadata) {
+			Metadata metadata)
+		throws BrAPIServerException {
 		Pageable pageReq = PagingUtility.getPageRequest(metadata);
 		SearchQueryBuilder<SeedLotTransactionEntity> searchQuery = new SearchQueryBuilder<SeedLotTransactionEntity>(
 				SeedLotTransactionEntity.class);
 
-		if (transactionDbId != null)
-			searchQuery = searchQuery.appendSingle(transactionDbId, "id");
-		if (seedLotDbId != null)
-			searchQuery = searchQuery.appendSingle(seedLotDbId, "toSeedLot.id");
-		if (crossDbId != null || crossName != null || germplasmDbId != null || germplasmName != null) {
+		if (transactionDbId != null) {
+			searchQuery = searchQuery.appendSingle(UUID.fromString(transactionDbId), "id");
+		}
+		if (seedLotDbId != null) {
+			searchQuery = searchQuery.appendSingle(UUID.fromString(seedLotDbId), "toSeedLot.id");
+		}
+		if (crossDbId != null) {
+			searchQuery.appendSingle(UUID.fromString(crossDbId), "*contentMixture.cross.id");
+		}
+		if (germplasmDbId != null) {
+			searchQuery.appendSingle(UUID.fromString(germplasmDbId), "*contentMixture.germplasm.id");
+		}
+
+		if (crossName != null || germplasmName != null) {
 			searchQuery = searchQuery.join("toSeedLot.contentMixture", "contentMixture")
-					.appendSingle(crossDbId, "*contentMixture.cross.id")
 					.appendSingle(crossName, "*contentMixture.cross.name")
-					.appendSingle(germplasmDbId, "*contentMixture.germplasm.id")
 					.appendSingle(germplasmName, "*contentMixture.germplasm.name");
 		}
 		if (commonCropName != null)
 			searchQuery = searchQuery.appendSingle(commonCropName, "toSeedLot.program.crop.crop_name");
 		if (programDbId != null)
-			searchQuery = searchQuery.appendSingle(programDbId, "toSeedLot.program.id");
+			searchQuery = searchQuery.appendSingle(UUID.fromString(programDbId), "toSeedLot.program.id");
 
 		if (externalReferenceID != null && externalReferenceSource != null)
-			searchQuery = searchQuery.withExRefs(Arrays.asList(externalReferenceID),
-					Arrays.asList(externalReferenceSource));
+			searchQuery = searchQuery.withExRefs(List.of(externalReferenceID),
+                    List.of(externalReferenceSource));
 
-		Page<SeedLotTransactionEntity> page = seedLotTransactionRepository.findAllBySearch(searchQuery, pageReq);
+		Page<SeedLotTransactionEntity> page = seedLotTransactionRepository.findAllBySearchAndPaginate(searchQuery, pageReq);
 		List<SeedLotTransaction> transactions = page.map(this::convertFromEntity).getContent();
 		PagingUtility.calculateMetaData(metadata, page);
 		return transactions;
@@ -193,29 +207,29 @@ public class SeedLotService {
 		seedLot.setCreatedDate(DateUtility.toOffsetDateTime(entity.getCreatedDate()));
 		seedLot.setLastUpdated(DateUtility.toOffsetDateTime(entity.getLastUpdated()));
 		if (entity.getLocation() != null) {
-			seedLot.setLocationDbId(entity.getLocation().getId());
+			seedLot.setLocationDbId(entity.getLocation().getId().toString());
 			seedLot.setLocationName(entity.getLocation().getLocationName());
 		}
 		if (entity.getProgram() != null) {
-			seedLot.setProgramDbId(entity.getProgram().getId());
+			seedLot.setProgramDbId(entity.getProgram().getId().toString());
 			seedLot.setProgramName(entity.getProgram().getName());
 		}
-		seedLot.setSeedLotDbId(entity.getId());
+		seedLot.setSeedLotDbId(entity.getId().toString());
 		seedLot.setSeedLotDescription(entity.getDescription());
 		seedLot.setSeedLotName(entity.getName());
 		seedLot.setSourceCollection(entity.getSourceCollection());
 		seedLot.setStorageLocation(entity.getStorageLocation());
 		seedLot.setUnits(entity.getUnits());
 		if (entity.getContentMixture() != null && !entity.getContentMixture().isEmpty()) {
-			seedLot.setGermplasmDbId(entity.getContentMixture().get(0).getGermplasm().getId());
+			seedLot.setGermplasmDbId(entity.getContentMixture().get(0).getGermplasm().getId().toString());
 			seedLot.setContentMixture(entity.getContentMixture().stream().map(mixtureEntity -> {
 				SeedLotContentMixture mixture = new SeedLotContentMixture();
 				if (mixtureEntity.getCross() != null) {
-					mixture.setCrossDbId(mixtureEntity.getCross().getId());
+					mixture.setCrossDbId(mixtureEntity.getCross().getId().toString());
 					mixture.setCrossName(mixtureEntity.getCross().getName());
 				}
 				if (mixtureEntity.getGermplasm() != null) {
-					mixture.setGermplasmDbId(mixtureEntity.getGermplasm().getId());
+					mixture.setGermplasmDbId(mixtureEntity.getGermplasm().getId().toString());
 					mixture.setGermplasmName(mixtureEntity.getGermplasm().getGermplasmName());
 				}
 				mixture.setMixturePercentage(mixtureEntity.getMixturePercentage());
@@ -283,10 +297,10 @@ public class SeedLotService {
 		UpdateUtility.convertFromEntity(entity, transaction);
 		transaction.setAmount(entity.getAmount());
 		if (entity.getToSeedLot() != null)
-			transaction.setToSeedLotDbId(entity.getToSeedLot().getId());
+			transaction.setToSeedLotDbId(entity.getToSeedLot().getId().toString());
 		if (entity.getFromSeedLot() != null)
-			transaction.setFromSeedLotDbId(entity.getFromSeedLot().getId());
-		transaction.setTransactionDbId(entity.getId());
+			transaction.setFromSeedLotDbId(entity.getFromSeedLot().getId().toString());
+		transaction.setTransactionDbId(entity.getId().toString());
 		transaction.setTransactionDescription(entity.getDescription());
 		transaction.setTransactionTimestamp(DateUtility.toOffsetDateTime(entity.getTimestamp()));
 		transaction.setUnits(entity.getUnits());

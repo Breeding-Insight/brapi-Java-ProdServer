@@ -2,9 +2,9 @@ package org.brapi.test.BrAPITestServer.repository.germ;
 
 import java.util.List;
 
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
-import javax.persistence.TypedQuery;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
+import jakarta.persistence.TypedQuery;
 
 import org.brapi.test.BrAPITestServer.model.entity.germ.PedigreeNodeEntity;
 
@@ -17,9 +17,9 @@ public class PedigreeRepositoryCustomImpl implements PedigreeRepositoryCustom {
 	public List<PedigreeNodeEntity> findPedigreeSiblings(PedigreeNodeEntity sourceNode) {
 		String siblingSearchSQL = "select distinct siblingNode from PedigreeNodeEntity siblingNode "
 				+ "join siblingNode.edges parentEdge "
-				+ "join parentEdge.conncetedNode.edges childEdge "
-				+ "join childEdge.conncetedNode sourceNode "
-				+ "where sourceNode = :sourceId and parentEdge.edgeType = 0 and childEdge.edgeType = 1 and siblingNode.id != childEdge.conncetedNode.id";
+				+ "join parentEdge.connectedNode.edges childEdge "
+				+ "join childEdge.connectedNode sourceNode "
+				+ "where sourceNode = :sourceId and parentEdge.edgeType = 0 and childEdge.edgeType = 1 and siblingNode.id != childEdge.connectedNode.id";
 		
 		TypedQuery<PedigreeNodeEntity> query = em.createQuery(siblingSearchSQL, PedigreeNodeEntity.class);
 		query.setParameter("sourceId", sourceNode);

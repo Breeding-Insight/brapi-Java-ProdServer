@@ -1,15 +1,15 @@
 package org.brapi.test.BrAPITestServer.model.entity.core;
 
+
+import jakarta.persistence.*;
 import org.brapi.test.BrAPITestServer.model.entity.BrAPIBaseEntity;
 import org.hibernate.annotations.Where;
-
-import javax.persistence.*;
 
 @Entity
 @Table(name = "list_item")
 @Where(clause = "soft_deleted = false")
 public class ListItemEntity extends BrAPIBaseEntity {
-	@ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+	@ManyToOne(fetch = FetchType.LAZY)
 	private ListEntity list;
 	@Column
 	private String item;

@@ -1,10 +1,6 @@
 package org.brapi.test.BrAPITestServer.service.core;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import org.brapi.test.BrAPITestServer.exceptions.BrAPIServerDbIdNotFoundException;
@@ -78,7 +74,7 @@ public class StudyService {
 			String seasonDbId, String trialDbId, String studyDbId, String studyName, String studyCode, String studyPUI,
 			String germplasmDbId, String observationVariableDbId, String externalReferenceId,
 			String externalReferenceID, String externalReferenceSource, Boolean active, String sortBy, String sortOrder,
-			Metadata metadata) {
+			Metadata metadata)  throws BrAPIServerException {
 
 		StudySearchRequest request = new StudySearchRequest();
 		if (commonCropName != null)
@@ -117,7 +113,8 @@ public class StudyService {
 		return findStudies(request, metadata);
 	}
 
-	public List<Study> findStudies(StudySearchRequest request, Metadata metaData) {
+	public List<Study> findStudies(StudySearchRequest request, Metadata metaData)
+		throws BrAPIServerException {
 
 		Pageable pageReq = PagingUtility.getPageRequest(metaData);
 		SearchQueryBuilder<StudyEntity> searchQuery = new SearchQueryBuilder<StudyEntity>(StudyEntity.class);
@@ -149,7 +146,7 @@ public class StudyService {
 				.appendList(request.getTrialDbIds(), "trial.id").appendList(request.getTrialNames(), "trial.trialName")
 				.withSort(getSortByField(request.getSortBy()), request.getSortOrder());
 
-		Page<StudyEntity> studiesPage = studyRepository.findAllBySearch(searchQuery, pageReq);
+		Page<StudyEntity> studiesPage = studyRepository.findAllBySearchAndPaginate(searchQuery, pageReq);
 		PagingUtility.calculateMetaData(metaData, studiesPage);
 
 		List<Study> studies = studiesPage.map(this::convertFromEntity).getContent();
@@ -165,7 +162,7 @@ public class StudyService {
 	}
 
 	public StudyEntity getStudyEntity(String studyDbId, HttpStatus errorStatus) throws BrAPIServerException {
-		Optional<StudyEntity> entityOption = studyRepository.findById(studyDbId);
+		Optional<StudyEntity> entityOption = studyRepository.findById(UUID.fromString(studyDbId));
 		StudyEntity study = null;
 		if (entityOption.isPresent()) {
 			study = entityOption.get();
@@ -333,7 +330,7 @@ public class StudyService {
 		study.setLicense(entity.getLicense());
 
 		if (entity.getLocation() != null) {
-			study.setLocationDbId(entity.getLocation().getId());
+			study.setLocationDbId(entity.getLocation().getId().toString());
 			study.setLocationName(entity.getLocation().getLocationName());
 		}
 
@@ -346,26 +343,26 @@ public class StudyService {
 
 		if (entity.getObservationVariables() != null) {
 			study.setObservationVariableDbIds(entity.getObservationVariables().stream().map(e -> {
-				return e.getId();
+				return e.getId().toString();
 			}).collect(Collectors.toList()));
 		}
 
 		if (entity.getSeasons() != null) {
 			study.setSeasons(entity.getSeasons().stream().map(e -> {
-				return e.getId();
+				return e.getId().toString();
 			}).collect(Collectors.toList()));
 		}
 
 		study.setStartDate(DateUtility.toOffsetDateTime(entity.getStartDate()));
 		study.setStudyCode(entity.getStudyCode());
-		study.setStudyDbId(entity.getId());
+		study.setStudyDbId(entity.getId().toString());
 		study.setStudyDescription(entity.getStudyDescription());
 		study.setStudyName(entity.getStudyName());
 		study.setStudyPUI(entity.getStudyPUI());
 		study.setStudyType(entity.getStudyType());
 
 		if (entity.getTrial() != null) {
-			study.setTrialDbId(entity.getTrial().getId());
+			study.setTrialDbId(entity.getTrial().getId().toString());
 			study.setTrialName(entity.getTrial().getTrialName());
 			if (entity.getTrial().getProgram() != null) {
 				if (entity.getTrial().getProgram().getCrop() != null) {

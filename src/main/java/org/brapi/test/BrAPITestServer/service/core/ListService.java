@@ -18,8 +18,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
-import javax.transaction.Transactional;
+import jakarta.transaction.Transactional;
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Service
@@ -58,7 +59,7 @@ public class ListService {
 
 	public List<ListSummary> findLists(ListTypes listType, String listName, String listDbId, String listSource,
 			String programDbId, String commonCropName, String externalReferenceId, String externalReferenceID,
-			String externalReferenceSource, Metadata metadata) {
+			String externalReferenceSource, Metadata metadata) throws BrAPIServerException {
 		ListSearchRequest request = new ListSearchRequest();
 		if (listType != null) {
 			request.setListType(listType);
@@ -79,15 +80,15 @@ public class ListService {
 			request.addCommonCropNamesItem(commonCropName);
 		}
 		request.addExternalReferenceItem(externalReferenceId, externalReferenceID, externalReferenceSource);
-		
+
 		return findLists(request, metadata);
 	}
 
-	public List<ListSummary> findLists(ListSearchRequest request, Metadata metadata) {
+	public List<ListSummary> findLists(ListSearchRequest request, Metadata metadata) throws BrAPIServerException {
 		Pageable pageReq = PagingUtility.getPageRequest(metadata);
 		SearchQueryBuilder<ListEntity> searchQuery = buildQueryString(request);
 
-		Page<ListEntity> entityPage = listRepository.findAllBySearch(searchQuery, pageReq);
+		Page<ListEntity> entityPage = listRepository.findAllBySearchAndPaginate(searchQuery, pageReq);
 
 		List<ListSummary> data = entityPage.map(this::convertToSummary).getContent();
 		PagingUtility.calculateMetaData(metadata, entityPage);
@@ -113,7 +114,7 @@ public class ListService {
 	public ListDetails getList(String listDbId) throws BrAPIServerException {
 		ListEntity entity;
 
-		Optional<ListEntity> entityOpt = listRepository.findById(listDbId);
+		Optional<ListEntity> entityOpt = listRepository.findById(UUID.fromString(listDbId));
 		if (entityOpt.isPresent()) {
 			entity = entityOpt.get();
 		} else {
@@ -125,7 +126,7 @@ public class ListService {
 
 	public ListDetails updateListItems(String listDbId, List<String> listItems) throws BrAPIServerException {
 		ListEntity savedEntity;
-		Optional<ListEntity> entityOpt = listRepository.findById(listDbId);
+		Optional<ListEntity> entityOpt = listRepository.findById(UUID.fromString(listDbId));
 		if (entityOpt.isPresent()) {
 			ListEntity entity = entityOpt.get();
 			entity.setDateModified(new Date());
@@ -149,7 +150,7 @@ public class ListService {
 
 	public ListDetails updateList(String listDbId, ListNewRequest list) throws BrAPIServerException {
 		ListEntity savedEntity;
-		Optional<ListEntity> entityOpt = listRepository.findById(listDbId);
+		Optional<ListEntity> entityOpt = listRepository.findById(UUID.fromString(listDbId));
 		if (entityOpt.isPresent()) {
 			ListEntity entity = entityOpt.get();
 			updateEntity(entity, list);
@@ -164,7 +165,7 @@ public class ListService {
 	}
 
 	public void deleteListBatch(List<String> listDbIds) {
-		listRepository.deleteAllByIdInBatch(listDbIds);
+		listRepository.deleteAllByIdInBatch(listDbIds.stream().map(UUID::fromString).toList());
 	}
 
 	public void softDeleteListBatch(List<String> listDbIds) {
@@ -176,7 +177,7 @@ public class ListService {
 		softDeleteList(listDbId);
 
 		// Hard delete the list
-		listRepository.deleteAllByIdInBatch(Arrays.asList(listDbId));
+		listRepository.deleteAllByIdInBatch(List.of(UUID.fromString(listDbId)));
 	}
 
 	public void softDeleteList(String listDbId) throws BrAPIServerDbIdNotFoundException {
@@ -209,7 +210,7 @@ public class ListService {
 	private ListDetails convertToDetails(ListEntity entity) {
 		ListDetails details = new ListDetails();
 		details = (ListDetails) convertToBaseFields(entity, details);
-		details.setListDbId(entity.getId());
+		details.setListDbId(entity.getId().toString());
 		details.setData(entity.getData().stream().map((e) -> {
 			return e.getItem();
 		}).collect(Collectors.toList()));
@@ -220,7 +221,7 @@ public class ListService {
 	private ListSummary convertToSummary(ListEntity entity) {
 		ListSummary summary = new ListSummary();
 		summary = (ListSummary) convertToBaseFields(entity, summary);
-		summary.setListDbId(entity.getId());
+		summary.setListDbId(entity.getId().toString());
 
 		return summary;
 
@@ -238,7 +239,7 @@ public class ListService {
 		base.setExternalReferences(entity.getExternalReferencesMap());
 
 		if (entity.getListOwnerPerson() != null) {
-			base.setListOwnerPersonDbId(entity.getListOwnerPerson().getId());
+			base.setListOwnerPersonDbId(entity.getListOwnerPerson().getId().toString());
 		}
 		if (entity.getData() != null) {
 			base.setListSize(entity.getData().size());
@@ -247,7 +248,7 @@ public class ListService {
 	}
 
 	private void updateEntity(ListEntity entity, @Valid ListNewRequest list) throws BrAPIServerException {
-
+		// Update simple fields
 		if (list.getAdditionalInfo() != null)
 			entity.setAdditionalInfo(list.getAdditionalInfo());
 		if (list.getListDescription() != null)
@@ -268,27 +269,45 @@ public class ListService {
 			entity.setListOwnerPerson(person);
 		}
 
-		if (entity.getData() != null) {
-			entity.getData().stream().forEach((item) -> {
-				item.setList(null);
-			});
-		}
-
+		// Update list items
 		if (list.getData() != null) {
-			List<ListItemEntity> items = new ArrayList<>();
-			ListIterator<String> iter = list.getData().listIterator();
-			while (iter.hasNext()) {
-				String item = iter.next();
+			// Initialize entity.getData() if it's null
+			if (entity.getData() == null) {
+				entity.setData(new ArrayList<>());
+			}
+
+			// Create a map of existing items for efficient lookup
+			Map<String, ListItemEntity> existingItems = entity.getData().stream()
+					.filter(item -> item.getItem() != null)
+					.collect(Collectors.toMap(
+							ListItemEntity::getItem,
+							Function.identity(),
+							(existing, replacement) -> existing,
+							HashMap::new
+					));
+
+			List<ListItemEntity> updatedItems = new ArrayList<>();
+			int position = 0;
+
+			for (String item : list.getData()) {
 				if (item != null) {
-					ListItemEntity itemEntity = new ListItemEntity();
-					itemEntity.setPosition(iter.nextIndex());
-					itemEntity.setItem(item);
-					itemEntity.setList(entity);
-					items.add(itemEntity);
+					ListItemEntity itemEntity = existingItems.get(item);
+					if (itemEntity == null) {
+						// Create new item if it doesn't exist
+						itemEntity = new ListItemEntity();
+						itemEntity.setItem(item);
+						itemEntity.setList(entity);
+					}
+					itemEntity.setPosition(position++);
+					updatedItems.add(itemEntity);
 				}
 			}
-			entity.setData(items);
+
+			// Update the list with new and updated items
+			entity.getData().clear();
+			entity.getData().addAll(updatedItems);
 		} else {
+			// If data is null, initialize an empty list
 			entity.setData(new ArrayList<>());
 		}
 	}

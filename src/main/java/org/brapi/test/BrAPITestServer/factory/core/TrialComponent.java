@@ -4,6 +4,7 @@ import io.swagger.model.Metadata;
 import io.swagger.model.core.BatchDeleteTypes;
 import io.swagger.model.core.Trial;
 import io.swagger.model.core.TrialSearchRequest;
+import org.brapi.test.BrAPITestServer.exceptions.BrAPIServerException;
 import org.brapi.test.BrAPITestServer.factory.BrAPIComponent;
 import org.brapi.test.BrAPITestServer.service.core.TrialService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,7 +23,8 @@ public class TrialComponent implements BrAPIComponent<Trial, TrialSearchRequest>
     }
 
     @Override
-    public List<Trial> findEntities(TrialSearchRequest request, Metadata metadata) {
+    public List<Trial> findEntities(TrialSearchRequest request, Metadata metadata)
+        throws BrAPIServerException {
         return trialService.findTrials(request, metadata);
     }
 

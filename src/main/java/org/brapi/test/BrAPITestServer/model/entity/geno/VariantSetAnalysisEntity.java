@@ -1,11 +1,10 @@
 package org.brapi.test.BrAPITestServer.model.entity.geno;
 
+import jakarta.persistence.*;
+import org.brapi.test.BrAPITestServer.model.entity.BrAPIBaseEntity;
+
 import java.util.Date;
 import java.util.List;
-
-import javax.persistence.*;
-
-import org.brapi.test.BrAPITestServer.model.entity.BrAPIBaseEntity;
 
 @Entity
 @Table(name = "variantset_analysis")

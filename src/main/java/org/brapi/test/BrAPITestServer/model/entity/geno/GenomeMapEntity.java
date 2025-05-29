@@ -1,13 +1,12 @@
 package org.brapi.test.BrAPITestServer.model.entity.geno;
 
-import java.util.Date;
-import java.util.List;
-
-import javax.persistence.*;
-
+import jakarta.persistence.*;
 import org.brapi.test.BrAPITestServer.model.entity.BrAPIPrimaryEntity;
 import org.brapi.test.BrAPITestServer.model.entity.core.CropEntity;
 import org.brapi.test.BrAPITestServer.model.entity.core.StudyEntity;
+
+import java.util.Date;
+import java.util.List;
 
 @Entity
 @Table(name="genome_map")
@@ -96,5 +95,4 @@ public class GenomeMapEntity extends BrAPIPrimaryEntity{
 	public void setUnit(String unit) {
 		this.unit = unit;
 	}
-	
 }

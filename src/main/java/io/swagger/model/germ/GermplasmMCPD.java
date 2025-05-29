@@ -22,7 +22,7 @@ import jakarta.validation.Valid;
  * GermplasmMCPD
  */
 @Validated
-@javax.annotation.Generated(value = "io.swagger.codegen.v3.generators.java.SpringCodegen", date = "2020-03-20T16:33:36.513Z[GMT]")
+@javax.annotation.processing.Generated(value = "io.swagger.codegen.v3.generators.java.SpringCodegen", date = "2020-03-20T16:33:36.513Z[GMT]")
 public class GermplasmMCPD   {
   @JsonProperty("accessionNames")
   @Valid
@@ -82,8 +82,7 @@ public class GermplasmMCPD   {
     _61("61"),
     _62("62"),
     _99("99");
-
-    private String value;
+private String value;
 
     AcquisitionSourceCodeEnum(String value) {
       this.value = value;
@@ -157,8 +156,7 @@ public class GermplasmMCPD   {
     _1("1"),
     
     _99("99");
-
-    private String value;
+private String value;
 
     MlsStatusEnum(String value) {
       this.value = value;

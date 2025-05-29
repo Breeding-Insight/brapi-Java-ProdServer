@@ -3,6 +3,7 @@ package org.brapi.test.BrAPITestServer.service.pheno;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 import org.brapi.test.BrAPITestServer.exceptions.BrAPIServerDbIdNotFoundException;
 import org.brapi.test.BrAPITestServer.exceptions.BrAPIServerException;
@@ -41,7 +42,7 @@ public class OntologyService {
 			PagingUtility.calculateMetaData(metadata, ontologiesPage);
 			ontologies = ontologiesPage.map(this::convertFromEntity).getContent();
 		} else {
-			Optional<OntologyEntity> ontologyOpt = ontologyRepository.findById(ontologyDbId);
+			Optional<OntologyEntity> ontologyOpt = ontologyRepository.findById(UUID.fromString(ontologyDbId));
 			if (ontologyOpt.isPresent()) {
 				ontologies.add(convertFromEntity(ontologyOpt.get()));
 				metadata.getPagination().setCurrentPage(0);
@@ -85,7 +86,7 @@ public class OntologyService {
 		ontology.setDescription(entity.getDescription());
 		ontology.setDocumentationURL(entity.getDocumentationURL());
 		ontology.setLicence(entity.getLicence());
-		ontology.setOntologyDbId(entity.getId());
+		ontology.setOntologyDbId(entity.getId().toString());
 		ontology.setOntologyName(entity.getOntologyName());
 		ontology.setVersion(entity.getVersion());
 		return ontology;
@@ -118,7 +119,7 @@ public class OntologyService {
 	public OntologyEntity getOntologyEntity(String ontologyDbId, HttpStatus errorStatus) throws BrAPIServerException {
 		OntologyEntity ontology = null;
 		if (ontologyDbId != null) {
-			Optional<OntologyEntity> entityOpt = ontologyRepository.findById(ontologyDbId);
+			Optional<OntologyEntity> entityOpt = ontologyRepository.findById(UUID.fromString(ontologyDbId));
 			if (entityOpt.isPresent()) {
 				ontology = entityOpt.get();
 			} else {
@@ -160,7 +161,7 @@ public class OntologyService {
 		OntologyReference ontologyReference = null;
 		if (entity.getOntology() != null) {
 			ontologyReference = new OntologyReference();
-			ontologyReference.setOntologyDbId(entity.getOntology().getId());
+			ontologyReference.setOntologyDbId(entity.getOntology().getId().toString());
 			ontologyReference.setOntologyName(entity.getOntology().getOntologyName());
 			ontologyReference.setVersion(entity.getOntology().getVersion());
 			if (entity.getOntologyReference() != null) {

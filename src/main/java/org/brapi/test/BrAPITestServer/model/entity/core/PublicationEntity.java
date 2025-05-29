@@ -1,11 +1,12 @@
 package org.brapi.test.BrAPITestServer.model.entity.core;
 
-import javax.persistence.*;
-
+import jakarta.persistence.*;
 import org.brapi.test.BrAPITestServer.model.entity.BrAPIBaseEntity;
+import org.hibernate.annotations.Where;
 
 @Entity
 @Table(name = "trial_publication")
+@Where(clause = "soft_deleted = false")
 public class PublicationEntity extends BrAPIBaseEntity {
 	@Column
 	private String publicationPUI;
@@ -32,5 +33,4 @@ public class PublicationEntity extends BrAPIBaseEntity {
 	public void setTrial(TrialEntity trial) {
 		this.trial = trial;
 	}
-	
 }

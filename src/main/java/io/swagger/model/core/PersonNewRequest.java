@@ -4,6 +4,7 @@ import java.util.Objects;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 
+import com.fasterxml.jackson.databind.JsonNode;
 import io.swagger.annotations.ApiModelProperty;
 import io.swagger.model.ExternalReferences;
 
@@ -14,11 +15,11 @@ import jakarta.validation.Valid;
  * PersonNewRequest
  */
 @Validated
-@javax.annotation.Generated(value = "io.swagger.codegen.v3.generators.java.SpringCodegen", date = "2020-03-20T16:31:52.030Z[GMT]")
+@javax.annotation.processing.Generated(value = "io.swagger.codegen.v3.generators.java.SpringCodegen", date = "2020-03-20T16:31:52.030Z[GMT]")
 public class PersonNewRequest   {
   @JsonProperty("additionalInfo")
   @Valid
-  private Object additionalInfo = null;
+  private JsonNode additionalInfo = null;
 
   @JsonProperty("description")
   private String description = null;
@@ -47,7 +48,7 @@ public class PersonNewRequest   {
   @JsonProperty("userID")
   private String userID = null;
 
-  public PersonNewRequest additionalInfo(Object additionalInfo) {
+  public PersonNewRequest additionalInfo(JsonNode additionalInfo) {
     this.additionalInfo = additionalInfo;
     return this;
   }
@@ -57,12 +58,11 @@ public class PersonNewRequest   {
    * @return additionalInfo
   **/
   @ApiModelProperty(value = "Additional arbitrary info")
-  
-    public Object getAdditionalInfo() {
+    public JsonNode getAdditionalInfo() {
     return additionalInfo;
   }
 
-  public void setAdditionalInfo(Object additionalInfo) {
+  public void setAdditionalInfo(JsonNode additionalInfo) {
     this.additionalInfo = additionalInfo;
   }
 

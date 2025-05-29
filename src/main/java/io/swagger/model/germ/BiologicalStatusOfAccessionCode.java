@@ -25,9 +25,7 @@ public enum BiologicalStatusOfAccessionCode {
     _500("500", "Advanced or improved cultivar (conventional breeding methods)"),
     _600("600", "GMO (by genetic engineering)"),
     _999("999", "Other (Elaborate in REMARKS field)");
-
-    private String value;
-    private String description;
+private String value;private String description;
 
     public String getDescription() {
 		return description;

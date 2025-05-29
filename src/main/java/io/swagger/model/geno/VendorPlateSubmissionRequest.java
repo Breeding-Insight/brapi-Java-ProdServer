@@ -20,7 +20,7 @@ import jakarta.validation.Valid;
  */
 @ApiModel(description = "Request object structure to submit plate data to a vendor")
 @Validated
-@javax.annotation.Generated(value = "io.swagger.codegen.v3.generators.java.SpringCodegen", date = "2020-03-20T16:32:53.794Z[GMT]")
+@javax.annotation.processing.Generated(value = "io.swagger.codegen.v3.generators.java.SpringCodegen", date = "2020-03-20T16:32:53.794Z[GMT]")
 public class VendorPlateSubmissionRequest   {
   @JsonProperty("clientId")
   private String clientId = null;
@@ -41,8 +41,7 @@ public class VendorPlateSubmissionRequest   {
     RNA("RNA"),
     
     TISSUE("Tissue");
-
-    private String value;
+private String value;
 
     SampleTypeEnum(String value) {
       this.value = value;
