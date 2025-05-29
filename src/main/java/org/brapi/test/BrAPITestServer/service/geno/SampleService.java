@@ -258,7 +258,7 @@ public class SampleService {
 		sample.setSampleBarcode(entity.getSampleBarcode());
 		sample.setSampleDbId(entity.getId().toString());
 		sample.setSampleDescription(entity.getSampleDescription());
-		sample.setSampleGroupDbId(entity.getSampleGroupDbId().toString());
+		sample.setSampleGroupDbId(entity.getSampleGroupDbId() != null ? entity.getSampleGroupDbId().toString(): null);
 		sample.setSampleName(entity.getSampleName());
 		sample.setSamplePUI(entity.getSamplePUI());
 		sample.setSampleTimestamp(DateUtility.toOffsetDateTime(entity.getSampleTimestamp()));
