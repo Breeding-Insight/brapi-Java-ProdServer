@@ -13,7 +13,7 @@ import java.util.UUID;
 public class VendorPlateSubmissionEntity extends BrAPIPrimaryEntity {
 
     @Column
-    private UUID clientId;
+    private String clientId;
     @Column
     private Integer numberOfSamples;
     @Column
@@ -30,10 +30,10 @@ public class VendorPlateSubmissionEntity extends BrAPIPrimaryEntity {
 	public void setOrder(VendorOrderEntity order) {
 		this.order = order;
 	}
-	public UUID getClientId() {
+	public String getClientId() {
 		return clientId;
 	}
-	public void setClientId(UUID clientId) {
+	public void setClientId(String clientId) {
 		this.clientId = clientId;
 	}
 	public Integer getNumberOfSamples() {

@@ -14,7 +14,7 @@ import java.util.UUID;
 @Table(name = "vendor_order")
 public class VendorOrderEntity extends BrAPIPrimaryEntity {
     @Column
-    private UUID clientPlateDbId;
+    private String clientPlateDbId;
     @Column
     private String clientPlateBarcode;
     @Column
@@ -73,11 +73,11 @@ public class VendorOrderEntity extends BrAPIPrimaryEntity {
         this.plateSubmission = plateSubmission;
     }
 
-    public UUID getClientPlateDbId() {
+    public String getClientPlateDbId() {
         return clientPlateDbId;
     }
 
-    public void setClientPlateDbId(UUID clientPlateDbId) {
+    public void setClientPlateDbId(String clientPlateDbId) {
         this.clientPlateDbId = clientPlateDbId;
     }
 
