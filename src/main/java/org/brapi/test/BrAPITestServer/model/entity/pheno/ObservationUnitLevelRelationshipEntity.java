@@ -1,6 +1,5 @@
 package org.brapi.test.BrAPITestServer.model.entity.pheno;
 
-import io.swagger.model.pheno.ObservationUnitHierarchyLevelEnum;
 import jakarta.persistence.*;
 import org.brapi.test.BrAPITestServer.model.entity.BrAPIBaseEntity;
 
@@ -9,10 +8,9 @@ import org.brapi.test.BrAPITestServer.model.entity.BrAPIBaseEntity;
 public class ObservationUnitLevelRelationshipEntity extends BrAPIBaseEntity {
 	@Column
 	private String levelCode;
-	@Column
-	private ObservationUnitHierarchyLevelEnum levelName;
-	@Column
-	private Integer levelOrder;
+	@ManyToOne
+	@JoinColumn(name = "level_name_new")
+	private ObservationUnitLevelNameEntity levelName;
 	@ManyToOne(fetch = FetchType.LAZY)
 	private ObservationUnitEntity observationUnit;
 	@ManyToOne(fetch = FetchType.LAZY)
@@ -30,17 +28,11 @@ public class ObservationUnitLevelRelationshipEntity extends BrAPIBaseEntity {
 	public void setLevelCode(String levelCode) {
 		this.levelCode = levelCode;
 	}
-	public ObservationUnitHierarchyLevelEnum getLevelName() {
+	public ObservationUnitLevelNameEntity getLevelName() {
 		return levelName;
 	}
-	public void setLevelName(ObservationUnitHierarchyLevelEnum levelName) {
+	public void setLevelName(ObservationUnitLevelNameEntity levelName) {
 		this.levelName = levelName;
-	}
-	public Integer getLevelOrder() {
-		return levelOrder;
-	}
-	public void setLevelOrder(Integer levelOrder) {
-		this.levelOrder = levelOrder;
 	}
 	public ObservationUnitPositionEntity getPosition() {
 		return position;

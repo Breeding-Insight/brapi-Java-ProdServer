@@ -13,7 +13,7 @@ import org.brapi.test.BrAPITestServer.exceptions.BrAPIServerException;
 import org.brapi.test.BrAPITestServer.model.entity.pheno.ImageEntity;
 import org.brapi.test.BrAPITestServer.model.entity.pheno.ObservationEntity;
 import org.brapi.test.BrAPITestServer.model.entity.pheno.ObservationUnitEntity;
-import org.brapi.test.BrAPITestServer.repository.pheno.ImageRepository;
+import org.brapi.test.BrAPITestServer.repository.primaryEntities.pheno.ImageRepository;
 import org.brapi.test.BrAPITestServer.service.DateUtility;
 import org.brapi.test.BrAPITestServer.service.GeoJSONUtility;
 import org.brapi.test.BrAPITestServer.service.PagingUtility;

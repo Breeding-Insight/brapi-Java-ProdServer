@@ -4,7 +4,6 @@ import java.math.BigDecimal;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import jakarta.validation.Valid;
 
@@ -15,9 +14,9 @@ import org.brapi.test.BrAPITestServer.model.entity.geno.vendor.VendorFileEntity;
 import org.brapi.test.BrAPITestServer.model.entity.geno.vendor.VendorOrderEntity;
 import org.brapi.test.BrAPITestServer.model.entity.geno.vendor.VendorPlateSubmissionEntity;
 import org.brapi.test.BrAPITestServer.model.entity.geno.vendor.VendorSpecEntity;
-import org.brapi.test.BrAPITestServer.repository.geno.VendorOrderRepository;
-import org.brapi.test.BrAPITestServer.repository.geno.VendorPlateRepository;
-import org.brapi.test.BrAPITestServer.repository.geno.VendorSpecRepository;
+import org.brapi.test.BrAPITestServer.repository.primaryEntities.geno.VendorOrderRepository;
+import org.brapi.test.BrAPITestServer.repository.primaryEntities.geno.VendorPlateRepository;
+import org.brapi.test.BrAPITestServer.repository.primaryEntities.geno.VendorSpecRepository;
 import org.brapi.test.BrAPITestServer.service.PagingUtility;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -26,7 +25,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import io.swagger.model.Metadata;
-import io.swagger.model.OntologyReference;
 import io.swagger.model.geno.Measurement;
 import io.swagger.model.geno.VendorContact;
 import io.swagger.model.geno.VendorOrder;

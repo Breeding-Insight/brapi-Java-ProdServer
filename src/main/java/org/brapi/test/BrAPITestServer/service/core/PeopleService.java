@@ -8,7 +8,7 @@ import java.util.UUID;
 import org.brapi.test.BrAPITestServer.exceptions.BrAPIServerDbIdNotFoundException;
 import org.brapi.test.BrAPITestServer.exceptions.BrAPIServerException;
 import org.brapi.test.BrAPITestServer.model.entity.core.PersonEntity;
-import org.brapi.test.BrAPITestServer.repository.core.PeopleRepository;
+import org.brapi.test.BrAPITestServer.repository.primaryEntities.core.PeopleRepository;
 import org.brapi.test.BrAPITestServer.service.PagingUtility;
 import org.brapi.test.BrAPITestServer.service.SearchQueryBuilder;
 import org.springframework.data.domain.Page;

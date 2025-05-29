@@ -10,7 +10,7 @@ import java.util.stream.Collectors;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.brapi.test.BrAPITestServer.exceptions.BrAPIServerException;
 import org.brapi.test.BrAPITestServer.model.entity.geno.CallEntity;
-import org.brapi.test.BrAPITestServer.repository.geno.CallRepository;
+import org.brapi.test.BrAPITestServer.repository.primaryEntities.geno.CallRepository;
 import org.brapi.test.BrAPITestServer.service.PagingUtility;
 import org.brapi.test.BrAPITestServer.service.SearchQueryBuilder;
 import org.springframework.data.domain.Page;

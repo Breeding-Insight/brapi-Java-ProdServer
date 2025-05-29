@@ -8,7 +8,7 @@ import java.util.stream.Collectors;
 import org.brapi.test.BrAPITestServer.exceptions.BrAPIServerDbIdNotFoundException;
 import org.brapi.test.BrAPITestServer.exceptions.BrAPIServerException;
 import org.brapi.test.BrAPITestServer.model.entity.geno.CallSetEntity;
-import org.brapi.test.BrAPITestServer.repository.geno.CallSetRepository;
+import org.brapi.test.BrAPITestServer.repository.primaryEntities.geno.CallSetRepository;
 import org.brapi.test.BrAPITestServer.service.DateUtility;
 import org.brapi.test.BrAPITestServer.service.PagingUtility;
 import org.brapi.test.BrAPITestServer.service.SearchQueryBuilder;

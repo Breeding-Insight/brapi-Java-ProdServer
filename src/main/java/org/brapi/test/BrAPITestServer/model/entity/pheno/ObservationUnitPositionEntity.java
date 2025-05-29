@@ -1,7 +1,6 @@
 package org.brapi.test.BrAPITestServer.model.entity.pheno;
 
 import io.swagger.model.pheno.EntryTypeEnum;
-import io.swagger.model.pheno.ObservationUnitHierarchyLevelEnum;
 import io.swagger.model.pheno.PositionCoordinateTypeEnum;
 import jakarta.persistence.*;
 import org.brapi.test.BrAPITestServer.model.entity.BrAPIBaseEntity;
@@ -12,28 +11,27 @@ import java.util.List;
 @Entity
 @Table(name = "observation_unit_position")
 public class ObservationUnitPositionEntity extends BrAPIBaseEntity {
-	@Column
-	private EntryTypeEnum entryType;
-	@OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-	private GeoJSONEntity geoCoordinates;
-	@Column
-	private String levelCode;
-	@Column
-	private ObservationUnitHierarchyLevelEnum levelName;
-	@Column
-	private Integer levelOrder;
-	@OneToMany(mappedBy = "position", cascade = CascadeType.ALL)
-	private List<ObservationUnitLevelRelationshipEntity> observationLevelRelationships;
-	@Column
-	private String positionCoordinateX;
-	@Column
-	private PositionCoordinateTypeEnum positionCoordinateXType;
-	@Column
-	private String positionCoordinateY;
-	@Column
-	private PositionCoordinateTypeEnum positionCoordinateYType;
-	@OneToOne(fetch = FetchType.LAZY)
-	private ObservationUnitEntity observationUnit;
+    @Column
+    private EntryTypeEnum entryType;
+    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private GeoJSONEntity geoCoordinates;
+    @Column
+    private String levelCode;
+    @ManyToOne
+    @JoinColumn(name = "level_name_new")
+    private ObservationUnitLevelNameEntity levelName;
+    @OneToMany(mappedBy = "position", cascade = CascadeType.ALL)
+    private List<ObservationUnitLevelRelationshipEntity> observationLevelRelationships;
+    @Column
+    private String positionCoordinateX;
+    @Column
+    private PositionCoordinateTypeEnum positionCoordinateXType;
+    @Column
+    private String positionCoordinateY;
+    @Column
+    private PositionCoordinateTypeEnum positionCoordinateYType;
+    @OneToOne(fetch = FetchType.LAZY)
+    private ObservationUnitEntity observationUnit;
 
     public ObservationUnitEntity getObservationUnit() {
         return observationUnit;
@@ -67,20 +65,12 @@ public class ObservationUnitPositionEntity extends BrAPIBaseEntity {
         this.levelCode = levelCode;
     }
 
-    public ObservationUnitHierarchyLevelEnum getLevelName() {
+    public ObservationUnitLevelNameEntity getLevelName() {
         return levelName;
     }
 
-    public void setLevelName(ObservationUnitHierarchyLevelEnum levelName) {
+    public void setLevelName(ObservationUnitLevelNameEntity levelName) {
         this.levelName = levelName;
-    }
-
-    public Integer getLevelOrder() {
-        return levelOrder;
-    }
-
-    public void setLevelOrder(Integer levelOrder) {
-        this.levelOrder = levelOrder;
     }
 
     public List<ObservationUnitLevelRelationshipEntity> getObservationLevelRelationships() {
@@ -122,42 +112,5 @@ public class ObservationUnitPositionEntity extends BrAPIBaseEntity {
 
     public void setPositionCoordinateYType(PositionCoordinateTypeEnum positionCoordinateYType) {
         this.positionCoordinateYType = positionCoordinateYType;
-    }
-
-    public String getFieldCode() {
-        return getRelationshipCode(ObservationUnitHierarchyLevelEnum.FIELD);
-    }
-
-    public String getBlockCode() {
-        return getRelationshipCode(ObservationUnitHierarchyLevelEnum.BLOCK);
-    }
-
-    public String getEntryCode() {
-        return getRelationshipCode(ObservationUnitHierarchyLevelEnum.ENTRY);
-    }
-
-    public String getRepCode() {
-        return getRelationshipCode(ObservationUnitHierarchyLevelEnum.REP);
-    }
-
-    public String getPlotCode() {
-        return getRelationshipCode(ObservationUnitHierarchyLevelEnum.PLOT);
-    }
-
-    public String getPlantCode() {
-        return getRelationshipCode(ObservationUnitHierarchyLevelEnum.PLANT);
-    }
-
-    private String getRelationshipCode(ObservationUnitHierarchyLevelEnum level) {
-        if (getLevelName() == level) {
-            return getLevelCode();
-        } else {
-            for (ObservationUnitLevelRelationshipEntity rel : getObservationLevelRelationships()) {
-                if (rel.getLevelName() == level) {
-                    return rel.getLevelCode();
-                }
-            }
-        }
-        return null;
     }
 }
