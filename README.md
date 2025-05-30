@@ -295,12 +295,14 @@ Below is a UML diagram of the whole database schema:
 
 ![dbSchema](https://raw.githubusercontent.com/plantbreeding/brapi-Java-TestServer/brapi-server-v2/brapi_test_server_data_model_v2.0.svg)
 
-### ID Columns
-The ID columns of each of the entities defined in the test server were created to be extremely flexible with whatever implementation
-you would like to use.  By default, the ID columns are mapped to String-like fields in the DB to accommodate that flexibility.
+### Migrating Data from Test Server
 
-If you decide to use this server implementation in a production like environment, **it is highly advised that you change this**.
+If you have existing production data in your test server implementation, you will need to migrate the data to what the production server expects.
 
-Most modern applications use UUID type columns, which are supported by most if not all relational databases.
+In general, the production server expects UUID as the data type for IDs in the database.
 
-To change this, you would want to take a close look at the `BrAPIBaseEntity` class, which essentially all entities extend from.
+This should not be a problem to migrate provided you have been using the default identifier generator in the test server application.
+
+If you modified this to be a different data type, you may have to do some work to migrate the identifiers of this data to UUID.
+
+The steps to carry out this migration can be found in `src/main/resources/db/sql/migrate_test_to_prod`
