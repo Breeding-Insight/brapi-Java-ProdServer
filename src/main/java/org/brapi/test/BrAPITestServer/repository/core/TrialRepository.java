@@ -29,11 +29,11 @@ public interface TrialRepository extends BrAPIRepository<TrialEntity, UUID> {
 	@Modifying
 	@Transactional
 	@Query("UPDATE TrialEntity t SET t.softDeleted = :softDeleted WHERE t.id = :trialId")
-	int updateSoftDeletedStatus(@Param("trialId") String trialId, @Param("softDeleted") boolean softDeleted);
+	int updateSoftDeletedStatus(@Param("trialId") UUID trialId, @Param("softDeleted") boolean softDeleted);
 
 	@Modifying
 	@Transactional
 	@Query("UPDATE TrialEntity t SET t.softDeleted = :softDeleted WHERE t.id IN :trialIds")
-	int updateSoftDeletedStatusBatch(@Param("trialIds") List<String> trialIds, @Param("softDeleted") boolean softDeleted);
+	int updateSoftDeletedStatusBatch(@Param("trialIds") List<UUID> trialIds, @Param("softDeleted") boolean softDeleted);
 
 }

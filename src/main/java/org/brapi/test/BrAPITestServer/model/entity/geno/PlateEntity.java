@@ -19,7 +19,7 @@ import java.util.UUID;
 @Where(clause = "soft_deleted = false")
 public class PlateEntity extends BrAPIPrimaryEntity {
     @Column
-    private UUID clientPlateDbId;
+    private String clientPlateDbId;
     @Column
     private String clientPlateBarcode;
     @Column
@@ -93,10 +93,10 @@ public class PlateEntity extends BrAPIPrimaryEntity {
 	public void setSubmission(VendorPlateSubmissionEntity submission) {
 		this.submission = submission;
 	}
-	public UUID getClientPlateDbId() {
+	public String getClientPlateDbId() {
 		return clientPlateDbId;
 	}
-	public void setClientPlateDbId(UUID clientPlateDbId) {
+	public void setClientPlateDbId(String clientPlateDbId) {
 		this.clientPlateDbId = clientPlateDbId;
 	}
 	public String getClientPlateBarcode() {

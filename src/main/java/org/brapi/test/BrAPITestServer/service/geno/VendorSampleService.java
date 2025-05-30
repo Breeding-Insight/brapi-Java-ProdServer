@@ -161,7 +161,7 @@ public class VendorSampleService {
 	private VendorOrderEntity convertToEntity(VendorOrderSubmissionRequest request) {
 		VendorOrderEntity entity = new VendorOrderEntity();
 		entity.setClientPlateBarcode(request.getClientId());
-		entity.setClientPlateDbId(UUID.fromString(request.getClientId()));
+		entity.setClientPlateDbId(request.getClientId());
 		entity.setRequiredServiceInfo(request.getRequiredServiceInfo());
 		entity.setSampleType(request.getSampleType());
 		entity.setServiceIds(request.getServiceIds());
@@ -190,7 +190,7 @@ public class VendorSampleService {
 
 	private PlateEntity convertToEntity(VendorPlateSubmissionRequestPlates newPlate) {
 		PlateEntity plateEntity = new PlateEntity();
-		plateEntity.setClientPlateDbId(UUID.fromString(newPlate.getClientPlateId()));
+		plateEntity.setClientPlateDbId(newPlate.getClientPlateId());
 		plateEntity.setStatusTimeStamp(new Date());
 
 		return plateEntity;
@@ -199,7 +199,7 @@ public class VendorSampleService {
 	private VendorOrderEntity convertToEntity(VendorPlateSubmissionRequest request) {
 		VendorOrderEntity entity = new VendorOrderEntity();
 		entity.setClientPlateBarcode(request.getClientId());
-		entity.setClientPlateDbId(UUID.fromString(request.getClientId()));
+		entity.setClientPlateDbId(request.getClientId());
 		entity.setSampleType(request.getSampleType());
 		entity.setStatus(StatusEnum.RECEIVED);
 		entity.setStatusTimeStamp(new Date());

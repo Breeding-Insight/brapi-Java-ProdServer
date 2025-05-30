@@ -169,7 +169,7 @@ public class ListService {
 	}
 
 	public void softDeleteListBatch(List<String> listDbIds) {
-		listRepository.updateSoftDeletedStatusBatch(listDbIds, true);
+		listRepository.updateSoftDeletedStatusBatch(listDbIds.stream().map(UUID::fromString).toList(), true);
 	}
 
 	public void deleteList(String listDbId) throws BrAPIServerException {
@@ -181,7 +181,7 @@ public class ListService {
 	}
 
 	public void softDeleteList(String listDbId) throws BrAPIServerDbIdNotFoundException {
-		int updatedCount = listRepository.updateSoftDeletedStatus(listDbId, true);
+		int updatedCount = listRepository.updateSoftDeletedStatus(UUID.fromString(listDbId), true);
 		if (updatedCount == 0) {
 			throw new BrAPIServerDbIdNotFoundException("list", listDbId, "list database ID", HttpStatus.NOT_FOUND);
 		}

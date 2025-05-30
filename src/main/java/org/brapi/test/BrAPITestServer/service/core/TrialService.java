@@ -175,11 +175,11 @@ public class TrialService {
 	}
 
 	public void softDeleteTrialBatch(List<String> trialDbIds) {
-		trialRepository.updateSoftDeletedStatusBatch(trialDbIds, true);
+		trialRepository.updateSoftDeletedStatusBatch(trialDbIds.stream().map(UUID::fromString).toList(), true);
 	}
 
 	public void softDeleteTrial(String trialDbId) throws BrAPIServerDbIdNotFoundException {
-		int updatedCount = trialRepository.updateSoftDeletedStatus(trialDbId, true);
+		int updatedCount = trialRepository.updateSoftDeletedStatus(UUID.fromString(trialDbId), true);
 		if (updatedCount == 0) {
 			throw new BrAPIServerDbIdNotFoundException("trial", trialDbId, "trial database ID", HttpStatus.NOT_FOUND);
 		}
