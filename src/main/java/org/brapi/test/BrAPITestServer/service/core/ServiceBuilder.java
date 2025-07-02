@@ -53,6 +53,11 @@ public class ServiceBuilder extends ArrayList<Service>{
 		return this;
 	}
 
+	public ServiceBuilder DELETE() {
+		methods.add(MethodsEnum.DELETE);
+		return this;
+	}
+
 	public ServiceBuilder versions(VersionsEnum ... versions) {
 		this.versions = Arrays.asList(versions);
 		return this;

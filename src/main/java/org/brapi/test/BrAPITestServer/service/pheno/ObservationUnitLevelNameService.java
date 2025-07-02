@@ -23,6 +23,9 @@ public class ObservationUnitLevelNameService {
             " names available.  Please add via endpoint to attach level names to a program or define " +
             "without a program to make them globally accessible.";
 
+    private final static String GLOBAL_AND_PROGRAMMATIC_SET_MSG = "Both programDbId and global=true attributes are set. " +
+            "A level name cannot be both related to a program and be globally accessible.  Choose one.";
+
     @Autowired
     public ObservationUnitLevelNameService(ObservationUnitLevelNameRepository observationUnitLevelNameRepository,
                                            ProgramService programService) {
@@ -138,12 +141,16 @@ public class ObservationUnitLevelNameService {
             entity.setLevelOrder(level.getLevelOrder());
         }
 
+        if (level.getProgramDbId() != null && level.getGlobal() != null && level.getGlobal()) {
+            throw new BrAPIServerException(HttpStatus.BAD_REQUEST, GLOBAL_AND_PROGRAMMATIC_SET_MSG);
+        }
+
         if (level.getProgramDbId() != null) {
             var program = programService.getProgramEntity(level.getProgramDbId());
             entity.setProgram(program);
-        } else if (level.getGlobal() == null || !level.getGlobal()) {
-            throw new BrAPIServerException(HttpStatus.BAD_REQUEST, GLOBAL_NOT_SET_MSG);
-        } else {
+        }
+
+        if (level.getGlobal() != null && level.getGlobal()) {
             // The user sent in a request to make this observation level name global for the system.
             // In the DB impl, this simply means it doesn't belong to any program.
             entity.setProgram(null);
