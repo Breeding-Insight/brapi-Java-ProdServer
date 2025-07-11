@@ -32,7 +32,7 @@ jobs:
       - name: Conditionally Fetch and Merge Upstream PR
         # This step runs if a PR number is provided AND (an upstream_repo input is given OR a parent repo full_name is available)
         if: |
-          github.event.inputs.upstream_pr_number && \
+          github.event.inputs.upstream_pr_number &&
           (github.event.inputs.upstream_repo || github.event.repository.parent.full_name)
         run: |
           UPSTREAM_REPO_SPECIFIED="${{ github.event.inputs.upstream_repo }}"
