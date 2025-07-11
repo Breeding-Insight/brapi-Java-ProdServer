@@ -27,7 +27,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           ref: develop # Default to develop, will be overridden by push events to other branches
-          # token: ${{ secrets.PAT_TOKEN }} # Uncomment if upstream repo is private and requires a PAT
+          fetch-depth: 0 # Fetch all history to ensure common ancestor is found
       
       - name: Conditionally Fetch and Merge Upstream PR
         # This step runs if a PR number is provided AND (an upstream_repo input is given OR a parent repo full_name is available)
