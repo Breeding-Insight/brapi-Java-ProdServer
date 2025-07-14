@@ -6,7 +6,7 @@ on:
       - develop
       - release/**
       - brapi-server-v2
-      
+
   workflow_dispatch:
     inputs:
       upstream_repo:
@@ -28,7 +28,7 @@ jobs:
         with:
           ref: develop # Default to develop, will be overridden by push events to other branches
           fetch-depth: 0 # Fetch all history to ensure common ancestor is found
-      
+
       - name: Conditionally Fetch and Merge Upstream PR
         # This step runs if a PR number is provided AND (an upstream_repo input is given OR a parent repo full_name is available)
         if: |
@@ -69,32 +69,32 @@ jobs:
 
       - name: Extract branch name
         shell: bash
-        run: echo ::set-output name=branch::$(echo ${GITHUB_REF#refs/heads/})
+        run: echo "branch=$(echo ${GITHUB_REF#refs/heads/})" >> "$GITHUB_OUTPUT"
         id: extract_branch
-        
+
       # This pull is no longer needed as checkout handles fetching the correct ref,
       # and the PR merge step brings in specific upstream changes.
       # - run: git pull origin ${{steps.extract_branch.outputs.branch}}
-      
+
       - name: Set up JDK 21
         uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: '21'
           cache: maven
-          
+
       - name: Build with Maven
         run: mvn clean install
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
+        uses: docker/setup-buildx-action@v3
       - name: Set up QEMU
-        uses: docker/setup-qemu-action@v2
+        uses: docker/setup-qemu-action@v3
         with:
-          platforms: 'arm64,arm,amd64,amd'        
-        
+          platforms: 'arm64,arm,amd64'
+
       - name: Login to Docker Hub
-        uses: docker/login-action@v1
+        uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_PASSWORD }}
@@ -106,12 +106,13 @@ jobs:
           PR_NUMBER="${{ github.event.inputs.upstream_pr_number }}"
           IMAGE_BASE_NAME="breedinginsight/brapi-java-server"
           TAGS=""
+          IS_PR_BUILD="false"
 
           if [[ -n "$PR_NUMBER" ]]; then
             echo "This is a PR build. Setting PR-specific tag."
             PR_TAG="$IMAGE_BASE_NAME:pr-$PR_NUMBER"
             TAGS="$PR_TAG"
-            echo "::set-output name=is_pr_build::true"
+            IS_PR_BUILD="true"
           else
             echo "This is a regular build. Setting standard tags."
             RUN_NUMBER_TAG="$IMAGE_BASE_NAME:${{ github.run_number }}"
@@ -128,17 +129,24 @@ jobs:
             fi
 
             if [[ -n "$STREAM_NAME" ]]; then
-              TAGS="$TAGS,$STREAM_NAME" # Comma-separated for docker/build-push-action or loop for docker buildx build
+              TAGS="$TAGS,$STREAM_NAME" # Comma-separated for docker/build-push-action
             fi
-            echo "::set-output name=is_pr_build::false"
           fi
           echo "Final tags: $TAGS"
-          echo "::set-output name=tags::$TAGS"
-        
+          echo "tags=$TAGS" >> "$GITHUB_OUTPUT"
+          echo "is_pr_build=$IS_PR_BUILD" >> "$GITHUB_OUTPUT"
+
       # The original 'Set tag' and 'Tag develop/rc/latest' steps are now incorporated into 'Determine Docker Tags'
       # and are conditioned by is_pr_build logic within that step.
 
       - name: Build Docker and push image
         run: |
-          FORMATTED_TAGS=$(echo "${{ steps.docker_tags.outputs.tags }}" | sed 's/,/ --tag /g')
-          docker buildx build . --file Dockerfile --tag $FORMATTED_TAGS --push --platform=linux/arm64,linux/amd64
+          # Note: The `docker/build-push-action` is generally recommended over manual scripting
+          # as it handles tags more robustly. However, to keep the change minimal,
+          # this script adapts the original logic.
+          FORMATTED_TAGS=""
+          IFS=',' read -ra TAG_ARRAY <<< "${{ steps.docker_tags.outputs.tags }}"
+          for tag in "${TAG_ARRAY[@]}"; do
+            FORMATTED_TAGS="$FORMATTED_TAGS --tag $tag"
+          done
+          docker buildx build . --file Dockerfile $FORMATTED_TAGS --push --platform=linux/arm64,linux/amd64
