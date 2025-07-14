@@ -12,9 +12,9 @@ on:
       upstream_repo:
         description: 'Optional: Override upstream repository (owner/repo). Defaults to the repository this was forked from if not set.'
         required: false
-        type: string
+        default: 'plantbreeding/brapi-Java-ProdServer'
       upstream_pr_number:
-        description: 'Required if merging an upstream PR: PR number from the upstream repository to merge into develop for this build.'
+        description: 'Required if merging an upstream PR: PR number from the upstream repository to merge into develop for this build. ex: 11'
         required: false # Still false overall, but logic will require it if this feature is used.
         type: string
 
@@ -33,10 +33,9 @@ jobs:
         # This step runs if a PR number is provided AND (an upstream_repo input is given OR a parent repo full_name is available)
         if: |
           github.event.inputs.upstream_pr_number &&
-          (github.event.inputs.upstream_repo || github.event.repository.parent.full_name)
+          github.event.inputs.upstream_repo
         run: |
           UPSTREAM_REPO_SPECIFIED="${{ github.event.inputs.upstream_repo }}"
-          UPSTREAM_REPO_PARENT="${{ github.event.repository.parent.full_name }}"
           UPSTREAM_PR_NUMBER="${{ github.event.inputs.upstream_pr_number }}"
 
           if [[ -z "$UPSTREAM_PR_NUMBER" ]]; then
@@ -48,9 +47,6 @@ jobs:
           if [[ -n "$UPSTREAM_REPO_SPECIFIED" ]]; then
             TARGET_UPSTREAM_REPO="$UPSTREAM_REPO_SPECIFIED"
             echo "Using specified upstream repository: $TARGET_UPSTREAM_REPO"
-          elif [[ -n "$UPSTREAM_REPO_PARENT" ]]; then
-            TARGET_UPSTREAM_REPO="$UPSTREAM_REPO_PARENT"
-            echo "Using parent repository as upstream: $TARGET_UPSTREAM_REPO"
           else
             echo "Error: Upstream PR number '$UPSTREAM_PR_NUMBER' was provided, but no upstream_repo was specified and parent repository could not be determined."
             exit 1
