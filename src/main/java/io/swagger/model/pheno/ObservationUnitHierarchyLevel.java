@@ -93,7 +93,9 @@ public class ObservationUnitHierarchyLevel {
 
 		sb.append("    levelName: ").append(toIndentedString(levelName)).append("\n");
 		sb.append("    levelOrder: ").append(toIndentedString(levelOrder)).append("\n");
-		sb.append("}");
+		sb.append("    levelNameDbId:  ").append(toIndentedString(levelNameDbId)).append("\n");
+		sb.append("    programDbId: ").append(toIndentedString(programDbId)).append("\n");
+		sb.append("    programName:  ").append(toIndentedString(programName)).append("\n");
 		return sb.toString();
 	}
 

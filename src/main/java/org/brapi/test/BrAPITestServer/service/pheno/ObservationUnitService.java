@@ -12,7 +12,6 @@ import org.brapi.test.BrAPITestServer.model.entity.core.ProgramEntity;
 import org.brapi.test.BrAPITestServer.model.entity.core.StudyEntity;
 import org.brapi.test.BrAPITestServer.model.entity.core.TrialEntity;
 import org.brapi.test.BrAPITestServer.model.entity.germ.CrossEntity;
-import org.brapi.test.BrAPITestServer.model.entity.germ.GermplasmEntity;
 import org.brapi.test.BrAPITestServer.model.entity.germ.SeedLotEntity;
 import org.brapi.test.BrAPITestServer.model.entity.pheno.*;
 import org.brapi.test.BrAPITestServer.repository.primaryEntities.pheno.ObservationUnitRepository;
@@ -33,6 +32,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
 import java.util.*;
 import java.util.Map.Entry;
@@ -353,6 +353,46 @@ public class ObservationUnitService {
 		return observationUnit;
 	}
 
+	public Map<ObservationUnitEntity, ObservationUnitNewRequest> getObservationUnitEntities(Map<String, ObservationUnitNewRequest> oURequestByDbId, HttpStatus errorStatus)
+			throws BrAPIServerException {
+
+		if (CollectionUtils.isEmpty(oURequestByDbId)) {
+			throw new BrAPIServerDbIdNotFoundException("observationUnit", "null", errorStatus);
+		}
+
+		var submittedDbIds = oURequestByDbId.keySet().stream().toList();
+
+		var searchRq = new ObservationUnitSearchRequest();
+		searchRq.observationUnitDbIds(submittedDbIds);
+
+		var metadata = new Metadata();
+		var pagination = new IndexPagination();
+
+		pagination.setPageSize(submittedDbIds.size());
+		metadata.setPagination(pagination);
+
+		var foundEntities = findObservationUnitEntities(searchRq, metadata);
+
+		var foundEntitiesByDbId = foundEntities.stream()
+				.collect(Collectors.toMap(e -> e.getId().toString(), e -> e));
+
+		var submittedIdsNotFound = new HashSet<>(submittedDbIds);
+
+		submittedIdsNotFound.removeAll(foundEntitiesByDbId.keySet());
+
+		if (!submittedIdsNotFound.isEmpty()) {
+			throw new BrAPIServerDbIdNotFoundException(String.format("The following submitted observation unit db ids were not found: [%s]", submittedIdsNotFound), errorStatus);
+		}
+
+		var result = new HashMap<ObservationUnitEntity, ObservationUnitNewRequest>();
+
+		for (String dbId : foundEntitiesByDbId.keySet()) {
+			result.put(foundEntitiesByDbId.get(dbId), oURequestByDbId.get(dbId));
+		}
+
+		return result;
+	}
+
 	public List<ObservationUnit> saveObservationUnits(@Valid List<ObservationUnitNewRequest> requests)
 			throws BrAPIServerException {
 		var toSave = createEntitiesInBatch(requests);
@@ -365,21 +405,23 @@ public class ObservationUnitService {
 
 	public List<ObservationUnit> updateObservationUnits(@Valid Map<String, ObservationUnitNewRequest> requests)
 			throws BrAPIServerException {
-		List<ObservationUnit> savedObservationUnits = new ArrayList<>();
 
-		for (Entry<String, ObservationUnitNewRequest> entry : requests.entrySet()) {
-			ObservationUnit saved = updateObservationUnit(entry.getKey(), entry.getValue());
-			savedObservationUnits.add(saved);
-		}
+		var foundOUEntities = getObservationUnitEntities(requests, HttpStatus.BAD_REQUEST);
 
-		return savedObservationUnits;
+		List<ObservationUnitEntity> toSave = updateEntitiesInBatch(foundOUEntities);
+
+		List<ObservationUnitEntity> saved = observationUnitRepository.saveAll(toSave);
+
+		return saved.stream()
+				.map(this::convertFromEntity)
+				.toList();
 	}
 
 	public ObservationUnit updateObservationUnit(String observationUnitDbId, @Valid ObservationUnitNewRequest request)
 			throws BrAPIServerException {
-		ObservationUnitEntity entity = getObservationUnitEntity(observationUnitDbId, HttpStatus.NOT_FOUND);
-		updateEntity(entity, request);
-		ObservationUnitEntity savedEntity = observationUnitRepository.save(entity);
+		ObservationUnitEntity entityToUpdate = getObservationUnitEntity(observationUnitDbId, HttpStatus.NOT_FOUND);
+		updateEntity(entityToUpdate, request);
+		ObservationUnitEntity savedEntity = observationUnitRepository.save(entityToUpdate);
 
 		return convertFromEntity(savedEntity);
 	}
@@ -517,12 +559,9 @@ public class ObservationUnitService {
 			position = new ObservationUnitPosition();
 			position.setEntryType(entity.getEntryType());
 			position.setGeoCoordinates(GeoJSONUtility.convertFromEntity(entity.getGeoCoordinates()));
-			ObservationUnitLevel level = new ObservationUnitLevel();
-			level.setLevelCode(entity.getLevelCode());
-			level.setLevelName(entity.getLevelName().getLevelName());
-			level.setLevelOrder(entity.getLevelName().getLevelOrder());
-			position.setObservationLevel(level);
+			position.setObservationLevel(convertFromEntity(entity.getLevelName(), entity.getLevelCode()));
 			if (entity.getObservationLevelRelationships() != null) {
+
 				position.setObservationLevelRelationships(entity.getObservationLevelRelationships().stream()
 						.map(rel -> this.convertFromEntity(rel, ouDbId)).collect(Collectors.toList()));
 			}
@@ -532,6 +571,25 @@ public class ObservationUnitService {
 			position.setPositionCoordinateYType(entity.getPositionCoordinateYType());
 		}
 		return position;
+	}
+
+	private ObservationUnitLevel convertFromEntity(ObservationUnitLevelNameEntity entity, String levelCode) {
+		ObservationUnitLevel level = null;
+
+		if (entity.getLevelName() != null) {
+			level = new ObservationUnitLevel();
+			level.setLevelCode(levelCode);
+			level.setLevelName(entity.getLevelName());
+			level.setLevelOrder(entity.getLevelOrder());
+			level.setLevelNameDbId(entity.getId().toString());
+			// If the program is null, then this is a globally scoped level name.
+			if (entity.getProgram() != null) {
+				level.setProgramDbId(entity.getProgram().getId().toString());
+				level.setProgramName(entity.getProgram().getName());
+			}
+		}
+
+		return level;
 	}
 
 	private ObservationTreatment convertFromEntity(TreatmentEntity entity) {
@@ -546,160 +604,64 @@ public class ObservationUnitService {
 		level.setLevelCode(entity.getLevelCode());
 		level.setLevelName(entity.getLevelName().getLevelName());
 		level.setLevelOrder(entity.getLevelName().getLevelOrder());
-		if (ouDbId != null)
+		level.setLevelNameDbId(entity.getLevelName().getId().toString());
+
+		if (ouDbId != null) {
 			level.setObservationUnitDbId(ouDbId);
+		}
+
+		// If the program is null, this level name is global.
+		if (entity.getLevelName().getProgram() != null) {
+			level.setProgramDbId(entity.getLevelName().getProgram().getId().toString());
+			level.setProgramName(entity.getLevelName().getProgram().getName());
+		}
+
+
 		return level;
 	}
 
 	private ObservationUnitEntity updateEntity(ObservationUnitEntity entity, ObservationUnitNewRequest unit)
+		throws BrAPIServerException {
+		return updateEntitiesInBatch(Map.of(entity, unit)).getFirst();
+	}
+
+	private List<ObservationUnitEntity> updateEntitiesInBatch(Map<ObservationUnitEntity, ObservationUnitNewRequest> entitiesByRq)
 			throws BrAPIServerException {
-		UpdateUtility.updateEntity(unit, entity);
+		
+		var oURqs = entitiesByRq.values();
 
-		if (unit.getGermplasmDbId() != null) {
-			GermplasmEntity germplasm = germplasmService.getGermplasmEntity(unit.getGermplasmDbId());
-			entity.setGermplasm(germplasm);
-		}
-		if (unit.getCrossDbId() != null) {
-			CrossEntity cross = crossService.getCrossEntity(unit.getCrossDbId(), false);
-			entity.setCross(cross);
-		}
-		if (unit.getObservationUnitName() != null)
-			entity.setObservationUnitName(unit.getObservationUnitName());
-		if (unit.getObservationUnitPUI() != null)
-			entity.setObservationUnitPUI(unit.getObservationUnitPUI());
-		if (unit.getObservationUnitPosition() != null) {
-			if (entity.getPosition() == null)
-				entity.setPosition(new ObservationUnitPositionEntity());
-			ObservationUnitPositionEntity position = entity.getPosition();
-			updateEntity(position, unit.getObservationUnitPosition(), entity);
-			position.setObservationUnit(entity);
-			entity.setPosition(position);
-		}
-		if (unit.getSeedLotDbId() != null) {
-			SeedLotEntity seedLot = seedLotService.getSeedLotEntity(unit.getSeedLotDbId());
-			entity.setSeedLot(seedLot);
-		}
-		if (unit.getTreatments() != null)
-			entity.setTreatments(unit.getTreatments().stream().map(t -> {
-				TreatmentEntity e = new TreatmentEntity();
-				e.setFactor(t.getFactor());
-				e.setModality(t.getModality());
-				e.setObservationUnit(entity);
-				return e;
-			}).collect(Collectors.toList()));
-
-		if (unit.getStudyDbId() != null) {
-			StudyEntity study = studyService.getStudyEntity(unit.getStudyDbId());
-			entity.setStudy(study);
-		} else if (unit.getTrialDbId() != null) {
-			TrialEntity trial = trialService.getTrialEntity(unit.getTrialDbId());
-			entity.setTrial(trial);
-		} else if (unit.getProgramDbId() != null) {
-			ProgramEntity program = programService.getProgramEntity(unit.getProgramDbId());
-			entity.setProgram(program);
-		}
-
-		return entity;
-	}
-
-	private void updateEntity(ObservationUnitPositionEntity entity,
-							  ObservationUnitPosition position,
-							  ObservationUnitEntity ouEntity) throws BrAPIServerException {
-
-		if (position.getEntryType() != null)
-			entity.setEntryType(position.getEntryType());
-		if (position.getGeoCoordinates() != null)
-			entity.setGeoCoordinates(GeoJSONUtility.convertToEntity(position.getGeoCoordinates()));
-		if (position.getObservationLevel() != null) {
-			if (position.getObservationLevel().getLevelCode() != null)
-				entity.setLevelCode(position.getObservationLevel().getLevelCode());
-			if (position.getObservationLevel().getLevelName() != null) {
-				var programDbId = Optional.ofNullable(ouEntity.getProgram())
-						.map(p -> p.getId().toString())
-						.orElse(null);
-				var foundLevelName = observationUnitLevelNameService.retrieveAndVerifyObservationUnitLevelNames(programDbId, List.of(position.getObservationLevel().getLevelName()));
-				entity.setLevelName(foundLevelName.get(position.getObservationLevel().getLevelName()));
-			}
-		}
-		if (position.getObservationLevelRelationships() != null)
-			updateOULevelRelationships(ouEntity, entity, position);
-		if (position.getPositionCoordinateX() != null)
-			entity.setPositionCoordinateX(position.getPositionCoordinateX());
-		if (position.getPositionCoordinateXType() != null)
-			entity.setPositionCoordinateXType(position.getPositionCoordinateXType());
-		if (position.getPositionCoordinateY() != null)
-			entity.setPositionCoordinateY(position.getPositionCoordinateY());
-		if (position.getPositionCoordinateYType() != null)
-			entity.setPositionCoordinateYType(position.getPositionCoordinateYType());
-
-	}
-
-	private void updateOULevelRelationships(ObservationUnitEntity ouEntity,
-											ObservationUnitPositionEntity pEntity,
-											ObservationUnitPosition position)
-		throws BrAPIServerException {
-
-		var submittedLevelNames = position.getObservationLevelRelationships().stream()
-				.map(ObservationUnitHierarchyLevel::getLevelName)
-				.toList();
-
-		var programDbId = Optional.ofNullable(ouEntity.getProgram())
-				.map(p -> p.getId().toString())
-				.orElse(null);
-
-		var foundOULevelNames = observationUnitLevelNameService.retrieveAndVerifyObservationUnitLevelNames(programDbId, submittedLevelNames);
-
-		var relationshipEntities = new ArrayList<ObservationUnitLevelRelationshipEntity>();
-
-		for (ObservationUnitLevelRelationship level : position.getObservationLevelRelationships()) {
-			ObservationUnitLevelRelationshipEntity relationshipEntity = new ObservationUnitLevelRelationshipEntity();
-			relationshipEntity.setLevelCode(level.getLevelCode());
-			relationshipEntity.setLevelName(foundOULevelNames.get(level.getLevelName()));
-			if (level.getObservationUnitDbId() != null) {
-				ObservationUnitEntity parentEntity = getObservationUnitEntity(level.getObservationUnitDbId());
-				relationshipEntity.setObservationUnit(parentEntity);
-			}
-			relationshipEntity.setPosition(pEntity);
-			relationshipEntities.add(relationshipEntity);
-		}
-
-		pEntity.setObservationLevelRelationships(relationshipEntities);
-	}
-
-	private List<ObservationUnitEntity> createEntitiesInBatch(List<ObservationUnitNewRequest> obsUnits)
-		throws BrAPIServerException {
 		// Gather all IDs we want to look up in a bulk lookup.
-		var germplasmIds = obsUnits.stream()
+		var germplasmIds = oURqs.stream()
 				.map(ObservationUnitNewRequest::getGermplasmDbId)
 				.filter(Objects::nonNull)
 				.distinct()
 				.toList();
 
-		var crossIds = obsUnits.stream()
+		var crossIds = oURqs.stream()
 				.map(ObservationUnitNewRequest::getCrossDbId)
 				.filter(Objects::nonNull)
 				.distinct()
 				.toList();
 
-		var seedLotIds = obsUnits.stream()
+		var seedLotIds = oURqs.stream()
 				.map(ObservationUnitNewRequest::getSeedLotDbId)
 				.filter(Objects::nonNull)
 				.distinct()
 				.toList();
 
-		var studyIds = obsUnits.stream()
+		var studyIds = oURqs.stream()
 				.map(ObservationUnitNewRequest::getStudyDbId)
 				.filter(Objects::nonNull)
 				.distinct()
 				.toList();
 
-		var trialIds = obsUnits.stream()
+		var trialIds = oURqs.stream()
 				.map(ObservationUnitNewRequest::getTrialDbId)
 				.filter(Objects::nonNull)
 				.distinct()
 				.toList();
 
-		var programIds = obsUnits.stream()
+		var programIds = oURqs.stream()
 				.map(ObservationUnitNewRequest::getProgramDbId)
 				.filter(Objects::nonNull)
 				.distinct()
@@ -731,9 +693,239 @@ public class ObservationUnitService {
 				.stream()
 				.collect(Collectors.toMap(BrAPIBaseEntity::getId, e -> e));
 
+		var observationUnitLevelNames = observationUnitLevelNameService.findObservationUnitLevelNames(null, true);
+
+		var foundLevelNamesByDbId = observationUnitLevelNames.stream()
+				.collect(Collectors.toMap(e -> e.getId().toString(), e -> e));
+
+		var foundLevelNamesGroupedByProgramDbId = observationUnitLevelNames.stream()
+				.collect(Collectors.groupingBy(ouln ->
+						Optional.ofNullable(ouln.getProgram())
+								.map(p -> p.getId().toString())
+								.orElse(observationUnitLevelNameService.getGlobalKeyForFoundEntities())));
+
 		List<ObservationUnitEntity> result = new ArrayList<>();
 
-		for (ObservationUnitNewRequest obsUnit : obsUnits) {
+		for (Entry<ObservationUnitEntity, ObservationUnitNewRequest> entry : entitiesByRq.entrySet()) {
+
+			var entity = entry.getKey();
+			var oU = entry.getValue();
+
+			UpdateUtility.updateEntity(entry.getValue(), entry.getKey());
+
+			if (oU.getGermplasmDbId() != null) {
+				entity.setGermplasm(foundGermsById.get(UUID.fromString(oU.getGermplasmDbId())));
+			}
+			if (oU.getCrossDbId() != null) {
+				CrossEntity cross = foundCrossesById.get(UUID.fromString(oU.getCrossDbId()));
+
+				if (!cross.getPlanned()) {
+					entity.setCross(cross);
+				}
+			}
+
+			if (oU.getObservationUnitName() != null)
+				entity.setObservationUnitName(oU.getObservationUnitName());
+			if (oU.getObservationUnitPUI() != null)
+				entity.setObservationUnitPUI(oU.getObservationUnitPUI());
+			if (oU.getSeedLotDbId() != null) {
+				SeedLotEntity seedLot = foundSeedLotsById.get(UUID.fromString(oU.getSeedLotDbId()));
+				entity.setSeedLot(seedLot);
+			}
+			if (oU.getTreatments() != null)
+				entity.setTreatments(oU.getTreatments().stream().map(t -> {
+					TreatmentEntity e = new TreatmentEntity();
+					e.setFactor(t.getFactor());
+					e.setModality(t.getModality());
+					e.setObservationUnit(entity);
+					return e;
+				}).collect(Collectors.toList()));
+
+			if (oU.getStudyDbId() != null) {
+				StudyEntity study = foundStudiesById.get(UUID.fromString(oU.getStudyDbId()));
+				entity.setStudy(study);
+			} else if (oU.getTrialDbId() != null) {
+				TrialEntity trial = foundTrialsById.get(UUID.fromString(oU.getTrialDbId()));
+				entity.setTrial(trial);
+			} else if (oU.getProgramDbId() != null) {
+				ProgramEntity program = foundProgramsById.get(UUID.fromString(oU.getProgramDbId()));
+				entity.setProgram(program);
+			}
+
+			if (oU.getObservationUnitPosition() != null) {
+				if (entity.getPosition() == null)
+					entity.setPosition(new ObservationUnitPositionEntity());
+				ObservationUnitPositionEntity position = entity.getPosition();
+				updateOUPosition(oU.getObservationUnitPosition(),
+						entity,
+						foundLevelNamesByDbId,
+						foundLevelNamesGroupedByProgramDbId);
+				position.setObservationUnit(entity);
+				entity.setPosition(position);
+			}
+
+			result.add(entity);
+		}
+
+		return result;
+	}
+
+	private void updateOUPosition(ObservationUnitPosition position,
+							      ObservationUnitEntity ouEntity,
+							      Map<String, ObservationUnitLevelNameEntity> foundLevelNameEntitiesByDbId,
+							      Map<String, List<ObservationUnitLevelNameEntity>> foundLevelNamesGroupedByProgramId) throws BrAPIServerException {
+		var pEntity = ouEntity.getPosition();
+
+		if (position.getEntryType() != null)
+			pEntity.setEntryType(position.getEntryType());
+		if (position.getGeoCoordinates() != null)
+			pEntity.setGeoCoordinates(GeoJSONUtility.convertToEntity(position.getGeoCoordinates()));
+		if (position.getObservationLevel() != null) {
+			if (position.getObservationLevel().getLevelCode() != null)
+				pEntity.setLevelCode(position.getObservationLevel().getLevelCode());
+			if (position.getObservationLevel().getLevelName() != null) {
+				var parentProgramDbId = Optional.ofNullable(ouEntity.getProgram())
+						.map(p -> p.getId().toString())
+						.orElse(null);
+
+				var foundLevelName = observationUnitLevelNameService.verifyObservationUnitLevelName(
+						parentProgramDbId,
+						List.of(position.getObservationLevel()),
+						foundLevelNameEntitiesByDbId,
+						foundLevelNamesGroupedByProgramId
+						);
+				pEntity.setLevelName(foundLevelName);
+			}
+		}
+		if (position.getObservationLevelRelationships() != null)
+			updateOULevelRelationships(ouEntity,
+					position,
+					foundLevelNameEntitiesByDbId,
+					foundLevelNamesGroupedByProgramId);
+		if (position.getPositionCoordinateX() != null)
+			pEntity.setPositionCoordinateX(position.getPositionCoordinateX());
+		if (position.getPositionCoordinateXType() != null)
+			pEntity.setPositionCoordinateXType(position.getPositionCoordinateXType());
+		if (position.getPositionCoordinateY() != null)
+			pEntity.setPositionCoordinateY(position.getPositionCoordinateY());
+		if (position.getPositionCoordinateYType() != null)
+			pEntity.setPositionCoordinateYType(position.getPositionCoordinateYType());
+
+	}
+
+	private void updateOULevelRelationships(ObservationUnitEntity ouEntity,
+											ObservationUnitPosition position,
+											Map<String, ObservationUnitLevelNameEntity> foundLevelNameEntitiesByDbId,
+											Map<String, List<ObservationUnitLevelNameEntity>> foundLevelNamesGroupedByProgramId)
+		throws BrAPIServerException {
+
+		var pEntity = ouEntity.getPosition();
+
+		var programDbId = Optional.ofNullable(ouEntity.getProgram())
+				.map(p -> p.getId().toString())
+				.orElse(null);
+
+		var foundOULevelNames = observationUnitLevelNameService.verifyObservationUnitLevelNames(programDbId,
+				position.getObservationLevelRelationships(),
+				foundLevelNameEntitiesByDbId,
+				foundLevelNamesGroupedByProgramId);
+
+		var relationshipEntities = new ArrayList<ObservationUnitLevelRelationshipEntity>();
+
+		for (ObservationUnitLevelRelationship level : position.getObservationLevelRelationships()) {
+			ObservationUnitLevelRelationshipEntity relationshipEntity = new ObservationUnitLevelRelationshipEntity();
+			relationshipEntity.setLevelCode(level.getLevelCode());
+			relationshipEntity.setLevelName(foundOULevelNames.get(level.getLevelName()));
+			if (level.getObservationUnitDbId() != null) {
+				ObservationUnitEntity parentEntity = getObservationUnitEntity(level.getObservationUnitDbId());
+				relationshipEntity.setObservationUnit(parentEntity);
+			}
+			relationshipEntity.setPosition(pEntity);
+			relationshipEntities.add(relationshipEntity);
+		}
+
+		pEntity.setObservationLevelRelationships(relationshipEntities);
+	}
+
+	private List<ObservationUnitEntity> createEntitiesInBatch(List<ObservationUnitNewRequest> oURqs)
+		throws BrAPIServerException {
+		// Gather all IDs we want to look up in a bulk lookup.
+		var germplasmIds = oURqs.stream()
+				.map(ObservationUnitNewRequest::getGermplasmDbId)
+				.filter(Objects::nonNull)
+				.distinct()
+				.toList();
+
+		var crossIds = oURqs.stream()
+				.map(ObservationUnitNewRequest::getCrossDbId)
+				.filter(Objects::nonNull)
+				.distinct()
+				.toList();
+
+		var seedLotIds = oURqs.stream()
+				.map(ObservationUnitNewRequest::getSeedLotDbId)
+				.filter(Objects::nonNull)
+				.distinct()
+				.toList();
+
+		var studyIds = oURqs.stream()
+				.map(ObservationUnitNewRequest::getStudyDbId)
+				.filter(Objects::nonNull)
+				.distinct()
+				.toList();
+
+		var trialIds = oURqs.stream()
+				.map(ObservationUnitNewRequest::getTrialDbId)
+				.filter(Objects::nonNull)
+				.distinct()
+				.toList();
+
+		var programIds = oURqs.stream()
+				.map(ObservationUnitNewRequest::getProgramDbId)
+				.filter(Objects::nonNull)
+				.distinct()
+				.toList();
+
+		// Now lookup all the IDs in bulk, creating a Map of the ID to the entity so the entities are easily
+		// retrievable by IDs in the bulk creating of entities later.
+		var foundGermsById = germplasmService.findByIds(germplasmIds)
+				.stream()
+				.collect(Collectors.toMap(BrAPIBaseEntity::getId, e -> e));
+
+		var foundCrossesById = crossService.findByIds(crossIds)
+				.stream()
+				.collect(Collectors.toMap(BrAPIBaseEntity::getId, e -> e));
+
+		var foundSeedLotsById = seedLotService.findByIds(seedLotIds)
+				.stream()
+				.collect(Collectors.toMap(BrAPIBaseEntity::getId, e -> e));
+
+		var foundStudiesById = studyService.findByIds(studyIds)
+				.stream()
+				.collect(Collectors.toMap(BrAPIBaseEntity::getId, e -> e));
+
+		var foundTrialsById = trialService.findByIds(trialIds)
+				.stream()
+				.collect(Collectors.toMap(BrAPIBaseEntity::getId, e -> e));
+
+		var foundProgramsById = programService.findByIds(programIds)
+				.stream()
+				.collect(Collectors.toMap(BrAPIBaseEntity::getId, e -> e));
+
+		var observationUnitLevelNames = observationUnitLevelNameService.findObservationUnitLevelNames(null, true);
+
+		var foundLevelNamesByDbId = observationUnitLevelNames.stream()
+				.collect(Collectors.toMap(e -> e.getId().toString(), e -> e));
+
+		var foundLevelNamesGroupedByProgramDbId = observationUnitLevelNames.stream()
+				.collect(Collectors.groupingBy(ouln ->
+						Optional.ofNullable(ouln.getProgram())
+								.map(p -> p.getId().toString())
+								.orElse(observationUnitLevelNameService.getGlobalKeyForFoundEntities())));
+
+		List<ObservationUnitEntity> result = new ArrayList<>();
+
+		for (ObservationUnitNewRequest obsUnit : oURqs) {
 			var entity = new ObservationUnitEntity();
 
 			UpdateUtility.updateEntity(obsUnit, entity);
@@ -768,12 +960,14 @@ public class ObservationUnitService {
 				entity.setProgram(foundProgramsById.get(UUID.fromString(obsUnit.getProgramDbId())));
 			}
 
-			// TODO: This will have to be fixed to batchable
 			if (obsUnit.getObservationUnitPosition() != null) {
 				if (entity.getPosition() == null)
 					entity.setPosition(new ObservationUnitPositionEntity());
 				ObservationUnitPositionEntity position = entity.getPosition();
-				updateEntity(position, obsUnit.getObservationUnitPosition(), entity);
+				updateOUPosition(obsUnit.getObservationUnitPosition(),
+						entity,
+						foundLevelNamesByDbId,
+						foundLevelNamesGroupedByProgramDbId);
 				position.setObservationUnit(entity);
 				entity.setPosition(position);
 			}

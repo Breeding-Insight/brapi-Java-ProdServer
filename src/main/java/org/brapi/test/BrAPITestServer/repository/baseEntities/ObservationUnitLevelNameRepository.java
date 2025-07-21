@@ -12,7 +12,7 @@ public interface ObservationUnitLevelNameRepository extends BaseEntityRepository
 
 
     @Query("SELECT ouln FROM ObservationUnitLevelNameEntity ouln " +
-            "WHERE ouln.program IN :levelName")
+            "WHERE ouln.program.id IN :programIds")
     List<ObservationUnitLevelNameEntity> findObservationUnitLevelNamesByProgram(@Param("programIds") List<String> programDbIds);
 
     @Query("SELECT ouln FROM ObservationUnitLevelNameEntity ouln " +

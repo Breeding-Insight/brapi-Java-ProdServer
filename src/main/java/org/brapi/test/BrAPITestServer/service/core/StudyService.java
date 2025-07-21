@@ -399,6 +399,12 @@ public class StudyService {
 			level = new ObservationUnitHierarchyLevel();
 			level.setLevelName(entity.getLevelName().getLevelName());
 			level.setLevelOrder(entity.getLevelName().getLevelOrder());
+			level.setLevelNameDbId(entity.getLevelName().getId().toString());
+
+			if (entity.getLevelName().getProgram() != null) {
+				level.setProgramDbId(entity.getLevelName().getProgram().getId().toString());
+				level.setProgramName(entity.getLevelName().getProgram().getName());
+			}
 		}
 		return level;
 	}
@@ -407,8 +413,7 @@ public class StudyService {
 		throws BrAPIServerException {
 		List<ObservationLevelEntity> entities = new ArrayList<>();
 
-		var submittedLevelNames = levels.stream().map(ObservationUnitHierarchyLevel::getLevelName).toList();
-		var foundLevelNames = observationUnitLevelNameService.retrieveAndVerifyObservationUnitLevelNames(programDbId, submittedLevelNames);
+		var foundLevelNames = observationUnitLevelNameService.retrieveAndVerifyObservationUnitLevelNames(programDbId, levels);
 
 		for (ObservationUnitHierarchyLevel level : levels) {
 			var entity = new ObservationLevelEntity();
