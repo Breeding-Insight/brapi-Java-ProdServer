@@ -228,9 +228,9 @@ public class ObservationUnitService {
 				   .leftJoinFetch("program", "program");
 
 		if (request.getObservationVariableDbIds() != null || request.getObservationVariableNames() != null) {
-			searchQuery = searchQuery.join("observationsUnits", "observation")
-					.appendList(request.getObservationVariableDbIds(), "*observation.variable.id")
-					.appendList(request.getObservationVariableNames(), "*observation.variable.name");
+			searchQuery = searchQuery.join("observations", "observation")
+					.appendList(request.getObservationVariableDbIds(), "*observation.observationVariable.id")
+					.appendList(request.getObservationVariableNames(), "*observation.observationVariable.name");
 		}
 		if (request.getSeasonDbIds() != null) {
 			searchQuery = searchQuery.join("study.seasons", "season").appendList(request.getSeasonDbIds(),
@@ -637,37 +637,37 @@ public class ObservationUnitService {
 	private List<ObservationUnitEntity> createEntitiesInBatch(List<ObservationUnitNewRequest> obsUnits)
 		throws BrAPIServerException {
 		// Gather all IDs we want to look up in a bulk lookup.
-		var germplasmIds = obsUnits.stream()
+		List<String> germplasmIds = obsUnits.stream()
 				.map(ObservationUnitNewRequest::getGermplasmDbId)
 				.filter(Objects::nonNull)
 				.distinct()
 				.toList();
 
-		var crossIds = obsUnits.stream()
+		List<String> crossIds = obsUnits.stream()
 				.map(ObservationUnitNewRequest::getCrossDbId)
 				.filter(Objects::nonNull)
 				.distinct()
 				.toList();
 
-		var seedLotIds = obsUnits.stream()
+		List<String> seedLotIds = obsUnits.stream()
 				.map(ObservationUnitNewRequest::getSeedLotDbId)
 				.filter(Objects::nonNull)
 				.distinct()
 				.toList();
 
-		var studyIds = obsUnits.stream()
+		List<String> studyIds = obsUnits.stream()
 				.map(ObservationUnitNewRequest::getStudyDbId)
 				.filter(Objects::nonNull)
 				.distinct()
 				.toList();
 
-		var trialIds = obsUnits.stream()
+		List<String> trialIds = obsUnits.stream()
 				.map(ObservationUnitNewRequest::getTrialDbId)
 				.filter(Objects::nonNull)
 				.distinct()
 				.toList();
 
-		var programIds = obsUnits.stream()
+		List<String> programIds = obsUnits.stream()
 				.map(ObservationUnitNewRequest::getProgramDbId)
 				.filter(Objects::nonNull)
 				.distinct()
@@ -675,29 +675,29 @@ public class ObservationUnitService {
 
 		// Now lookup all the IDs in bulk, creating a Map of the ID to the entity so the entities are easily
 		// retrievable by IDs in the bulk creating of entities later.
-		var foundGermsById = germplasmService.findByIds(germplasmIds)
+		Map<String, GermplasmEntity> foundGermsById = germplasmService.findByIds(germplasmIds)
 				.stream()
-				.collect(Collectors.toMap(BrAPIBaseEntity::getId, e -> e));
+				.collect(Collectors.toMap(e -> e.getId().toString(), e -> e));
 
-		var foundCrossesById = crossService.findByIds(crossIds)
+		Map<String, CrossEntity> foundCrossesById = crossService.findByIds(crossIds)
 				.stream()
-				.collect(Collectors.toMap(BrAPIBaseEntity::getId, e -> e));
+				.collect(Collectors.toMap(e -> e.getId().toString(), e -> e));
 
-		var foundSeedLotsById = seedLotService.findByIds(seedLotIds)
+		Map<String, SeedLotEntity> foundSeedLotsById = seedLotService.findByIds(seedLotIds)
 				.stream()
-				.collect(Collectors.toMap(BrAPIBaseEntity::getId, e -> e));
+				.collect(Collectors.toMap(e -> e.getId().toString(), e -> e));
 
-		var foundStudiesById = studyService.findByIds(studyIds)
+		Map<String, StudyEntity> foundStudiesById = studyService.findByIds(studyIds)
 				.stream()
-				.collect(Collectors.toMap(BrAPIBaseEntity::getId, e -> e));
+				.collect(Collectors.toMap(e -> e.getId().toString(), e -> e));
 
-		var foundTrialsById = trialService.findByIds(trialIds)
+		Map<String, TrialEntity> foundTrialsById = trialService.findByIds(trialIds)
 				.stream()
-				.collect(Collectors.toMap(BrAPIBaseEntity::getId, e -> e));
+				.collect(Collectors.toMap(e -> e.getId().toString(), e -> e));
 
-		var foundProgramsById = programService.findByIds(programIds)
+		Map<String, ProgramEntity> foundProgramsById = programService.findByIds(programIds)
 				.stream()
-				.collect(Collectors.toMap(BrAPIBaseEntity::getId, e -> e));
+				.collect(Collectors.toMap(e -> e.getId().toString(), e -> e));
 
 		List<ObservationUnitEntity> result = new ArrayList<>();
 
@@ -707,10 +707,10 @@ public class ObservationUnitService {
 			UpdateUtility.updateEntity(obsUnit, entity);
 
 			if (obsUnit.getGermplasmDbId() != null) {
-				entity.setGermplasm(foundGermsById.get(UUID.fromString(obsUnit.getGermplasmDbId())));
+				entity.setGermplasm(foundGermsById.get(obsUnit.getGermplasmDbId()));
 			}
 			if (obsUnit.getCrossDbId() != null) {
-				entity.setCross(foundCrossesById.get(UUID.fromString(obsUnit.getCrossDbId())));
+				entity.setCross(foundCrossesById.get(obsUnit.getCrossDbId()));
 			}
 			if (obsUnit.getObservationUnitName() != null)
 				entity.setObservationUnitName(obsUnit.getObservationUnitName());
@@ -725,7 +725,7 @@ public class ObservationUnitService {
 				entity.setPosition(position);
 			}
 			if (obsUnit.getSeedLotDbId() != null) {
-				entity.setSeedLot(foundSeedLotsById.get(UUID.fromString(obsUnit.getSeedLotDbId())));
+				entity.setSeedLot(foundSeedLotsById.get(obsUnit.getSeedLotDbId()));
 			}
 			if (obsUnit.getTreatments() != null)
 				entity.setTreatments(obsUnit.getTreatments().stream().map(t -> {
@@ -737,11 +737,11 @@ public class ObservationUnitService {
 				}).collect(Collectors.toList()));
 
 			if (obsUnit.getStudyDbId() != null) {
-				entity.setStudy(foundStudiesById.get(UUID.fromString(obsUnit.getStudyDbId())));
+				entity.setStudy(foundStudiesById.get(obsUnit.getStudyDbId()));
 			} else if (obsUnit.getTrialDbId() != null) {
-				entity.setTrial(foundTrialsById.get(UUID.fromString(obsUnit.getTrialDbId())));
+				entity.setTrial(foundTrialsById.get(obsUnit.getTrialDbId()));
 			} else if (obsUnit.getProgramDbId() != null) {
-				entity.setProgram(foundProgramsById.get(UUID.fromString(obsUnit.getProgramDbId())));
+				entity.setProgram(foundProgramsById.get(obsUnit.getProgramDbId()));
 			}
 
 			result.add(entity);
