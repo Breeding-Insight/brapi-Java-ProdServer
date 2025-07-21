@@ -587,7 +587,7 @@ public class ObservationService {
 			row.add(printIfNotNull(obs.getObservationTimeStamp())); // OBSERVATIONTIMESTAMP
 
 			for (ObservationVariableEntity var : variables) {
-				if (obs.getObservationVariable() != null && obs.getObservationVariable().getId().toString() == var.getId().toString()) {
+				if (obs.getObservationVariable() != null && obs.getObservationVariable().getId().equals(var.getId())) {
 					row.add(obs.getValue());
 				} else {
 					row.add("");
