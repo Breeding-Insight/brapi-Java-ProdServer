@@ -432,13 +432,13 @@ public class ObservationService {
 
 	private List<ObservationEntity> createEntitiesInBatch(List<ObservationNewRequest> observations) {
 
-		var observationVarIds = observations.stream()
+		List<String> observationVarIds = observations.stream()
 				.map(ObservationNewRequest::getObservationVariableDbId)
 				.filter(Objects::nonNull)
 				.distinct()
 				.toList();
 
-		var seasonIds = observations.stream()
+		List<String> seasonIds = observations.stream()
 				.map(obs -> {
 					if (obs.getSeason() != null && obs.getSeason().getSeasonDbId() != null) {
 						return obs.getSeason().getSeasonDbId();
@@ -450,33 +450,33 @@ public class ObservationService {
 				.distinct()
 				.toList();
 
-		var observationUnitIds = observations.stream()
+		List<String> observationUnitIds = observations.stream()
 				.map(ObservationNewRequest::getObservationUnitDbId)
 				.filter(Objects::nonNull)
 				.distinct()
 				.toList();
 
-		var studyIds = observations.stream()
+		List<String> studyIds = observations.stream()
 				.map(ObservationNewRequest::getStudyDbId)
 				.filter(Objects::nonNull)
 				.distinct()
 				.toList();
 
-		var foundObsVarsById = observationVariableService.findByIds(observationVarIds)
+		Map<String, ObservationVariableEntity> foundObsVarsById = observationVariableService.findByIds(observationVarIds)
 				.stream()
-				.collect(Collectors.toMap(BrAPIBaseEntity::getId, e -> e));
+				.collect(Collectors.toMap(e -> e.getId().toString(), e -> e));
 
-		var foundSeasonsById = seasonService.findByIds(seasonIds)
+		Map<String, SeasonEntity> foundSeasonsById = seasonService.findByIds(seasonIds)
 				.stream()
-				.collect(Collectors.toMap(BrAPIBaseEntity::getId, e -> e));
+				.collect(Collectors.toMap(e -> e.getId().toString(), e -> e));
 
-		var foundObsUnitsById = observationUnitService.findByIds(observationUnitIds)
+		Map<String, ObservationUnitEntity> foundObsUnitsById = observationUnitService.findByIds(observationUnitIds)
 				.stream()
-				.collect(Collectors.toMap(BrAPIBaseEntity::getId, e -> e));
+				.collect(Collectors.toMap(e -> e.getId().toString(), e -> e));
 
-		var foundStudiesById = studyService.findByIds(studyIds)
+		Map<String, StudyEntity> foundStudiesById = studyService.findByIds(studyIds)
 				.stream()
-				.collect(Collectors.toMap(BrAPIBaseEntity::getId, e -> e));
+				.collect(Collectors.toMap(e -> e.getId().toString(), e -> e));
 
 		var result = new ArrayList<ObservationEntity>();
 
@@ -492,10 +492,10 @@ public class ObservationService {
 			if (observation.getObservationTimeStamp() != null)
 				entity.setObservationTimeStamp(DateUtility.toDate(observation.getObservationTimeStamp()));
 			if (observation.getObservationVariableDbId() != null) {
-				entity.setObservationVariable(foundObsVarsById.get(UUID.fromString(observation.getObservationVariableDbId())));
+				entity.setObservationVariable(foundObsVarsById.get(observation.getObservationVariableDbId()));
 			}
 			if (observation.getSeason() != null && observation.getSeason().getSeasonDbId() != null) {
-				entity.setSeason(foundSeasonsById.get(UUID.fromString(observation.getSeason().getSeasonDbId())));
+				entity.setSeason(foundSeasonsById.get(observation.getSeason().getSeasonDbId()));
 			}
 			if (observation.getUploadedBy() != null)
 				entity.setUploadedBy(observation.getUploadedBy());
@@ -503,9 +503,9 @@ public class ObservationService {
 				entity.setValue(observation.getValue());
 
 			if (observation.getObservationUnitDbId() != null) {
-				entity.setObservationUnit(foundObsUnitsById.get(UUID.fromString(observation.getObservationUnitDbId())));
+				entity.setObservationUnit(foundObsUnitsById.get(observation.getObservationUnitDbId()));
 			} else if (observation.getStudyDbId() != null) {
-				entity.setStudy(foundStudiesById.get(UUID.fromString(observation.getStudyDbId())));
+				entity.setStudy(foundStudiesById.get(observation.getStudyDbId()));
 			}
 
 			result.add(entity);
