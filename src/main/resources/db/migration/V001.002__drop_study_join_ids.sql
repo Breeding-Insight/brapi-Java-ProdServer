@@ -1,11 +1,11 @@
-alter table study_growth_facility drop constraint study_growth_facility_pkey;
-alter table study_growth_facility drop column id;
-alter table study_growth_facility add primary key (study_id);
+ALTER TABLE study_growth_facility DROP CONSTRAINT study_growth_facility_pkey;
+ALTER TABLE study_growth_facility DROP COLUMN id;
+ALTER TABLE study_growth_facility ADD PRIMARY KEY (study_id);
 
-alter table study_experimental_design drop constraint study_experimental_design_pkey;
-alter table study_experimental_design drop column id;
-alter table study_experimental_design add primary key (study_id);
+ALTER TABLE study_experimental_design DROP CONSTRAINT study_experimental_design_pkey;
+ALTER TABLE study_experimental_design DROP COLUMN id;
+ALTER TABLE study_experimental_design ADD PRIMARY KEY (study_id);
 
-alter table study_last_update drop constraint study_last_update_pkey;
-alter table study_last_update drop column id;
-alter table study_last_update add primary key (study_id);
+ALTER TABLE study_last_update DROP CONSTRAINT study_last_update_pkey;
+ALTER TABLE study_last_update DROP COLUMN id;
+ALTER TABLE study_last_update ADD PRIMARY KEY (study_id);

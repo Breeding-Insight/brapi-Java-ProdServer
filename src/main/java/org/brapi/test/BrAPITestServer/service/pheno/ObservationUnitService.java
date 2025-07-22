@@ -12,6 +12,7 @@ import org.brapi.test.BrAPITestServer.model.entity.core.ProgramEntity;
 import org.brapi.test.BrAPITestServer.model.entity.core.StudyEntity;
 import org.brapi.test.BrAPITestServer.model.entity.core.TrialEntity;
 import org.brapi.test.BrAPITestServer.model.entity.germ.CrossEntity;
+import org.brapi.test.BrAPITestServer.model.entity.germ.GermplasmEntity;
 import org.brapi.test.BrAPITestServer.model.entity.germ.SeedLotEntity;
 import org.brapi.test.BrAPITestServer.model.entity.pheno.*;
 import org.brapi.test.BrAPITestServer.repository.primaryEntities.pheno.ObservationUnitRepository;
@@ -230,9 +231,9 @@ public class ObservationUnitService {
 				   .leftJoinFetch("program", "program");
 
 		if (request.getObservationVariableDbIds() != null || request.getObservationVariableNames() != null) {
-			searchQuery = searchQuery.join("observationsUnits", "observation")
-					.appendList(request.getObservationVariableDbIds(), "*observation.variable.id")
-					.appendList(request.getObservationVariableNames(), "*observation.variable.name");
+			searchQuery = searchQuery.join("observations", "observation")
+					.appendList(request.getObservationVariableDbIds(), "*observation.observationVariable.id")
+					.appendList(request.getObservationVariableNames(), "*observation.observationVariable.name");
 		}
 		if (request.getSeasonDbIds() != null) {
 			searchQuery = searchQuery.join("study.seasons", "season").appendList(request.getSeasonDbIds(),
@@ -631,37 +632,37 @@ public class ObservationUnitService {
 		var oURqs = entitiesByRq.values();
 
 		// Gather all IDs we want to look up in a bulk lookup.
-		var germplasmIds = oURqs.stream()
+		List<String> germplasmIds = oURqs.stream()
 				.map(ObservationUnitNewRequest::getGermplasmDbId)
 				.filter(Objects::nonNull)
 				.distinct()
 				.toList();
 
-		var crossIds = oURqs.stream()
+		List<String> crossIds = oURqs.stream()
 				.map(ObservationUnitNewRequest::getCrossDbId)
 				.filter(Objects::nonNull)
 				.distinct()
 				.toList();
 
-		var seedLotIds = oURqs.stream()
+		List<String> seedLotIds = oURqs.stream()
 				.map(ObservationUnitNewRequest::getSeedLotDbId)
 				.filter(Objects::nonNull)
 				.distinct()
 				.toList();
 
-		var studyIds = oURqs.stream()
+		List<String> studyIds = oURqs.stream()
 				.map(ObservationUnitNewRequest::getStudyDbId)
 				.filter(Objects::nonNull)
 				.distinct()
 				.toList();
 
-		var trialIds = oURqs.stream()
+		List<String> trialIds = oURqs.stream()
 				.map(ObservationUnitNewRequest::getTrialDbId)
 				.filter(Objects::nonNull)
 				.distinct()
 				.toList();
 
-		var programIds = oURqs.stream()
+		List<String> programIds = oURqs.stream()
 				.map(ObservationUnitNewRequest::getProgramDbId)
 				.filter(Objects::nonNull)
 				.distinct()
@@ -669,29 +670,29 @@ public class ObservationUnitService {
 
 		// Now lookup all the IDs in bulk, creating a Map of the ID to the entity so the entities are easily
 		// retrievable by IDs in the bulk creating of entities later.
-		var foundGermsById = germplasmService.findByIds(germplasmIds)
+		Map<String, GermplasmEntity> foundGermsById = germplasmService.findByIds(germplasmIds)
 				.stream()
-				.collect(Collectors.toMap(BrAPIBaseEntity::getId, e -> e));
+				.collect(Collectors.toMap(e -> e.getId().toString(), e -> e));
 
-		var foundCrossesById = crossService.findByIds(crossIds)
+		Map<String, CrossEntity> foundCrossesById = crossService.findByIds(crossIds)
 				.stream()
-				.collect(Collectors.toMap(BrAPIBaseEntity::getId, e -> e));
+				.collect(Collectors.toMap(e -> e.getId().toString(), e -> e));
 
-		var foundSeedLotsById = seedLotService.findByIds(seedLotIds)
+		Map<String, SeedLotEntity> foundSeedLotsById = seedLotService.findByIds(seedLotIds)
 				.stream()
-				.collect(Collectors.toMap(BrAPIBaseEntity::getId, e -> e));
+				.collect(Collectors.toMap(e -> e.getId().toString(), e -> e));
 
-		var foundStudiesById = studyService.findByIds(studyIds)
+		Map<String, StudyEntity> foundStudiesById = studyService.findByIds(studyIds)
 				.stream()
-				.collect(Collectors.toMap(BrAPIBaseEntity::getId, e -> e));
+				.collect(Collectors.toMap(e -> e.getId().toString(), e -> e));
 
-		var foundTrialsById = trialService.findByIds(trialIds)
+		Map<String, TrialEntity> foundTrialsById = trialService.findByIds(trialIds)
 				.stream()
-				.collect(Collectors.toMap(BrAPIBaseEntity::getId, e -> e));
+				.collect(Collectors.toMap(e -> e.getId().toString(), e -> e));
 
-		var foundProgramsById = programService.findByIds(programIds)
+		Map<String, ProgramEntity> foundProgramsById = programService.findByIds(programIds)
 				.stream()
-				.collect(Collectors.toMap(BrAPIBaseEntity::getId, e -> e));
+				.collect(Collectors.toMap(e -> e.getId().toString(), e -> e));
 
 		var observationUnitLevelNames = observationUnitLevelNameService.findObservationUnitLevelNames(null, true);
 
@@ -714,10 +715,10 @@ public class ObservationUnitService {
 			UpdateUtility.updateEntity(entry.getValue(), entry.getKey());
 
 			if (oU.getGermplasmDbId() != null) {
-				entity.setGermplasm(foundGermsById.get(UUID.fromString(oU.getGermplasmDbId())));
+				entity.setGermplasm(foundGermsById.get(oU.getGermplasmDbId()));
 			}
 			if (oU.getCrossDbId() != null) {
-				CrossEntity cross = foundCrossesById.get(UUID.fromString(oU.getCrossDbId()));
+				CrossEntity cross = foundCrossesById.get(oU.getCrossDbId());
 
 				if (!cross.getPlanned()) {
 					entity.setCross(cross);
@@ -729,7 +730,7 @@ public class ObservationUnitService {
 			if (oU.getObservationUnitPUI() != null)
 				entity.setObservationUnitPUI(oU.getObservationUnitPUI());
 			if (oU.getSeedLotDbId() != null) {
-				SeedLotEntity seedLot = foundSeedLotsById.get(UUID.fromString(oU.getSeedLotDbId()));
+				SeedLotEntity seedLot = foundSeedLotsById.get(oU.getSeedLotDbId());
 				entity.setSeedLot(seedLot);
 			}
 			if (oU.getTreatments() != null)
@@ -742,13 +743,13 @@ public class ObservationUnitService {
 				}).collect(Collectors.toList()));
 
 			if (oU.getStudyDbId() != null) {
-				StudyEntity study = foundStudiesById.get(UUID.fromString(oU.getStudyDbId()));
+				StudyEntity study = foundStudiesById.get(oU.getStudyDbId());
 				entity.setStudy(study);
 			} else if (oU.getTrialDbId() != null) {
-				TrialEntity trial = foundTrialsById.get(UUID.fromString(oU.getTrialDbId()));
+				TrialEntity trial = foundTrialsById.get(oU.getTrialDbId());
 				entity.setTrial(trial);
 			} else if (oU.getProgramDbId() != null) {
-				ProgramEntity program = foundProgramsById.get(UUID.fromString(oU.getProgramDbId()));
+				ProgramEntity program = foundProgramsById.get(oU.getProgramDbId());
 				entity.setProgram(program);
 			}
 
@@ -850,37 +851,37 @@ public class ObservationUnitService {
 	private List<ObservationUnitEntity> createEntitiesInBatch(List<ObservationUnitNewRequest> oURqs)
 		throws BrAPIServerException {
 		// Gather all IDs we want to look up in a bulk lookup.
-		var germplasmIds = oURqs.stream()
+		List<String> germplasmIds = oURqs.stream()
 				.map(ObservationUnitNewRequest::getGermplasmDbId)
 				.filter(Objects::nonNull)
 				.distinct()
 				.toList();
 
-		var crossIds = oURqs.stream()
+		List<String> crossIds = oURqs.stream()
 				.map(ObservationUnitNewRequest::getCrossDbId)
 				.filter(Objects::nonNull)
 				.distinct()
 				.toList();
 
-		var seedLotIds = oURqs.stream()
+		List<String> seedLotIds = oURqs.stream()
 				.map(ObservationUnitNewRequest::getSeedLotDbId)
 				.filter(Objects::nonNull)
 				.distinct()
 				.toList();
 
-		var studyIds = oURqs.stream()
+		List<String> studyIds = oURqs.stream()
 				.map(ObservationUnitNewRequest::getStudyDbId)
 				.filter(Objects::nonNull)
 				.distinct()
 				.toList();
 
-		var trialIds = oURqs.stream()
+		List<String> trialIds = oURqs.stream()
 				.map(ObservationUnitNewRequest::getTrialDbId)
 				.filter(Objects::nonNull)
 				.distinct()
 				.toList();
 
-		var programIds = oURqs.stream()
+		List<String> programIds = oURqs.stream()
 				.map(ObservationUnitNewRequest::getProgramDbId)
 				.filter(Objects::nonNull)
 				.distinct()
@@ -888,36 +889,36 @@ public class ObservationUnitService {
 
 		// Now lookup all the IDs in bulk, creating a Map of the ID to the entity so the entities are easily
 		// retrievable by IDs in the bulk creating of entities later.
-		var foundGermsById = germplasmService.findByIds(germplasmIds)
+		Map<String, GermplasmEntity> foundGermsById = germplasmService.findByIds(germplasmIds)
 				.stream()
-				.collect(Collectors.toMap(BrAPIBaseEntity::getId, e -> e));
-
-		var foundCrossesById = crossService.findByIds(crossIds)
-				.stream()
-				.collect(Collectors.toMap(BrAPIBaseEntity::getId, e -> e));
-
-		var foundSeedLotsById = seedLotService.findByIds(seedLotIds)
-				.stream()
-				.collect(Collectors.toMap(BrAPIBaseEntity::getId, e -> e));
-
-		var foundStudiesById = studyService.findByIds(studyIds)
-				.stream()
-				.collect(Collectors.toMap(BrAPIBaseEntity::getId, e -> e));
-
-		var foundTrialsById = trialService.findByIds(trialIds)
-				.stream()
-				.collect(Collectors.toMap(BrAPIBaseEntity::getId, e -> e));
-
-		var foundProgramsById = programService.findByIds(programIds)
-				.stream()
-				.collect(Collectors.toMap(BrAPIBaseEntity::getId, e -> e));
-
-		var observationUnitLevelNames = observationUnitLevelNameService.findObservationUnitLevelNames(null, true);
-
-		var foundLevelNamesByDbId = observationUnitLevelNames.stream()
 				.collect(Collectors.toMap(e -> e.getId().toString(), e -> e));
 
-		var foundLevelNamesGroupedByProgramDbId = observationUnitLevelNames.stream()
+		Map<String, CrossEntity> foundCrossesById = crossService.findByIds(crossIds)
+				.stream()
+				.collect(Collectors.toMap(e -> e.getId().toString(), e -> e));
+
+		Map<String, SeedLotEntity> foundSeedLotsById = seedLotService.findByIds(seedLotIds)
+				.stream()
+				.collect(Collectors.toMap(e -> e.getId().toString(), e -> e));
+
+		Map<String, StudyEntity> foundStudiesById = studyService.findByIds(studyIds)
+				.stream()
+				.collect(Collectors.toMap(e -> e.getId().toString(), e -> e));
+
+		Map<String, TrialEntity> foundTrialsById = trialService.findByIds(trialIds)
+				.stream()
+				.collect(Collectors.toMap(e -> e.getId().toString(), e -> e));
+
+		Map<String, ProgramEntity> foundProgramsById = programService.findByIds(programIds)
+				.stream()
+				.collect(Collectors.toMap(e -> e.getId().toString(), e -> e));
+
+		List<ObservationUnitLevelNameEntity> observationUnitLevelNames = observationUnitLevelNameService.findObservationUnitLevelNames(null, true);
+
+		Map<String, ObservationUnitLevelNameEntity> foundLevelNamesByDbId = observationUnitLevelNames.stream()
+				.collect(Collectors.toMap(e -> e.getId().toString(), e -> e));
+
+		Map<String, List<ObservationUnitLevelNameEntity>> foundLevelNamesGroupedByProgramDbId = observationUnitLevelNames.stream()
 				.collect(Collectors.groupingBy(ouln ->
 						Optional.ofNullable(ouln.getProgram())
 								.map(p -> p.getId().toString())
@@ -931,17 +932,17 @@ public class ObservationUnitService {
 			UpdateUtility.updateEntity(obsUnit, entity);
 
 			if (obsUnit.getGermplasmDbId() != null) {
-				entity.setGermplasm(foundGermsById.get(UUID.fromString(obsUnit.getGermplasmDbId())));
+				entity.setGermplasm(foundGermsById.get(obsUnit.getGermplasmDbId()));
 			}
 			if (obsUnit.getCrossDbId() != null) {
-				entity.setCross(foundCrossesById.get(UUID.fromString(obsUnit.getCrossDbId())));
+				entity.setCross(foundCrossesById.get(obsUnit.getCrossDbId()));
 			}
 			if (obsUnit.getObservationUnitName() != null)
 				entity.setObservationUnitName(obsUnit.getObservationUnitName());
 			if (obsUnit.getObservationUnitPUI() != null)
 				entity.setObservationUnitPUI(obsUnit.getObservationUnitPUI());
 			if (obsUnit.getSeedLotDbId() != null) {
-				entity.setSeedLot(foundSeedLotsById.get(UUID.fromString(obsUnit.getSeedLotDbId())));
+				entity.setSeedLot(foundSeedLotsById.get(obsUnit.getSeedLotDbId()));
 			}
 			if (obsUnit.getTreatments() != null)
 				entity.setTreatments(obsUnit.getTreatments().stream().map(t -> {
@@ -953,11 +954,11 @@ public class ObservationUnitService {
 				}).collect(Collectors.toList()));
 
 			if (obsUnit.getStudyDbId() != null) {
-				entity.setStudy(foundStudiesById.get(UUID.fromString(obsUnit.getStudyDbId())));
+				entity.setStudy(foundStudiesById.get(obsUnit.getStudyDbId()));
 			} else if (obsUnit.getTrialDbId() != null) {
-				entity.setTrial(foundTrialsById.get(UUID.fromString(obsUnit.getTrialDbId())));
+				entity.setTrial(foundTrialsById.get(obsUnit.getTrialDbId()));
 			} else if (obsUnit.getProgramDbId() != null) {
-				entity.setProgram(foundProgramsById.get(UUID.fromString(obsUnit.getProgramDbId())));
+				entity.setProgram(foundProgramsById.get(obsUnit.getProgramDbId()));
 			}
 
 			if (obsUnit.getObservationUnitPosition() != null) {
