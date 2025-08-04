@@ -63,6 +63,16 @@ public class CrossService {
 		return crosses;
 	}
 
+	public List<CrossEntity> findByIds(List<String> crossDbIds) {
+		var result = new ArrayList<CrossEntity>();
+
+		if (crossDbIds.isEmpty()) {
+			return result;
+		}
+
+		return crossRepository.findByIdIn(crossDbIds.stream().map(UUID::fromString).toList());
+	}
+
 	public Page<CrossEntity> findCrossEntities(String crossingProjectDbId, String crossingProjectName, String crossDbId,
 			String crossName, String status, String commonCropName, String programDbId, String externalReferenceId,
 			String externalReferenceID, String externalReferenceSource, Boolean plannedCross, Metadata metadata)
