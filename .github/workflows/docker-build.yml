@@ -26,7 +26,6 @@ jobs:
       - name: Checkout develop branch
         uses: actions/checkout@v4
         with:
-          ref: develop # Default to develop, will be overridden by push events to other branches
           fetch-depth: 0 # Fetch all history to ensure common ancestor is found
 
       - name: Conditionally Fetch and Merge Upstream PR
