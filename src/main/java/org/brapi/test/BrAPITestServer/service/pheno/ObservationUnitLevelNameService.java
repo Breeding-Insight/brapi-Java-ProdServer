@@ -283,12 +283,6 @@ public class ObservationUnitLevelNameService {
         observationUnitLevelNameRepository.deleteById(UUID.fromString(observationLevelNameDbId));
     }
 
-    // Single Program use case
-    public List<ObservationUnitLevelNameEntity> findObservationUnitLevelNames(String programDbId)
-            throws BrAPIServerException {
-        return findObservationUnitLevelNames(List.of(programDbId), null);
-    }
-
     public List<ObservationUnitLevelNameEntity> findObservationUnitLevelNames(String programDbId,
                                                                               Boolean all)
             throws BrAPIServerException {

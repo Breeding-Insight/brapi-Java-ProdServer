@@ -77,13 +77,12 @@ public class ObservationUnitHierarchyLevel {
 			return false;
 		}
 		ObservationUnitHierarchyLevel observationUnitHierarchyLevel = (ObservationUnitHierarchyLevel) o;
-		return Objects.equals(this.levelName, observationUnitHierarchyLevel.levelName)
-				&& Objects.equals(this.levelOrder, observationUnitHierarchyLevel.levelOrder);
+		return Objects.equals(this.levelNameDbId, observationUnitHierarchyLevel.levelNameDbId);
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(levelName, levelOrder);
+		return Objects.hash(levelNameDbId);
 	}
 
 	@Override

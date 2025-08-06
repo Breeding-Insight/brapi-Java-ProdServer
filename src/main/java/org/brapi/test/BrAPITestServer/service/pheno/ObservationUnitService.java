@@ -245,8 +245,8 @@ public class ObservationUnitService {
 
 			searchQuery = searchQuery
 					// TODO: This will likely need to be updated so the search works by program and with globally available level names
-					.appendList(request.getObservationLevels().stream().filter(r -> r.getLevelName() != null)
-							.map(r -> r.getLevelName()).collect(Collectors.toList()), "position.levelName")
+					.appendIds(request.getObservationLevels().stream().filter(r -> r.getLevelName() != null)
+							.map(ouhl -> UUID.fromString(ouhl.getLevelNameDbId())).toList(), "position.levelName.id")
 					.appendList(request.getObservationLevels().stream().filter(r -> r.getLevelCode() != null)
 							.map(ObservationUnitLevel::getLevelCode).collect(Collectors.toList()), "position.levelCode")
 					.appendIntList(request.getObservationLevels().stream().filter(r -> r.getLevelOrder() != null)
@@ -257,8 +257,8 @@ public class ObservationUnitService {
 					// TODO: This will likely need to be updated so the search works by program and with globally available level names
 					.appendList(
 							request.getObservationLevelRelationships().stream().filter(r -> r.getLevelName() != null)
-									.map(r -> r.getLevelName()).collect(Collectors.toList()),
-							"*levelRelationship.levelName")
+									.map(ObservationUnitHierarchyLevel::getLevelNameDbId).collect(Collectors.toList()),
+							"*levelRelationship.levelName.id")
 					.appendList(
 							request.getObservationLevelRelationships().stream().filter(r -> r.getLevelCode() != null)
 									.map(r -> r.getLevelCode()).collect(Collectors.toList()),
@@ -431,12 +431,13 @@ public class ObservationUnitService {
 			String programDbId, Metadata metadata)
 		throws BrAPIServerException {
 
-		List<ObservationUnitLevelNameEntity> foundObsLevelNameEntities = observationUnitLevelNameService.findObservationUnitLevelNames(programDbId);
+		List<ObservationUnitLevelNameEntity> foundObsLevelNameEntities = observationUnitLevelNameService.findObservationUnitLevelNames(programDbId, false);
 
 		List<ObservationUnitLevel> levelNames = foundObsLevelNameEntities.stream()
 				.map(levelEnum -> {
 					ObservationUnitLevel rel = new ObservationUnitLevel();
 					rel.setLevelName(levelEnum.getLevelName());
+					rel.setLevelNameDbId(levelEnum.getId().toString());
 					return rel;
 				}).collect(Collectors.toList());
 
@@ -454,7 +455,7 @@ public class ObservationUnitService {
 			ObservationUnitLevelRelationship rel = new ObservationUnitLevelRelationship();
 			rel.setLevelCode(lvl.getLevelCode());
 			rel.setLevelName(lvl.getLevelName());
-			rel.setLevelOrder(lvl.getLevelOrder());
+			rel.setLevelNameDbId(lvl.getLevelNameDbId());
 			return rel;
 		}).collect(Collectors.toList()));
 		levelsSearch.setObservationLevels(null);
@@ -477,11 +478,13 @@ public class ObservationUnitService {
 					return list;
 				}).flatMap(Collection::stream)
 				.distinct()
-				.sorted()
 				.map(obsUnitLevel -> {
 					ObservationUnitHierarchyLevel level = new ObservationUnitHierarchyLevel();
+					level.setLevelNameDbId(obsUnitLevel.getLevelNameDbId());
 					level.setLevelName(obsUnitLevel.getLevelName());
 					level.setLevelOrder(obsUnitLevel.getLevelOrder());
+					level.setProgramDbId(obsUnitLevel.getProgramDbId());
+					level.setProgramName(obsUnitLevel.getProgramName());
 					return level;
 				}).collect(Collectors.toList());
 
