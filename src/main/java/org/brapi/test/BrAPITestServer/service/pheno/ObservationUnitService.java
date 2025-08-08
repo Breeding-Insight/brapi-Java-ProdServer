@@ -4,6 +4,7 @@ import io.swagger.model.IndexPagination;
 import io.swagger.model.Metadata;
 import io.swagger.model.pheno.*;
 import jakarta.validation.Valid;
+import org.apache.commons.lang3.StringUtils;
 import org.brapi.test.BrAPITestServer.exceptions.BrAPIServerDbIdNotFoundException;
 import org.brapi.test.BrAPITestServer.exceptions.BrAPIServerException;
 import org.brapi.test.BrAPITestServer.model.dto.ObservationUnitGermplasmData;
@@ -427,66 +428,83 @@ public class ObservationUnitService {
 		return convertFromEntity(savedEntity);
 	}
 
+	// Grabs the programDbId from an associated trial or study
+	private String getProgramDbId(String trialDbId,
+								  String studyDbId) throws BrAPIServerException {
+		TrialEntity trial = null;
+		StudyEntity study = null;
+
+		if (!StringUtils.isEmpty(trialDbId)) {
+			trial = trialService.getTrialEntity(trialDbId);
+		}
+
+		if (trial != null) {
+			return trial.getProgram().getId().toString();
+		}
+
+		if (!StringUtils.isEmpty(studyDbId)) {
+			study = studyService.getStudyEntity(studyDbId);
+		}
+
+		if (study != null) {
+			return study.getProgram().getId().toString();
+		}
+
+		return null;
+	}
+
 	public List<ObservationUnitHierarchyLevel> findObservationLevels(String studyDbId, String trialDbId,
 			String programDbId, Metadata metadata)
 		throws BrAPIServerException {
 
-		List<ObservationUnitLevelNameEntity> foundObsLevelNameEntities = observationUnitLevelNameService.findObservationUnitLevelNames(programDbId, false);
+		if (StringUtils.isEmpty(studyDbId) && StringUtils.isEmpty(trialDbId) && StringUtils.isEmpty(programDbId)) {
+			throw new BrAPIServerException(HttpStatus.BAD_REQUEST, "No trialDbId, studyDbId, or programDbId was detected. " +
+					"Please provide at least one of these to find observation units related to level names.");
+		}
 
-		List<ObservationUnitLevel> levelNames = foundObsLevelNameEntities.stream()
-				.map(levelEnum -> {
-					ObservationUnitLevel rel = new ObservationUnitLevel();
-					rel.setLevelName(levelEnum.getLevelName());
-					rel.setLevelNameDbId(levelEnum.getId().toString());
-					return rel;
-				}).collect(Collectors.toList());
+		// First, if there is no programDbId available, try to grab it from a study or trial
+		if (StringUtils.isEmpty(programDbId)) {
+			programDbId = getProgramDbId(trialDbId, studyDbId);
+		}
 
-		ObservationUnitSearchRequest levelsSearch = buildObservationUnitsSearchRequest(null, null, null, studyDbId,
-				null, trialDbId, programDbId, null, null, null, null, null, null, null, null, null, false, null, null,
-				null);
+		// First, grab all global level names that are not tied to any programs
+		List<ObservationUnitLevelNameEntity> foundObsLevelNameEntities = observationUnitLevelNameService.findObservationUnitLevelNames(null, false);
 
-		levelsSearch.setObservationLevels(levelNames);
-		List<ObservationUnit> units = new ArrayList<>();
-		List<ObservationUnit> someunits = findObservationUnits(levelsSearch,
-				new Metadata().pagination(new IndexPagination()));
-		units.addAll(someunits);
+		if (!StringUtils.isEmpty(programDbId)) {
+			// If programDbId is present, try to grab the level names related to the program submitted.
+			var levelNamesFoundByProgram = observationUnitLevelNameService.findObservationUnitLevelNames(programDbId, false);
 
-		levelsSearch.setObservationLevelRelationships(levelNames.stream().map(lvl -> {
-			ObservationUnitLevelRelationship rel = new ObservationUnitLevelRelationship();
-			rel.setLevelCode(lvl.getLevelCode());
-			rel.setLevelName(lvl.getLevelName());
-			rel.setLevelNameDbId(lvl.getLevelNameDbId());
-			return rel;
-		}).collect(Collectors.toList()));
-		levelsSearch.setObservationLevels(null);
-		List<ObservationUnit> moreUnits = findObservationUnits(levelsSearch,
-				new Metadata().pagination(new IndexPagination()));
-		units.addAll(moreUnits);
+			if (!foundObsLevelNameEntities.containsAll(levelNamesFoundByProgram)) {
+				foundObsLevelNameEntities.addAll(levelNamesFoundByProgram);
+			}
+		}
 
-		List<ObservationUnitHierarchyLevel> levels = units.stream()
-				.filter(unit -> unit.getObservationUnitPosition() != null)
-				.filter(unit -> unit.getObservationUnitPosition().getObservationLevelRelationships() != null)
-				.filter(unit -> unit.getObservationUnitPosition().getObservationLevel() != null)
-				.filter(unit -> unit.getObservationUnitPosition().getObservationLevel().getLevelName() != null)
-				.map(unit -> {
-					List<ObservationUnitLevel> list = new ArrayList<>();
-					for (ObservationUnitLevel level : unit.getObservationUnitPosition()
-							.getObservationLevelRelationships()) {
-						list.add(level);
-					}
-					list.add(unit.getObservationUnitPosition().getObservationLevel());
-					return list;
-				}).flatMap(Collection::stream)
-				.distinct()
-				.map(obsUnitLevel -> {
+		List<ObservationUnitLevelNameEntity> levelNamesRelatedToOUs = new ArrayList<>();
+
+		for (ObservationUnitLevelNameEntity lnEntity : foundObsLevelNameEntities) {
+			if (observationUnitRepository.existsOUsWithLevelNameAndProgramAndTrialAndStudy(lnEntity.getId().toString(),
+					programDbId,
+					trialDbId,
+					studyDbId)) {
+				levelNamesRelatedToOUs.add(lnEntity);
+			}
+		}
+
+		List<ObservationUnitHierarchyLevel> levels = levelNamesRelatedToOUs.stream()
+				.map(lne -> {
 					ObservationUnitHierarchyLevel level = new ObservationUnitHierarchyLevel();
-					level.setLevelNameDbId(obsUnitLevel.getLevelNameDbId());
-					level.setLevelName(obsUnitLevel.getLevelName());
-					level.setLevelOrder(obsUnitLevel.getLevelOrder());
-					level.setProgramDbId(obsUnitLevel.getProgramDbId());
-					level.setProgramName(obsUnitLevel.getProgramName());
+					level.setLevelNameDbId(lne.getId().toString());
+					level.setLevelName(lne.getLevelName());
+					level.setLevelOrder(lne.getLevelOrder());
+
+					if (lne.getProgram() != null) {
+						level.setProgramDbId(lne.getProgram().getId().toString());
+						level.setProgramName(lne.getProgram().getName());
+					}
+
 					return level;
-				}).collect(Collectors.toList());
+				})
+				.toList();
 
 		return PagingUtility.paginateSimpleList(levels, metadata);
 	}
@@ -514,7 +532,7 @@ public class ObservationUnitService {
 		}
 		unit.setObservationUnitDbId(entity.getId().toString());
 		unit.setObservationUnitName(entity.getObservationUnitName());
-		unit.setObservationUnitPosition(convertFromEntity(entity.getPosition(), entity.getId().toString()));
+		unit.setObservationUnitPosition(convertFromEntity(entity.getPosition()));
 		unit.setObservationUnitPUI(entity.getObservationUnitPUI());
 		if (entity.getSeedLot() != null) {
 			unit.setSeedLotDbId(entity.getSeedLot().getId().toString());
@@ -557,7 +575,7 @@ public class ObservationUnitService {
 
 	}
 
-	private ObservationUnitPosition convertFromEntity(ObservationUnitPositionEntity entity, String ouDbId) {
+	private ObservationUnitPosition convertFromEntity(ObservationUnitPositionEntity entity) {
 		ObservationUnitPosition position = null;
 		if (entity != null) {
 			position = new ObservationUnitPosition();
@@ -567,7 +585,7 @@ public class ObservationUnitService {
 			if (entity.getObservationLevelRelationships() != null) {
 
 				position.setObservationLevelRelationships(entity.getObservationLevelRelationships().stream()
-						.map(rel -> this.convertFromEntity(rel, ouDbId)).collect(Collectors.toList()));
+						.map(rel -> this.convertFromEntity(rel)).collect(Collectors.toList()));
 			}
 			position.setPositionCoordinateX(entity.getPositionCoordinateX());
 			position.setPositionCoordinateXType(entity.getPositionCoordinateXType());
@@ -603,15 +621,15 @@ public class ObservationUnitService {
 		return treatment;
 	}
 
-	private ObservationUnitLevelRelationship convertFromEntity(ObservationUnitLevelRelationshipEntity entity, String ouDbId) {
+	private ObservationUnitLevelRelationship convertFromEntity(ObservationUnitLevelRelationshipEntity entity) {
 		ObservationUnitLevelRelationship level = new ObservationUnitLevelRelationship();
 		level.setLevelCode(entity.getLevelCode());
 		level.setLevelName(entity.getLevelName().getLevelName());
 		level.setLevelOrder(entity.getLevelName().getLevelOrder());
 		level.setLevelNameDbId(entity.getLevelName().getId().toString());
 
-		if (ouDbId != null) {
-			level.setObservationUnitDbId(ouDbId);
+		if (entity.getObservationUnit() != null) {
+			level.setObservationUnitDbId(entity.getObservationUnit().getId().toString());
 		}
 
 		// If the program is null, this level name is global.

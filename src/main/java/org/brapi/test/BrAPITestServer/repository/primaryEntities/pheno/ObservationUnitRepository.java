@@ -22,4 +22,26 @@ public interface ObservationUnitRepository extends BrAPIRepository<ObservationUn
             "WHERE ou.id IN :ouIds"
     )
     List<Object[]> fetchGermplasmDataForOUs(@Param("ouIds") List<UUID> ouIds);
+
+    @NativeQuery(
+            "SELECT EXISTS(" +
+                    "SELECT ou.id " +
+                    "FROM observation_unit ou " +
+                    "JOIN observation_unit_position oup ON ou.id = oup.observation_unit_id " +
+                    "JOIN observation_unit_level_name ouln ON oup.level_name_new = ouln.id " +
+                    "WHERE oup.level_name_new = :levelNameDbId AND ou.program_id = :programDbId " +
+                    // The IS NULL checks allow for some moderate custom query generation based off of input params.
+                    "AND (:trialDbId ::uuid IS NULL OR ou.trial_id = :trialDbId) AND (:studyDbId ::uuid IS NULL OR ou.study_id = :studyDbId) " +
+                    ") OR EXISTS ( " +
+                    "SELECT ou.id " +
+                    "FROM observation_unit ou " +
+                    "JOIN observation_unit_position oup ON oup.observation_unit_id = ou.id " +
+                    "JOIN observation_unit_level oul ON oul.position_id = oup.id " +
+                    "WHERE oul.level_name_new = :levelNameDbId AND ou.program_id = :programDbId " +
+                    "AND (:trialDbId ::uuid IS NULL OR ou.trial_id = :trialDbId) AND (:studyDbId ::uuid IS NULL OR ou.study_id = :studyDbId))"
+    )
+    Boolean existsOUsWithLevelNameAndProgramAndTrialAndStudy(@Param("levelNameDbId") String levelNameDbId,
+                                                             @Param("programDbId") String programDbId,
+                                                             @Param("trialDbId") String trialDbId,
+                                                             @Param("studyDbId") String studyDbId);
 }
