@@ -3,8 +3,10 @@ package org.brapi.test.BrAPITestServer.service.core;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import org.apache.commons.lang3.StringUtils;
 import org.brapi.test.BrAPITestServer.exceptions.BrAPIServerDbIdNotFoundException;
 import org.brapi.test.BrAPITestServer.exceptions.BrAPIServerException;
+import org.brapi.test.BrAPITestServer.model.entity.BrAPIBaseEntity;
 import org.brapi.test.BrAPITestServer.model.entity.core.CropEntity;
 import org.brapi.test.BrAPITestServer.model.entity.core.DataLinkEntity;
 import org.brapi.test.BrAPITestServer.model.entity.core.EnvironmentParametersEntity;
@@ -17,6 +19,7 @@ import org.brapi.test.BrAPITestServer.model.entity.core.SeasonEntity;
 import org.brapi.test.BrAPITestServer.model.entity.core.StudyEntity;
 import org.brapi.test.BrAPITestServer.model.entity.core.StudyLastUpdateEntity;
 import org.brapi.test.BrAPITestServer.model.entity.core.TrialEntity;
+import org.brapi.test.BrAPITestServer.model.entity.pheno.ObservationUnitLevelNameEntity;
 import org.brapi.test.BrAPITestServer.model.entity.pheno.ObservationVariableEntity;
 import org.brapi.test.BrAPITestServer.repository.primaryEntities.core.StudyRepository;
 import org.brapi.test.BrAPITestServer.service.DateUtility;
@@ -269,7 +272,14 @@ public class StudyService {
 			entity.setLocation(location);
 		}
 		if (body.getObservationLevels() != null) {
-			entity.setObservationLevels(convertToEntity(body.getObservationLevels(), body.getProgramDbId()));
+
+			List<ObservationLevelEntity> lvlEntities = convertToEntity(body.getObservationLevels(), body.getProgramDbId());
+
+			for(ObservationLevelEntity lvlEntity : lvlEntities) {
+				lvlEntity.setStudy(entity);
+			}
+
+			entity.setObservationLevels(lvlEntities);
 		}
 		if (body.getObservationUnitsDescription() != null)
 			entity.setObservationUnitsDescription(body.getObservationUnitsDescription());
@@ -413,12 +423,22 @@ public class StudyService {
 		throws BrAPIServerException {
 		List<ObservationLevelEntity> entities = new ArrayList<>();
 
-		var foundLevelNames = observationUnitLevelNameService.retrieveAndVerifyObservationUnitLevelNames(programDbId, levels);
+		List<String> submittedLevelNameDbIds = levels.stream()
+				.map(ObservationUnitHierarchyLevel::getLevelNameDbId)
+				.toList();
 
-		for (ObservationUnitHierarchyLevel level : levels) {
+		if (submittedLevelNameDbIds.isEmpty() && StringUtils.isEmpty(programDbId)) {
+			throw new BrAPIServerException(HttpStatus.BAD_REQUEST, "No levelNameDbIds or programDbId available in request.  levelNameDbIds can be found using /observationlevelnames GET.");
+		}
+
+		Map<String, ObservationUnitLevelNameEntity> foundLevelNames = observationUnitLevelNameService.findObservationUnitLevelNames(Arrays.asList(programDbId), submittedLevelNameDbIds)
+				.stream()
+				.collect(Collectors.toMap(e -> e.getId().toString(), e -> e));
+
+		for (String lnDbId : submittedLevelNameDbIds) {
 			var entity = new ObservationLevelEntity();
 
-			entity.setLevelName(foundLevelNames.get(level.getLevelName()));
+			entity.setLevelName(foundLevelNames.get(lnDbId));
 			entities.add(entity);
 		}
 		return entities;

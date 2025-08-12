@@ -123,61 +123,6 @@ public class ObservationUnitLevelNameService {
         return GLOBAL_KEY_FOR_FOUND_ENTITIES;
     }
 
-    public Map<String, ObservationUnitLevelNameEntity> retrieveAndVerifyObservationUnitLevelNames(String programDbIdOverride,
-                                                                                                   List<? extends ObservationUnitHierarchyLevel> submittedLevelNames)
-            throws BrAPIServerException {
-
-        List<String> programDbIds = new ArrayList<>();
-
-        if (programDbIdOverride != null && !programDbIdOverride.isBlank()) {
-            // If an programDbIdOverride was given, that means that the caller wants all submitted level names to be
-            // searched by a single programDbId. This programDbId is usually associated with a parent entity the level names
-            // belong to, like StudyEntity, ObservationUnitEntity, etc.
-            programDbIds.add(programDbIdOverride);
-        } else {
-            // If the override doesn't exist, use programDbIds from submitted level name object, if they are
-            // available at all.
-            programDbIds.addAll(submittedLevelNames.stream()
-                    .map(ObservationUnitHierarchyLevel::getProgramDbId)
-                    .filter(Objects::nonNull)
-                    .toList());
-        }
-
-        List<String> levelNameDbIds = submittedLevelNames.stream()
-                .map(ObservationUnitHierarchyLevel::getLevelNameDbId)
-                .filter(Objects::nonNull)
-                .toList();
-
-        if (levelNameDbIds.size() != submittedLevelNames.size()) {
-            // Only lookup by levelNameDbIds if every submitted level name has one.
-            levelNameDbIds = new ArrayList<>();
-        }
-
-        List<ObservationUnitLevelNameEntity> foundOULevelNames = findObservationUnitLevelNames(programDbIds, levelNameDbIds);
-
-        var levelNameEntitiesByName = foundOULevelNames.stream()
-                .collect(Collectors.toMap(ouln -> ouln.getLevelName().toLowerCase(), e -> e));
-
-        var submittedNames = submittedLevelNames.stream().map(ouhl -> ouhl.getLevelName().toLowerCase()).toList();
-        // Now that we have found all the available level names, verify that all submitted level names are valid level names
-        // in the DB.
-        for (String submittedLevelName : submittedNames) {
-            if (!levelNameEntitiesByName.containsKey(submittedLevelName.toLowerCase())) {
-                throw new BrAPIServerException(HttpStatus.BAD_REQUEST,
-                        String.format("Submitted observation unit level name [%s] does not exist " +
-                                        "globally or for the following submitted programs [%s].  This can be fixed " +
-                                        "by adding the level name using the POST endpoint brapi/[version-number]/observationunitlevelnames, " +
-                                        "or by using a level name already in the system.",
-                                submittedLevelName,
-                                programDbIds));
-            }
-        }
-
-        // Now that every submitted level name has been verified, return a map of the retrieved submitted levels.
-        return submittedNames.stream()
-                .collect(Collectors.toMap(ln -> ln, levelNameEntitiesByName::get));
-    }
-
     public List<ObservationUnitHierarchyLevel> convertFromEntitiesInBatch(List<ObservationUnitLevelNameEntity> entities) {
         List<ObservationUnitHierarchyLevel> result = new ArrayList<>();
 

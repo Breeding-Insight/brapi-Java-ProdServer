@@ -581,7 +581,10 @@ public class ObservationUnitService {
 			position = new ObservationUnitPosition();
 			position.setEntryType(entity.getEntryType());
 			position.setGeoCoordinates(GeoJSONUtility.convertFromEntity(entity.getGeoCoordinates()));
-			position.setObservationLevel(convertFromEntity(entity.getLevelName(), entity.getLevelCode()));
+
+			if (entity.getLevelName() != null) {
+				position.setObservationLevel(convertFromEntity(entity.getLevelName(), entity.getLevelCode()));
+			}
 			if (entity.getObservationLevelRelationships() != null) {
 
 				position.setObservationLevelRelationships(entity.getObservationLevelRelationships().stream()
@@ -624,18 +627,21 @@ public class ObservationUnitService {
 	private ObservationUnitLevelRelationship convertFromEntity(ObservationUnitLevelRelationshipEntity entity) {
 		ObservationUnitLevelRelationship level = new ObservationUnitLevelRelationship();
 		level.setLevelCode(entity.getLevelCode());
-		level.setLevelName(entity.getLevelName().getLevelName());
-		level.setLevelOrder(entity.getLevelName().getLevelOrder());
-		level.setLevelNameDbId(entity.getLevelName().getId().toString());
+
+		if (entity.getLevelName() != null) {
+			level.setLevelName(entity.getLevelName().getLevelName());
+			level.setLevelOrder(entity.getLevelName().getLevelOrder());
+			level.setLevelNameDbId(entity.getLevelName().getId().toString());
+
+			// If the program is null, this level name is global.
+			if (entity.getLevelName().getProgram() != null) {
+				level.setProgramDbId(entity.getLevelName().getProgram().getId().toString());
+				level.setProgramName(entity.getLevelName().getProgram().getName());
+			}
+		}
 
 		if (entity.getObservationUnit() != null) {
 			level.setObservationUnitDbId(entity.getObservationUnit().getId().toString());
-		}
-
-		// If the program is null, this level name is global.
-		if (entity.getLevelName().getProgram() != null) {
-			level.setProgramDbId(entity.getLevelName().getProgram().getId().toString());
-			level.setProgramName(entity.getLevelName().getProgram().getName());
 		}
 
 

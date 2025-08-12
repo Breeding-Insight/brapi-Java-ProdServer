@@ -20,4 +20,12 @@ public class ObservationLevelEntity extends BrAPIBaseEntity {
 	public void setLevelName(ObservationUnitLevelNameEntity levelName) {
 		this.levelName = levelName;
 	}
+
+	public StudyEntity getStudy() {
+		return study;
+	}
+
+	public void setStudy(StudyEntity study) {
+		this.study = study;
+	}
 }
