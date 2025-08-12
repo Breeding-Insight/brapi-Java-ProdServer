@@ -355,6 +355,12 @@ public class ObservationUnitService {
 		return observationUnit;
 	}
 
+	/**
+	 * Retrieves all submitted observation units in bulk by their dbId,
+	 * returning a map of each found entity to its original request for fastest access speed in batch updating.
+	 *
+	 * Throws an error if there are any requests not found.
+	 */
 	public Map<ObservationUnitEntity, ObservationUnitNewRequest> getObservationUnitEntities(Map<String, ObservationUnitNewRequest> oURequestByDbId, HttpStatus errorStatus)
 			throws BrAPIServerException {
 
@@ -362,7 +368,7 @@ public class ObservationUnitService {
 			throw new BrAPIServerDbIdNotFoundException("observationUnit", "null", errorStatus);
 		}
 
-		var submittedDbIds = oURequestByDbId.keySet().stream().toList();
+		List<String> submittedDbIds = oURequestByDbId.keySet().stream().toList();
 
 		var searchRq = new ObservationUnitSearchRequest();
 		searchRq.observationUnitDbIds(submittedDbIds);
@@ -373,12 +379,13 @@ public class ObservationUnitService {
 		pagination.setPageSize(submittedDbIds.size());
 		metadata.setPagination(pagination);
 
-		var foundEntities = findObservationUnitEntities(searchRq, metadata);
+		Page<ObservationUnitEntity> foundEntities = findObservationUnitEntities(searchRq, metadata);
 
-		var foundEntitiesByDbId = foundEntities.stream()
+		Map<String, ObservationUnitEntity> foundEntitiesByDbId = foundEntities.stream()
 				.collect(Collectors.toMap(e -> e.getId().toString(), e -> e));
 
-		var submittedIdsNotFound = new HashSet<>(submittedDbIds);
+		// Use a set here to improve performance of .removeAll()
+		Set<String> submittedIdsNotFound = new HashSet<>(submittedDbIds);
 
 		submittedIdsNotFound.removeAll(foundEntitiesByDbId.keySet());
 
@@ -397,7 +404,7 @@ public class ObservationUnitService {
 
 	public List<ObservationUnit> saveObservationUnits(@Valid List<ObservationUnitNewRequest> requests)
 			throws BrAPIServerException {
-		var toSave = createEntitiesInBatch(requests);
+		List<ObservationUnitEntity> toSave = createEntitiesInBatch(requests);
 
 		return observationUnitRepository.saveAll(toSave)
 				.stream()
@@ -408,7 +415,7 @@ public class ObservationUnitService {
 	public List<ObservationUnit> updateObservationUnits(@Valid Map<String, ObservationUnitNewRequest> requests)
 			throws BrAPIServerException {
 
-		var foundOUEntities = getObservationUnitEntities(requests, HttpStatus.BAD_REQUEST);
+		Map<ObservationUnitEntity, ObservationUnitNewRequest> foundOUEntities = getObservationUnitEntities(requests, HttpStatus.BAD_REQUEST);
 
 		List<ObservationUnitEntity> toSave = updateEntitiesInBatch(foundOUEntities);
 

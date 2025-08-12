@@ -5,6 +5,7 @@ import io.swagger.model.pheno.ObservationUnitHierarchyLevel;
 import org.apache.commons.lang3.StringUtils;
 import org.brapi.test.BrAPITestServer.exceptions.BrAPIServerDbIdNotFoundException;
 import org.brapi.test.BrAPITestServer.exceptions.BrAPIServerException;
+import org.brapi.test.BrAPITestServer.model.entity.core.ProgramEntity;
 import org.brapi.test.BrAPITestServer.model.entity.pheno.ObservationUnitLevelNameEntity;
 import org.brapi.test.BrAPITestServer.repository.baseEntities.ObservationUnitLevelNameRepository;
 import org.brapi.test.BrAPITestServer.service.core.ProgramService;
@@ -64,17 +65,17 @@ public class ObservationUnitLevelNameService {
             var verifiedLevelNamesCurrentSize = verifiedEntitiesByLevelName.size();
 
             if (StringUtils.isNotBlank(sln.getLevelNameDbId()) && foundLevelEntitiesByDbId.containsKey(sln.getLevelNameDbId())) {
-                var entity = foundLevelEntitiesByDbId.get(sln.getLevelNameDbId());
+                ObservationUnitLevelNameEntity entity = foundLevelEntitiesByDbId.get(sln.getLevelNameDbId());
                 verifiedEntitiesByLevelName.put(entity.getLevelName(), entity);
             } else if (StringUtils.isNotBlank(parentProgramDbId) && StringUtils.isNotBlank(sln.getLevelName()) && foundLevelEntitiesGroupedByProgramId.get(parentProgramDbId) != null) {
-                var entities = foundLevelEntitiesGroupedByProgramId.get(parentProgramDbId);
+                List<ObservationUnitLevelNameEntity> entities = foundLevelEntitiesGroupedByProgramId.get(parentProgramDbId);
 
                 entities.stream()
                         .filter(ouln -> ouln.getLevelName().equals(sln.getLevelName()))
                         .findFirst()
                         .ifPresent(ouln -> verifiedEntitiesByLevelName.put(ouln.getLevelName(), ouln));
             } else if (StringUtils.isNotBlank(sln.getProgramDbId())  && StringUtils.isNotBlank(sln.getLevelName()) && foundLevelEntitiesGroupedByProgramId.get(parentProgramDbId) != null) {
-                var entities = foundLevelEntitiesGroupedByProgramId.get(sln.getProgramDbId());
+                List<ObservationUnitLevelNameEntity> entities = foundLevelEntitiesGroupedByProgramId.get(sln.getProgramDbId());
 
                 entities.stream()
                         .filter(ouln -> ouln.getLevelName().equals(sln.getLevelName()))
@@ -84,7 +85,7 @@ public class ObservationUnitLevelNameService {
 
             if (verifiedLevelNamesCurrentSize == verifiedEntitiesByLevelName.size()) {
                 // All other ways of detecting the level name have failed so far, try the global ones as a last-ditch effort
-                var globalEntities = foundLevelEntitiesGroupedByProgramId.get(GLOBAL_KEY_FOR_FOUND_ENTITIES);
+                List<ObservationUnitLevelNameEntity> globalEntities = foundLevelEntitiesGroupedByProgramId.get(GLOBAL_KEY_FOR_FOUND_ENTITIES);
 
                 globalEntities.stream()
                         .filter(ouln -> ouln.getLevelName().equals(sln.getLevelName()))
@@ -147,12 +148,12 @@ public class ObservationUnitLevelNameService {
         throws BrAPIServerException {
         List<ObservationUnitLevelNameEntity> result = new ArrayList<>();
 
-        var programDbIds = levels.stream()
+        List<String> programDbIds = levels.stream()
                 .map(ObservationUnitHierarchyLevel::getProgramDbId)
                 .filter(Objects::nonNull)
                 .toList();
 
-        var programEntitiesById = programService.findByIds(programDbIds).stream()
+        Map<String, ProgramEntity> programEntitiesById = programService.findByIds(programDbIds).stream()
                 .collect(Collectors.toMap(p -> p.getId().toString(), p -> p));
 
         for (ObservationLevelNewRequest level : levels) {
@@ -162,7 +163,7 @@ public class ObservationUnitLevelNameService {
             entity.setLevelOrder(level.getLevelOrder());
 
             if (level.getProgramDbId() != null) {
-                var foundProgram = programEntitiesById.get(level.getProgramDbId());
+                ProgramEntity foundProgram = programEntitiesById.get(level.getProgramDbId());
                 if (foundProgram != null) {
                     entity.setProgram(foundProgram);
                 } else {
@@ -181,13 +182,13 @@ public class ObservationUnitLevelNameService {
     public ObservationUnitHierarchyLevel update(String observationLevelNameDbId,
                                                 ObservationLevelNewRequest level)
         throws BrAPIServerException {
-        var entityOpt = observationUnitLevelNameRepository.findById(UUID.fromString(observationLevelNameDbId));
+        Optional<ObservationUnitLevelNameEntity> entityOpt = observationUnitLevelNameRepository.findById(UUID.fromString(observationLevelNameDbId));
 
         if (entityOpt.isEmpty()) {
             throw new BrAPIServerDbIdNotFoundException("ObservationUnitLevelName", observationLevelNameDbId, HttpStatus.BAD_REQUEST);
         }
 
-        var entity = entityOpt.get();
+        ObservationUnitLevelNameEntity entity = entityOpt.get();
 
         if (level.getLevelName() != null) {
             entity.setLevelName(level.getLevelName());
@@ -212,15 +213,15 @@ public class ObservationUnitLevelNameService {
             entity.setProgram(null);
         }
 
-        var savedEntity = observationUnitLevelNameRepository.save(entity);
+        ObservationUnitLevelNameEntity savedEntity = observationUnitLevelNameRepository.save(entity);
 
         return convertFromEntitiesInBatch(List.of(savedEntity)).getFirst();
     }
 
     public List<ObservationUnitHierarchyLevel> save(List<ObservationLevelNewRequest> request)
         throws BrAPIServerException {
-        var entities = convertToEntitiesInBatch(request);
-        var savedEntities = observationUnitLevelNameRepository.saveAll(entities);
+        List<ObservationUnitLevelNameEntity> entities = convertToEntitiesInBatch(request);
+        List<ObservationUnitLevelNameEntity> savedEntities = observationUnitLevelNameRepository.saveAll(entities);
         return convertFromEntitiesInBatch(savedEntities);
     }
 
@@ -263,14 +264,14 @@ public class ObservationUnitLevelNameService {
 
         if (levelNameDbIds != null && !levelNameDbIds.isEmpty()) {
 
-            var result = observationUnitLevelNameRepository.findAllById(levelNameDbIds.stream().map(UUID::fromString).toList());
+            List<ObservationUnitLevelNameEntity> result = observationUnitLevelNameRepository.findAllById(levelNameDbIds.stream().map(UUID::fromString).toList());
 
             if (result.size() != levelNameDbIds.size()) {
 
-                var foundDbIds = result.stream()
+                List<String> foundDbIds = result.stream()
                         .map(ouln -> ouln.getId().toString())
                         .toList();
-                var levelNameDbIdsNotFound = levelNameDbIds.stream()
+                List<String> levelNameDbIdsNotFound = levelNameDbIds.stream()
                         .filter(lnId -> !foundDbIds.contains(lnId))
                         .toList();
 
