@@ -6,59 +6,146 @@ on:
       - develop
       - release/**
       - brapi-server-v2
-      
+
   workflow_dispatch:
+    inputs:
+      upstream_repo:
+        description: 'Optional: Override upstream repository (owner/repo). Defaults to the repository this was forked from if not set.'
+        required: false
+        default: 'plantbreeding/brapi-Java-ProdServer'
+      upstream_pr_number:
+        description: 'Required if merging an upstream PR: PR number from the upstream repository to merge into develop for this build. ex: 11'
+        required: false # Still false overall, but logic will require it if this feature is used.
+        type: string
 
 jobs:
   docker:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v2
-      
+      - name: Checkout branch
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Fetch all history to ensure common ancestor is found
+
+      - name: Conditionally Fetch and Merge Upstream PR
+        # This step runs if a PR number is provided AND (an upstream_repo input is given OR a parent repo full_name is available)
+        if: |
+          github.event.inputs.upstream_pr_number &&
+          github.event.inputs.upstream_repo
+        run: |
+          UPSTREAM_REPO_SPECIFIED="${{ github.event.inputs.upstream_repo }}"
+          UPSTREAM_PR_NUMBER="${{ github.event.inputs.upstream_pr_number }}"
+
+          if [[ -z "$UPSTREAM_PR_NUMBER" ]]; then
+            echo "No upstream PR number provided. Skipping PR merge."
+            exit 0
+          fi
+
+          TARGET_UPSTREAM_REPO=""
+          if [[ -n "$UPSTREAM_REPO_SPECIFIED" ]]; then
+            TARGET_UPSTREAM_REPO="$UPSTREAM_REPO_SPECIFIED"
+            echo "Using specified upstream repository: $TARGET_UPSTREAM_REPO"
+          else
+            echo "Error: Upstream PR number '$UPSTREAM_PR_NUMBER' was provided, but no upstream_repo was specified and parent repository could not be determined."
+            exit 1
+          fi
+
+          echo "Upstream PR to merge: $UPSTREAM_PR_NUMBER from $TARGET_UPSTREAM_REPO"
+          UPSTREAM_REPO_URL="https://github.com/$TARGET_UPSTREAM_REPO.git"
+
+          # Fetch the PR from the upstream repository
+          git fetch $UPSTREAM_REPO_URL +refs/pull/$UPSTREAM_PR_NUMBER/head:upstream_pr_branch
+
+          echo "Fetched PR branch 'upstream_pr_branch'. Merging into current HEAD (develop)..."
+          # Merge the fetched PR branch. If conflicts occur, the script will exit with an error.
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
+          git merge upstream_pr_branch --no-ff -m "Merge upstream PR #$UPSTREAM_PR_NUMBER from $TARGET_UPSTREAM_REPO for testing"
+
+          echo "Merge complete."
+        shell: bash
+
       - name: Extract branch name
         shell: bash
-        run: echo ::set-output name=branch::$(echo ${GITHUB_REF#refs/heads/})
+        run: echo "branch=$(echo ${GITHUB_REF#refs/heads/})" >> "$GITHUB_OUTPUT"
         id: extract_branch
-        
-      - run: git pull origin ${{steps.extract_branch.outputs.branch}}
-      
+
+      # This pull is no longer needed as checkout handles fetching the correct ref,
+      # and the PR merge step brings in specific upstream changes.
+      # - run: git pull origin ${{steps.extract_branch.outputs.branch}}
+
       - name: Set up JDK 21
         uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: '21'
           cache: maven
-          
+
       - name: Build with Maven
         run: mvn clean install
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
+        uses: docker/setup-buildx-action@v3
       - name: Set up QEMU
-        uses: docker/setup-qemu-action@v2
+        uses: docker/setup-qemu-action@v3
         with:
-          platforms: 'arm64,arm,amd64,amd'        
-        
+          platforms: 'arm64,arm,amd64'
+
       - name: Login to Docker Hub
-        uses: docker/login-action@v1
+        uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_PASSWORD }}
-      - name: Set tag
-        id: vars
-        run: echo ::set-output name=imageName::$(echo breedinginsight/brapi-java-server:${{ github.run_number }})
-        
-      - name: Tag develop
-        if: steps.extract_branch.outputs.branch == 'develop'
-        run: echo "streamName=breedinginsight/brapi-java-server:develop" >> $GITHUB_ENV
-      - name: Tag release candidate
-        if: contains(github.ref, '/release/')
-        run: echo "streamName=breedinginsight/brapi-java-server:rc" >> $GITHUB_ENV
-      - name: Tag latest
-        if: steps.extract_branch.outputs.branch == 'brapi-server-v2'
-        run: echo "streamName=breedinginsight/brapi-java-server:latest" >> $GITHUB_ENV
+
+      - name: Determine Docker Tags
+        id: docker_tags
+        shell: bash
+        run: |
+          PR_NUMBER="${{ github.event.inputs.upstream_pr_number }}"
+          IMAGE_BASE_NAME="breedinginsight/brapi-java-server"
+          TAGS=""
+          IS_PR_BUILD="false"
+
+          if [[ -n "$PR_NUMBER" ]]; then
+            echo "This is a PR build. Setting PR-specific tag."
+            PR_TAG="$IMAGE_BASE_NAME:pr-$PR_NUMBER"
+            TAGS="$PR_TAG"
+            IS_PR_BUILD="true"
+          else
+            echo "This is a regular build. Setting standard tags."
+            RUN_NUMBER_TAG="$IMAGE_BASE_NAME:${{ github.run_number }}"
+            TAGS="$RUN_NUMBER_TAG"
+
+            BRANCH_NAME="${{ steps.extract_branch.outputs.branch }}"
+            STREAM_NAME=""
+            if [[ "$BRANCH_NAME" == "develop" ]]; then
+              STREAM_NAME="$IMAGE_BASE_NAME:develop"
+            elif [[ "$BRANCH_NAME" == "brapi-server-v2" ]]; then # Assuming brapi-server-v2 is 'latest'
+              STREAM_NAME="$IMAGE_BASE_NAME:latest"
+            elif [[ "${{ github.ref }}" == refs/heads/release/* ]]; then
+              STREAM_NAME="$IMAGE_BASE_NAME:rc"
+            fi
+
+            if [[ -n "$STREAM_NAME" ]]; then
+              TAGS="$TAGS,$STREAM_NAME" # Comma-separated for docker/build-push-action
+            fi
+          fi
+          echo "Final tags: $TAGS"
+          echo "tags=$TAGS" >> "$GITHUB_OUTPUT"
+          echo "is_pr_build=$IS_PR_BUILD" >> "$GITHUB_OUTPUT"
+
+      # The original 'Set tag' and 'Tag develop/rc/latest' steps are now incorporated into 'Determine Docker Tags'
+      # and are conditioned by is_pr_build logic within that step.
 
       - name: Build Docker and push image
         run: |
-          docker buildx build . --file Dockerfile --tag ${{steps.vars.outputs.imageName}} --tag ${{env.streamName}} --push --platform=linux/arm64,linux/amd64
+          # Note: The `docker/build-push-action` is generally recommended over manual scripting
+          # as it handles tags more robustly. However, to keep the change minimal,
+          # this script adapts the original logic.
+          FORMATTED_TAGS=""
+          IFS=',' read -ra TAG_ARRAY <<< "${{ steps.docker_tags.outputs.tags }}"
+          for tag in "${TAG_ARRAY[@]}"; do
+            FORMATTED_TAGS="$FORMATTED_TAGS --tag $tag"
+          done
+          docker buildx build . --file Dockerfile $FORMATTED_TAGS --push --platform=linux/arm64,linux/amd64

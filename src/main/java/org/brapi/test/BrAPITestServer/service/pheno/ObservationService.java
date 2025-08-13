@@ -5,6 +5,8 @@ import io.swagger.model.pheno.*;
 import jakarta.validation.Valid;
 import org.brapi.test.BrAPITestServer.exceptions.BrAPIServerDbIdNotFoundException;
 import org.brapi.test.BrAPITestServer.exceptions.BrAPIServerException;
+import org.brapi.test.BrAPITestServer.model.dto.ObservationUnitGermplasmData;
+import org.brapi.test.BrAPITestServer.model.entity.BrAPIBaseEntity;
 import org.brapi.test.BrAPITestServer.model.entity.core.SeasonEntity;
 import org.brapi.test.BrAPITestServer.model.entity.core.StudyEntity;
 import org.brapi.test.BrAPITestServer.model.entity.pheno.ObservationEntity;
@@ -14,6 +16,7 @@ import org.brapi.test.BrAPITestServer.repository.pheno.ObservationRepository;
 import org.brapi.test.BrAPITestServer.service.*;
 import org.brapi.test.BrAPITestServer.service.core.SeasonService;
 import org.brapi.test.BrAPITestServer.service.core.StudyService;
+import org.brapi.test.BrAPITestServer.service.germ.GermplasmService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Lazy;
@@ -36,15 +39,17 @@ public class ObservationService {
 	private final ObservationUnitService observationUnitService;
 	private final StudyService studyService;
 	private final ObservationVariableService observationVariableService;
+	private final GermplasmService germplasmService;
 
 	public ObservationService(ObservationRepository observationRepository, SeasonService seasonService,
-			@Lazy ObservationUnitService observationUnitService, StudyService studyService,
-			ObservationVariableService observationVariableService) {
+							  @Lazy ObservationUnitService observationUnitService, StudyService studyService,
+							  ObservationVariableService observationVariableService, GermplasmService germplasmService) {
 		this.observationRepository = observationRepository;
 		this.seasonService = seasonService;
 		this.observationUnitService = observationUnitService;
 		this.studyService = studyService;
 		this.observationVariableService = observationVariableService;
+		this.germplasmService = germplasmService;
 	}
 
 	public List<Observation> findObservations(String observationDbId, String observationUnitDbId, String germplasmDbId,
@@ -166,7 +171,7 @@ public class ObservationService {
 		throws BrAPIServerException {
 		Page<ObservationEntity> page = findObservationEntities(request, metadata);
 		log.debug("converting "+page.getSize()+" entities");
-		List<Observation> observations = page.map(this::convertFromEntity).getContent();
+		List<Observation> observations = convertFromEntitiesInBatch(page.getContent());
 		log.debug("done converting entities");
 		PagingUtility.calculateMetaData(metadata, page);
 		return observations;
@@ -193,10 +198,7 @@ public class ObservationService {
 				.leftJoinFetch("*observationUnit.germplasm", "ouGermplasm")
 				.leftJoinFetch("*ouGermplasm.pedigree", "pedigree")
 				.leftJoinFetch("*observationUnit.study", "ouStudy")
-				.leftJoinFetch("study", "study")
-				.leftJoinFetch("*study.experimentalDesign", "experimentalDesign")
-				.leftJoinFetch("*study.growthFacility", "growthFacility")
-				.leftJoinFetch("*study.lastUpdate", "lastUpdate");
+				.leftJoinFetch("study", "study");
 		if (request.getObservationLevels() != null) {
 			searchQuery = searchQuery
 					.appendEnumList(
@@ -245,13 +247,15 @@ public class ObservationService {
 				.appendList(request.getTrialDbIds(), "trial.id").appendList(request.getTrialNames(), "trial.trialName");
 
 		log.debug("starting search");
-		Page<ObservationEntity> page = observationRepository.findAllBySearchAndPaginate(searchQuery, pageReq);
+		Page<ObservationEntity> observations = observationRepository.findAllBySearchPaginatingWithFetches(searchQuery, pageReq);
+
+		List<UUID> ids = observations.map(BrAPIBaseEntity::getId).toList();
 		log.debug("search complete");
 
-		if(!page.isEmpty()) {
-			observationRepository.fetchXrefs(page, ObservationEntity.class);
+		if(!observations.isEmpty()) {
+			observationRepository.fetchXrefs(ids, observations, ObservationEntity.class);
 		}
-		return page;
+		return observations;
 	}
 
 	public Observation getObservation(String observationDbId) throws BrAPIServerException {
@@ -274,29 +278,24 @@ public class ObservationService {
 		return observation;
 	}
 
-	public List<Observation> saveObservations(@Valid List<ObservationNewRequest> requests) throws BrAPIServerException {
-		List<ObservationEntity> toSave = new ArrayList<>();
-		for (ObservationNewRequest request : requests) {
-			ObservationEntity entity = new ObservationEntity();
-			updateEntity(entity, request);  // TODO: does updateEntity need to hit the database?
-			toSave.add(entity);
-		}
-		return observationRepository.saveAllAndFlush(toSave)
-				.stream()
-				.map(this::convertFromEntity)
-				.collect(Collectors.toList());
+	public List<Observation> saveObservations(@Valid List<ObservationNewRequest> requests) {
+		List<ObservationEntity> toSave = createEntitiesInBatch(requests);
+
+		var savedEntities = observationRepository.saveAll(toSave);
+
+		return convertFromEntitiesInBatch(savedEntities);
 	}
 
 	public List<Observation> updateObservations(@Valid Map<String, ObservationNewRequest> requests)
 			throws BrAPIServerException {
-		List<Observation> savedObservations = new ArrayList<>();
+		List<ObservationEntity> savedObservationEntities = new ArrayList<>();
 
 		for (Entry<String, ObservationNewRequest> entry : requests.entrySet()) {
-			Observation saved = updateObservation(entry.getKey(), entry.getValue());
-			savedObservations.add(saved);
+			ObservationEntity saved = updateObservation(entry.getKey(), entry.getValue());
+			savedObservationEntities.add(saved);
 		}
 
-		return savedObservations;
+		return convertFromEntitiesInBatch(savedObservationEntities);
 	}
 
 	public List<String> deleteObservations(ObservationSearchRequest body, Metadata metadata)
@@ -312,19 +311,51 @@ public class ObservationService {
 		return deletedObservationDbIds;
 	}
 
-	public Observation updateObservation(String observationDbId, ObservationNewRequest request)
+	public ObservationEntity updateObservation(String observationDbId, ObservationNewRequest request)
 			throws BrAPIServerException {
 		ObservationEntity entity = getObservationEntity(observationDbId, HttpStatus.NOT_FOUND);
 		updateEntity(entity, request);
-		ObservationEntity savedEntity = observationRepository.save(entity);
-
-		return convertFromEntity(savedEntity);
+		return observationRepository.save(entity);
 	}
 
+	public Observation updateObservationAndConvert(String observationDbId, ObservationNewRequest request)
+			throws BrAPIServerException {
+		ObservationEntity updatedEntity = updateObservation(observationDbId, request);
+
+		return convertFromEntity(updatedEntity);
+	}
+
+	// For single entity conversion use case
 	public Observation convertFromEntity(ObservationEntity entity) {
-		log.trace("converting obs: " + entity.getId().toString());
-		Observation observation = new Observation();
-		if (entity != null) {
+		return convertFromEntitiesInBatch(List.of(entity)).getFirst();
+	}
+
+	public List<Observation> convertFromEntitiesInBatch(List<ObservationEntity> entities) {
+		return convertFromEntitiesInBatch(entities, null);
+	}
+
+	public List<Observation> convertFromEntitiesInBatch(List<ObservationEntity> entities,
+														Map<UUID, ObservationUnitGermplasmData> germplasmDataByOUId) {
+		var result = new ArrayList<Observation>();
+
+		if (entities.isEmpty()) {
+			return result;
+		}
+
+		if (germplasmDataByOUId == null) {
+			germplasmDataByOUId
+					= observationUnitService.fetchObservationUnitGermplasmData(
+					entities.stream()
+							.filter(obs -> obs.getObservationUnit() != null)
+							.map(obs -> obs.getObservationUnit().getId())
+							.distinct()
+							.toList()
+			);
+		}
+
+		for (ObservationEntity entity : entities) {
+			log.trace("converting obs: " + entity.getId().toString());
+			Observation observation = new Observation();
 			UpdateUtility.convertFromEntity(entity, observation);
 
 			observation.setCollector(entity.getCollector());
@@ -343,11 +374,15 @@ public class ObservationService {
 			observation.setValue(entity.getValue());
 
 			if (entity.getObservationUnit() != null) {
+
 				observation.setObservationUnitDbId(entity.getObservationUnit().getId().toString());
 				observation.setObservationUnitName(entity.getObservationUnit().getObservationUnitName());
-				if (entity.getObservationUnit().getGermplasm() != null) {
-					observation.setGermplasmDbId(entity.getObservationUnit().getGermplasm().getId().toString());
-					observation.setGermplasmName(entity.getObservationUnit().getGermplasm().getGermplasmName());
+
+				var germplasmData = germplasmDataByOUId.get(entity.getObservationUnit().getId());
+
+				if (germplasmData != null) {
+					observation.setGermplasmDbId(germplasmData.getGermplasmDbId());
+					observation.setGermplasmName(germplasmData.getGermplasmName());
 				}
 				if (entity.getObservationUnit().getStudy() != null) {
 					observation.setStudyDbId(entity.getObservationUnit().getStudy().getId().toString());
@@ -356,9 +391,10 @@ public class ObservationService {
 				observation.setStudyDbId(entity.getStudy().getId().toString());
 			}
 
+			result.add(observation);
 		}
 
-		return observation;
+		return result;
 	}
 
 	private void updateEntity(ObservationEntity entity, ObservationNewRequest observation) throws BrAPIServerException {
@@ -392,6 +428,90 @@ public class ObservationService {
 			StudyEntity study = studyService.getStudyEntity(observation.getStudyDbId());
 			entity.setStudy(study);
 		}
+	}
+
+	private List<ObservationEntity> createEntitiesInBatch(List<ObservationNewRequest> observations) {
+
+		List<String> observationVarIds = observations.stream()
+				.map(ObservationNewRequest::getObservationVariableDbId)
+				.filter(Objects::nonNull)
+				.distinct()
+				.toList();
+
+		List<String> seasonIds = observations.stream()
+				.map(obs -> {
+					if (obs.getSeason() != null && obs.getSeason().getSeasonDbId() != null) {
+						return obs.getSeason().getSeasonDbId();
+					}
+
+					return null;
+				})
+				.filter(Objects::nonNull)
+				.distinct()
+				.toList();
+
+		List<String> observationUnitIds = observations.stream()
+				.map(ObservationNewRequest::getObservationUnitDbId)
+				.filter(Objects::nonNull)
+				.distinct()
+				.toList();
+
+		List<String> studyIds = observations.stream()
+				.map(ObservationNewRequest::getStudyDbId)
+				.filter(Objects::nonNull)
+				.distinct()
+				.toList();
+
+		Map<String, ObservationVariableEntity> foundObsVarsById = observationVariableService.findByIds(observationVarIds)
+				.stream()
+				.collect(Collectors.toMap(e -> e.getId().toString(), e -> e));
+
+		Map<String, SeasonEntity> foundSeasonsById = seasonService.findByIds(seasonIds)
+				.stream()
+				.collect(Collectors.toMap(e -> e.getId().toString(), e -> e));
+
+		Map<String, ObservationUnitEntity> foundObsUnitsById = observationUnitService.findByIds(observationUnitIds)
+				.stream()
+				.collect(Collectors.toMap(e -> e.getId().toString(), e -> e));
+
+		Map<String, StudyEntity> foundStudiesById = studyService.findByIds(studyIds)
+				.stream()
+				.collect(Collectors.toMap(e -> e.getId().toString(), e -> e));
+
+		var result = new ArrayList<ObservationEntity>();
+
+		for (ObservationNewRequest observation : observations) {
+			var entity = new ObservationEntity();
+
+			UpdateUtility.updateEntity(observation, entity);
+
+			if (observation.getCollector() != null)
+				entity.setCollector(observation.getCollector());
+			if (observation.getGeoCoordinates() != null)
+				entity.setGeoCoordinates(GeoJSONUtility.convertToEntity(observation.getGeoCoordinates()));
+			if (observation.getObservationTimeStamp() != null)
+				entity.setObservationTimeStamp(DateUtility.toDate(observation.getObservationTimeStamp()));
+			if (observation.getObservationVariableDbId() != null) {
+				entity.setObservationVariable(foundObsVarsById.get(observation.getObservationVariableDbId()));
+			}
+			if (observation.getSeason() != null && observation.getSeason().getSeasonDbId() != null) {
+				entity.setSeason(foundSeasonsById.get(observation.getSeason().getSeasonDbId()));
+			}
+			if (observation.getUploadedBy() != null)
+				entity.setUploadedBy(observation.getUploadedBy());
+			if (observation.getValue() != null)
+				entity.setValue(observation.getValue());
+
+			if (observation.getObservationUnitDbId() != null) {
+				entity.setObservationUnit(foundObsUnitsById.get(observation.getObservationUnitDbId()));
+			} else if (observation.getStudyDbId() != null) {
+				entity.setStudy(foundStudiesById.get(observation.getStudyDbId()));
+			}
+
+			result.add(entity);
+		}
+
+		return result;
 	}
 
 	private List<List<String>> buildDataMatrix(Page<ObservationEntity> observations,
