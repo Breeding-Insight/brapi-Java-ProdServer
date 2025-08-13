@@ -539,7 +539,11 @@ FROM
 WHERE
 	study_observation_level.level_name = 'sample';
 
--- TODO: Uncomment once the app has been tested
---ALTER TABLE observation_unit_position DROP COLUMN level_name, DROP COLUMN level_order, RENAME COLUMN level_name_new level_name
---ALTER TABLE observation_unit_level DROP COLUMN level_name, DROP COLUMN level_order, RENAME COLUMN level_name_new level_name
---ALTER TABLE study_observation_level DROP COLUMN level_name, DROP COLUMN level_order, RENAME COLUMN level_name_new level_name
+ALTER TABLE observation_unit_position DROP COLUMN level_name, DROP COLUMN level_order;
+ALTER TABLE observation_unit_position RENAME COLUMN level_name_new TO level_name;
+
+ALTER TABLE observation_unit_level DROP COLUMN level_name, DROP COLUMN level_order;
+ALTER TABLE observation_unit_level RENAME COLUMN level_name_new TO level_name;
+
+ALTER TABLE study_observation_level DROP COLUMN level_name, DROP COLUMN level_order;
+ALTER TABLE study_observation_level RENAME COLUMN level_name_new TO level_name;

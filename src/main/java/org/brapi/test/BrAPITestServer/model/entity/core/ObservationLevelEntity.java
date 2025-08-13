@@ -9,7 +9,7 @@ import org.brapi.test.BrAPITestServer.model.entity.pheno.ObservationUnitLevelNam
 public class ObservationLevelEntity extends BrAPIBaseEntity {
 
 	@ManyToOne
-	@JoinColumn(name = "level_name_new")
+	@JoinColumn(name = "level_name")
 	private ObservationUnitLevelNameEntity levelName;
 	@ManyToOne(fetch = FetchType.LAZY)
 	private StudyEntity study;

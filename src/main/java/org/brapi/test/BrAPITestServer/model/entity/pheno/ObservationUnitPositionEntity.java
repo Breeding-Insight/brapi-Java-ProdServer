@@ -18,7 +18,7 @@ public class ObservationUnitPositionEntity extends BrAPIBaseEntity {
     @Column
     private String levelCode;
     @ManyToOne
-    @JoinColumn(name = "level_name_new")
+    @JoinColumn(name = "level_name")
     private ObservationUnitLevelNameEntity levelName;
     @OneToMany(mappedBy = "position", cascade = CascadeType.ALL)
     private List<ObservationUnitLevelRelationshipEntity> observationLevelRelationships;

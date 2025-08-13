@@ -13,4 +13,4 @@ ALTER TABLE study_observation_level
     ADD COLUMN level_name TEXT,
     ADD COLUMN level_order INTEGER;
 
-DROP TABLE observation_unit_level_name;;
+DROP TABLE observation_unit_level_name;

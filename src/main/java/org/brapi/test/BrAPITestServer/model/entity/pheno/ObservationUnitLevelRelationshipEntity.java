@@ -9,7 +9,7 @@ public class ObservationUnitLevelRelationshipEntity extends BrAPIBaseEntity {
 	@Column
 	private String levelCode;
 	@ManyToOne
-	@JoinColumn(name = "level_name_new")
+	@JoinColumn(name = "level_name")
 	private ObservationUnitLevelNameEntity levelName;
 	@ManyToOne(fetch = FetchType.LAZY)
 	private ObservationUnitEntity observationUnit;
