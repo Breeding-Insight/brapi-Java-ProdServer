@@ -10,7 +10,6 @@ import org.brapi.test.BrAPITestServer.model.entity.core.TrialEntity;
 import org.brapi.test.BrAPITestServer.model.entity.germ.CrossEntity;
 import org.brapi.test.BrAPITestServer.model.entity.germ.GermplasmEntity;
 import org.brapi.test.BrAPITestServer.model.entity.germ.SeedLotEntity;
-import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.Where;
 
 import java.util.List;
@@ -29,7 +28,6 @@ public class ObservationUnitEntity extends BrAPIPrimaryEntity {
 	private String observationUnitPUI;
 	@ManyToOne(fetch = FetchType.LAZY)
 	private SeedLotEntity seedLot;
-	@BatchSize(size = 50)
 	@OneToMany(mappedBy="observationUnit", cascade=CascadeType.ALL)
 	private List<TreatmentEntity> treatments;
 	@OneToOne(mappedBy="observationUnit", cascade=CascadeType.ALL, fetch = FetchType.LAZY)
@@ -42,7 +40,6 @@ public class ObservationUnitEntity extends BrAPIPrimaryEntity {
 	private TrialEntity trial;
 	@ManyToOne(fetch = FetchType.LAZY)
 	private StudyEntity study;
-	@BatchSize(size = 50)
 	@OneToMany(mappedBy="observationUnit", cascade=CascadeType.ALL, fetch = FetchType.LAZY)
 	private List<ObservationEntity> observations;
 	

@@ -121,7 +121,7 @@ public class ObservationsApiController extends BrAPIController implements Observ
 		log.debug("Request: " + request.getRequestURI());
 		validateSecurityContext(request, "ROLE_USER");
 		validateAcceptHeader(request);
-		Observation data = observationService.updateObservationAndConvert(observationDbId, body);
+		Observation data = observationService.updateObservation(observationDbId, body);
 		return responseOK(new ObservationSingleResponse(), data);
 	}
 

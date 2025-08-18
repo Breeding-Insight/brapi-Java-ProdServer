@@ -14,7 +14,6 @@ import jakarta.persistence.TypedQuery;
 import org.brapi.test.BrAPITestServer.exceptions.InvalidPagingException;
 import org.brapi.test.BrAPITestServer.model.entity.BrAPIPrimaryEntity;
 import org.brapi.test.BrAPITestServer.model.entity.ExternalReferenceEntity;
-import org.brapi.test.BrAPITestServer.model.entity.germ.GermplasmEntity;
 import org.brapi.test.BrAPITestServer.service.SearchQueryBuilder;
 import org.brapi.test.BrAPITestServer.service.SecurityUtils;
 
@@ -142,17 +141,17 @@ public class BrAPIRepositoryImpl<T extends BrAPIPrimaryEntity, ID extends Serial
 		this.entityManager.refresh(entity);
 	}
 
-	public void fetchXrefs(List<UUID> ids, Page<T> pagedEntities, Class<T> searchClass) {
-		SearchQueryBuilder<T> searchQuery = new SearchQueryBuilder<>(searchClass);
+	public void fetchXrefs(Page<T> page, Class<T> searchClass) throws InvalidPagingException {
+		SearchQueryBuilder<T> searchQuery = new SearchQueryBuilder<T>(searchClass);
 		searchQuery.leftJoinFetch("externalReferences", "externalReferences")
-				   .appendIds(ids);
+				   .appendList(page.stream().map(p -> p.getId().toString()).collect(Collectors.toList()), "id");
 
-		List<T> xrefs = findAllBySearch(searchQuery);
+		Page<T> xrefs = findAllBySearchAndPaginate(searchQuery, PageRequest.of(0, page.getSize()));
 
 		Map<UUID, List<ExternalReferenceEntity>> xrefByEntity = new HashMap<>();
 		xrefs.forEach(entity -> xrefByEntity.put(entity.getId(), entity.getExternalReferences()));
 
-		pagedEntities.forEach(entity -> entity.setExternalReferences(xrefByEntity.get(entity.getId())));
+		page.forEach(entity -> entity.setExternalReferences(xrefByEntity.get(entity.getId())));
 	}
 
 	private void applyUserId(SearchQueryBuilder<T> searchQuery) {

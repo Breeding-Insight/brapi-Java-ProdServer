@@ -143,16 +143,6 @@ public class SeedLotService {
 		return null;
 	}
 
-	public List<SeedLotEntity> findByIds(List<String> seedLotsIds) {
-		var result = new ArrayList<SeedLotEntity>();
-
-		if (seedLotsIds.isEmpty())  {
-			return result;
-		}
-
-		return seedLotRepository.findByIdIn(seedLotsIds.stream().map(UUID::fromString).toList());
-	}
-
 	public List<SeedLotTransaction> findSeedLotTransactions(String transactionDbId, String seedLotDbId,
 			String germplasmDbId, String germplasmName, String crossDbId, String crossName, String commonCropName,
 			String programDbId, String externalReferenceId, String externalReferenceID, String externalReferenceSource,

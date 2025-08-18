@@ -2,12 +2,10 @@ package org.brapi.test.BrAPITestServer.service.pheno;
 
 import io.swagger.model.IndexPagination;
 import io.swagger.model.Metadata;
-import io.swagger.model.germ.GermplasmSearchRequest;
 import io.swagger.model.pheno.*;
 import jakarta.validation.Valid;
 import org.brapi.test.BrAPITestServer.exceptions.BrAPIServerDbIdNotFoundException;
 import org.brapi.test.BrAPITestServer.exceptions.BrAPIServerException;
-import org.brapi.test.BrAPITestServer.model.dto.ObservationUnitGermplasmData;
 import org.brapi.test.BrAPITestServer.model.entity.BrAPIBaseEntity;
 import org.brapi.test.BrAPITestServer.model.entity.core.ProgramEntity;
 import org.brapi.test.BrAPITestServer.model.entity.core.StudyEntity;
@@ -31,6 +29,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -194,16 +193,6 @@ public class ObservationUnitService {
 		return observationUnits;
 	}
 
-	public List<ObservationUnitEntity> findByIds(List<String> observationUnitIds) {
-		var result = new ArrayList<ObservationUnitEntity>();
-
-		if (!observationUnitIds.isEmpty()) {
-			return observationUnitRepository.findByIds(observationUnitIds);
-		}
-
-		return result;
-	}
-
 	public Page<ObservationUnitEntity> findObservationUnitEntities(@Valid ObservationUnitSearchRequest request,
 			Metadata metadata)
 		throws BrAPIServerException {
@@ -229,8 +218,8 @@ public class ObservationUnitService {
 
 		if (request.getObservationVariableDbIds() != null || request.getObservationVariableNames() != null) {
 			searchQuery = searchQuery.join("observations", "observation")
-					.appendList(request.getObservationVariableDbIds(), "*observation.observationVariable.id")
-					.appendList(request.getObservationVariableNames(), "*observation.observationVariable.name");
+					.appendList(request.getObservationVariableDbIds(), "*observation.variable.id")
+					.appendList(request.getObservationVariableNames(), "*observation.variable.name");
 		}
 		if (request.getSeasonDbIds() != null) {
 			searchQuery = searchQuery.join("study.seasons", "season").appendList(request.getSeasonDbIds(),
@@ -276,41 +265,41 @@ public class ObservationUnitService {
 				.appendList(request.getTrialNames(), "trial.trailName");
 
 		log.debug("Starting search");
-		Page<ObservationUnitEntity> observationsUnits = observationUnitRepository.findAllBySearchPaginatingWithFetches(searchQuery, pageReq);
-
-		List<UUID> ids = observationsUnits.map(BrAPIBaseEntity::getId).toList();
+		Page<ObservationUnitEntity> page = observationUnitRepository.findAllBySearchAndPaginate(searchQuery, pageReq);
 		log.debug("Search complete");
 
-		if(!observationsUnits.isEmpty()) {
-			observationUnitRepository.fetchXrefs(ids, observationsUnits, ObservationUnitEntity.class);
-			fetchTreatments(ids, observationsUnits);
-			fetchObsUnitLevelRelationships(ids, observationsUnits);
+		if(!page.isEmpty()) {
+			observationUnitRepository.fetchXrefs(page, ObservationUnitEntity.class);
+			fetchTreatments(page);
+			fetchObsUnitLevelRelationships(page);
 		}
-		return observationsUnits;
+		return page;
 	}
 
-	private void fetchTreatments(List<UUID> ids, Page<ObservationUnitEntity> pagedOUs) {
+	private void fetchTreatments(Page<ObservationUnitEntity> page)
+		throws BrAPIServerException {
 		SearchQueryBuilder<ObservationUnitEntity> searchQuery = new SearchQueryBuilder<ObservationUnitEntity>(
 				ObservationUnitEntity.class);
 		searchQuery.leftJoinFetch("treatments", "treatments")
-				   .appendIds(ids);
+				   .appendList(page.stream().map(oue -> oue.getId().toString()).collect(Collectors.toList()), "id");
 
-		List<ObservationUnitEntity> treatments = observationUnitRepository.findAllBySearch(searchQuery);
+		Page<ObservationUnitEntity> treatments = observationUnitRepository.findAllBySearchAndPaginate(searchQuery, PageRequest.of(0, page.getSize()));
 
 		Map<String, List<TreatmentEntity>> treatmentsByOu = new HashMap<>();
 		treatments.forEach(ou -> treatmentsByOu.put(ou.getId().toString(), ou.getTreatments()));
 
-		pagedOUs.forEach(ou -> ou.setTreatments(treatmentsByOu.get(ou.getId().toString())));
+		page.forEach(ou -> ou.setTreatments(treatmentsByOu.get(ou.getId().toString())));
 	}
 
-	private void fetchObsUnitLevelRelationships(List<UUID> ids, Page<ObservationUnitEntity> page) {
+	private void fetchObsUnitLevelRelationships(Page<ObservationUnitEntity> page)
+		throws BrAPIServerException {
 		SearchQueryBuilder<ObservationUnitEntity> searchQuery = new SearchQueryBuilder<ObservationUnitEntity>(
 				ObservationUnitEntity.class);
 		searchQuery.leftJoinFetch("position", "position")
 				   .leftJoinFetch("*position.observationLevelRelationships", "observationLevelRelationships")
-				   .appendIds(ids);
+				   .appendList(page.stream().map(oue -> oue.getId().toString()).collect(Collectors.toList()), "id");
 
-		List<ObservationUnitEntity> positions = observationUnitRepository.findAllBySearch(searchQuery);
+		Page<ObservationUnitEntity> positions = observationUnitRepository.findAllBySearchAndPaginate(searchQuery, PageRequest.of(0, page.getSize()));
 
 		Map<String, ObservationUnitPositionEntity> positionByOu = new HashMap<>();
 		positions.forEach(ou -> positionByOu.put(ou.getId().toString(), ou.getPosition()));
@@ -349,9 +338,14 @@ public class ObservationUnitService {
 
 	public List<ObservationUnit> saveObservationUnits(@Valid List<ObservationUnitNewRequest> requests)
 			throws BrAPIServerException {
-		var toSave = createEntitiesInBatch(requests);
+		List<ObservationUnitEntity> toSave = new ArrayList<>();
+		for (ObservationUnitNewRequest request : requests) {
+			ObservationUnitEntity entity = new ObservationUnitEntity();
+			updateEntity(entity, request);  // TODO: does updateEntity need to hit the database?
+			toSave.add(entity);
+		}
 
-		return observationUnitRepository.saveAll(toSave)
+		return observationUnitRepository.saveAllAndFlush(toSave)
 				.stream()
 				.map(this::convertFromEntity)
 				.collect(Collectors.toList());
@@ -632,137 +626,6 @@ public class ObservationUnitService {
 		if (position.getPositionCoordinateYType() != null)
 			entity.setPositionCoordinateYType(position.getPositionCoordinateYType());
 
-	}
-
-	private List<ObservationUnitEntity> createEntitiesInBatch(List<ObservationUnitNewRequest> obsUnits)
-		throws BrAPIServerException {
-		// Gather all IDs we want to look up in a bulk lookup.
-		List<String> germplasmIds = obsUnits.stream()
-				.map(ObservationUnitNewRequest::getGermplasmDbId)
-				.filter(Objects::nonNull)
-				.distinct()
-				.toList();
-
-		List<String> crossIds = obsUnits.stream()
-				.map(ObservationUnitNewRequest::getCrossDbId)
-				.filter(Objects::nonNull)
-				.distinct()
-				.toList();
-
-		List<String> seedLotIds = obsUnits.stream()
-				.map(ObservationUnitNewRequest::getSeedLotDbId)
-				.filter(Objects::nonNull)
-				.distinct()
-				.toList();
-
-		List<String> studyIds = obsUnits.stream()
-				.map(ObservationUnitNewRequest::getStudyDbId)
-				.filter(Objects::nonNull)
-				.distinct()
-				.toList();
-
-		List<String> trialIds = obsUnits.stream()
-				.map(ObservationUnitNewRequest::getTrialDbId)
-				.filter(Objects::nonNull)
-				.distinct()
-				.toList();
-
-		List<String> programIds = obsUnits.stream()
-				.map(ObservationUnitNewRequest::getProgramDbId)
-				.filter(Objects::nonNull)
-				.distinct()
-				.toList();
-
-		// Now lookup all the IDs in bulk, creating a Map of the ID to the entity so the entities are easily
-		// retrievable by IDs in the bulk creating of entities later.
-		Map<String, GermplasmEntity> foundGermsById = germplasmService.findByIds(germplasmIds)
-				.stream()
-				.collect(Collectors.toMap(e -> e.getId().toString(), e -> e));
-
-		Map<String, CrossEntity> foundCrossesById = crossService.findByIds(crossIds)
-				.stream()
-				.collect(Collectors.toMap(e -> e.getId().toString(), e -> e));
-
-		Map<String, SeedLotEntity> foundSeedLotsById = seedLotService.findByIds(seedLotIds)
-				.stream()
-				.collect(Collectors.toMap(e -> e.getId().toString(), e -> e));
-
-		Map<String, StudyEntity> foundStudiesById = studyService.findByIds(studyIds)
-				.stream()
-				.collect(Collectors.toMap(e -> e.getId().toString(), e -> e));
-
-		Map<String, TrialEntity> foundTrialsById = trialService.findByIds(trialIds)
-				.stream()
-				.collect(Collectors.toMap(e -> e.getId().toString(), e -> e));
-
-		Map<String, ProgramEntity> foundProgramsById = programService.findByIds(programIds)
-				.stream()
-				.collect(Collectors.toMap(e -> e.getId().toString(), e -> e));
-
-		List<ObservationUnitEntity> result = new ArrayList<>();
-
-		for (ObservationUnitNewRequest obsUnit : obsUnits) {
-			var entity = new ObservationUnitEntity();
-
-			UpdateUtility.updateEntity(obsUnit, entity);
-
-			if (obsUnit.getGermplasmDbId() != null) {
-				entity.setGermplasm(foundGermsById.get(obsUnit.getGermplasmDbId()));
-			}
-			if (obsUnit.getCrossDbId() != null) {
-				entity.setCross(foundCrossesById.get(obsUnit.getCrossDbId()));
-			}
-			if (obsUnit.getObservationUnitName() != null)
-				entity.setObservationUnitName(obsUnit.getObservationUnitName());
-			if (obsUnit.getObservationUnitPUI() != null)
-				entity.setObservationUnitPUI(obsUnit.getObservationUnitPUI());
-			if (obsUnit.getObservationUnitPosition() != null) {
-				if (entity.getPosition() == null)
-					entity.setPosition(new ObservationUnitPositionEntity());
-				ObservationUnitPositionEntity position = entity.getPosition();
-				updateEntity(position, obsUnit.getObservationUnitPosition());
-				position.setObservationUnit(entity);
-				entity.setPosition(position);
-			}
-			if (obsUnit.getSeedLotDbId() != null) {
-				entity.setSeedLot(foundSeedLotsById.get(obsUnit.getSeedLotDbId()));
-			}
-			if (obsUnit.getTreatments() != null)
-				entity.setTreatments(obsUnit.getTreatments().stream().map(t -> {
-					TreatmentEntity e = new TreatmentEntity();
-					e.setFactor(t.getFactor());
-					e.setModality(t.getModality());
-					e.setObservationUnit(entity);
-					return e;
-				}).collect(Collectors.toList()));
-
-			if (obsUnit.getStudyDbId() != null) {
-				entity.setStudy(foundStudiesById.get(obsUnit.getStudyDbId()));
-			} else if (obsUnit.getTrialDbId() != null) {
-				entity.setTrial(foundTrialsById.get(obsUnit.getTrialDbId()));
-			} else if (obsUnit.getProgramDbId() != null) {
-				entity.setProgram(foundProgramsById.get(obsUnit.getProgramDbId()));
-			}
-
-			result.add(entity);
-		}
-
-		return result;
-	}
-
-	public Map<UUID, ObservationUnitGermplasmData> fetchObservationUnitGermplasmData(List<UUID> ouIds) {
-
-		if (ouIds.isEmpty()) {
-			return new HashMap<>();
-		}
-
-		var databaseResults = observationUnitRepository.fetchGermplasmDataForOUs(ouIds);
-
-		return databaseResults.stream()
-				.collect((Collectors.toMap(
-						rs -> (UUID) rs[0],
-						rs -> new ObservationUnitGermplasmData(rs[1].toString(), rs[2].toString()))
-				));
 	}
 
 	private List<List<String>> buildDataMatrix(Page<ObservationUnitEntity> observationUnits,

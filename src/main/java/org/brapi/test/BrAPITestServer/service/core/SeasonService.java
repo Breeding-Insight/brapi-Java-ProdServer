@@ -109,16 +109,6 @@ public class SeasonService {
 		return season;
 	}
 
-	public List<SeasonEntity> findByIds(List<String> seasonIds) {
-		var result = new ArrayList<SeasonEntity>();
-
-		if (!seasonIds.isEmpty()) {
-			return seasonRepository.findByIdIn(seasonIds.stream().map(UUID::fromString).toList());
-		}
-
-		return result;
-	}
-
 	private void updateEntity(SeasonEntity entity, Season request) {
 		if (request.getSeasonName() != null)
 			entity.setSeason(request.getSeasonName());

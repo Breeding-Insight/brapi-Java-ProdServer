@@ -3,7 +3,6 @@ package org.brapi.test.BrAPITestServer.repository;
 import java.io.Serializable;
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 
 import org.brapi.test.BrAPITestServer.exceptions.InvalidPagingException;
 import org.brapi.test.BrAPITestServer.model.entity.BrAPIPrimaryEntity;
@@ -31,7 +30,7 @@ public interface BrAPIRepository<T extends BrAPIPrimaryEntity, ID extends Serial
 	
 	public <S extends T> void refresh(S entity);
 
-	public void fetchXrefs(List<UUID> page, Page<T> pagedEntities, Class<T> searchClass) throws InvalidPagingException;
+	public void fetchXrefs(Page<T> page, Class<T> searchClass) throws InvalidPagingException;
 
 	List<T> findByIdIn(List<ID> ids);
 }

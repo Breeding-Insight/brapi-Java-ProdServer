@@ -226,16 +226,6 @@ public class ObservationVariableService {
 		var.setTrait(traitService.convertFromEntity(entity.getTrait()));
 	}
 
-	public List<ObservationVariableEntity> findByIds(List<String> obsVarIds) {
-		var result = new ArrayList<ObservationVariableEntity>();
-
-		if (!obsVarIds.isEmpty()) {
-			return observationVariableRepository.findByIdIn(obsVarIds.stream().map(UUID::fromString).toList());
-		}
-
-		return result;
-	}
-
 	private void updateEntity(ObservationVariableEntity entity, ObservationVariableNewRequest request)
 			throws BrAPIServerException {
 		updateBaseEntity(entity, request);

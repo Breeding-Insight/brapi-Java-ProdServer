@@ -12,11 +12,6 @@ import java.util.List;
 
 @Entity
 @Table(name = "study")
-@SecondaryTables({
-        @SecondaryTable(name = "study_experimental_design", pkJoinColumns = @PrimaryKeyJoinColumn(name = "study_id")),
-        @SecondaryTable(name = "study_growth_facility", pkJoinColumns = @PrimaryKeyJoinColumn(name = "study_id")),
-        @SecondaryTable(name = "study_last_update", pkJoinColumns = @PrimaryKeyJoinColumn(name = "study_id"))
-})
 @Where(clause = "soft_deleted = false")
 public class StudyEntity extends BrAPIPrimaryEntity {
 
@@ -37,11 +32,11 @@ public class StudyEntity extends BrAPIPrimaryEntity {
 	private Date endDate;
 	@OneToMany(mappedBy = "study")
 	private List<EnvironmentParametersEntity> environmentParameters;
-	@Embedded
+	@OneToOne(mappedBy = "study", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
 	private ExperimentalDesignEntity experimentalDesign;
-	@Embedded
+	@OneToOne(mappedBy = "study", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
 	private GrowthFacilityEntity growthFacility;
-	@Embedded
+	@OneToOne(mappedBy = "study", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
 	private StudyLastUpdateEntity lastUpdate;
 	@Column
 	private String license;

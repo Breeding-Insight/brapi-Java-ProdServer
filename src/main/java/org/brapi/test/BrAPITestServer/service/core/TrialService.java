@@ -135,16 +135,6 @@ public class TrialService {
 		return trials;
 	}
 
-	public List<TrialEntity> findByIds(List<String> trialDbIds) {
-		var result = new ArrayList<TrialEntity>();
-
-		if (trialDbIds.isEmpty()) {
-			return result;
-		}
-
-		return trialRepository.findByIdIn(trialDbIds.stream().map(UUID::fromString).toList());
-	}
-
 	public Trial getTrial(String trialDbId) throws BrAPIServerException {
 		return convertFromEntity(getTrialEntity(trialDbId, HttpStatus.NOT_FOUND));
 	}
