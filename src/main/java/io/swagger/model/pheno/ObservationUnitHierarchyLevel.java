@@ -2,7 +2,7 @@ package io.swagger.model.pheno;
 
 import java.util.Objects;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class ObservationUnitHierarchyLevel {
@@ -17,10 +17,12 @@ public class ObservationUnitHierarchyLevel {
 	private Integer levelOrder = null;
 
 	@JsonProperty("programDbId")
+	@JsonInclude(JsonInclude.Include.NON_NULL)
 	private String programDbId = null;
 
 	// NOTE: This property is NOT used for lookups, only responses.
 	@JsonProperty("programName")
+	@JsonInclude(JsonInclude.Include.NON_NULL)
 	private String programName = null;
 
 	public String getLevelNameDbId() {

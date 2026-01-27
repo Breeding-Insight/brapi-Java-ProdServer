@@ -12,7 +12,7 @@ import java.util.List;
 @javax.annotation.processing.Generated(value = "io.swagger.codegen.v3.generators.java.SpringCodegen", date = "2024-05-21T16:32:22.556Z[GMT]")
 @Api(value = "observationlevelnames", description = "the observationlevelnames API")
 public interface ObservationLevelNamesApi {
-    @ApiOperation(value = "Get the Observation Level Names", nickname = "observationlevelnamesGet", notes = "Call to retrieve the list of supported observation level names.   Observation levels indicate the granularity level at which the measurements are taken. `levelName` defines the level, `levelOrder` defines where that level exists in the hierarchy of levels. `levelOrder`s lower numbers are at the top of the hierarchy (ie field > 0) and higher numbers are at the bottom of the hierarchy (ie plant > 6).   The values are used to supply the `observationLevel` parameter in the observation unit details call.", response = ObservationLevelListResponse.class, authorizations = {
+    @ApiOperation(value = "Get the Observation Level Names", nickname = "observationlevelnamesGet", notes = "Call to retrieve the list of supported observation level names", response = ObservationLevelListResponse.class, authorizations = {
             @Authorization(value = "AuthorizationToken") }, tags = { "Observation level names", })
     @ApiResponses(value = { @ApiResponse(code = 200, message = "OK", response = ObservationLevelListResponse.class),
             @ApiResponse(code = 400, message = "Bad Request", response = String.class),
@@ -25,7 +25,7 @@ public interface ObservationLevelNamesApi {
             @ApiParam(value = "HTTP HEADER - Token used for Authorization   <strong> Bearer {token_string} </strong>") @RequestHeader(value = "Authorization", required = false) String authorization)
             throws BrAPIServerException;
 
-    @ApiOperation(value = "Get the Observation Level Names", nickname = "observationlevelnamesGet", notes = "Call to save a list of observation level names", response = ObservationLevelListResponse.class, authorizations = {
+    @ApiOperation(value = "Create Observation Level Names", nickname = "observationlevelnamesPost", notes = "Call to save a list of observation level names", response = ObservationLevelListResponse.class, authorizations = {
             @Authorization(value = "AuthorizationToken") }, tags = { "Observation level names", })
     @ApiResponses(value = { @ApiResponse(code = 200, message = "OK", response = ObservationLevelListResponse.class),
             @ApiResponse(code = 400, message = "Bad Request", response = String.class),
@@ -37,7 +37,7 @@ public interface ObservationLevelNamesApi {
             @ApiParam(value = "HTTP HEADER - Token used for Authorization   <strong> Bearer {token_string} </strong>") @RequestHeader(value = "Authorization", required = false) String authorization)
             throws BrAPIServerException;
 
-    @ApiOperation(value = "Get the Observation Level Names", nickname = "observationlevelnamesGet", notes = "Call to save a list of observation level names", response = ObservationLevelListResponse.class, authorizations = {
+    @ApiOperation(value = "Delete Observation Level Names", nickname = "observationlevelnamesGet", notes = "Call to delete a list of observation level names", response = ObservationLevelListResponse.class, authorizations = {
             @Authorization(value = "AuthorizationToken") }, tags = { "Observation level names", })
     @ApiResponses(value = { @ApiResponse(code = 200, message = "OK", response = ObservationLevelListResponse.class),
             @ApiResponse(code = 400, message = "Bad Request", response = String.class),
