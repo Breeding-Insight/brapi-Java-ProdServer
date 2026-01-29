@@ -9,6 +9,10 @@ CREATE TABLE observation_unit_level_name (
      CONSTRAINT observation_unit_level_name_program_fk FOREIGN KEY(program_id) REFERENCES program(id)
 );
 
+CREATE UNIQUE INDEX lvl_name_global_unique_idx
+    ON observation_unit_level_name (level_name)
+    WHERE program_id IS NULL;
+
 CREATE UNIQUE INDEX lvl_name_program_id_idx ON observation_unit_level_name (level_name, program_id);
 
 -- Set legacy level names
