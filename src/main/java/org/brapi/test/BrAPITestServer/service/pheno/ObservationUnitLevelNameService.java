@@ -5,11 +5,14 @@ import io.swagger.model.pheno.ObservationUnitHierarchyLevel;
 import org.apache.commons.lang3.StringUtils;
 import org.brapi.test.BrAPITestServer.exceptions.BrAPIServerDbIdNotFoundException;
 import org.brapi.test.BrAPITestServer.exceptions.BrAPIServerException;
+import org.brapi.test.BrAPITestServer.exceptions.ExceptionUtils;
 import org.brapi.test.BrAPITestServer.model.entity.core.ProgramEntity;
 import org.brapi.test.BrAPITestServer.model.entity.pheno.ObservationUnitLevelNameEntity;
 import org.brapi.test.BrAPITestServer.repository.baseEntities.ObservationUnitLevelNameRepository;
 import org.brapi.test.BrAPITestServer.service.core.ProgramService;
+import org.postgresql.util.PSQLException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
@@ -221,7 +224,18 @@ public class ObservationUnitLevelNameService {
     public List<ObservationUnitHierarchyLevel> save(List<ObservationLevelNewRequest> request)
         throws BrAPIServerException {
         List<ObservationUnitLevelNameEntity> entities = convertToEntitiesInBatch(request);
-        List<ObservationUnitLevelNameEntity> savedEntities = observationUnitLevelNameRepository.saveAll(entities);
+
+        List<ObservationUnitLevelNameEntity> savedEntities = null;
+
+        try {
+            savedEntities = observationUnitLevelNameRepository.saveAll(entities);
+        } catch (DataIntegrityViolationException e) {
+            ExceptionUtils.checkForPSQLConflict(e.getMostSpecificCause());
+
+            // If a conflict didn't occur, something else happened on the DB server.  Throw a 500 and attach the root cause to the message.
+            throw new BrAPIServerException(HttpStatus.INTERNAL_SERVER_ERROR, String.format("An DB error occurred while processing level names %s\n\n%s", request, e.getMostSpecificCause()));
+        }
+
         return convertFromEntitiesInBatch(savedEntities);
     }
 
