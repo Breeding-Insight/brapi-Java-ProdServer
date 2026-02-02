@@ -3,11 +3,13 @@ package org.brapi.test.BrAPITestServer.controller.pheno;
 
 import io.swagger.annotations.ApiParam;
 import io.swagger.api.pheno.ObservationLevelNamesApi;
+import io.swagger.model.Metadata;
 import io.swagger.model.pheno.*;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.brapi.test.BrAPITestServer.controller.core.BrAPIController;
 import org.brapi.test.BrAPITestServer.exceptions.BrAPIServerException;
+import org.brapi.test.BrAPITestServer.service.PagingUtility;
 import org.brapi.test.BrAPITestServer.service.pheno.ObservationUnitLevelNameService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,15 +44,23 @@ public class ObservationLevelNamesApiController extends BrAPIController
             @RequestParam(value = "programDbId", required = false) String programDbId,
             // Used to grab all the Observation Level Names in the system, both global, and all level names for all params
             @RequestParam(value = "all", required = false) Boolean all,
+            @RequestParam(value = "page", required = false) Integer page,
+            @RequestParam(value = "pageSize", required = false) Integer pageSize,
             @RequestHeader(value = "Authorization", required = false) String authorization)
             throws BrAPIServerException {
 
         log.debug("Request: " + request.getRequestURI());
         validateSecurityContext(request, "ROLE_ANONYMOUS", "ROLE_USER");
         validateAcceptHeader(request);
+
+        Metadata metadata = generateMetaDataTemplate(page, pageSize);
+
         var foundLevelNames = observationUnitLevelNameService.findObservationUnitLevelNames(programDbId, all);
         var data = observationUnitLevelNameService.convertFromEntitiesInBatch(foundLevelNames);
-        return responseOK(new ObservationLevelListResponse(), new ObservationLevelListResponseResult(), data, null);
+
+        data = PagingUtility.paginateSimpleList(data, metadata);
+
+        return responseOK(new ObservationLevelListResponse(), new ObservationLevelListResponseResult(), data, metadata);
     }
 
     @CrossOrigin
@@ -64,7 +74,7 @@ public class ObservationLevelNamesApiController extends BrAPIController
         validateSecurityContext(request, "ROLE_ANONYMOUS", "ROLE_USER");
         validateAcceptHeader(request);
         var data = observationUnitLevelNameService.save(body);
-        return responseOK(new ObservationLevelListResponse(), new ObservationLevelListResponseResult(), data, null);
+        return responseOK(new ObservationLevelListResponse(), new ObservationLevelListResponseResult(), data, generateEmptyMetadata());
     }
 
     @CrossOrigin

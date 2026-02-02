@@ -10,7 +10,6 @@ import org.brapi.test.BrAPITestServer.model.entity.core.ProgramEntity;
 import org.brapi.test.BrAPITestServer.model.entity.pheno.ObservationUnitLevelNameEntity;
 import org.brapi.test.BrAPITestServer.repository.baseEntities.ObservationUnitLevelNameRepository;
 import org.brapi.test.BrAPITestServer.service.core.ProgramService;
-import org.postgresql.util.PSQLException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;

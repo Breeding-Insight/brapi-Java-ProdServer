@@ -22,6 +22,8 @@ public interface ObservationLevelNamesApi {
     ResponseEntity<ObservationLevelListResponse> observationlevelnamesGet(
             @ApiParam(value = "programDbId") @Valid @RequestParam(value = "programDbId", required = false) String programDbId,
             @ApiParam(value = "all") @Valid @RequestParam(value = "all", required = false) Boolean all,
+            @ApiParam(value = "page") @Valid @RequestParam(value = "page", required = false) Integer page,
+            @ApiParam(value = "pageSize") @Valid @RequestParam(value = "pageSize", required = false) Integer pageSize,
             @ApiParam(value = "HTTP HEADER - Token used for Authorization   <strong> Bearer {token_string} </strong>") @RequestHeader(value = "Authorization", required = false) String authorization)
             throws BrAPIServerException;
 
