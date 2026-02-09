@@ -11,7 +11,7 @@ import org.brapi.test.BrAPITestServer.exceptions.BrAPIServerDbIdNotFoundExceptio
 import org.brapi.test.BrAPITestServer.exceptions.BrAPIServerException;
 import org.brapi.test.BrAPITestServer.model.entity.pheno.ScaleEntity;
 import org.brapi.test.BrAPITestServer.model.entity.pheno.ScaleValidValueCategoryEntity;
-import org.brapi.test.BrAPITestServer.repository.pheno.ScaleRepository;
+import org.brapi.test.BrAPITestServer.repository.primaryEntities.pheno.ScaleRepository;
 import org.brapi.test.BrAPITestServer.service.PagingUtility;
 import org.brapi.test.BrAPITestServer.service.SearchQueryBuilder;
 import org.brapi.test.BrAPITestServer.service.UpdateUtility;

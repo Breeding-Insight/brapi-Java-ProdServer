@@ -9,7 +9,7 @@ import org.brapi.test.BrAPITestServer.exceptions.BrAPIServerException;
 import org.brapi.test.BrAPITestServer.model.entity.core.BatchDeleteEntity;
 import org.brapi.test.BrAPITestServer.model.entity.core.BatchDeleteItemEntity;
 import org.brapi.test.BrAPITestServer.model.entity.core.PersonEntity;
-import org.brapi.test.BrAPITestServer.repository.core.BatchDeleteRepository;
+import org.brapi.test.BrAPITestServer.repository.primaryEntities.core.BatchDeleteRepository;
 import org.brapi.test.BrAPITestServer.service.DateUtility;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;

@@ -2,14 +2,13 @@ package org.brapi.test.BrAPITestServer.service.germ;
 
 import java.util.*;
 
-import io.swagger.model.IndexPagination;
 import jakarta.validation.Valid;
 
 import org.brapi.test.BrAPITestServer.exceptions.BrAPIServerDbIdNotFoundException;
 import org.brapi.test.BrAPITestServer.exceptions.BrAPIServerException;
 import org.brapi.test.BrAPITestServer.model.entity.core.ProgramEntity;
 import org.brapi.test.BrAPITestServer.model.entity.germ.CrossingProjectEntity;
-import org.brapi.test.BrAPITestServer.repository.germ.CrossingProjectRepository;
+import org.brapi.test.BrAPITestServer.repository.primaryEntities.germ.CrossingProjectRepository;
 import org.brapi.test.BrAPITestServer.service.PagingUtility;
 import org.brapi.test.BrAPITestServer.service.SearchQueryBuilder;
 import org.brapi.test.BrAPITestServer.service.UpdateUtility;

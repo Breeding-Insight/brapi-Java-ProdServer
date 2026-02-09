@@ -9,7 +9,7 @@ import org.brapi.test.BrAPITestServer.model.entity.core.ProgramEntity;
 import org.brapi.test.BrAPITestServer.model.entity.core.StudyEntity;
 import org.brapi.test.BrAPITestServer.model.entity.core.TrialEntity;
 import org.brapi.test.BrAPITestServer.model.entity.geno.PlateEntity;
-import org.brapi.test.BrAPITestServer.repository.geno.PlateRepository;
+import org.brapi.test.BrAPITestServer.repository.primaryEntities.geno.PlateRepository;
 import org.brapi.test.BrAPITestServer.service.PagingUtility;
 import org.brapi.test.BrAPITestServer.service.SearchQueryBuilder;
 import org.brapi.test.BrAPITestServer.service.UpdateUtility;

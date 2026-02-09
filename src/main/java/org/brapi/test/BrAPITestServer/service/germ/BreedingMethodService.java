@@ -7,7 +7,7 @@ import java.util.UUID;
 import org.brapi.test.BrAPITestServer.exceptions.BrAPIServerDbIdNotFoundException;
 import org.brapi.test.BrAPITestServer.exceptions.BrAPIServerException;
 import org.brapi.test.BrAPITestServer.model.entity.germ.BreedingMethodEntity;
-import org.brapi.test.BrAPITestServer.repository.germ.BreedingMethodRepository;
+import org.brapi.test.BrAPITestServer.repository.primaryEntities.germ.BreedingMethodRepository;
 import org.brapi.test.BrAPITestServer.service.PagingUtility;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

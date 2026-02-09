@@ -15,15 +15,7 @@ public enum ObservationTableHeaderRowEnum {
     GERMPLASMNAME("germplasmName"),
     POSITIONCOORDINATEX("positionCoordinateX"),
     POSITIONCOORDINATEY("positionCoordinateY"),
-    YEAR("year"),
-    FIELD("field"),
-    PLOT("plot"),
-    SUB_PLOT("sub-plot"),
-    PLANT("plant"),
-    POT("pot"),
-    BLOCK("block"),
-    ENTRY("entry"),
-    REP("rep");
+    YEAR("year");
 private String value;
 
     ObservationTableHeaderRowEnum(String value) {
