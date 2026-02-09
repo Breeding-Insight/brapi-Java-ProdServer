@@ -1,0 +1,39 @@
+package org.brapi.test.BrAPITestServer.repository.primaryEntities.core;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
+import org.brapi.test.BrAPITestServer.model.entity.core.TrialEntity;
+import org.brapi.test.BrAPITestServer.repository.primaryEntities.BrAPIRepository;
+import org.springframework.data.repository.query.Param;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+import java.util.UUID;
+
+public interface TrialRepository extends BrAPIRepository<TrialEntity, UUID> {
+
+	@Query("select t from TrialEntity t join t.studies s "
+			+ "where (:programDbId IS NULL OR t.program.id = :programDbId) "
+			+ "AND ('' = :commonCropName OR t.program.crop.cropName = :commonCropName) "
+			+ "AND (:locationDbId IS NULL OR :locationDbId = s.location.id) "
+			+ "AND (:applyActiveFilter = false OR :active = t.active)")
+	Page<TrialEntity> findBySearch(
+			@Param("commonCropName") String commonCropName,
+			@Param("programDbId") UUID programDbId,
+			@Param("locationDbId") UUID locationDbId,
+			@Param("applyActiveFilter") boolean applyActiveFilter, 
+			@Param("active") boolean active, Pageable pageReq);
+
+	@Modifying
+	@Transactional
+	@Query("UPDATE TrialEntity t SET t.softDeleted = :softDeleted WHERE t.id = :trialId")
+	int updateSoftDeletedStatus(@Param("trialId") UUID trialId, @Param("softDeleted") boolean softDeleted);
+
+	@Modifying
+	@Transactional
+	@Query("UPDATE TrialEntity t SET t.softDeleted = :softDeleted WHERE t.id IN :trialIds")
+	int updateSoftDeletedStatusBatch(@Param("trialIds") List<UUID> trialIds, @Param("softDeleted") boolean softDeleted);
+
+}

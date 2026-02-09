@@ -84,6 +84,9 @@ public class StudyNewRequest extends BrAPIDataModel{
 	@JsonProperty("trialDbId")
 	private String trialDbId = null;
 
+	@JsonProperty("programDbId")
+	private String programDbId = null;
+
 	@JsonProperty("trialName")
 	private String trialName = null;
 
@@ -461,6 +464,14 @@ public class StudyNewRequest extends BrAPIDataModel{
 
 	public void setTrialDbId(String trialDbId) {
 		this.trialDbId = trialDbId;
+	}
+
+	public String getProgramDbId() {
+		return programDbId;
+	}
+
+	public void setProgramDbId(String programDbId) {
+		this.programDbId = programDbId;
 	}
 
 	public StudyNewRequest trialName(String trialName) {

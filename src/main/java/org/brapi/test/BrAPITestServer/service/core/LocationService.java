@@ -10,7 +10,7 @@ import jakarta.validation.Valid;
 import org.brapi.test.BrAPITestServer.exceptions.BrAPIServerDbIdNotFoundException;
 import org.brapi.test.BrAPITestServer.exceptions.BrAPIServerException;
 import org.brapi.test.BrAPITestServer.model.entity.core.LocationEntity;
-import org.brapi.test.BrAPITestServer.repository.core.LocationRepository;
+import org.brapi.test.BrAPITestServer.repository.primaryEntities.core.LocationRepository;
 import org.brapi.test.BrAPITestServer.service.GeoJSONUtility;
 import org.brapi.test.BrAPITestServer.service.PagingUtility;
 import org.brapi.test.BrAPITestServer.service.SearchQueryBuilder;

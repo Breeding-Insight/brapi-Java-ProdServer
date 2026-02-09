@@ -6,7 +6,7 @@ import java.util.stream.Collectors;
 
 import org.brapi.test.BrAPITestServer.exceptions.BrAPIServerException;
 import org.brapi.test.BrAPITestServer.model.entity.pheno.EventEntity;
-import org.brapi.test.BrAPITestServer.repository.pheno.EventRepository;
+import org.brapi.test.BrAPITestServer.repository.primaryEntities.pheno.EventRepository;
 import org.brapi.test.BrAPITestServer.service.DateUtility;
 import org.brapi.test.BrAPITestServer.service.PagingUtility;
 import org.brapi.test.BrAPITestServer.service.SearchQueryBuilder;

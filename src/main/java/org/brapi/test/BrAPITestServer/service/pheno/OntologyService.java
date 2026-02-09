@@ -10,7 +10,7 @@ import org.brapi.test.BrAPITestServer.exceptions.BrAPIServerException;
 import org.brapi.test.BrAPITestServer.model.entity.pheno.OntologyEntity;
 import org.brapi.test.BrAPITestServer.model.entity.pheno.OntologyReferenceEntity;
 import org.brapi.test.BrAPITestServer.model.entity.pheno.OntologyReferenceHolder;
-import org.brapi.test.BrAPITestServer.repository.pheno.OntologyRepository;
+import org.brapi.test.BrAPITestServer.repository.primaryEntities.pheno.OntologyRepository;
 import org.brapi.test.BrAPITestServer.service.PagingUtility;
 import org.brapi.test.BrAPITestServer.service.UpdateUtility;
 import org.springframework.beans.factory.annotation.Autowired;

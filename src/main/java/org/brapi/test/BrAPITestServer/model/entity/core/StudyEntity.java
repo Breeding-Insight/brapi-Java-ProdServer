@@ -47,7 +47,8 @@ public class StudyEntity extends BrAPIPrimaryEntity {
 	private String license;
 	@OneToOne(fetch = FetchType.LAZY)
 	private LocationEntity location;
-	@OneToMany(mappedBy = "study")
+
+	@OneToMany(mappedBy = "study", cascade = CascadeType.ALL, orphanRemoval = true)
 	private List<ObservationLevelEntity> observationLevels;
 	@Column
 	private String observationUnitsDescription;

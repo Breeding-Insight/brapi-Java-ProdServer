@@ -24,14 +24,14 @@ public class ObservationUnitLevel extends ObservationUnitHierarchyLevel {
 		if (getClass() != obj.getClass())
 			return false;
 		ObservationUnitLevel other = (ObservationUnitLevel) obj;
-		return Objects.equals(levelCode, other.levelCode);
+		return Objects.equals(getLevelNameDbId(), other.getLevelNameDbId());
 	}
 
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = super.hashCode();
-		result = prime * result + Objects.hash(levelCode);
+		result = prime * result + Objects.hash(getLevelNameDbId());
 		return result;
 	}
 
