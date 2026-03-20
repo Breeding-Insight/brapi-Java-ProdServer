@@ -76,7 +76,7 @@ public class ObservationUnitLevelNameService {
                         .filter(ouln -> ouln.getLevelName().equals(sln.getLevelName()))
                         .findFirst()
                         .ifPresent(ouln -> verifiedEntitiesByLevelName.put(ouln.getLevelName(), ouln));
-            } else if (StringUtils.isNotBlank(sln.getProgramDbId())  && StringUtils.isNotBlank(sln.getLevelName()) && foundLevelEntitiesGroupedByProgramId.get(parentProgramDbId) != null) {
+            } else if (StringUtils.isNotBlank(sln.getProgramDbId())  && StringUtils.isNotBlank(sln.getLevelName()) && foundLevelEntitiesGroupedByProgramId.get(sln.getProgramDbId()) != null) {
                 List<ObservationUnitLevelNameEntity> entities = foundLevelEntitiesGroupedByProgramId.get(sln.getProgramDbId());
 
                 entities.stream()
@@ -85,7 +85,7 @@ public class ObservationUnitLevelNameService {
                         .ifPresent(ouln -> verifiedEntitiesByLevelName.put(ouln.getLevelName(), ouln));
             }
 
-            if (verifiedLevelNamesCurrentSize == verifiedEntitiesByLevelName.size()) {
+            if (verifiedLevelNamesCurrentSize == verifiedEntitiesByLevelName.size() && foundLevelEntitiesGroupedByProgramId.get(GLOBAL_KEY_FOR_FOUND_ENTITIES) != null) {
                 // All other ways of detecting the level name have failed so far, try the global ones as a last-ditch effort
                 List<ObservationUnitLevelNameEntity> globalEntities = foundLevelEntitiesGroupedByProgramId.get(GLOBAL_KEY_FOR_FOUND_ENTITIES);
 
