@@ -2,6 +2,7 @@ package org.brapi.test.BrAPITestServer.service.pheno;
 
 import io.swagger.model.pheno.ObservationLevelNewRequest;
 import io.swagger.model.pheno.ObservationUnitHierarchyLevel;
+import io.swagger.model.pheno.ObservationUnitLevel;
 import org.apache.commons.lang3.StringUtils;
 import org.brapi.test.BrAPITestServer.exceptions.BrAPIServerDbIdNotFoundException;
 import org.brapi.test.BrAPITestServer.exceptions.BrAPIServerException;
@@ -30,6 +31,10 @@ public class ObservationUnitLevelNameService {
     private final static String GLOBAL_AND_PROGRAMMATIC_SET_MSG = "Both programDbId and global=true attributes are set. " +
             "A level name cannot be both related to a program and be globally accessible.  Choose one.";
 
+    private final static String NO_DB_ID_PROVIDED_MSG = "A level name associated with a program was provided that has more than one level order associated with it." +
+            " Once this kind of level name is in the database it is recommended to always provide levelNameDbIds for the level names submitted to get the correct level order." +
+            "  Please search for the levelNameDbId for the submitted level names in the GET /observationlevelnames endpoint and provide them.";
+
     private final static String GLOBAL_KEY_FOR_FOUND_ENTITIES = "global";
 
     @Autowired
@@ -40,74 +45,70 @@ public class ObservationUnitLevelNameService {
     }
 
     /**
-     * Returns the verified level name entity.  Should only be used with a list of size 1.
+     * Returns the verified level name entity.  Should only be used with a list of size 1, lists are only used here
+     * to use the wildcard since there are different children of ObservationUnitLevel used in the callers of this method.
      */
     public ObservationUnitLevelNameEntity verifyObservationUnitLevelName(String parentProgramDbId,
-                                                                         List<? extends ObservationUnitHierarchyLevel> submittedLevelName,
+                                                                         List<? extends ObservationUnitLevel> submittedLevelNames,
                                                                          Map<String, ObservationUnitLevelNameEntity> foundLevelEntitiesByDbId,
                                                                          Map<String, List<ObservationUnitLevelNameEntity>> foundLevelEntitiesGroupedByProgramId)
         throws BrAPIServerException {
 
-        return verifyObservationUnitLevelNames(parentProgramDbId, submittedLevelName,
-                foundLevelEntitiesByDbId,
-                foundLevelEntitiesGroupedByProgramId).get(submittedLevelName.getFirst().getLevelName());
-    }
-
-    public Map<String, ObservationUnitLevelNameEntity> verifyObservationUnitLevelNames(String parentProgramDbId,
-                                                                                       List<? extends ObservationUnitHierarchyLevel> submittedLevelNames,
-                                                                                       Map<String, ObservationUnitLevelNameEntity> foundLevelEntitiesByDbId,
-                                                                                       Map<String, List<ObservationUnitLevelNameEntity>> foundLevelEntitiesGroupedByProgramId)
-        throws BrAPIServerException {
-
-        Map<String, ObservationUnitLevelNameEntity> verifiedEntitiesByLevelName = new HashMap<>();
-        List<ObservationUnitHierarchyLevel> levelNamesNotFound = new ArrayList<>();
-
-        submittedLevelNames.forEach(sln -> {
-
-            var verifiedLevelNamesCurrentSize = verifiedEntitiesByLevelName.size();
-
-            if (StringUtils.isNotBlank(sln.getLevelNameDbId()) && foundLevelEntitiesByDbId.containsKey(sln.getLevelNameDbId())) {
-                ObservationUnitLevelNameEntity entity = foundLevelEntitiesByDbId.get(sln.getLevelNameDbId());
-                verifiedEntitiesByLevelName.put(entity.getLevelName(), entity);
-            } else if (StringUtils.isNotBlank(parentProgramDbId) && StringUtils.isNotBlank(sln.getLevelName()) && foundLevelEntitiesGroupedByProgramId.get(parentProgramDbId) != null) {
-                List<ObservationUnitLevelNameEntity> entities = foundLevelEntitiesGroupedByProgramId.get(parentProgramDbId);
-
-                entities.stream()
-                        .filter(ouln -> ouln.getLevelName().equals(sln.getLevelName()))
-                        .findFirst()
-                        .ifPresent(ouln -> verifiedEntitiesByLevelName.put(ouln.getLevelName(), ouln));
-            } else if (StringUtils.isNotBlank(sln.getProgramDbId())  && StringUtils.isNotBlank(sln.getLevelName()) && foundLevelEntitiesGroupedByProgramId.get(sln.getProgramDbId()) != null) {
-                List<ObservationUnitLevelNameEntity> entities = foundLevelEntitiesGroupedByProgramId.get(sln.getProgramDbId());
-
-                entities.stream()
-                        .filter(ouln -> ouln.getLevelName().equals(sln.getLevelName()))
-                        .findFirst()
-                        .ifPresent(ouln -> verifiedEntitiesByLevelName.put(ouln.getLevelName(), ouln));
-            }
-
-            if (verifiedLevelNamesCurrentSize == verifiedEntitiesByLevelName.size() && foundLevelEntitiesGroupedByProgramId.get(GLOBAL_KEY_FOR_FOUND_ENTITIES) != null) {
-                // All other ways of detecting the level name have failed so far, try the global ones as a last-ditch effort
-                List<ObservationUnitLevelNameEntity> globalEntities = foundLevelEntitiesGroupedByProgramId.get(GLOBAL_KEY_FOR_FOUND_ENTITIES);
-
-                globalEntities.stream()
-                        .filter(ouln -> ouln.getLevelName().equals(sln.getLevelName()))
-                        .findFirst()
-                        .ifPresent(ouln -> verifiedEntitiesByLevelName.put(ouln.getLevelName(), ouln));
-            }
-
-            if (verifiedLevelNamesCurrentSize == verifiedEntitiesByLevelName.size()) {
-                // This level name was not found. Add it to the list to notify user which level names are invalid.
-                levelNamesNotFound.add(sln);
-            }
-        });
-
-        if (!levelNamesNotFound.isEmpty()) {
-            throw new BrAPIServerException(HttpStatus.BAD_REQUEST, String.format("The following submitted level names were not found: [%s]. " +
-                    " Please check that these level names exist in the DB by using the /observationlevelnames endpoints.  If they do not exist, they can be added there.",
-                    levelNamesNotFound));
+        if (submittedLevelNames.size() > 1) {
+            throw new IllegalArgumentException();
         }
 
-        return verifiedEntitiesByLevelName;
+        ObservationUnitLevel submittedLevelName = submittedLevelNames.getFirst();
+
+        ObservationUnitLevelNameEntity verifiedEntity = null;
+
+        if (StringUtils.isNotBlank(submittedLevelName.getLevelNameDbId()) && foundLevelEntitiesByDbId.containsKey(submittedLevelName.getLevelNameDbId())) {
+            verifiedEntity = foundLevelEntitiesByDbId.get(submittedLevelName.getLevelNameDbId());
+        } else if (StringUtils.isNotBlank(parentProgramDbId) && StringUtils.isNotBlank(submittedLevelName.getLevelName()) && foundLevelEntitiesGroupedByProgramId.get(parentProgramDbId) != null) {
+            // If parent programDbId is provided, utilize it to look up the level name.
+            List<ObservationUnitLevelNameEntity> entitiesMatchedByName = foundLevelEntitiesGroupedByProgramId.get(parentProgramDbId)
+                    .stream()
+                    .filter(ouln -> ouln.getLevelName().equals(submittedLevelName.getLevelName()))
+                    .limit(2)
+                    .toList();
+
+            if (entitiesMatchedByName.size() > 1) {
+                throw new BrAPIServerException(HttpStatus.BAD_REQUEST, NO_DB_ID_PROVIDED_MSG);
+            } else if (entitiesMatchedByName.size() == 1) {
+                verifiedEntity = entitiesMatchedByName.getFirst();
+            }
+        } else if (StringUtils.isNotBlank(submittedLevelName.getProgramDbId())  && StringUtils.isNotBlank(submittedLevelName.getLevelName()) && foundLevelEntitiesGroupedByProgramId.get(submittedLevelName.getProgramDbId()) != null) {
+            // Parent programDbId was not provided, if there's a programDbId inside the levelName itself try using that to get the level name.
+            List<ObservationUnitLevelNameEntity> entitiesMatchByName = foundLevelEntitiesGroupedByProgramId.get(submittedLevelName.getProgramDbId())
+                    .stream()
+                    .filter(ouln -> ouln.getLevelName().equals(submittedLevelName.getLevelName()))
+                    .limit(2)
+                    .toList();
+
+            if (entitiesMatchByName.size() > 1) {
+                throw new BrAPIServerException(HttpStatus.BAD_REQUEST, NO_DB_ID_PROVIDED_MSG);
+            } else if (entitiesMatchByName.size() == 1) {
+                verifiedEntity = entitiesMatchByName.getFirst();
+            }
+        }
+
+        if (verifiedEntity == null && foundLevelEntitiesGroupedByProgramId.get(GLOBAL_KEY_FOR_FOUND_ENTITIES) != null) {
+            // All other ways of detecting the level name have failed so far, try the global ones as a last-ditch effort
+            List<ObservationUnitLevelNameEntity> globalEntities = foundLevelEntitiesGroupedByProgramId.get(GLOBAL_KEY_FOR_FOUND_ENTITIES);
+
+            verifiedEntity = globalEntities.stream()
+                    .filter(ouln -> ouln.getLevelName().equals(submittedLevelName.getLevelName()))
+                    .findFirst()
+                    .orElse(null);
+        }
+
+        if (verifiedEntity == null) {
+            throw new BrAPIServerException(HttpStatus.BAD_REQUEST, String.format("The following submitted level names were not found: [%s]. " +
+                            " Please check that these level names exist in the DB by using the /observationlevelnames endpoints.  If they do not exist, they can be added there.",
+                    submittedLevelName));
+        }
+
+        return verifiedEntity;
     }
 
     /**

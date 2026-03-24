@@ -818,7 +818,7 @@ public class ObservationUnitService {
 		if (position.getObservationLevel() != null) {
 			if (position.getObservationLevel().getLevelCode() != null)
 				pEntity.setLevelCode(position.getObservationLevel().getLevelCode());
-			if (position.getObservationLevel().getLevelName() != null) {
+			if (position.getObservationLevel() != null) {
 				var parentProgramDbId = Optional.ofNullable(ouEntity.getProgram())
 						.map(p -> p.getId().toString())
 						.orElse(null);
@@ -860,17 +860,19 @@ public class ObservationUnitService {
 				.map(p -> p.getId().toString())
 				.orElse(null);
 
-		var foundOULevelNames = observationUnitLevelNameService.verifyObservationUnitLevelNames(programDbId,
-				position.getObservationLevelRelationships(),
-				foundLevelNameEntitiesByDbId,
-				foundLevelNamesGroupedByProgramId);
-
 		var relationshipEntities = new ArrayList<ObservationUnitLevelRelationshipEntity>();
 
 		for (ObservationUnitLevelRelationship level : position.getObservationLevelRelationships()) {
 			ObservationUnitLevelRelationshipEntity relationshipEntity = new ObservationUnitLevelRelationshipEntity();
 			relationshipEntity.setLevelCode(level.getLevelCode());
-			relationshipEntity.setLevelName(foundOULevelNames.get(level.getLevelName()));
+
+			var foundOULevelName = observationUnitLevelNameService.verifyObservationUnitLevelName(programDbId,
+					List.of(level),
+					foundLevelNameEntitiesByDbId,
+					foundLevelNamesGroupedByProgramId);
+
+			relationshipEntity.setLevelName(foundOULevelName);
+
 			if (level.getObservationUnitDbId() != null) {
 				ObservationUnitEntity parentEntity = getObservationUnitEntity(level.getObservationUnitDbId());
 				relationshipEntity.setObservationUnit(parentEntity);
