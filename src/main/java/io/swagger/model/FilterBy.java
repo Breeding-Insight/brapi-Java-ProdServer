@@ -1,17 +1,24 @@
 package io.swagger.model;
 
-import io.swagger.model.sort.SortOrder;
-
 public class FilterBy {
-    private String filterOn;
+    private String filterColumn;
+    private String value;
     private boolean addInfoColumn = false;
 
-    public String getFilterOn() {
-        return filterOn;
+    public String getFilterColumn() {
+        return filterColumn;
     }
 
-    public void setFilterOn(String filterOn) {
-        this.filterOn = filterOn;
+    public void setFilterColumn(String filterColumn) {
+        this.filterColumn = filterColumn;
+    }
+
+    public String getValue() {
+        return value;
+    }
+
+    public void setValue(String value) {
+        this.value = value;
     }
 
     public boolean isAddInfoColumn() {

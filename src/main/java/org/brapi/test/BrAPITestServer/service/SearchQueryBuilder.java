@@ -6,7 +6,9 @@ import java.util.*;
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
 
+import io.swagger.model.FilterBy;
 import io.swagger.model.GeoJSONSearchArea;
+import io.swagger.model.sort.SortByEntry;
 import io.swagger.model.sort.SortOrder;
 
 public class SearchQueryBuilder<T> {
@@ -311,6 +313,8 @@ public class SearchQueryBuilder<T> {
 		return param.replace('.', '_').replace('*', '_');
 	}
 
+	@Deprecated
+	// Use withSortBy instead
 	public SearchQueryBuilder<T> withSort(String sortByStr, SortOrder sortOrder) {
 		String sortOrderStr = "ASC";
 		if (sortOrder != null) {
@@ -321,4 +325,62 @@ public class SearchQueryBuilder<T> {
 
 		return this;
 	}
-}
+
+	/**
+	 * Takes a list of SortBy options that should typically come in a searchRequest.
+	 * Applies the entries in the list to sort the SearchQuery.
+	 *
+	 * A SortBy has
+	 *  - A column name
+	 *  - An order (DESC, ASC)
+	 *  - A boolean denoting whether the column to be sorted is data stored in additional info
+	 */
+	public SearchQueryBuilder<T> sortBy(List<SortByEntry> sortBy) {
+
+		if (sortBy == null || sortBy.isEmpty()) {
+			return this;
+		}
+
+		for (SortByEntry sort : sortBy) {
+			if (sortBy.getFirst().equals(sort)) {
+				this.sortClause += " ORDER BY ";
+				buildSort(sort);
+			}
+
+			this.sortClause += ", ";
+			buildSort(sort);
+		}
+
+		return this;
+	}
+
+	private void buildSort(SortByEntry sort) {
+		if (sort.isAddInfoColumn()) {
+			// TODO: This assumes the jsonb value of the key is always text.  Might need to support numerical sort.
+			this.sortClause += "additional_info ->>" + sort.getSortedOn() + " " + sort.getSortOrder() + " ";
+		}  else {
+			this.sortClause += sort.getSortedOn() + " " + sort.getSortOrder() + " ";
+		}
+	}
+
+	/**
+	 * Takes a list of FilterBy options that should typically come in a searchRequest.
+	 * Applies the entries in the list to filter the SearchQuery.
+	 *
+	 * A FilterBy has
+	 *  - A column name
+	 *  - A boolean denoting whether the column to be sorted is data stored in additional info
+	 */
+	public SearchQueryBuilder<T> filterBy(List<FilterBy> filterBy) {
+		for (FilterBy filter : filterBy) {
+			if (filter.isAddInfoColumn()) {
+				// TODO: This assumes the jsonb value of the key is always text.  Might need to support numerical sort.
+				this.whereClause += " AND additional_info ->> " + filter.getFilterColumn() + " = " + filter.getValue() + " ";
+			}
+			else {
+				this.whereClause += " AND additional_info ->> " + filter.getFilterColumn() + " " + filter.getValue() + " ";
+			}
+		}
+
+		return this;
+	}}

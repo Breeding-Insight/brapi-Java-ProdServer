@@ -2,7 +2,7 @@ package io.swagger.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import io.swagger.model.sort.SortBy;
+import io.swagger.model.sort.SortByEntry;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,7 +30,7 @@ public abstract class SearchRequest {
 	protected FilterBy filterBy = null;
 
 	@JsonProperty("sortBy")
-	protected List<SortBy> sortBy = null;
+	protected List<SortByEntry> sortBy = null;
 
 	final public SearchRequest page(Integer page) {
 		this.page = page;
@@ -125,5 +125,21 @@ public abstract class SearchRequest {
 			this.addExternalReferenceSourcesItem(externalReferenceSource);
 		}
 
+	}
+
+	public FilterBy getFilterBy() {
+		return filterBy;
+	}
+
+	public void setFilterBy(FilterBy filterBy) {
+		this.filterBy = filterBy;
+	}
+
+	public List<SortByEntry> getSortByEntry() {
+		return sortBy;
+	}
+
+	public void setSortByEntry(List<SortByEntry> sortBy) {
+		this.sortBy = sortBy;
 	}
 }

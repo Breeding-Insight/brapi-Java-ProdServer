@@ -1,9 +1,18 @@
 package io.swagger.model.sort;
 
-public class SortBy {
+// TODO: Replace io.swagger.model.core.SortBy with this class and rename this class to SortBy
+public class SortByEntry {
     private String sortedOn;
     private SortOrder  sortOrder = SortOrder.ASC;
     private boolean addInfoColumn = false;
+
+    public SortByEntry(String sortedOn,
+                       SortOrder sortOrder,
+                       boolean addInfoColumn) {
+        this.sortedOn = sortedOn;
+        this.sortOrder = sortOrder;
+        this.addInfoColumn = addInfoColumn;
+    }
 
     public String getSortedOn() {
         return sortedOn;
