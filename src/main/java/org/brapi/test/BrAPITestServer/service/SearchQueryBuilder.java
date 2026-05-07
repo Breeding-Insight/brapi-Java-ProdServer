@@ -7,7 +7,7 @@ import java.time.LocalDate;
 import java.time.OffsetDateTime;
 
 import io.swagger.model.GeoJSONSearchArea;
-import io.swagger.model.core.SortOrder;
+import io.swagger.model.sort.SortOrder;
 
 public class SearchQueryBuilder<T> {
 

@@ -3,6 +3,8 @@ package io.swagger.model.core;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
 
+@Deprecated
+// TODO: Phase out in favor of io.swagger.model.sort objects
 public enum SortBy {
 
     STUDYDBID("studyDbId"),

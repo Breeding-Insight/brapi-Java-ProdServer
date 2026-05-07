@@ -4,6 +4,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import io.swagger.model.core.*;
+import io.swagger.model.sort.SortOrder;
 import jakarta.validation.Valid;
 
 import org.brapi.test.BrAPITestServer.exceptions.BatchDeleteWrongTypeException;

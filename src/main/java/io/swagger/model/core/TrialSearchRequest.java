@@ -3,6 +3,7 @@ package io.swagger.model.core;
 import java.util.Objects;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.model.SearchRequest;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.time.LocalDate;
@@ -49,28 +50,6 @@ public class TrialSearchRequest extends SearchRequest {
 
 	@JsonProperty("trialPUIs")
 	private List<String> trialPUIs = null;
-
-	@JsonProperty("sortBy")
-	private SortBy sortBy = null;
-
-	@JsonProperty("sortOrder")
-	private SortOrder sortOrder = null;
-
-	public SortBy getSortBy() {
-		return sortBy;
-	}
-
-	public void setSortBy(SortBy sortBy) {
-		this.sortBy = sortBy;
-	}
-
-	public SortOrder getSortOrder() {
-		return sortOrder;
-	}
-
-	public void setSortOrder(SortOrder sortOrder) {
-		this.sortOrder = sortOrder;
-	}
 
 	public TrialSearchRequest commonCropNames(List<String> commonCropNames) {
 		this.commonCropNames = commonCropNames;

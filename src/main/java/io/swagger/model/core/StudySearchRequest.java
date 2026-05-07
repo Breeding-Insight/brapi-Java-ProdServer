@@ -5,6 +5,8 @@ import java.util.Objects;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import io.swagger.model.SearchRequest;
+import io.swagger.model.sort.SortOrder;
+
 import java.util.ArrayList;
 import java.util.List;
 
