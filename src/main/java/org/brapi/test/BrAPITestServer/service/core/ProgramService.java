@@ -10,7 +10,7 @@ import org.brapi.test.BrAPITestServer.exceptions.BrAPIServerException;
 import org.brapi.test.BrAPITestServer.model.entity.core.CropEntity;
 import org.brapi.test.BrAPITestServer.model.entity.core.PersonEntity;
 import org.brapi.test.BrAPITestServer.model.entity.core.ProgramEntity;
-import org.brapi.test.BrAPITestServer.repository.core.ProgramRepository;
+import org.brapi.test.BrAPITestServer.repository.primaryEntities.core.ProgramRepository;
 import org.brapi.test.BrAPITestServer.service.PagingUtility;
 import org.brapi.test.BrAPITestServer.service.SearchQueryBuilder;
 import org.brapi.test.BrAPITestServer.service.UpdateUtility;
@@ -74,6 +74,16 @@ public class ProgramService {
 		List<Program> programs = page.map(this::convertFromEntity).getContent();
 		PagingUtility.calculateMetaData(metadata, page);
 		return programs;
+	}
+
+	public List<ProgramEntity> findByIds(List<String> programDbIds) {
+		var result = new ArrayList<ProgramEntity>();
+
+		if (programDbIds.isEmpty()) {
+			return result;
+		}
+
+		return programRepository.findByIdIn(programDbIds.stream().map(UUID::fromString).toList());
 	}
 
 	public Program getProgram(String programDbId) throws BrAPIServerException {

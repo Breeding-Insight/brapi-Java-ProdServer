@@ -8,8 +8,8 @@ import org.brapi.test.BrAPITestServer.exceptions.BrAPIServerDbIdNotFoundExceptio
 import org.brapi.test.BrAPITestServer.exceptions.BrAPIServerException;
 import org.brapi.test.BrAPITestServer.model.entity.geno.GenomeMapEntity;
 import org.brapi.test.BrAPITestServer.model.entity.geno.LinkageGroupEntity;
-import org.brapi.test.BrAPITestServer.repository.geno.GenomeMapRepository;
-import org.brapi.test.BrAPITestServer.repository.geno.LinkageGroupRepository;
+import org.brapi.test.BrAPITestServer.repository.primaryEntities.geno.GenomeMapRepository;
+import org.brapi.test.BrAPITestServer.repository.primaryEntities.geno.LinkageGroupRepository;
 import org.brapi.test.BrAPITestServer.service.DateUtility;
 import org.brapi.test.BrAPITestServer.service.PagingUtility;
 import org.brapi.test.BrAPITestServer.service.SearchQueryBuilder;

@@ -16,7 +16,7 @@ import org.brapi.test.BrAPITestServer.model.entity.core.TrialEntity;
 import org.brapi.test.BrAPITestServer.model.entity.geno.PlateEntity;
 import org.brapi.test.BrAPITestServer.model.entity.geno.SampleEntity;
 import org.brapi.test.BrAPITestServer.model.entity.pheno.ObservationUnitEntity;
-import org.brapi.test.BrAPITestServer.repository.geno.SampleRepository;
+import org.brapi.test.BrAPITestServer.repository.primaryEntities.geno.SampleRepository;
 import org.brapi.test.BrAPITestServer.service.DateUtility;
 import org.brapi.test.BrAPITestServer.service.PagingUtility;
 import org.brapi.test.BrAPITestServer.service.SearchQueryBuilder;

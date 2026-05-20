@@ -2,26 +2,42 @@ package io.swagger.model.pheno;
 
 import java.util.Objects;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class ObservationUnitHierarchyLevel {
 
+	@JsonProperty("levelNameDbId")
+	private String levelNameDbId = null;
+
 	@JsonProperty("levelName")
-	private ObservationUnitHierarchyLevelEnum levelName = null;
+	private String levelName = null;
 
 	@JsonProperty("levelOrder")
 	private Integer levelOrder = null;
 
-	public ObservationUnitHierarchyLevel levelName(ObservationUnitHierarchyLevelEnum levelName) {
-		this.levelName = levelName;
-		return this;
+	@JsonProperty("programDbId")
+	@JsonInclude(JsonInclude.Include.NON_NULL)
+	private String programDbId = null;
+
+	// NOTE: This property is NOT used for lookups, only responses.
+	@JsonProperty("programName")
+	@JsonInclude(JsonInclude.Include.NON_NULL)
+	private String programName = null;
+
+	public String getLevelNameDbId() {
+		return levelNameDbId;
 	}
 
-	public ObservationUnitHierarchyLevelEnum getLevelName() {
+	public void setLevelNameDbId(String value) {
+		this.levelNameDbId = value;
+	}
+
+	public String getLevelName() {
 		return levelName;
 	}
 
-	public void setLevelName(ObservationUnitHierarchyLevelEnum levelName) {
+	public void setLevelName(String levelName) {
 		this.levelName = levelName;
 	}
 
@@ -38,6 +54,22 @@ public class ObservationUnitHierarchyLevel {
 		this.levelOrder = levelOrder;
 	}
 
+	public String getProgramDbId() {
+		return programDbId;
+	}
+
+	public void setProgramDbId(String value) {
+		this.programDbId = value;
+	}
+
+	public String getProgramName() {
+		return programName;
+	}
+
+	public void setProgramName(String value) {
+		this.programName = value;
+	}
+
 	@Override
 	public boolean equals(java.lang.Object o) {
 		if (this == o) {
@@ -47,13 +79,12 @@ public class ObservationUnitHierarchyLevel {
 			return false;
 		}
 		ObservationUnitHierarchyLevel observationUnitHierarchyLevel = (ObservationUnitHierarchyLevel) o;
-		return Objects.equals(this.levelName, observationUnitHierarchyLevel.levelName)
-				&& Objects.equals(this.levelOrder, observationUnitHierarchyLevel.levelOrder);
+		return Objects.equals(this.levelNameDbId, observationUnitHierarchyLevel.levelNameDbId);
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(levelName, levelOrder);
+		return Objects.hash(levelNameDbId);
 	}
 
 	@Override
@@ -63,7 +94,9 @@ public class ObservationUnitHierarchyLevel {
 
 		sb.append("    levelName: ").append(toIndentedString(levelName)).append("\n");
 		sb.append("    levelOrder: ").append(toIndentedString(levelOrder)).append("\n");
-		sb.append("}");
+		sb.append("    levelNameDbId:  ").append(toIndentedString(levelNameDbId)).append("\n");
+		sb.append("    programDbId: ").append(toIndentedString(programDbId)).append("\n");
+		sb.append("    programName:  ").append(toIndentedString(programName)).append("\n");
 		return sb.toString();
 	}
 

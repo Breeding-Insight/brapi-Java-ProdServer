@@ -4,7 +4,7 @@ import java.util.List;
 
 import org.brapi.test.BrAPITestServer.exceptions.BrAPIServerException;
 import org.brapi.test.BrAPITestServer.model.entity.geno.MarkerPositionEntity;
-import org.brapi.test.BrAPITestServer.repository.geno.MarkerPositionRepository;
+import org.brapi.test.BrAPITestServer.repository.primaryEntities.geno.MarkerPositionRepository;
 import org.brapi.test.BrAPITestServer.service.PagingUtility;
 import org.brapi.test.BrAPITestServer.service.SearchQueryBuilder;
 import org.springframework.data.domain.Page;

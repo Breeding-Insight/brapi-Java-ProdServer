@@ -3,8 +3,10 @@ package org.brapi.test.BrAPITestServer.service.core;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import org.apache.commons.lang3.StringUtils;
 import org.brapi.test.BrAPITestServer.exceptions.BrAPIServerDbIdNotFoundException;
 import org.brapi.test.BrAPITestServer.exceptions.BrAPIServerException;
+import org.brapi.test.BrAPITestServer.model.entity.BrAPIBaseEntity;
 import org.brapi.test.BrAPITestServer.model.entity.core.CropEntity;
 import org.brapi.test.BrAPITestServer.model.entity.core.DataLinkEntity;
 import org.brapi.test.BrAPITestServer.model.entity.core.EnvironmentParametersEntity;
@@ -17,13 +19,15 @@ import org.brapi.test.BrAPITestServer.model.entity.core.SeasonEntity;
 import org.brapi.test.BrAPITestServer.model.entity.core.StudyEntity;
 import org.brapi.test.BrAPITestServer.model.entity.core.StudyLastUpdateEntity;
 import org.brapi.test.BrAPITestServer.model.entity.core.TrialEntity;
+import org.brapi.test.BrAPITestServer.model.entity.pheno.ObservationUnitLevelNameEntity;
 import org.brapi.test.BrAPITestServer.model.entity.pheno.ObservationVariableEntity;
-import org.brapi.test.BrAPITestServer.repository.core.StudyRepository;
+import org.brapi.test.BrAPITestServer.repository.primaryEntities.core.StudyRepository;
 import org.brapi.test.BrAPITestServer.service.DateUtility;
 import org.brapi.test.BrAPITestServer.service.PagingUtility;
 import org.brapi.test.BrAPITestServer.service.SearchQueryBuilder;
 import org.brapi.test.BrAPITestServer.service.UpdateUtility;
 import org.brapi.test.BrAPITestServer.service.pheno.ObservationVariableService;
+import org.brapi.test.BrAPITestServer.service.pheno.ObservationUnitLevelNameService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -43,7 +47,6 @@ import io.swagger.model.core.StudyNewRequest;
 import io.swagger.model.core.StudyLastUpdate;
 import io.swagger.model.core.StudySearchRequest;
 import io.swagger.model.pheno.ObservationUnitHierarchyLevel;
-import io.swagger.model.pheno.ObservationUnitHierarchyLevelEnum;
 
 @Service
 public class StudyService {
@@ -55,11 +58,12 @@ public class StudyService {
 	private final PeopleService peopleService;
 	private final SeasonService seasonService;
 	private final ObservationVariableService variableService;
+	private final ObservationUnitLevelNameService observationUnitLevelNameService;
 
 	@Autowired
 	public StudyService(StudyRepository studyRepository, TrialService trialService, CropService cropService,
 			LocationService locationService, PeopleService peopleService, SeasonService seasonService,
-			ObservationVariableService variableService) {
+			ObservationVariableService variableService, ObservationUnitLevelNameService observationUnitLevelNameService) {
 		this.studyRepository = studyRepository;
 
 		this.locationService = locationService;
@@ -68,6 +72,7 @@ public class StudyService {
 		this.trialService = trialService;
 		this.cropService = cropService;
 		this.variableService = variableService;
+		this.observationUnitLevelNameService = observationUnitLevelNameService;
 	}
 
 	public List<Study> findStudies(String commonCropName, String studyType, String programDbId, String locationDbId,
@@ -111,6 +116,16 @@ public class StudyService {
 		request.addExternalReferenceItem(externalReferenceId, externalReferenceID, externalReferenceSource);
 
 		return findStudies(request, metadata);
+	}
+
+	public List<StudyEntity> findByIds(List<String> studyDbIds) {
+		var result = new ArrayList<StudyEntity>();
+
+		if (studyDbIds.isEmpty()) {
+			return result;
+		}
+
+		return studyRepository.findByIdIn(studyDbIds.stream().map(UUID::fromString).toList());
 	}
 
 	public List<Study> findStudies(StudySearchRequest request, Metadata metaData)
@@ -245,11 +260,11 @@ public class StudyService {
 					body.getEnvironmentParameters().stream().map(this::convertToEntity).collect(Collectors.toList()));
 		}
 		if (body.getExperimentalDesign() != null)
-			entity.setExperimentalDesign(convertToEntity(body.getExperimentalDesign(), entity));
+			entity.setExperimentalDesign(convertToEntity(body.getExperimentalDesign()));
 		if (body.getGrowthFacility() != null)
-			entity.setGrowthFacility(convertToEntity(body.getGrowthFacility(), entity));
+			entity.setGrowthFacility(convertToEntity(body.getGrowthFacility()));
 		if (body.getLastUpdate() != null)
-			entity.setLastUpdate(convertToEntity(body.getLastUpdate(), entity));
+			entity.setLastUpdate(convertToEntity(body.getLastUpdate()));
 		if (body.getLicense() != null)
 			entity.setLicense(body.getLicense());
 		if (body.getLocationDbId() != null) {
@@ -257,8 +272,14 @@ public class StudyService {
 			entity.setLocation(location);
 		}
 		if (body.getObservationLevels() != null) {
-			entity.setObservationLevels(
-					body.getObservationLevels().stream().map(this::convertToEntity).collect(Collectors.toList()));
+
+			List<ObservationLevelEntity> lvlEntities = convertToEntity(body.getObservationLevels(), body.getProgramDbId());
+
+			for(ObservationLevelEntity lvlEntity : lvlEntities) {
+				lvlEntity.setStudy(entity);
+			}
+
+			entity.setObservationLevels(lvlEntities);
 		}
 		if (body.getObservationUnitsDescription() != null)
 			entity.setObservationUnitsDescription(body.getObservationUnitsDescription());
@@ -386,20 +407,41 @@ public class StudyService {
 		ObservationUnitHierarchyLevel level = null;
 		if (entity != null) {
 			level = new ObservationUnitHierarchyLevel();
-			level.setLevelName(ObservationUnitHierarchyLevelEnum.fromValue(entity.getLevelName()));
-			level.setLevelOrder(entity.getLevelOrder());
+			level.setLevelName(entity.getLevelName().getLevelName());
+			level.setLevelOrder(entity.getLevelName().getLevelOrder());
+			level.setLevelNameDbId(entity.getLevelName().getId().toString());
+
+			if (entity.getLevelName().getProgram() != null) {
+				level.setProgramDbId(entity.getLevelName().getProgram().getId().toString());
+				level.setProgramName(entity.getLevelName().getProgram().getName());
+			}
 		}
 		return level;
 	}
 
-	private ObservationLevelEntity convertToEntity(ObservationUnitHierarchyLevel level) {
-		ObservationLevelEntity entity = null;
-		if (level != null) {
-			entity = new ObservationLevelEntity();
-			entity.setLevelName(level.getLevelName().toString());
-			entity.setLevelOrder(level.getLevelOrder());
+	private List<ObservationLevelEntity> convertToEntity(List<ObservationUnitHierarchyLevel> levels, String programDbId)
+		throws BrAPIServerException {
+		List<ObservationLevelEntity> entities = new ArrayList<>();
+
+		List<String> submittedLevelNameDbIds = levels.stream()
+				.map(ObservationUnitHierarchyLevel::getLevelNameDbId)
+				.toList();
+
+		if (submittedLevelNameDbIds.isEmpty() && StringUtils.isEmpty(programDbId)) {
+			throw new BrAPIServerException(HttpStatus.BAD_REQUEST, "No levelNameDbIds or programDbId available in request.  levelNameDbIds can be found using /observationlevelnames GET.");
 		}
-		return entity;
+
+		Map<String, ObservationUnitLevelNameEntity> foundLevelNames = observationUnitLevelNameService.findObservationUnitLevelNames(Arrays.asList(programDbId), submittedLevelNameDbIds)
+				.stream()
+				.collect(Collectors.toMap(e -> e.getId().toString(), e -> e));
+
+		for (String lnDbId : submittedLevelNameDbIds) {
+			var entity = new ObservationLevelEntity();
+
+			entity.setLevelName(foundLevelNames.get(lnDbId));
+			entities.add(entity);
+		}
+		return entities;
 	}
 
 	private StudyLastUpdate convertFromEntity(StudyLastUpdateEntity entity) {
@@ -412,13 +454,12 @@ public class StudyService {
 		return update;
 	}
 
-	private StudyLastUpdateEntity convertToEntity(StudyLastUpdate update, StudyEntity study) {
+	private StudyLastUpdateEntity convertToEntity(StudyLastUpdate update) {
 		StudyLastUpdateEntity entity = null;
 		if (update != null) {
 			entity = new StudyLastUpdateEntity();
 			entity.setTimestamp(DateUtility.toDate(update.getTimestamp()));
 			entity.setVersion(update.getVersion());
-			entity.setStudy(study);
 		}
 		return entity;
 	}
@@ -433,13 +474,12 @@ public class StudyService {
 		return gf;
 	}
 
-	private GrowthFacilityEntity convertToEntity(StudyGrowthFacility facility, StudyEntity study) {
+	private GrowthFacilityEntity convertToEntity(StudyGrowthFacility facility) {
 		GrowthFacilityEntity entity = null;
 		if (facility != null) {
 			entity = new GrowthFacilityEntity();
 			entity.setDescription(facility.getDescription());
 			entity.setPUI(facility.getPUI());
-			entity.setStudy(study);
 		}
 		return entity;
 	}
@@ -454,13 +494,12 @@ public class StudyService {
 		return ed;
 	}
 
-	private ExperimentalDesignEntity convertToEntity(StudyExperimentalDesign design, StudyEntity study) {
+	private ExperimentalDesignEntity convertToEntity(StudyExperimentalDesign design) {
 		ExperimentalDesignEntity entity = null;
 		if (design != null) {
 			entity = new ExperimentalDesignEntity();
 			entity.setDescription(design.getDescription());
 			entity.setPUI(design.getPUI());
-			entity.setStudy(study);
 		}
 		return entity;
 	}

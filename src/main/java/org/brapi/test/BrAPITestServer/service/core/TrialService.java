@@ -15,7 +15,7 @@ import org.brapi.test.BrAPITestServer.model.entity.core.PersonEntity;
 import org.brapi.test.BrAPITestServer.model.entity.core.ProgramEntity;
 import org.brapi.test.BrAPITestServer.model.entity.core.PublicationEntity;
 import org.brapi.test.BrAPITestServer.model.entity.core.TrialEntity;
-import org.brapi.test.BrAPITestServer.repository.core.TrialRepository;
+import org.brapi.test.BrAPITestServer.repository.primaryEntities.core.TrialRepository;
 import org.brapi.test.BrAPITestServer.service.DateUtility;
 import org.brapi.test.BrAPITestServer.service.PagingUtility;
 import org.brapi.test.BrAPITestServer.service.SearchQueryBuilder;
@@ -133,6 +133,16 @@ public class TrialService {
 
 		List<Trial> trials = trialsPage.map(this::convertFromEntity).getContent();
 		return trials;
+	}
+
+	public List<TrialEntity> findByIds(List<String> trialDbIds) {
+		var result = new ArrayList<TrialEntity>();
+
+		if (trialDbIds.isEmpty()) {
+			return result;
+		}
+
+		return trialRepository.findByIdIn(trialDbIds.stream().map(UUID::fromString).toList());
 	}
 
 	public Trial getTrial(String trialDbId) throws BrAPIServerException {

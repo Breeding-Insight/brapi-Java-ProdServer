@@ -1,0 +1,1 @@
+UPDATE observation_unit SET additional_info = additional_info - 'treatments';

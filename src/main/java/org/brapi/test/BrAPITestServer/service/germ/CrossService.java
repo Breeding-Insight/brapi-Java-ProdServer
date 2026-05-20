@@ -10,7 +10,7 @@ import org.brapi.test.BrAPITestServer.exceptions.BrAPIServerException;
 import org.brapi.test.BrAPITestServer.model.entity.germ.CrossEntity;
 import org.brapi.test.BrAPITestServer.model.entity.germ.CrossPollinationEventEntity;
 import org.brapi.test.BrAPITestServer.model.entity.germ.CrossingProjectEntity;
-import org.brapi.test.BrAPITestServer.repository.germ.CrossRepository;
+import org.brapi.test.BrAPITestServer.repository.primaryEntities.germ.CrossRepository;
 import org.brapi.test.BrAPITestServer.service.DateUtility;
 import org.brapi.test.BrAPITestServer.service.PagingUtility;
 import org.brapi.test.BrAPITestServer.service.SearchQueryBuilder;
@@ -61,6 +61,16 @@ public class CrossService {
 				commonCropName, programDbId, externalReferenceId, externalReferenceID, externalReferenceSource, true,
 				metadata).map(this::convertToPlanned).getContent();
 		return crosses;
+	}
+
+	public List<CrossEntity> findByIds(List<String> crossDbIds) {
+		var result = new ArrayList<CrossEntity>();
+
+		if (crossDbIds.isEmpty()) {
+			return result;
+		}
+
+		return crossRepository.findByIdIn(crossDbIds.stream().map(UUID::fromString).toList());
 	}
 
 	public Page<CrossEntity> findCrossEntities(String crossingProjectDbId, String crossingProjectName, String crossDbId,

@@ -6,7 +6,7 @@ import java.util.stream.Collectors;
 import org.brapi.test.BrAPITestServer.exceptions.BrAPIServerDbIdNotFoundException;
 import org.brapi.test.BrAPITestServer.exceptions.BrAPIServerException;
 import org.brapi.test.BrAPITestServer.model.entity.core.CropEntity;
-import org.brapi.test.BrAPITestServer.repository.core.CropRepository;
+import org.brapi.test.BrAPITestServer.repository.primaryEntities.core.CropRepository;
 import org.brapi.test.BrAPITestServer.service.PagingUtility;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;

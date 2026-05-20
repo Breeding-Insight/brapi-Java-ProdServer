@@ -8,10 +8,10 @@ import org.brapi.test.BrAPITestServer.exceptions.BrAPIServerDbIdNotFoundExceptio
 import org.brapi.test.BrAPITestServer.exceptions.BrAPIServerException;
 import org.brapi.test.BrAPITestServer.model.entity.core.CropEntity;
 import org.brapi.test.BrAPITestServer.model.entity.pheno.*;
-import org.brapi.test.BrAPITestServer.repository.core.TraitRepository;
-import org.brapi.test.BrAPITestServer.repository.pheno.MethodRepository;
-import org.brapi.test.BrAPITestServer.repository.pheno.ObservationVariableRepository;
-import org.brapi.test.BrAPITestServer.repository.pheno.ScaleRepository;
+import org.brapi.test.BrAPITestServer.repository.primaryEntities.core.TraitRepository;
+import org.brapi.test.BrAPITestServer.repository.primaryEntities.pheno.MethodRepository;
+import org.brapi.test.BrAPITestServer.repository.primaryEntities.pheno.ObservationVariableRepository;
+import org.brapi.test.BrAPITestServer.repository.primaryEntities.pheno.ScaleRepository;
 import org.brapi.test.BrAPITestServer.service.DateUtility;
 import org.brapi.test.BrAPITestServer.service.PagingUtility;
 import org.brapi.test.BrAPITestServer.service.SearchQueryBuilder;
@@ -224,6 +224,16 @@ public class ObservationVariableService {
 		var.setSubmissionTimestamp(DateUtility.toOffsetDateTime(entity.getSubmissionTimestamp()));
 		var.setSynonyms(entity.getSynonyms());
 		var.setTrait(traitService.convertFromEntity(entity.getTrait()));
+	}
+
+	public List<ObservationVariableEntity> findByIds(List<String> obsVarIds) {
+		var result = new ArrayList<ObservationVariableEntity>();
+
+		if (!obsVarIds.isEmpty()) {
+			return observationVariableRepository.findByIdIn(obsVarIds.stream().map(UUID::fromString).toList());
+		}
+
+		return result;
 	}
 
 	private void updateEntity(ObservationVariableEntity entity, ObservationVariableNewRequest request)

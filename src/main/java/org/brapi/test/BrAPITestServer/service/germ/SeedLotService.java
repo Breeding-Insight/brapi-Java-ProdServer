@@ -14,8 +14,8 @@ import org.brapi.test.BrAPITestServer.model.entity.germ.GermplasmEntity;
 import org.brapi.test.BrAPITestServer.model.entity.germ.SeedLotContentMixtureEntity;
 import org.brapi.test.BrAPITestServer.model.entity.germ.SeedLotEntity;
 import org.brapi.test.BrAPITestServer.model.entity.germ.SeedLotTransactionEntity;
-import org.brapi.test.BrAPITestServer.repository.germ.SeedLotRepository;
-import org.brapi.test.BrAPITestServer.repository.germ.SeedLotTransactionRepository;
+import org.brapi.test.BrAPITestServer.repository.primaryEntities.germ.SeedLotRepository;
+import org.brapi.test.BrAPITestServer.repository.primaryEntities.germ.SeedLotTransactionRepository;
 import org.brapi.test.BrAPITestServer.service.DateUtility;
 import org.brapi.test.BrAPITestServer.service.PagingUtility;
 import org.brapi.test.BrAPITestServer.service.SearchQueryBuilder;
@@ -141,6 +141,16 @@ public class SeedLotService {
 					null, metadata);
 		}
 		return null;
+	}
+
+	public List<SeedLotEntity> findByIds(List<String> seedLotsIds) {
+		var result = new ArrayList<SeedLotEntity>();
+
+		if (seedLotsIds.isEmpty())  {
+			return result;
+		}
+
+		return seedLotRepository.findByIdIn(seedLotsIds.stream().map(UUID::fromString).toList());
 	}
 
 	public List<SeedLotTransaction> findSeedLotTransactions(String transactionDbId, String seedLotDbId,

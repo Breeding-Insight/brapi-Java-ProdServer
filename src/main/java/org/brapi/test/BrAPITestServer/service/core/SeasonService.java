@@ -10,7 +10,7 @@ import jakarta.validation.Valid;
 import org.brapi.test.BrAPITestServer.exceptions.BrAPIServerDbIdNotFoundException;
 import org.brapi.test.BrAPITestServer.exceptions.BrAPIServerException;
 import org.brapi.test.BrAPITestServer.model.entity.core.SeasonEntity;
-import org.brapi.test.BrAPITestServer.repository.core.SeasonRepository;
+import org.brapi.test.BrAPITestServer.repository.primaryEntities.core.SeasonRepository;
 import org.brapi.test.BrAPITestServer.service.PagingUtility;
 import org.brapi.test.BrAPITestServer.service.SearchQueryBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -107,6 +107,16 @@ public class SeasonService {
 		}
 
 		return season;
+	}
+
+	public List<SeasonEntity> findByIds(List<String> seasonIds) {
+		var result = new ArrayList<SeasonEntity>();
+
+		if (!seasonIds.isEmpty()) {
+			return seasonRepository.findByIdIn(seasonIds.stream().map(UUID::fromString).toList());
+		}
+
+		return result;
 	}
 
 	private void updateEntity(SeasonEntity entity, Season request) {

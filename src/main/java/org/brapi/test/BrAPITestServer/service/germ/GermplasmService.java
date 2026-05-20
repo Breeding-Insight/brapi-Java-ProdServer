@@ -15,8 +15,8 @@ import org.brapi.test.BrAPITestServer.model.entity.core.CropEntity;
 import org.brapi.test.BrAPITestServer.model.entity.germ.*;
 import org.brapi.test.BrAPITestServer.model.entity.germ.GermplasmInstituteEntity.InstituteTypeEnum;
 import org.brapi.test.BrAPITestServer.model.entity.pheno.TaxonEntity;
-import org.brapi.test.BrAPITestServer.repository.germ.GermplasmDonorRepository;
-import org.brapi.test.BrAPITestServer.repository.germ.GermplasmRepository;
+import org.brapi.test.BrAPITestServer.repository.primaryEntities.germ.GermplasmDonorRepository;
+import org.brapi.test.BrAPITestServer.repository.primaryEntities.germ.GermplasmRepository;
 import org.brapi.test.BrAPITestServer.service.DateUtility;
 import org.brapi.test.BrAPITestServer.service.GeoJSONUtility;
 import org.brapi.test.BrAPITestServer.service.PagingUtility;
@@ -791,14 +791,16 @@ public class GermplasmService {
 			return result;
 		}
 
-		List<UUID> germIdsAsUUIDs = germplasmDbIds.stream().map(UUID::fromString).toList();
-		List<GermplasmEntity> germsFoundInDb = germplasmRepository.findByIdIn(germIdsAsUUIDs);
+		var searchRq = new GermplasmSearchRequest();
+		searchRq.setGermplasmDbIds(germplasmDbIds);
+
+		List<GermplasmEntity> germsFoundInDb = findGermplasmEntitiesWithoutPaging(searchRq);
 
 		Set<UUID> germIdsFoundInDB = germsFoundInDb.stream()
 				.map(BrAPIBaseEntity::getId)
 				.collect(Collectors.toSet());
 
-		if (!germIdsFoundInDB.containsAll(germIdsAsUUIDs)) {
+		if (!germIdsFoundInDB.containsAll(germplasmDbIds.stream().map(UUID::fromString).toList())) {
 			throw new BrAPIServerDbIdNotFoundException("Germplasm Ids passed to findByIds were not found in the DB", HttpStatus.BAD_REQUEST);
 		}
 

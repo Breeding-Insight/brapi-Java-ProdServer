@@ -3,23 +3,12 @@ package org.brapi.test.BrAPITestServer.model.entity.core;
 import jakarta.persistence.*;
 import org.brapi.test.BrAPITestServer.model.entity.BrAPIBaseEntity;
 
-@Entity
-@Table(name = "study_growth_facility")
-public class GrowthFacilityEntity extends BrAPIBaseEntity {
-	@Column
+@Embeddable
+public class GrowthFacilityEntity {
+	@Column(name = "pui", table = "study_growth_facility")
 	private String PUI;
-	@Column
+	@Column(name = "description", table = "study_growth_facility")
 	private String description;
-	@OneToOne(fetch = FetchType.LAZY)
-	private StudyEntity study;
-
-    public StudyEntity getStudy() {
-        return study;
-    }
-
-    public void setStudy(StudyEntity study) {
-        this.study = study;
-    }
 
     public String getPUI() {
         return PUI;
