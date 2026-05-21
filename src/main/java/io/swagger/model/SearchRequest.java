@@ -3,9 +3,12 @@ package io.swagger.model;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.model.sort.SortByElement;
+import org.brapi.test.BrAPITestServer.exceptions.BrAPIServerException;
+import org.springframework.http.HttpStatus;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public abstract class SearchRequest {
 	@JsonIgnore
@@ -27,10 +30,18 @@ public abstract class SearchRequest {
 	protected List<String> externalReferenceSources = null;
 
 	@JsonProperty("filterBy")
-	protected FilterBy filterBy = null;
+	protected List<FilterBy> filterBy = null;
 
 	@JsonProperty("sortBy")
 	protected List<SortByElement> sortBy = null;
+
+	@JsonIgnore
+	protected Map<String, String> sortFilterEntityColumnNamesByRequestName = null;
+
+	@JsonIgnore
+	public List<String> getExternalReferenceIds() {
+		return externalReferenceIds;
+	}
 
 	final public SearchRequest page(Integer page) {
 		this.page = page;
@@ -127,11 +138,30 @@ public abstract class SearchRequest {
 
 	}
 
-	public FilterBy getFilterBy() {
+	public List<FilterBy> getFilterBy() {
 		return filterBy;
 	}
 
-	public void setFilterBy(FilterBy filterBy) {
+	public void setFilterBy(List<FilterBy> filterBy) throws BrAPIServerException {
+
+		if (filterBy == null || filterBy.isEmpty()) {
+			return;
+		}
+
+		Map<String, String> allowedSortFilterNames = getSortFilterEntityColumnNamesByRequestName();
+
+		for (FilterBy filterByItem : filterBy) {
+			String filterColumnEntityName = getSortFilterEntityColumnNamesByRequestName().get(filterByItem.getFilterColumn());
+
+			if (filterColumnEntityName == null) {
+				throw new BrAPIServerException(HttpStatus.BAD_REQUEST,
+						String.format("Supplied filterColumn [%s] not available in allowed names [%s]", filterByItem.getFilterColumn(), allowedSortFilterNames.keySet())
+				);
+			} else {
+				// Remap suppliedFilterColumn to actual entity name supplied by mapper
+				filterByItem.setFilterColumn(filterColumnEntityName);
+			}
+		}
 		this.filterBy = filterBy;
 	}
 
@@ -139,7 +169,31 @@ public abstract class SearchRequest {
 		return sortBy;
 	}
 
-	public void setSortByEntry(List<SortByElement> sortBy) {
+	public void setSortByEntry(List<SortByElement> sortBy) throws BrAPIServerException {
+
+		if (sortBy == null || sortBy.isEmpty()) {
+			return;
+		}
+
+		Map<String, String> allowedSortFilterNames = getSortFilterEntityColumnNamesByRequestName();
+
+		for (SortByElement sortByItem : sortBy) {
+			String filterColumnEntityName = getSortFilterEntityColumnNamesByRequestName().get(sortByItem.getSortedOn());
+
+			if (filterColumnEntityName == null) {
+				throw new BrAPIServerException(HttpStatus.BAD_REQUEST,
+						String.format("Supplied sortColumn [%s] not available in allowed names [%s]", sortByItem.getSortedOn(), allowedSortFilterNames.keySet())
+				);
+			} else {
+				// Remap suppliedFilterColumn to actual entity name supplied by mapper
+				sortByItem.setSortedOn(filterColumnEntityName);
+			}
+		}
+
 		this.sortBy = sortBy;
+	}
+
+	public Map<String, String> getSortFilterEntityColumnNamesByRequestName() {
+		throw new UnsupportedOperationException(String.format("Sort/Filtering not implemented for %s", this.getClass().getSimpleName()));
 	}
 }

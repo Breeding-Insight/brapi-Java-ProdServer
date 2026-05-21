@@ -1,14 +1,23 @@
 package io.swagger.model.core;
 
-import java.util.Objects;
+import java.util.*;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.model.SearchRequest;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.time.LocalDate;
 
 public class TrialSearchRequest extends SearchRequest {
+
+	// Key - allowed sort or field filter name for this entity
+	// Value = entity field name that represents the submitted field. Used later on in query building.
+	private static final Map<String, String> ALLOWED_SORT_AND_FILTER_FIELDS =
+			Map.of(
+				"trialName", "trialName",
+				"createdDate", "createdDate",
+					"createdBy", "createdBy"
+			);
+
 	@JsonProperty("commonCropNames")
 	private List<String> commonCropNames = null;
 
@@ -423,5 +432,10 @@ public class TrialSearchRequest extends SearchRequest {
 		if (this.trialPUIs != null)
 			count += this.trialPUIs.size();
 		return count;
+	}
+
+	@Override
+	public Map<String, String> getSortFilterEntityColumnNamesByRequestName() {
+		return ALLOWED_SORT_AND_FILTER_FIELDS;
 	}
 }
