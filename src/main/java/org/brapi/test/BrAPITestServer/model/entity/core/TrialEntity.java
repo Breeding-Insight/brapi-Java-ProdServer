@@ -4,8 +4,10 @@ import jakarta.persistence.*;
 import org.brapi.test.BrAPITestServer.model.entity.BrAPIPrimaryEntity;
 import org.brapi.test.BrAPITestServer.model.entity.pheno.ObservationEntity;
 import org.brapi.test.BrAPITestServer.model.entity.pheno.ObservationUnitEntity;
+import org.hibernate.annotations.Formula;
 import org.hibernate.annotations.Where;
 
+import java.time.OffsetDateTime;
 import java.util.Date;
 import java.util.List;
 @Entity
@@ -37,6 +39,12 @@ public class TrialEntity extends BrAPIPrimaryEntity {
 	private String trialPUI;
 	@Column(name = "soft_deleted")
 	private boolean softDeleted;
+
+	@Formula("(to_timestamp(additional_info #>> '{createdDate}', 'YYYY-MM-DD'))")
+	private OffsetDateTime createdDate;
+
+	@Formula("(additional_info #>> '{createdBy,userName}')")
+	private String createdBy;
 
 	@ManyToOne(fetch = FetchType.LAZY)
 	private CropEntity crop;

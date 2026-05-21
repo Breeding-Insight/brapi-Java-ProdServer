@@ -8,7 +8,7 @@ import java.time.OffsetDateTime;
 
 import io.swagger.model.FilterBy;
 import io.swagger.model.GeoJSONSearchArea;
-import io.swagger.model.sort.SortByEntry;
+import io.swagger.model.sort.SortByElement;
 import io.swagger.model.sort.SortOrder;
 
 public class SearchQueryBuilder<T> {
@@ -22,8 +22,8 @@ public class SearchQueryBuilder<T> {
 	private Class<T> clazz;
 
 	public SearchQueryBuilder(Class<T> clazz) {
-		this.selectClause = "SELECT distinct entity FROM " + clazz.getSimpleName() + " entity ";
-		this.selectOnlyIds = "SELECT distinct entity.id FROM " + clazz.getSimpleName() + " entity ";
+		this.selectClause = "SELECT entity FROM " + clazz.getSimpleName() + " entity ";
+		this.selectOnlyIds = "SELECT entity.id FROM " + clazz.getSimpleName() + " entity ";
 		this.whereClause = "WHERE 1=1 ";
 		this.defaultSort = " ORDER BY entity.id ASC ";
 		this.sortClause = "";
@@ -307,6 +307,10 @@ public class SearchQueryBuilder<T> {
 		}
 	}
 
+	private String addInfoPrefix(String field) {
+		return "function('jsonb_extract_path_text', entity.additionalInfo, '" + field + "' ) ";
+	}
+
 	private String paramFilter(String param) {
 		if (param == null)
 			return "";
@@ -335,32 +339,27 @@ public class SearchQueryBuilder<T> {
 	 *  - An order (DESC, ASC)
 	 *  - A boolean denoting whether the column to be sorted is data stored in additional info
 	 */
-	public SearchQueryBuilder<T> sortBy(List<SortByEntry> sortBy) {
+	public SearchQueryBuilder<T> sortBy(List<SortByElement> sortBy) {
 
 		if (sortBy == null || sortBy.isEmpty()) {
 			return this;
 		}
 
-		for (SortByEntry sort : sortBy) {
+		for (SortByElement sort : sortBy) {
 			if (sortBy.getFirst().equals(sort)) {
 				this.sortClause += " ORDER BY ";
 				buildSort(sort);
+			} else {
+				this.sortClause += ", ";
+				buildSort(sort);
 			}
-
-			this.sortClause += ", ";
-			buildSort(sort);
 		}
 
 		return this;
 	}
 
-	private void buildSort(SortByEntry sort) {
-		if (sort.isAddInfoColumn()) {
-			// TODO: This assumes the jsonb value of the key is always text.  Might need to support numerical sort.
-			this.sortClause += "additional_info ->>" + sort.getSortedOn() + " " + sort.getSortOrder() + " ";
-		}  else {
-			this.sortClause += sort.getSortedOn() + " " + sort.getSortOrder() + " ";
-		}
+	private void buildSort(SortByElement sort) {
+		this.sortClause += entityPrefix(sort.getSortedOn()) + " " + sort.getSortOrder() + " ";
 	}
 
 	/**
@@ -373,13 +372,7 @@ public class SearchQueryBuilder<T> {
 	 */
 	public SearchQueryBuilder<T> filterBy(List<FilterBy> filterBy) {
 		for (FilterBy filter : filterBy) {
-			if (filter.isAddInfoColumn()) {
-				// TODO: This assumes the jsonb value of the key is always text.  Might need to support numerical sort.
-				this.whereClause += " AND additional_info ->> " + filter.getFilterColumn() + " = " + filter.getValue() + " ";
-			}
-			else {
-				this.whereClause += " AND additional_info ->> " + filter.getFilterColumn() + " " + filter.getValue() + " ";
-			}
+			this.whereClause += " AND " + entityPrefix(filter.getFilterColumn()) + " LIKE '%" + filter.getValue() + "%' ";
 		}
 
 		return this;

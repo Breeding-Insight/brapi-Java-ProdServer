@@ -4,7 +4,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import io.swagger.model.core.*;
-import io.swagger.model.sort.SortByEntry;
+import io.swagger.model.sort.SortByElement;
 import io.swagger.model.sort.SortOrder;
 import jakarta.validation.Valid;
 
@@ -97,8 +97,8 @@ public class TrialService {
 		if (searchDateRangeEnd != null)
 			request.setSearchDateRangeEnd(searchDateRangeEnd);
 		if (sortBy != null) {
-			SortByEntry querySortBy = new SortByEntry(sortBy, SortOrder.valueOf(sortOrder), false);
-			request.setSortByEntry(List.of());
+			SortByElement querySortBy = new SortByElement(sortBy, SortOrder.valueOf(sortOrder), false);
+			request.setSortByEntry(List.of(querySortBy));
 		}
 		request.addExternalReferenceItem(externalReferenceId, externalReferenceID, externalReferenceSource);
 		return findTrials(request, metadata);
