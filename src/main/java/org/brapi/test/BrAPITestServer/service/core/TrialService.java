@@ -4,7 +4,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import io.swagger.model.core.*;
-import io.swagger.model.sort.SortByElement;
+import io.swagger.model.sort.SortBy;
 import io.swagger.model.sort.SortOrder;
 import jakarta.validation.Valid;
 
@@ -97,9 +97,8 @@ public class TrialService {
 		if (searchDateRangeEnd != null)
 			request.setSearchDateRangeEnd(searchDateRangeEnd);
 		if (sortBy != null) {
-			// TODO: Fix this use case by adding allowable sort fields for trials from old enum in here
-			SortByElement querySortBy = new SortByElement(sortBy, SortOrder.valueOf(sortOrder), false);
-			request.setSortByElements(List.of(querySortBy));
+			SortBy querySortBy = new SortBy(sortBy, SortOrder.valueOf(sortOrder));
+			request.setSortBy(List.of(querySortBy));
 		}
 		request.addExternalReferenceItem(externalReferenceId, externalReferenceID, externalReferenceSource);
 		return findTrials(request, metadata);

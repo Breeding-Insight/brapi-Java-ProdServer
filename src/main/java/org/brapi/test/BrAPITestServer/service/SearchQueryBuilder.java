@@ -8,10 +8,9 @@ import java.time.OffsetDateTime;
 
 import io.swagger.model.FilterBy;
 import io.swagger.model.GeoJSONSearchArea;
-import io.swagger.model.sort.SortByElement;
+import io.swagger.model.sort.SortBy;
 import io.swagger.model.sort.SortOrder;
 import org.brapi.test.BrAPITestServer.exceptions.BrAPIServerException;
-import org.springframework.http.HttpStatus;
 
 public class SearchQueryBuilder<T> {
 
@@ -350,13 +349,13 @@ public class SearchQueryBuilder<T> {
 	 *  - A column name
 	 *  - An order (DESC, ASC)
 	 */
-	public SearchQueryBuilder<T> sortBy(List<SortByElement> sortBy) throws BrAPIServerException {
+	public SearchQueryBuilder<T> sortBy(List<SortBy> sortBy) throws BrAPIServerException {
 
 		if (sortBy == null || sortBy.isEmpty()) {
 			return this;
 		}
 
-		for (SortByElement sort : sortBy) {
+		for (SortBy sort : sortBy) {
 			if (sortBy.getFirst().equals(sort)) {
 				this.sortClause += " ORDER BY ";
 				buildSort(sort);
@@ -369,7 +368,7 @@ public class SearchQueryBuilder<T> {
 		return this;
 	}
 
-	private void buildSort(SortByElement sort) {
+	private void buildSort(SortBy sort) {
 		this.sortClause += entityPrefix(sort.getSortedOn()) + " " + sort.getSortOrder() + " ";
 	}
 

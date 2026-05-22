@@ -3,7 +3,7 @@ package io.swagger.model;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSetter;
-import io.swagger.model.sort.SortByElement;
+import io.swagger.model.sort.SortBy;
 import org.brapi.test.BrAPITestServer.exceptions.BrAPIServerException;
 import org.springframework.http.HttpStatus;
 
@@ -34,7 +34,7 @@ public abstract class SearchRequest {
 	protected List<FilterBy> filterBy = null;
 
 	@JsonProperty("sortBy")
-	protected List<SortByElement> sortBy = null;
+	protected List<SortBy> sortBy = null;
 
 	@JsonIgnore
 	protected Map<String, String> sortFilterEntityColumnNamesByRequestName = null;
@@ -143,7 +143,6 @@ public abstract class SearchRequest {
 		return filterBy;
 	}
 
-	@JsonSetter("filterBy")
 	public void setFilterBy(List<FilterBy> filterBy) throws BrAPIServerException {
 
 		if (filterBy == null || filterBy.isEmpty()) {
@@ -176,12 +175,11 @@ public abstract class SearchRequest {
 		this.filterBy = filterBy;
 	}
 
-	public List<SortByElement> getSortByElements() {
+	public List<SortBy> getSortByElements() {
 		return sortBy;
 	}
 
-	@JsonSetter("sortBy")
-	public void setSortByElements(List<SortByElement> sortBy) throws BrAPIServerException {
+	public void setSortBy(List<SortBy> sortBy) throws BrAPIServerException {
 
 		if (sortBy == null || sortBy.isEmpty()) {
 			return;
@@ -189,7 +187,7 @@ public abstract class SearchRequest {
 
 		Map<String, String> allowedSortFilterNames = getSortFilterEntityColumnNamesByRequestName();
 
-		for (SortByElement sortByItem : sortBy) {
+		for (SortBy sortByItem : sortBy) {
 			if (sortByItem.getSortedOn() == null || sortByItem.getSortedOn().isEmpty()) {
 				throw new BrAPIServerException(HttpStatus.BAD_REQUEST, "sortedOn attribute not provided in element of sortBy list");
 			}

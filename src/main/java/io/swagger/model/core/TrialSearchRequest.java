@@ -15,7 +15,11 @@ public class TrialSearchRequest extends SearchRequest {
 			Map.of(
 				"trialName", "trialName",
 				"createdDate", "createdDate",
-					"createdBy", "createdBy"
+					"createdBy", "createdBy",
+					"trialDbId", "id",
+					"programDbId","program.id",
+					"startDate", "startDate",
+					"endDate", "endDate"
 			);
 
 	@JsonProperty("commonCropNames")
