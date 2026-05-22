@@ -97,8 +97,9 @@ public class TrialService {
 		if (searchDateRangeEnd != null)
 			request.setSearchDateRangeEnd(searchDateRangeEnd);
 		if (sortBy != null) {
+			// TODO: Fix this use case by adding allowable sort fields for trials from old enum in here
 			SortByElement querySortBy = new SortByElement(sortBy, SortOrder.valueOf(sortOrder), false);
-			request.setSortByEntry(List.of(querySortBy));
+			request.setSortByElements(List.of(querySortBy));
 		}
 		request.addExternalReferenceItem(externalReferenceId, externalReferenceID, externalReferenceSource);
 		return findTrials(request, metadata);
@@ -127,7 +128,8 @@ public class TrialService {
 				.appendList(request.getStudyNames(), "*study.studyName").appendList(request.getTrialDbIds(), "id")
 				.appendList(request.getTrialNames(), "trialName")
 				.appendDateRange(request.getSearchDateRangeStart(), request.getSearchDateRangeEnd(), "startDate")
-				.sortBy(request.getSortByEntry());
+				.sortBy(request.getSortByElements())
+				.filterBy(request.getFilterBy());
 
 		Page<TrialEntity> trialsPage = trialRepository.findAllBySearchAndPaginate(searchQuery, pageReq);
 		PagingUtility.calculateMetaData(metadata, trialsPage);

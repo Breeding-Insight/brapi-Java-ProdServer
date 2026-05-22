@@ -2,6 +2,7 @@ package io.swagger.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonSetter;
 import io.swagger.model.sort.SortByElement;
 import org.brapi.test.BrAPITestServer.exceptions.BrAPIServerException;
 import org.springframework.http.HttpStatus;
@@ -142,6 +143,7 @@ public abstract class SearchRequest {
 		return filterBy;
 	}
 
+	@JsonSetter("filterBy")
 	public void setFilterBy(List<FilterBy> filterBy) throws BrAPIServerException {
 
 		if (filterBy == null || filterBy.isEmpty()) {
@@ -151,25 +153,35 @@ public abstract class SearchRequest {
 		Map<String, String> allowedSortFilterNames = getSortFilterEntityColumnNamesByRequestName();
 
 		for (FilterBy filterByItem : filterBy) {
-			String filterColumnEntityName = getSortFilterEntityColumnNamesByRequestName().get(filterByItem.getFilterColumn());
+
+			if (filterByItem.getFilterOn() == null || filterByItem.getFilterOn().isEmpty()) {
+				throw new BrAPIServerException(HttpStatus.BAD_REQUEST, "filterOn attribute not provided in element of filterBy list.");
+			}
+
+			if (filterByItem.getValue() == null || filterByItem.getValue().isEmpty()) {
+				throw new BrAPIServerException(HttpStatus.BAD_REQUEST, "value attribute not provided in element of filterBy list.");
+			}
+
+			String filterColumnEntityName = getSortFilterEntityColumnNamesByRequestName().get(filterByItem.getFilterOn());
 
 			if (filterColumnEntityName == null) {
 				throw new BrAPIServerException(HttpStatus.BAD_REQUEST,
-						String.format("Supplied filterColumn [%s] not available in allowed names [%s]", filterByItem.getFilterColumn(), allowedSortFilterNames.keySet())
+						String.format("Supplied filterColumn [%s] not available in allowed names [%s]", filterByItem.getFilterOn(), allowedSortFilterNames.keySet())
 				);
 			} else {
 				// Remap suppliedFilterColumn to actual entity name supplied by mapper
-				filterByItem.setFilterColumn(filterColumnEntityName);
+				filterByItem.setFilterOn(filterColumnEntityName);
 			}
 		}
 		this.filterBy = filterBy;
 	}
 
-	public List<SortByElement> getSortByEntry() {
+	public List<SortByElement> getSortByElements() {
 		return sortBy;
 	}
 
-	public void setSortByEntry(List<SortByElement> sortBy) throws BrAPIServerException {
+	@JsonSetter("sortBy")
+	public void setSortByElements(List<SortByElement> sortBy) throws BrAPIServerException {
 
 		if (sortBy == null || sortBy.isEmpty()) {
 			return;
@@ -178,15 +190,19 @@ public abstract class SearchRequest {
 		Map<String, String> allowedSortFilterNames = getSortFilterEntityColumnNamesByRequestName();
 
 		for (SortByElement sortByItem : sortBy) {
-			String filterColumnEntityName = getSortFilterEntityColumnNamesByRequestName().get(sortByItem.getSortedOn());
+			if (sortByItem.getSortedOn() == null || sortByItem.getSortedOn().isEmpty()) {
+				throw new BrAPIServerException(HttpStatus.BAD_REQUEST, "sortedOn attribute not provided in element of sortBy list");
+			}
 
-			if (filterColumnEntityName == null) {
+			String sortColumnEntityName = getSortFilterEntityColumnNamesByRequestName().get(sortByItem.getSortedOn());
+
+			if (sortColumnEntityName == null) {
 				throw new BrAPIServerException(HttpStatus.BAD_REQUEST,
 						String.format("Supplied sortColumn [%s] not available in allowed names [%s]", sortByItem.getSortedOn(), allowedSortFilterNames.keySet())
 				);
 			} else {
 				// Remap suppliedFilterColumn to actual entity name supplied by mapper
-				sortByItem.setSortedOn(filterColumnEntityName);
+				sortByItem.setSortedOn(sortColumnEntityName);
 			}
 		}
 

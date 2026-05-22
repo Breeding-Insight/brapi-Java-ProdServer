@@ -40,8 +40,8 @@ public class TrialEntity extends BrAPIPrimaryEntity {
 	@Column(name = "soft_deleted")
 	private boolean softDeleted;
 
-	@Formula("(to_timestamp(additional_info #>> '{createdDate}', 'YYYY-MM-DD'))")
-	private OffsetDateTime createdDate;
+	@Formula("(additional_info #>> '{createdDate}')")
+	private String createdDate;
 
 	@Formula("(additional_info #>> '{createdBy,userName}')")
 	private String createdBy;

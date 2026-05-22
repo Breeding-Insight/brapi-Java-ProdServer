@@ -1,13 +1,12 @@
 package org.brapi.test.BrAPITestServer;
 
 import java.util.ArrayList;
+import java.util.Map;
 
 import org.brapi.test.BrAPITestServer.exceptions.BrAPIServerException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.lang.Nullable;
 import org.springframework.web.bind.MissingServletRequestParameterException;
@@ -69,5 +68,37 @@ public class BrapiExceptionHandler extends ResponseEntityExceptionHandler {
 		String apiError = String.valueOf(code.value()) + " \n" + code.getReasonPhrase() + " \n" + message;
 
 		return new ResponseEntity<Object>(apiError, code);
+	}
+
+	// This override handles JSON parsing failures detected by Jackson.
+	// It allows for capture of BrAPI generated BAD Request exceptions that are occur during serialization,
+	// like those involved in filtering and sorting in search requests.
+	@Override
+	protected ResponseEntity<Object> handleHttpMessageNotReadable(
+			HttpMessageNotReadableException ex,
+			HttpHeaders headers,
+			HttpStatusCode status,
+			WebRequest request
+	) {
+		Throwable root = ex.getMostSpecificCause();
+
+		if (root instanceof BrAPIServerException brapiServerException) {
+
+			ProblemDetail detail =
+					ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
+
+			detail.setTitle("Bad Request");
+			detail.setDetail(brapiServerException.getResponseMessage());
+
+			return ResponseEntity.badRequest().body(detail);
+		}
+
+		// Delegate back to Spring default behavior
+		return super.handleHttpMessageNotReadable(
+				ex,
+				headers,
+				status,
+				request
+		);
 	}
 }

@@ -10,6 +10,8 @@ import io.swagger.model.FilterBy;
 import io.swagger.model.GeoJSONSearchArea;
 import io.swagger.model.sort.SortByElement;
 import io.swagger.model.sort.SortOrder;
+import org.brapi.test.BrAPITestServer.exceptions.BrAPIServerException;
+import org.springframework.http.HttpStatus;
 
 public class SearchQueryBuilder<T> {
 
@@ -131,6 +133,16 @@ public class SearchQueryBuilder<T> {
 		if (single != null) {
 			this.whereClause += "AND " + entityPrefix(columnName) + " = :" + paramName + " ";
 			this.params.put(paramName, single);
+		}
+		return this;
+	}
+
+	public SearchQueryBuilder<T> appendLike(String like, String columnName) {
+		String paramName = paramFilter(columnName);
+
+		if (like != null) {
+			this.whereClause += "AND " + entityPrefix(columnName) + " LIKE :" + paramName + " ";
+			this.params.put(paramName, "%" + like + "%");
 		}
 		return this;
 	}
@@ -337,9 +349,8 @@ public class SearchQueryBuilder<T> {
 	 * A SortBy has
 	 *  - A column name
 	 *  - An order (DESC, ASC)
-	 *  - A boolean denoting whether the column to be sorted is data stored in additional info
 	 */
-	public SearchQueryBuilder<T> sortBy(List<SortByElement> sortBy) {
+	public SearchQueryBuilder<T> sortBy(List<SortByElement> sortBy) throws BrAPIServerException {
 
 		if (sortBy == null || sortBy.isEmpty()) {
 			return this;
@@ -368,12 +379,17 @@ public class SearchQueryBuilder<T> {
 	 *
 	 * A FilterBy has
 	 *  - A column name
-	 *  - A boolean denoting whether the column to be sorted is data stored in additional info
 	 */
-	public SearchQueryBuilder<T> filterBy(List<FilterBy> filterBy) {
-		for (FilterBy filter : filterBy) {
-			this.whereClause += " AND " + entityPrefix(filter.getFilterColumn()) + " LIKE '%" + filter.getValue() + "%' ";
+	public SearchQueryBuilder<T> filterBy(List<FilterBy> filterBy) throws BrAPIServerException {
+		SearchQueryBuilder<T> searchQuery = this;
+
+		if (filterBy == null || filterBy.isEmpty()) {
+			return searchQuery;
 		}
 
-		return this;
+		for (FilterBy filter : filterBy) {
+			searchQuery = appendLike(filter.getValue(), filter.getFilterOn());
+		}
+
+		return searchQuery;
 	}}

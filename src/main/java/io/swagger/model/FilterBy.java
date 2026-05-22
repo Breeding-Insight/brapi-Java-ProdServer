@@ -1,15 +1,16 @@
 package io.swagger.model;
 
 public class FilterBy {
-    private String filterColumn;
+
+    private String filterOn;
     private String value;
 
-    public String getFilterColumn() {
-        return filterColumn;
+    public String getFilterOn() {
+        return filterOn;
     }
 
-    public void setFilterColumn(String filterColumn) {
-        this.filterColumn = filterColumn;
+    public void setFilterOn(String filterOn) {
+        this.filterOn = filterOn;
     }
 
     public String getValue() {
