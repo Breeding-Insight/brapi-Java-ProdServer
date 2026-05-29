@@ -19,7 +19,8 @@ public class TrialSearchRequest extends SearchRequest {
 					"trialDbId", "id",
 					"programDbId","program.id",
 					"startDate", "startDate",
-					"endDate", "endDate"
+					"endDate", "endDate",
+					"active", "active"
 			);
 
 	@JsonProperty("commonCropNames")

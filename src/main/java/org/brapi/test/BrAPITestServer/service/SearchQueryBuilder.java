@@ -140,7 +140,7 @@ public class SearchQueryBuilder<T> {
 		String paramName = paramFilter(columnName);
 
 		if (like != null) {
-			this.whereClause += "AND " + entityPrefix(columnName) + " LIKE :" + paramName + " ";
+			this.whereClause += "AND  lower(" + entityPrefix(columnName) + ") LIKE :" + paramName + " ";
 			this.params.put(paramName, "%" + like + "%");
 		}
 		return this;
@@ -328,19 +328,6 @@ public class SearchQueryBuilder<T> {
 		return param.replace('.', '_').replace('*', '_');
 	}
 
-	@Deprecated
-	// Use withSortBy instead
-	public SearchQueryBuilder<T> withSort(String sortByStr, SortOrder sortOrder) {
-		String sortOrderStr = "ASC";
-		if (sortOrder != null) {
-			sortOrderStr = sortOrder.toString();
-		}
-
-		this.sortClause += " ORDER BY " + entityPrefix(sortByStr) + " " + sortOrderStr;
-
-		return this;
-	}
-
 	/**
 	 * Takes a list of SortBy options that should typically come in a searchRequest.
 	 * Applies the entries in the list to sort the SearchQuery.
@@ -387,7 +374,7 @@ public class SearchQueryBuilder<T> {
 		}
 
 		for (FilterBy filter : filterBy) {
-			searchQuery = appendLike(filter.getValue(), filter.getFilterOn());
+			searchQuery = appendLike(filter.getValue().toLowerCase(), filter.getFilterOn());
 		}
 
 		return searchQuery;
