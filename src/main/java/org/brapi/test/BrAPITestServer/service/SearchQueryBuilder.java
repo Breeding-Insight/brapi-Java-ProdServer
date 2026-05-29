@@ -6,8 +6,11 @@ import java.util.*;
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
 
+import io.swagger.model.FilterBy;
 import io.swagger.model.GeoJSONSearchArea;
-import io.swagger.model.core.SortOrder;
+import io.swagger.model.sort.SortBy;
+import io.swagger.model.sort.SortOrder;
+import org.brapi.test.BrAPITestServer.exceptions.BrAPIServerException;
 
 public class SearchQueryBuilder<T> {
 
@@ -20,8 +23,8 @@ public class SearchQueryBuilder<T> {
 	private Class<T> clazz;
 
 	public SearchQueryBuilder(Class<T> clazz) {
-		this.selectClause = "SELECT distinct entity FROM " + clazz.getSimpleName() + " entity ";
-		this.selectOnlyIds = "SELECT distinct entity.id FROM " + clazz.getSimpleName() + " entity ";
+		this.selectClause = "SELECT entity FROM " + clazz.getSimpleName() + " entity ";
+		this.selectOnlyIds = "SELECT entity.id FROM " + clazz.getSimpleName() + " entity ";
 		this.whereClause = "WHERE 1=1 ";
 		this.defaultSort = " ORDER BY entity.id ASC ";
 		this.sortClause = "";
@@ -129,6 +132,16 @@ public class SearchQueryBuilder<T> {
 		if (single != null) {
 			this.whereClause += "AND " + entityPrefix(columnName) + " = :" + paramName + " ";
 			this.params.put(paramName, single);
+		}
+		return this;
+	}
+
+	public SearchQueryBuilder<T> appendLike(String like, String columnName) {
+		String paramName = paramFilter(columnName);
+
+		if (like != null) {
+			this.whereClause += "AND  lower(" + entityPrefix(columnName) + ") LIKE :" + paramName + " ";
+			this.params.put(paramName, "%" + like + "%");
 		}
 		return this;
 	}
@@ -305,20 +318,64 @@ public class SearchQueryBuilder<T> {
 		}
 	}
 
+	private String addInfoPrefix(String field) {
+		return "function('jsonb_extract_path_text', entity.additionalInfo, '" + field + "' ) ";
+	}
+
 	private String paramFilter(String param) {
 		if (param == null)
 			return "";
 		return param.replace('.', '_').replace('*', '_');
 	}
 
-	public SearchQueryBuilder<T> withSort(String sortByStr, SortOrder sortOrder) {
-		String sortOrderStr = "ASC";
-		if (sortOrder != null) {
-			sortOrderStr = sortOrder.toString();
+	/**
+	 * Takes a list of SortBy options that should typically come in a searchRequest.
+	 * Applies the entries in the list to sort the SearchQuery.
+	 *
+	 * A SortBy has
+	 *  - A column name
+	 *  - An order (DESC, ASC)
+	 */
+	public SearchQueryBuilder<T> sortBy(List<SortBy> sortBy) throws BrAPIServerException {
+
+		if (sortBy == null || sortBy.isEmpty()) {
+			return this;
 		}
 
-		this.sortClause += " ORDER BY " + entityPrefix(sortByStr) + " " + sortOrderStr;
+		for (SortBy sort : sortBy) {
+			if (sortBy.getFirst().equals(sort)) {
+				this.sortClause += " ORDER BY ";
+				buildSort(sort);
+			} else {
+				this.sortClause += ", ";
+				buildSort(sort);
+			}
+		}
 
 		return this;
 	}
-}
+
+	private void buildSort(SortBy sort) {
+		this.sortClause += entityPrefix(sort.getSortedOn()) + " " + sort.getSortOrder() + " ";
+	}
+
+	/**
+	 * Takes a list of FilterBy options that should typically come in a searchRequest.
+	 * Applies the entries in the list to filter the SearchQuery.
+	 *
+	 * A FilterBy has
+	 *  - A column name
+	 */
+	public SearchQueryBuilder<T> filterBy(List<FilterBy> filterBy) throws BrAPIServerException {
+		SearchQueryBuilder<T> searchQuery = this;
+
+		if (filterBy == null || filterBy.isEmpty()) {
+			return searchQuery;
+		}
+
+		for (FilterBy filter : filterBy) {
+			searchQuery = appendLike(filter.getValue().toLowerCase(), filter.getFilterOn());
+		}
+
+		return searchQuery;
+	}}

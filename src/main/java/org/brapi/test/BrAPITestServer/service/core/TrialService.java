@@ -4,6 +4,8 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import io.swagger.model.core.*;
+import io.swagger.model.sort.SortBy;
+import io.swagger.model.sort.SortOrder;
 import jakarta.validation.Valid;
 
 import org.brapi.test.BrAPITestServer.exceptions.BatchDeleteWrongTypeException;
@@ -94,11 +96,10 @@ public class TrialService {
 			request.setSearchDateRangeStart(searchDateRangeStart);
 		if (searchDateRangeEnd != null)
 			request.setSearchDateRangeEnd(searchDateRangeEnd);
-		if (sortBy != null && SortBy.fromValue(sortBy) != null)
-			request.setSortBy(SortBy.fromValue(sortBy));
-		if (sortOrder != null && SortOrder.fromValue(sortOrder) != null)
-			request.setSortOrder(SortOrder.fromValue(sortOrder));
-
+		if (sortBy != null) {
+			SortBy querySortBy = new SortBy(sortBy, SortOrder.valueOf(sortOrder));
+			request.setSortBy(List.of(querySortBy));
+		}
 		request.addExternalReferenceItem(externalReferenceId, externalReferenceID, externalReferenceSource);
 		return findTrials(request, metadata);
 	}
@@ -126,7 +127,8 @@ public class TrialService {
 				.appendList(request.getStudyNames(), "*study.studyName").appendList(request.getTrialDbIds(), "id")
 				.appendList(request.getTrialNames(), "trialName")
 				.appendDateRange(request.getSearchDateRangeStart(), request.getSearchDateRangeEnd(), "startDate")
-				.withSort(getSortByField(request.getSortBy()), request.getSortOrder());
+				.sortBy(request.getSortByElements())
+				.filterBy(request.getFilterBy());
 
 		Page<TrialEntity> trialsPage = trialRepository.findAllBySearchAndPaginate(searchQuery, pageReq);
 		PagingUtility.calculateMetaData(metadata, trialsPage);
@@ -356,34 +358,4 @@ public class TrialService {
 		return entity;
 
 	}
-
-	private String getSortByField(SortBy sortBy) {
-		String sortByStr = "id";
-		if (sortBy != null) {
-			switch (sortBy) {
-			case STARTDATE:
-				sortByStr = "startDate";
-				break;
-			case ENDDATE:
-				sortByStr = "endDate";
-				break;
-			case TRIALNAME:
-				sortByStr = "trialName";
-				break;
-			case PROGRAMDBID:
-				sortByStr = "program.id";
-				break;
-			case PROGRAMNAME:
-				sortByStr = "program.name";
-				break;
-			case TRIALDBID:
-			default:
-				sortByStr = "id";
-				break;
-			}
-		}
-
-		return sortByStr;
-	}
-
 }

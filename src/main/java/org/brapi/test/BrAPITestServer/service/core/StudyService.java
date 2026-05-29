@@ -3,10 +3,10 @@ package org.brapi.test.BrAPITestServer.service.core;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import io.swagger.model.sort.SortBy;
 import org.apache.commons.lang3.StringUtils;
 import org.brapi.test.BrAPITestServer.exceptions.BrAPIServerDbIdNotFoundException;
 import org.brapi.test.BrAPITestServer.exceptions.BrAPIServerException;
-import org.brapi.test.BrAPITestServer.model.entity.BrAPIBaseEntity;
 import org.brapi.test.BrAPITestServer.model.entity.core.CropEntity;
 import org.brapi.test.BrAPITestServer.model.entity.core.DataLinkEntity;
 import org.brapi.test.BrAPITestServer.model.entity.core.EnvironmentParametersEntity;
@@ -38,8 +38,7 @@ import io.swagger.model.DataLink;
 import io.swagger.model.Metadata;
 import io.swagger.model.core.Contact;
 import io.swagger.model.core.EnvironmentParameter;
-import io.swagger.model.core.SortBy;
-import io.swagger.model.core.SortOrder;
+import io.swagger.model.sort.SortOrder;
 import io.swagger.model.core.Study;
 import io.swagger.model.core.StudyExperimentalDesign;
 import io.swagger.model.core.StudyGrowthFacility;
@@ -108,10 +107,11 @@ public class StudyService {
 			request.addObservationVariableDbIdsItem(observationVariableDbId);
 		if (active != null)
 			request.setActive(active);
-		if (sortBy != null && SortBy.fromValue(sortBy) != null)
-			request.setSortBy(SortBy.fromValue(sortBy));
-		if (sortOrder != null && SortOrder.fromValue(sortOrder) != null)
-			request.setSortOrder(SortOrder.fromValue(sortOrder));
+		if (sortBy != null) {
+			SortBy sortByElement = new SortBy(sortBy, SortOrder.valueOf(sortOrder));
+
+			request.setSortBy(List.of(sortByElement));
+		}
 
 		request.addExternalReferenceItem(externalReferenceId, externalReferenceID, externalReferenceSource);
 
@@ -159,7 +159,7 @@ public class StudyService {
 				.appendList(request.getStudyDbIds(), "id").appendList(request.getStudyNames(), "studyName")
 				.appendList(request.getStudyPUIs(), "studyPUI").appendList(request.getStudyTypes(), "studyType")
 				.appendList(request.getTrialDbIds(), "trial.id").appendList(request.getTrialNames(), "trial.trialName")
-				.withSort(getSortByField(request.getSortBy()), request.getSortOrder());
+				.sortBy(request.getSortByElements());
 
 		Page<StudyEntity> studiesPage = studyRepository.findAllBySearchAndPaginate(searchQuery, pageReq);
 		PagingUtility.calculateMetaData(metaData, studiesPage);
@@ -564,49 +564,6 @@ public class StudyService {
 			entity.setValuePUI(param.getValuePUI());
 		}
 		return entity;
-	}
-
-	private String getSortByField(SortBy sortBy) {
-		String sortByStr = "id";
-		if (sortBy != null) {
-			switch (sortBy) {
-			case GERMPLASMDBID:
-				sortByStr = "*obsunit.germplasm.id";
-				break;
-			case LOCATIONDBID:
-				sortByStr = "location.id";
-				break;
-			case OBSERVATIONVARIABLEDBID:
-				sortByStr = "*observation.observationVariable.id";
-				break;
-			case PROGRAMDBID:
-				sortByStr = "trial.program.id";
-				break;
-			case PROGRAMNAME:
-				sortByStr = "trial.program.name";
-				break;
-			case SEASONDBID:
-				sortByStr = "*season.id";
-				break;
-			case STUDYDBID:
-				sortByStr = "id";
-				break;
-			case STUDYLOCATION:
-				sortByStr = "location.id";
-				break;
-			case TRIALDBID:
-				sortByStr = "trial.id ";
-				break;
-			case STUDYTYPE:
-				sortByStr = "studyName";
-				break;
-			case STUDYNAME:
-			default:
-				sortByStr = "studyName";
-				break;
-			}
-		}
-		return sortByStr;
 	}
 
 }

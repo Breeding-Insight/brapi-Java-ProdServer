@@ -1,4 +1,4 @@
-package io.swagger.model.core;
+package io.swagger.model.sort;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
