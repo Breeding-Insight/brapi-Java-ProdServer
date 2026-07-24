@@ -23,8 +23,8 @@ public class SearchQueryBuilder<T> {
 	private Class<T> clazz;
 
 	public SearchQueryBuilder(Class<T> clazz) {
-		this.selectClause = "SELECT entity FROM " + clazz.getSimpleName() + " entity ";
-		this.selectOnlyIds = "SELECT entity.id FROM " + clazz.getSimpleName() + " entity ";
+		this.selectClause = "SELECT distinct entity FROM " + clazz.getSimpleName() + " entity ";
+		this.selectOnlyIds = "SELECT distinct entity.id FROM " + clazz.getSimpleName() + " entity ";
 		this.whereClause = "WHERE 1=1 ";
 		this.defaultSort = " ORDER BY entity.id ASC ";
 		this.sortClause = "";
