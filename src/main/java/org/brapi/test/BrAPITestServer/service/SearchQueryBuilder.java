@@ -11,6 +11,8 @@ import io.swagger.model.GeoJSONSearchArea;
 import io.swagger.model.sort.SortBy;
 import io.swagger.model.sort.SortOrder;
 import org.brapi.test.BrAPITestServer.exceptions.BrAPIServerException;
+import org.brapi.test.BrAPITestServer.model.dto.EntityColumnNameAndType;
+import org.brapi.test.BrAPITestServer.model.dto.EntityType;
 
 public class SearchQueryBuilder<T> {
 
@@ -141,6 +143,16 @@ public class SearchQueryBuilder<T> {
 
 		if (like != null) {
 			this.whereClause += "AND  lower(" + entityPrefix(columnName) + ") LIKE :" + paramName + " ";
+			this.params.put(paramName, "%" + like + "%");
+		}
+		return this;
+	}
+
+	public SearchQueryBuilder<T> appendLikeIDs(String like, String columnName) {
+		String paramName = paramFilter(columnName);
+
+		if (like != null) {
+			this.whereClause += "AND cast(" + entityPrefix(columnName) + " as String) LIKE :" + paramName + " ";
 			this.params.put(paramName, "%" + like + "%");
 		}
 		return this;
@@ -329,20 +341,24 @@ public class SearchQueryBuilder<T> {
 	}
 
 	/**
-	 * Takes a list of SortBy options that should typically come in a searchRequest.
+	 * Takes a list of SortBy options that should typically come in a searchRequest, along with a map of the validated
+	 * columns names.
 	 * Applies the entries in the list to sort the SearchQuery.
 	 *
 	 * A SortBy has
 	 *  - A column name
 	 *  - An order (DESC, ASC)
 	 */
-	public SearchQueryBuilder<T> sortBy(List<SortBy> sortBy) throws BrAPIServerException {
+	public SearchQueryBuilder<T> sortBy(List<SortBy> sortBy, Map<String, EntityColumnNameAndType> entityColAndTypeBySubmittedName) throws BrAPIServerException {
 
 		if (sortBy == null || sortBy.isEmpty()) {
 			return this;
 		}
 
 		for (SortBy sort : sortBy) {
+			// At this point, the submitted sortBy name has been verified to be in entityColAndTypeBySubmittedName
+			sort.setSortedOn(entityColAndTypeBySubmittedName.get(sort.getSortedOn()).getEntityColumnName());
+
 			if (sortBy.getFirst().equals(sort)) {
 				this.sortClause += " ORDER BY ";
 				buildSort(sort);
@@ -360,13 +376,15 @@ public class SearchQueryBuilder<T> {
 	}
 
 	/**
-	 * Takes a list of FilterBy options that should typically come in a searchRequest.
+	 * Takes a list of FilterBy options that should typically come in a searchRequest, along with a map of the validated
+	 * columns names and the data type they represent for accurate filtering on different data types.
 	 * Applies the entries in the list to filter the SearchQuery.
 	 *
 	 * A FilterBy has
 	 *  - A column name
+	 *  - A value which the column name should be filtered on
 	 */
-	public SearchQueryBuilder<T> filterBy(List<FilterBy> filterBy) throws BrAPIServerException {
+	public SearchQueryBuilder<T> filterBy(List<FilterBy> filterBy, Map<String, EntityColumnNameAndType> entityColAndTypeBySubmittedName) throws BrAPIServerException {
 		SearchQueryBuilder<T> searchQuery = this;
 
 		if (filterBy == null || filterBy.isEmpty()) {
@@ -374,7 +392,14 @@ public class SearchQueryBuilder<T> {
 		}
 
 		for (FilterBy filter : filterBy) {
-			searchQuery = appendLike(filter.getValue().toLowerCase(), filter.getFilterOn());
+			// At this point, the submitted filterBy column name has been verified to be in entityColAndTypeBySubmittedName
+			EntityColumnNameAndType entityColumnNameAndType = entityColAndTypeBySubmittedName.get(filter.getFilterOn());
+
+			if (entityColumnNameAndType.getEntityType() == EntityType.TEXT) {
+				searchQuery = appendLike(filter.getValue().toLowerCase(), entityColumnNameAndType.getEntityColumnName());
+			} else if (entityColumnNameAndType.getEntityType() == EntityType.UUID) {
+				searchQuery = appendLikeIDs(filter.getValue(), entityColumnNameAndType.getEntityColumnName());
+			}
 		}
 
 		return searchQuery;

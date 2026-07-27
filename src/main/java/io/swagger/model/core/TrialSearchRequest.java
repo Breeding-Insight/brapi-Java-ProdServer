@@ -4,23 +4,25 @@ import java.util.*;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.model.SearchRequest;
+import org.brapi.test.BrAPITestServer.model.dto.EntityColumnNameAndType;
+import org.brapi.test.BrAPITestServer.model.dto.EntityType;
 
 import java.time.LocalDate;
 
 public class TrialSearchRequest extends SearchRequest {
 
 	// Key - allowed sort or field filter name for this entity
-	// Value = entity field name that represents the submitted field. Used later on in query building.
-	private static final Map<String, String> ALLOWED_SORT_AND_FILTER_FIELDS =
+	// Value = entity field name and type that represents the submitted field. Used later on in query building.
+	private static final Map<String, EntityColumnNameAndType> ALLOWED_SORT_AND_FILTER_FIELDS =
 			Map.of(
-				"trialName", "trialName",
-				"createdDate", "createdDate",
-					"createdBy", "createdBy",
-					"trialDbId", "id",
-					"programDbId","program.id",
-					"startDate", "startDate",
-					"endDate", "endDate",
-					"active", "active"
+				"trialName", new EntityColumnNameAndType("trialName", EntityType.TEXT),
+				"createdDate", new EntityColumnNameAndType("createdDate", EntityType.TEXT),
+				"createdBy", new EntityColumnNameAndType("createdBy", EntityType.TEXT),
+				"trialDbId", new EntityColumnNameAndType("id", EntityType.UUID),
+				"programDbId",new EntityColumnNameAndType("program.id", EntityType.UUID),
+				"startDate", new EntityColumnNameAndType("startDate", EntityType.TEXT),
+				"endDate", new EntityColumnNameAndType("endDate", EntityType.TEXT),
+				"active", new EntityColumnNameAndType("active",  EntityType.BOOLEAN)
 			);
 
 	@JsonProperty("commonCropNames")
@@ -440,7 +442,7 @@ public class TrialSearchRequest extends SearchRequest {
 	}
 
 	@Override
-	public Map<String, String> getSortFilterEntityColumnNamesByRequestName() {
+	public Map<String, EntityColumnNameAndType> getEntityColAndTypeBySubmittedNameMap() {
 		return ALLOWED_SORT_AND_FILTER_FIELDS;
 	}
 }

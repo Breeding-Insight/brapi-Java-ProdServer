@@ -127,8 +127,8 @@ public class TrialService {
 				.appendList(request.getStudyNames(), "*study.studyName").appendList(request.getTrialDbIds(), "id")
 				.appendList(request.getTrialNames(), "trialName")
 				.appendDateRange(request.getSearchDateRangeStart(), request.getSearchDateRangeEnd(), "startDate")
-				.sortBy(request.getSortByElements())
-				.filterBy(request.getFilterBy());
+				.sortBy(request.getSortByElements(), request.getEntityColAndTypeBySubmittedNameMap())
+				.filterBy(request.getFilterBy(), request.getEntityColAndTypeBySubmittedNameMap());
 
 		Page<TrialEntity> trialsPage = trialRepository.findAllBySearchAndPaginate(searchQuery, pageReq);
 		PagingUtility.calculateMetaData(metadata, trialsPage);
