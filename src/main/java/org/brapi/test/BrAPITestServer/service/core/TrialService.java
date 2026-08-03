@@ -114,17 +114,17 @@ public class TrialService {
 			searchQuery = searchQuery.join("contacts", "contact");
 		}
 		if (request.getStudyDbIds() != null || request.getStudyNames() != null) {
-			searchQuery = searchQuery.join("studies", "study");
+			searchQuery = searchQuery.join("studies", "studies");
 		}
 
 		searchQuery = searchQuery.withExRefs(request.getExternalReferenceIDs(), request.getExternalReferenceSources())
 				.appendList(request.getCommonCropNames(), "crop.cropName")
 				.appendList(request.getContactDbIds(), "*contact.id")
-				.appendList(request.getLocationDbIds(), "*study.location.id")
-				.appendList(request.getLocationNames(), "*study.location.locationName")
+				.appendList(request.getLocationDbIds(), "*studies.location.id")
+				.appendList(request.getLocationNames(), "*studies.location.locationName")
 				.appendList(request.getProgramDbIds(), "program.id")
-				.appendList(request.getProgramNames(), "program.name").appendList(request.getStudyDbIds(), "*study.id")
-				.appendList(request.getStudyNames(), "*study.studyName").appendList(request.getTrialDbIds(), "id")
+				.appendList(request.getProgramNames(), "program.name").appendList(request.getStudyDbIds(), "*studies.id")
+				.appendList(request.getStudyNames(), "*studies.studyName").appendList(request.getTrialDbIds(), "id")
 				.appendList(request.getTrialNames(), "trialName")
 				.appendDateRange(request.getSearchDateRangeStart(), request.getSearchDateRangeEnd(), "startDate")
 				.sortBy(request.getSortByElements(), request.getEntityColAndTypeBySubmittedNameMap())

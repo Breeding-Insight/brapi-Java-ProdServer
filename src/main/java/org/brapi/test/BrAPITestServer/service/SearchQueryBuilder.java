@@ -9,10 +9,10 @@ import java.time.OffsetDateTime;
 import io.swagger.model.FilterBy;
 import io.swagger.model.GeoJSONSearchArea;
 import io.swagger.model.sort.SortBy;
-import io.swagger.model.sort.SortOrder;
 import org.brapi.test.BrAPITestServer.exceptions.BrAPIServerException;
 import org.brapi.test.BrAPITestServer.model.dto.EntityColumnNameAndType;
 import org.brapi.test.BrAPITestServer.model.dto.EntityType;
+import org.springframework.http.HttpStatus;
 
 public class SearchQueryBuilder<T> {
 
@@ -330,10 +330,6 @@ public class SearchQueryBuilder<T> {
 		}
 	}
 
-	private String addInfoPrefix(String field) {
-		return "function('jsonb_extract_path_text', entity.additionalInfo, '" + field + "' ) ";
-	}
-
 	private String paramFilter(String param) {
 		if (param == null)
 			return "";
@@ -357,7 +353,15 @@ public class SearchQueryBuilder<T> {
 
 		for (SortBy sort : sortBy) {
 			// At this point, the submitted sortBy name has been verified to be in entityColAndTypeBySubmittedName
-			sort.setSortedOn(entityColAndTypeBySubmittedName.get(sort.getSortedOn()).getEntityColumnName());
+			EntityColumnNameAndType entityColumnNameAndType = entityColAndTypeBySubmittedName.get(sort.getSortedOn());
+
+			if (entityColumnNameAndType.getEntityColumnName().startsWith("*")) {
+				throw new BrAPIServerException(HttpStatus.BAD_REQUEST, "Sorting on one to many relationships not supported");
+			}
+
+			sort.setSortedOn(entityColumnNameAndType.getEntityColumnName());
+
+			joinCollectionColumn(entityColumnNameAndType.getEntityColumnName());
 
 			if (sortBy.getFirst().equals(sort)) {
 				this.sortClause += " ORDER BY ";
@@ -395,6 +399,10 @@ public class SearchQueryBuilder<T> {
 			// At this point, the submitted filterBy column name has been verified to be in entityColAndTypeBySubmittedName
 			EntityColumnNameAndType entityColumnNameAndType = entityColAndTypeBySubmittedName.get(filter.getFilterOn());
 
+			if (entityColumnNameAndType.getEntityColumnName().startsWith("*")) {
+				joinCollectionColumn(entityColumnNameAndType.getEntityColumnName());
+			}
+
 			if (entityColumnNameAndType.getEntityType() == EntityType.TEXT) {
 				searchQuery = appendLike(filter.getValue().toLowerCase(), entityColumnNameAndType.getEntityColumnName());
 			} else if (entityColumnNameAndType.getEntityType() == EntityType.UUID) {
@@ -403,4 +411,19 @@ public class SearchQueryBuilder<T> {
 		}
 
 		return searchQuery;
-	}}
+	}
+
+	/**
+	 * This helper method joins the table that a collection column name is related to if it doesn't exist already.
+	 * This is particularly important for filter search requests because if the join doesn't exist, and it is referenced
+	 * the query will not execute.
+	 */
+	private void joinCollectionColumn(String submittedSortFilterColumnName) {
+		String joinTableName = submittedSortFilterColumnName.substring(1, submittedSortFilterColumnName.indexOf("."));
+
+		if (!this.selectClause.contains(joinTableName)) {
+			// The requested filter column requires a join
+			this.join(joinTableName, joinTableName);
+		}
+	}
+}

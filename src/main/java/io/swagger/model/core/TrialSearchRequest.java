@@ -22,7 +22,9 @@ public class TrialSearchRequest extends SearchRequest {
 				"programDbId",new EntityColumnNameAndType("program.id", EntityType.UUID),
 				"startDate", new EntityColumnNameAndType("startDate", EntityType.TEXT),
 				"endDate", new EntityColumnNameAndType("endDate", EntityType.TEXT),
-				"active", new EntityColumnNameAndType("active",  EntityType.BOOLEAN)
+				"active", new EntityColumnNameAndType("active",  EntityType.BOOLEAN),
+				"programName", new EntityColumnNameAndType("program.name", EntityType.TEXT),
+				"locationDbId", new EntityColumnNameAndType("*studies.location.id", EntityType.UUID)
 			);
 
 	@JsonProperty("commonCropNames")
