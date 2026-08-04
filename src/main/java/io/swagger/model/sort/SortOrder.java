@@ -26,6 +26,6 @@ private String value;
           return b;
         }
       }
-      return null;
+      return ASC;
     }
 }

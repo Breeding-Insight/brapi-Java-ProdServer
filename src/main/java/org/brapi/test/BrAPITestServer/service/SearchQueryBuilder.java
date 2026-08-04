@@ -361,8 +361,6 @@ public class SearchQueryBuilder<T> {
 
 			sort.setSortedOn(entityColumnNameAndType.getEntityColumnName());
 
-			joinCollectionColumn(entityColumnNameAndType.getEntityColumnName());
-
 			if (sortBy.getFirst().equals(sort)) {
 				this.sortClause += " ORDER BY ";
 				buildSort(sort);

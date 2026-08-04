@@ -108,7 +108,7 @@ public class StudyService {
 		if (active != null)
 			request.setActive(active);
 		if (sortBy != null) {
-			SortBy sortByElement = new SortBy(sortBy, SortOrder.valueOf(sortOrder));
+			SortBy sortByElement = new SortBy(sortBy, SortOrder.fromValue(sortOrder));
 
 			request.setSortBy(List.of(sortByElement));
 		}

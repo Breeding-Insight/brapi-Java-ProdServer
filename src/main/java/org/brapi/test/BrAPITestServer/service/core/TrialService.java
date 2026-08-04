@@ -97,7 +97,7 @@ public class TrialService {
 		if (searchDateRangeEnd != null)
 			request.setSearchDateRangeEnd(searchDateRangeEnd);
 		if (sortBy != null) {
-			SortBy querySortBy = new SortBy(sortBy, SortOrder.valueOf(sortOrder));
+			SortBy querySortBy = new SortBy(sortBy, SortOrder.fromValue(sortOrder));
 			request.setSortBy(List.of(querySortBy));
 		}
 		request.addExternalReferenceItem(externalReferenceId, externalReferenceID, externalReferenceSource);
