@@ -22,6 +22,8 @@ public class SearchQueryBuilder<T> {
 	private String defaultSort;
 	private String sortClause;
 	private Map<String, Object> params;
+	private List<String> joinedTables = new ArrayList<>();
+	private List<String> joinedFetchedTables = new ArrayList<>();
 	private Class<T> clazz;
 
 	public SearchQueryBuilder(Class<T> clazz) {
@@ -283,13 +285,31 @@ public class SearchQueryBuilder<T> {
 	}
 
 	public SearchQueryBuilder<T> join(String join, String name) {
-		this.selectClause += "JOIN " + entityPrefix(join) + " " + paramFilter(name) + " ";
-		this.selectOnlyIds += "JOIN " + entityPrefix(join) + " " + paramFilter(name) + " ";
+
+		if (!this.joinedTables.contains(join) && !this.joinedFetchedTables.contains(join)) {
+			this.selectClause += "JOIN " + entityPrefix(join) + " " + paramFilter(name) + " ";
+			this.selectOnlyIds += "JOIN " + entityPrefix(join) + " " + paramFilter(name) + " ";
+			this.joinedTables.add(join);
+		}
 		return this;
 	}
 
 	public SearchQueryBuilder<T> leftJoinFetch(String join, String name) {
-		this.selectClause += generateLeftJoinFetch(join, name);
+		return leftJoinFetch(join, name, false);
+	}
+
+	public SearchQueryBuilder<T> leftJoinFetch(String join, String name, boolean overrideExistingJoin) {
+
+		if (this.joinedTables.contains(join) && overrideExistingJoin) {
+			// Override existing normal join with join fetch if it already exists in a query
+			// This override does not change the alias to the name provided, and assumes further usages will use the same alias.
+			this.selectClause = this.selectClause.replace("JOIN " + entityPrefix(join), "LEFT JOIN FETCH " + entityPrefix(join));
+			this.joinedFetchedTables.add(join);
+			this.joinedTables.remove(join);
+		} else if (!this.joinedFetchedTables.contains(join)) {
+			this.selectClause += generateLeftJoinFetch(join, name);
+			this.joinedFetchedTables.add(join);
+		}
 		return this;
 	}
 
@@ -305,6 +325,9 @@ public class SearchQueryBuilder<T> {
 		this.selectClause =
 				this.selectClause.replace(generateLeftJoinFetch(existingJoin, existingName), generateLeftJoinFetch(join, name));
 
+		this.joinedFetchedTables.remove(existingJoin);
+		this.joinedFetchedTables.add(join);
+
 		return this;
 	}
 
@@ -315,6 +338,7 @@ public class SearchQueryBuilder<T> {
 	public SearchQueryBuilder<T> removeLeftJoinFetch(String join, String name) {
 		this.selectClause =
 				this.selectClause.replace(generateLeftJoinFetch(join, name), "");
+		this.joinedFetchedTables.remove(join);
 		return this;
 	}
 
@@ -355,11 +379,24 @@ public class SearchQueryBuilder<T> {
 			// At this point, the submitted sortBy name has been verified to be in entityColAndTypeBySubmittedName
 			EntityColumnNameAndType entityColumnNameAndType = entityColAndTypeBySubmittedName.get(sort.getSortedOn());
 
-			if (entityColumnNameAndType.getEntityColumnName().startsWith("*")) {
+			String entityColName = entityColumnNameAndType.getEntityColumnName();
+
+			if (entityColName.startsWith("*")) {
 				throw new BrAPIServerException(HttpStatus.BAD_REQUEST, "Sorting on one to many relationships not supported");
 			}
 
-			sort.setSortedOn(entityColumnNameAndType.getEntityColumnName());
+			String[] split = entityColName.split("\\.");
+
+			if (split.length > 2) {
+				// TODO: Implement this if it becomes a requirement
+				throw new BrAPIServerException(HttpStatus.BAD_REQUEST, "Sorting on a table greater than one level from primary entity not allowed");
+			}
+
+			if (split.length == 2 && !split[1].equals("id")) {
+				leftJoinFetch(split[0], split[0], true);
+			}
+
+			sort.setSortedOn(entityColName);
 
 			if (sortBy.getFirst().equals(sort)) {
 				this.sortClause += " ORDER BY ";
@@ -419,9 +456,6 @@ public class SearchQueryBuilder<T> {
 	private void joinCollectionColumn(String submittedSortFilterColumnName) {
 		String joinTableName = submittedSortFilterColumnName.substring(1, submittedSortFilterColumnName.indexOf("."));
 
-		if (!this.selectClause.contains(joinTableName)) {
-			// The requested filter column requires a join
-			this.join(joinTableName, joinTableName);
-		}
+		this.join(joinTableName, joinTableName);
 	}
 }
