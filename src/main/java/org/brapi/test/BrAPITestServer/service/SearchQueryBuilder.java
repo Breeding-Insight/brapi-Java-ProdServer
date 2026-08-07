@@ -141,7 +141,7 @@ public class SearchQueryBuilder<T> {
 	}
 
 	public SearchQueryBuilder<T> appendLike(String like, String columnName) {
-		String paramName = paramFilter(columnName);
+		String paramName = paramFilterPattern(columnName);
 
 		if (like != null) {
 			this.whereClause += "AND  lower(" + entityPrefix(columnName) + ") LIKE :" + paramName + " ";
@@ -151,7 +151,7 @@ public class SearchQueryBuilder<T> {
 	}
 
 	public SearchQueryBuilder<T> appendLikeIDs(String like, String columnName) {
-		String paramName = paramFilter(columnName);
+		String paramName = paramFilterPattern(columnName);
 
 		if (like != null) {
 			this.whereClause += "AND cast(" + entityPrefix(columnName) + " as String) LIKE :" + paramName + " ";
@@ -358,6 +358,12 @@ public class SearchQueryBuilder<T> {
 		if (param == null)
 			return "";
 		return param.replace('.', '_').replace('*', '_');
+	}
+
+	private String paramFilterPattern(String param) {
+		if (param == null)
+			return "";
+		return param.replace('.', '_').replace('*', '_') + "Pattern";
 	}
 
 	/**
