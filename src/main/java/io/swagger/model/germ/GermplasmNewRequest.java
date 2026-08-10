@@ -97,6 +97,9 @@ public class GermplasmNewRequest extends BrAPIDataModel {
 	@JsonProperty("taxonIds")
 	private List<TaxonID> taxonIds = null;
 
+	@JsonProperty("programDbId")
+	private String programDbId = null;
+
 	public String getBreedingMethodName() {
 		return breedingMethodName;
 	}
@@ -510,6 +513,14 @@ public class GermplasmNewRequest extends BrAPIDataModel {
 		this.taxonIds = taxonIds;
 	}
 
+	public String getProgramDbId() {
+		return programDbId;
+	}
+
+	public void setProgramDbId(String programDbId) {
+		this.programDbId = programDbId;
+	}
+
 	@Override
 	public boolean equals(java.lang.Object o) {
 		if (this == o) {
@@ -550,7 +561,8 @@ public class GermplasmNewRequest extends BrAPIDataModel {
 				&& Objects.equals(this.subtaxa, germplasmNewRequest.subtaxa)
 				&& Objects.equals(this.subtaxaAuthority, germplasmNewRequest.subtaxaAuthority)
 				&& Objects.equals(this.synonyms, germplasmNewRequest.synonyms)
-				&& Objects.equals(this.taxonIds, germplasmNewRequest.taxonIds);
+				&& Objects.equals(this.taxonIds, germplasmNewRequest.taxonIds)
+				&& Objects.equals(this.programDbId, germplasmNewRequest.programDbId);
 	}
 
 	@Override
@@ -560,7 +572,7 @@ public class GermplasmNewRequest extends BrAPIDataModel {
 				countryOfOriginCode, defaultDisplayName, documentationURL, donors, externalReferences, genus,
 				germplasmName, germplasmOrigin, germplasmPUI, germplasmPreprocessing, instituteCode, instituteName,
 				pedigree, seedSource, seedSourceDescription, species, speciesAuthority, storageTypes, subtaxa,
-				subtaxaAuthority, synonyms, taxonIds);
+				subtaxaAuthority, synonyms, taxonIds, programDbId);
 	}
 
 	@Override
@@ -600,6 +612,7 @@ public class GermplasmNewRequest extends BrAPIDataModel {
 		sb.append("    subtaxaAuthority: ").append(toIndentedString(subtaxaAuthority)).append("\n");
 		sb.append("    synonyms: ").append(toIndentedString(synonyms)).append("\n");
 		sb.append("    taxonIds: ").append(toIndentedString(taxonIds)).append("\n");
+		sb.append("    programDbId: ").append(toIndentedString(programDbId)).append("\n");
 		sb.append("}");
 		return sb.toString();
 	}
