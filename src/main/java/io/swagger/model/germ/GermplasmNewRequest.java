@@ -100,6 +100,9 @@ public class GermplasmNewRequest extends BrAPIDataModel {
 	@JsonProperty("programDbId")
 	private String programDbId = null;
 
+	@JsonProperty("programName")
+	private String programName = null;
+
 	public String getBreedingMethodName() {
 		return breedingMethodName;
 	}
@@ -521,6 +524,14 @@ public class GermplasmNewRequest extends BrAPIDataModel {
 		this.programDbId = programDbId;
 	}
 
+	public String getProgramName() {
+		return programName;
+	}
+
+	public void setProgramName(String programName) {
+		this.programName = programName;
+	}
+
 	@Override
 	public boolean equals(java.lang.Object o) {
 		if (this == o) {
@@ -562,7 +573,8 @@ public class GermplasmNewRequest extends BrAPIDataModel {
 				&& Objects.equals(this.subtaxaAuthority, germplasmNewRequest.subtaxaAuthority)
 				&& Objects.equals(this.synonyms, germplasmNewRequest.synonyms)
 				&& Objects.equals(this.taxonIds, germplasmNewRequest.taxonIds)
-				&& Objects.equals(this.programDbId, germplasmNewRequest.programDbId);
+				&& Objects.equals(this.programDbId, germplasmNewRequest.programDbId)
+				&& Objects.equals(this.programName, germplasmNewRequest.programName);
 	}
 
 	@Override
@@ -572,7 +584,7 @@ public class GermplasmNewRequest extends BrAPIDataModel {
 				countryOfOriginCode, defaultDisplayName, documentationURL, donors, externalReferences, genus,
 				germplasmName, germplasmOrigin, germplasmPUI, germplasmPreprocessing, instituteCode, instituteName,
 				pedigree, seedSource, seedSourceDescription, species, speciesAuthority, storageTypes, subtaxa,
-				subtaxaAuthority, synonyms, taxonIds, programDbId);
+				subtaxaAuthority, synonyms, taxonIds, programDbId,  programName);
 	}
 
 	@Override
@@ -613,6 +625,7 @@ public class GermplasmNewRequest extends BrAPIDataModel {
 		sb.append("    synonyms: ").append(toIndentedString(synonyms)).append("\n");
 		sb.append("    taxonIds: ").append(toIndentedString(taxonIds)).append("\n");
 		sb.append("    programDbId: ").append(toIndentedString(programDbId)).append("\n");
+		sb.append("    programName: ").append(toIndentedString(programName)).append("\n");
 		sb.append("}");
 		return sb.toString();
 	}
