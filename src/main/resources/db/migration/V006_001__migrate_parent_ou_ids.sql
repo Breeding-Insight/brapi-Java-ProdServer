@@ -37,7 +37,7 @@ SET level_code = regexp_replace(
         mol.ou_id::text
 )
 FROM ou_ids_matched_on_levels mol
-WHERE observation_unit_level.id = mol.level_id
+WHERE observation_unit_level.id = mol.level_id;
 
 -- Assertion to assure we don't remove additional_info.observationLevel where
 -- references can't be updated. For our prod data, shouldn't be any.
