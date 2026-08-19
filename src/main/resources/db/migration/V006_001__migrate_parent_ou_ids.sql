@@ -39,8 +39,7 @@ SET level_code = regexp_replace(
 FROM ou_ids_matched_on_levels mol
 WHERE observation_unit_level.id = mol.level_id;
 
--- Assertion to assure we don't remove additional_info.observationLevel where
--- references can't be updated. For our prod data, shouldn't be any.
+-- Assertion to assure all expected top-level observation unit db ids were changed from external reference ids to observation unit db ids
 DO $$
 DECLARE
     top_level_observation_unit_level_count integer;
