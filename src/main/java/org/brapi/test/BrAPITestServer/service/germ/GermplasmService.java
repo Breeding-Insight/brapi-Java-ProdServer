@@ -158,6 +158,7 @@ public class GermplasmService {
 		return germs;
 	}
 
+	// TODO: Investigate/consider removing this code.  It is largely unused by DeltaBreed now, as paginating is the least memory exhaustive option. [BI-3020]
 	public List<GermplasmEntity> findGermplasmEntitiesWithoutPaging(@Valid GermplasmSearchRequest request) {
 		SearchQueryBuilder<GermplasmEntity> searchQuery = buildGermplasmSearchQuery(request);
 
