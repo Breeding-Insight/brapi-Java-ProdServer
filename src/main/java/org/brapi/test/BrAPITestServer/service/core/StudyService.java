@@ -108,7 +108,7 @@ public class StudyService {
 		if (active != null)
 			request.setActive(active);
 		if (sortBy != null) {
-			SortBy sortByElement = new SortBy(sortBy, SortOrder.valueOf(sortOrder));
+			SortBy sortByElement = new SortBy(sortBy, SortOrder.fromValue(sortOrder));
 
 			request.setSortBy(List.of(sortByElement));
 		}
@@ -159,7 +159,7 @@ public class StudyService {
 				.appendList(request.getStudyDbIds(), "id").appendList(request.getStudyNames(), "studyName")
 				.appendList(request.getStudyPUIs(), "studyPUI").appendList(request.getStudyTypes(), "studyType")
 				.appendList(request.getTrialDbIds(), "trial.id").appendList(request.getTrialNames(), "trial.trialName")
-				.sortBy(request.getSortByElements());
+				.sortBy(request.getSortByElements(), request.getEntityColAndTypeBySubmittedNameMap());
 
 		Page<StudyEntity> studiesPage = studyRepository.findAllBySearchAndPaginate(searchQuery, pageReq);
 		PagingUtility.calculateMetaData(metaData, studiesPage);
