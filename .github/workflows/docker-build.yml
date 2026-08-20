@@ -6,6 +6,8 @@ on:
       - develop
       - release/**
       - brapi-server-v2
+    tags:
+      - 'v*'
 
   workflow_dispatch:
     inputs:
@@ -107,11 +109,18 @@ jobs:
           TAGS=""
           IS_PR_BUILD="false"
 
-          if [[ -n "$PR_NUMBER" ]]; then
+
+          if [[ "${{ github.ref_type }}" == "tag" ]]; then
+            TAG_NAME="${{ github.ref_name }}"
+            TAGS="$IMAGE_BASE_NAME:$TAG_NAME"
+            echo "This is a release tag build: $TAG_NAME"
+
+          elif [[ -n "$PR_NUMBER" ]]; then
             echo "This is a PR build. Setting PR-specific tag."
             PR_TAG="$IMAGE_BASE_NAME:pr-$PR_NUMBER"
             TAGS="$PR_TAG"
             IS_PR_BUILD="true"
+
           else
             echo "This is a regular build. Setting standard tags."
             RUN_NUMBER_TAG="$IMAGE_BASE_NAME:${{ github.run_number }}"
