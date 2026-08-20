@@ -6,6 +6,8 @@ import java.util.Objects;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import io.swagger.model.SearchRequest;
+import org.brapi.test.BrAPITestServer.model.dto.EntityColumnNameAndType;
+import org.brapi.test.BrAPITestServer.model.dto.EntityType;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -13,20 +15,20 @@ import java.util.List;
 public class StudySearchRequest extends SearchRequest {
 
 	// Key - allowed sort or field filter name for this entity
-	// Value = entity field name that represents the submitted field. Used later on in query building.
-	private static final Map<String, String> ALLOWED_SORT_AND_FILTER_FIELDS =
+	// Value = entity field name and type that represents the submitted field. Used later on in query building.
+	private static final Map<String, EntityColumnNameAndType> ALLOWED_SORT_AND_FILTER_FIELDS =
 			Map.ofEntries(
-					Map.entry("germplasmDbId", "*obsunit.germplasm.id"),
-					Map.entry("locationDbId", "location.id"),
-					Map.entry("observationVariableDbId", "*observation.observationVariable.id"),
-					Map.entry("programDbId", "trial.program.id"),
-					Map.entry("programName", "trial.program.name"),
-					Map.entry("seasonDbId", "*season.id"),
-					Map.entry("studyDbId", "id"),
-					Map.entry("studyLocation", "location.id"),
-					Map.entry("trialDbId", "trial.id"),
-					Map.entry("studyType", "studyName"),
-					Map.entry("studyName", "studyName")
+					Map.entry("germplasmDbId", new EntityColumnNameAndType("*obsunit.germplasm.id", EntityType.UUID)),
+					Map.entry("locationDbId", new EntityColumnNameAndType("location.id", EntityType.UUID)),
+					Map.entry("observationVariableDbId", new EntityColumnNameAndType("*observation.observationVariable.id", EntityType.UUID)),
+					Map.entry("programDbId", new EntityColumnNameAndType("trial.program.id", EntityType.UUID)),
+					Map.entry("programName", new EntityColumnNameAndType("trial.program.name", EntityType.TEXT)),
+					Map.entry("seasonDbId", new EntityColumnNameAndType("*season.id", EntityType.UUID)),
+					Map.entry("studyDbId", new EntityColumnNameAndType("id", EntityType.UUID)),
+					Map.entry("studyLocation", new EntityColumnNameAndType("location.id", EntityType.UUID)),
+					Map.entry("trialDbId", new EntityColumnNameAndType("trial.id", EntityType.UUID)),
+					Map.entry("studyType", new EntityColumnNameAndType("studyName", EntityType.TEXT)),
+					Map.entry("studyName", new EntityColumnNameAndType("studyName", EntityType.TEXT))
 			);
 
 	@JsonProperty("commonCropNames")
@@ -579,7 +581,7 @@ public class StudySearchRequest extends SearchRequest {
 	}
 
 	@Override
-	public Map<String, String> getSortFilterEntityColumnNamesByRequestName() {
+	public Map<String, EntityColumnNameAndType> getEntityColAndTypeBySubmittedNameMap() {
 		return ALLOWED_SORT_AND_FILTER_FIELDS;
 	}
 }
