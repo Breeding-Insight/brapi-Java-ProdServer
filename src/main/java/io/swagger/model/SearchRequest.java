@@ -207,6 +207,7 @@ public abstract class SearchRequest {
 		this.sortBy = sortBy;
 	}
 
+	@JsonIgnore
 	public Map<String, EntityColumnNameAndType> getEntityColAndTypeBySubmittedNameMap() throws BrAPIServerException {
 		throw new BrAPIServerException(HttpStatus.BAD_REQUEST, String.format("Sort/Filtering not implemented for %s", this.getClass().getSimpleName()));
 	}
