@@ -684,7 +684,7 @@ public class GermplasmService {
 				updateSynonymEntities(request.getSynonyms(), entity);
 			if (request.getTaxonIds() != null)
 				updateTaxonEntities(request.getTaxonIds(), entity);
-			if (!foundProgramsByDbId.isEmpty()) {
+			if (request.getProgramDbId() != null) {
 				ProgramEntity program = foundProgramsByDbId.get(UUID.fromString(request.getProgramDbId()));
 				entity.setProgram(program);
 			}
