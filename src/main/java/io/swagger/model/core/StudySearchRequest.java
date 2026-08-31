@@ -1,14 +1,36 @@
 package io.swagger.model.core;
 
+import java.util.Map;
 import java.util.Objects;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import io.swagger.model.SearchRequest;
+import org.brapi.test.BrAPITestServer.model.dto.EntityColumnNameAndType;
+import org.brapi.test.BrAPITestServer.model.dto.EntityType;
+
 import java.util.ArrayList;
 import java.util.List;
 
 public class StudySearchRequest extends SearchRequest {
+
+	// Key - allowed sort or field filter name for this entity
+	// Value = entity field name and type that represents the submitted field. Used later on in query building.
+	private static final Map<String, EntityColumnNameAndType> ALLOWED_SORT_AND_FILTER_FIELDS =
+			Map.ofEntries(
+					Map.entry("germplasmDbId", new EntityColumnNameAndType("*obsunit.germplasm.id", EntityType.UUID)),
+					Map.entry("locationDbId", new EntityColumnNameAndType("location.id", EntityType.UUID)),
+					Map.entry("observationVariableDbId", new EntityColumnNameAndType("*observation.observationVariable.id", EntityType.UUID)),
+					Map.entry("programDbId", new EntityColumnNameAndType("trial.program.id", EntityType.UUID)),
+					Map.entry("programName", new EntityColumnNameAndType("trial.program.name", EntityType.TEXT)),
+					Map.entry("seasonDbId", new EntityColumnNameAndType("*season.id", EntityType.UUID)),
+					Map.entry("studyDbId", new EntityColumnNameAndType("id", EntityType.UUID)),
+					Map.entry("studyLocation", new EntityColumnNameAndType("location.id", EntityType.UUID)),
+					Map.entry("trialDbId", new EntityColumnNameAndType("trial.id", EntityType.UUID)),
+					Map.entry("studyType", new EntityColumnNameAndType("studyName", EntityType.TEXT)),
+					Map.entry("studyName", new EntityColumnNameAndType("studyName", EntityType.TEXT))
+			);
+
 	@JsonProperty("commonCropNames")
 	private List<String> commonCropNames = null;
 
@@ -53,12 +75,6 @@ public class StudySearchRequest extends SearchRequest {
 
 	@JsonProperty("seasonDbIds")
 	private List<String> seasonDbIds = null;
-
-	@JsonProperty("sortBy")
-	private SortBy sortBy = null;
-
-	@JsonProperty("sortOrder")
-	private SortOrder sortOrder = null;
 
 	@JsonProperty("studyCodes")
 	private List<String> studyCodes = null;
@@ -376,32 +392,6 @@ public class StudySearchRequest extends SearchRequest {
 		this.seasonDbIds = seasonDbIds;
 	}
 
-	public StudySearchRequest sortBy(SortBy sortBy) {
-		this.sortBy = sortBy;
-		return this;
-	}
-
-	public SortBy getSortBy() {
-		return sortBy;
-	}
-
-	public void setSortBy(SortBy sortBy) {
-		this.sortBy = sortBy;
-	}
-
-	public StudySearchRequest sortOrder(SortOrder sortOrder) {
-		this.sortOrder = sortOrder;
-		return this;
-	}
-
-	public SortOrder getSortOrder() {
-		return sortOrder;
-	}
-
-	public void setSortOrder(SortOrder sortOrder) {
-		this.sortOrder = sortOrder;
-	}
-
 	public StudySearchRequest studyCodes(List<String> studyCodes) {
 		this.studyCodes = studyCodes;
 		return this;
@@ -492,7 +482,6 @@ public class StudySearchRequest extends SearchRequest {
 				&& Objects.equals(this.active, studySearchRequest.active)
 				&& Objects.equals(this.seasonDbIds, studySearchRequest.seasonDbIds)
 				&& Objects.equals(this.sortBy, studySearchRequest.sortBy)
-				&& Objects.equals(this.sortOrder, studySearchRequest.sortOrder)
 				&& Objects.equals(this.studyCodes, studySearchRequest.studyCodes)
 				&& Objects.equals(this.studyPUIs, studySearchRequest.studyPUIs)
 				&& Objects.equals(this.studyTypes, studySearchRequest.studyTypes) && super.equals(o);
@@ -503,7 +492,7 @@ public class StudySearchRequest extends SearchRequest {
 		return Objects.hash(commonCropNames, programDbIds, programNames, trialDbIds, trialNames, studyDbIds, studyNames,
 				locationDbIds, locationNames, germplasmDbIds, germplasmNames, observationVariableDbIds,
 				observationVariableNames, externalReferenceIds, externalReferenceSources, active, seasonDbIds, sortBy,
-				sortOrder, studyCodes, studyPUIs, studyTypes, super.hashCode());
+				studyCodes, studyPUIs, studyTypes, super.hashCode());
 	}
 
 	@Override
@@ -529,7 +518,6 @@ public class StudySearchRequest extends SearchRequest {
 		sb.append("    active: ").append(toIndentedString(active)).append("\n");
 		sb.append("    seasonDbIds: ").append(toIndentedString(seasonDbIds)).append("\n");
 		sb.append("    sortBy: ").append(toIndentedString(sortBy)).append("\n");
-		sb.append("    sortOrder: ").append(toIndentedString(sortOrder)).append("\n");
 		sb.append("    studyCodes: ").append(toIndentedString(studyCodes)).append("\n");
 		sb.append("    studyPUIs: ").append(toIndentedString(studyPUIs)).append("\n");
 		sb.append("    studyTypes: ").append(toIndentedString(studyTypes)).append("\n");
@@ -583,8 +571,6 @@ public class StudySearchRequest extends SearchRequest {
 			count += this.seasonDbIds.size();
 		if (this.sortBy != null)
 			count += 1;
-		if (this.sortOrder != null)
-			count += 1;
 		if (this.studyCodes != null)
 			count += this.studyCodes.size();
 		if (this.studyPUIs != null)
@@ -592,5 +578,10 @@ public class StudySearchRequest extends SearchRequest {
 		if (this.studyTypes != null)
 			count += this.studyTypes.size();
 		return count;
+	}
+
+	@Override
+	public Map<String, EntityColumnNameAndType> getEntityColAndTypeBySubmittedNameMap() {
+		return ALLOWED_SORT_AND_FILTER_FIELDS;
 	}
 }

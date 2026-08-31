@@ -9,6 +9,7 @@ import jakarta.persistence.*;
 import org.brapi.test.BrAPITestServer.model.entity.BrAPIPrimaryEntity;
 import org.brapi.test.BrAPITestServer.model.entity.SearchRequestEntity;
 import org.brapi.test.BrAPITestServer.model.entity.core.CropEntity;
+import org.brapi.test.BrAPITestServer.model.entity.core.ProgramEntity;
 import org.brapi.test.BrAPITestServer.model.entity.germ.GermplasmInstituteEntity.InstituteTypeEnum;
 import org.brapi.test.BrAPITestServer.model.entity.pheno.ObservationUnitEntity;
 import org.brapi.test.BrAPITestServer.model.entity.pheno.TaxonEntity;
@@ -96,6 +97,8 @@ public class GermplasmEntity extends BrAPIPrimaryEntity {
 	private List<GermplasmStorageTypesEnum> typeOfGermplasmStorageCode;
 	@Column(name = "soft_deleted")
 	private boolean softDeleted;
+    @ManyToOne(cascade = CascadeType.DETACH, fetch = FetchType.LAZY)
+    private ProgramEntity program;
 
     public GermplasmInstituteEntity getHostInstitute() {
         if (getInstitutes() != null) {
@@ -367,5 +370,13 @@ public class GermplasmEntity extends BrAPIPrimaryEntity {
 	public boolean getSoftDeleted() { return softDeleted; }
 
 	public void setSoftDeleted(boolean sofDeleted) { this.softDeleted = sofDeleted; }
+
+    public ProgramEntity getProgram() {
+        return program;
+    }
+
+    public void setProgram(ProgramEntity program) {
+        this.program = program;
+    }
 
 }

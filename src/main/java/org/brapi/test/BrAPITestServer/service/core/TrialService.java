@@ -4,6 +4,8 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import io.swagger.model.core.*;
+import io.swagger.model.sort.SortBy;
+import io.swagger.model.sort.SortOrder;
 import jakarta.validation.Valid;
 
 import org.brapi.test.BrAPITestServer.exceptions.BatchDeleteWrongTypeException;
@@ -94,11 +96,10 @@ public class TrialService {
 			request.setSearchDateRangeStart(searchDateRangeStart);
 		if (searchDateRangeEnd != null)
 			request.setSearchDateRangeEnd(searchDateRangeEnd);
-		if (sortBy != null && SortBy.fromValue(sortBy) != null)
-			request.setSortBy(SortBy.fromValue(sortBy));
-		if (sortOrder != null && SortOrder.fromValue(sortOrder) != null)
-			request.setSortOrder(SortOrder.fromValue(sortOrder));
-
+		if (sortBy != null) {
+			SortBy querySortBy = new SortBy(sortBy, SortOrder.fromValue(sortOrder));
+			request.setSortBy(List.of(querySortBy));
+		}
 		request.addExternalReferenceItem(externalReferenceId, externalReferenceID, externalReferenceSource);
 		return findTrials(request, metadata);
 	}
@@ -113,20 +114,21 @@ public class TrialService {
 			searchQuery = searchQuery.join("contacts", "contact");
 		}
 		if (request.getStudyDbIds() != null || request.getStudyNames() != null) {
-			searchQuery = searchQuery.join("studies", "study");
+			searchQuery = searchQuery.join("studies", "studies");
 		}
 
 		searchQuery = searchQuery.withExRefs(request.getExternalReferenceIDs(), request.getExternalReferenceSources())
 				.appendList(request.getCommonCropNames(), "crop.cropName")
 				.appendList(request.getContactDbIds(), "*contact.id")
-				.appendList(request.getLocationDbIds(), "*study.location.id")
-				.appendList(request.getLocationNames(), "*study.location.locationName")
+				.appendList(request.getLocationDbIds(), "*studies.location.id")
+				.appendList(request.getLocationNames(), "*studies.location.locationName")
 				.appendList(request.getProgramDbIds(), "program.id")
-				.appendList(request.getProgramNames(), "program.name").appendList(request.getStudyDbIds(), "*study.id")
-				.appendList(request.getStudyNames(), "*study.studyName").appendList(request.getTrialDbIds(), "id")
+				.appendList(request.getProgramNames(), "program.name").appendList(request.getStudyDbIds(), "*studies.id")
+				.appendList(request.getStudyNames(), "*studies.studyName").appendList(request.getTrialDbIds(), "id")
 				.appendList(request.getTrialNames(), "trialName")
 				.appendDateRange(request.getSearchDateRangeStart(), request.getSearchDateRangeEnd(), "startDate")
-				.withSort(getSortByField(request.getSortBy()), request.getSortOrder());
+				.sortBy(request.getSortByElements(), request.getEntityColAndTypeBySubmittedNameMap())
+				.filterBy(request.getFilterBy(), request.getEntityColAndTypeBySubmittedNameMap());
 
 		Page<TrialEntity> trialsPage = trialRepository.findAllBySearchAndPaginate(searchQuery, pageReq);
 		PagingUtility.calculateMetaData(metadata, trialsPage);
@@ -356,34 +358,4 @@ public class TrialService {
 		return entity;
 
 	}
-
-	private String getSortByField(SortBy sortBy) {
-		String sortByStr = "id";
-		if (sortBy != null) {
-			switch (sortBy) {
-			case STARTDATE:
-				sortByStr = "startDate";
-				break;
-			case ENDDATE:
-				sortByStr = "endDate";
-				break;
-			case TRIALNAME:
-				sortByStr = "trialName";
-				break;
-			case PROGRAMDBID:
-				sortByStr = "program.id";
-				break;
-			case PROGRAMNAME:
-				sortByStr = "program.name";
-				break;
-			case TRIALDBID:
-			default:
-				sortByStr = "id";
-				break;
-			}
-		}
-
-		return sortByStr;
-	}
-
 }
