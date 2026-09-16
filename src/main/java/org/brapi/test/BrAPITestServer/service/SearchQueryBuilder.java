@@ -46,12 +46,7 @@ public class SearchQueryBuilder<T> {
 	}
 
 	public String getIdQuery() {
-		if (sortClause.isEmpty()) {
-			// By default, sort on entity id to have query result remain idempotent
-			sortClause = defaultSort;
-		}
-
-		return selectOnlyIds + whereClause + sortClause;
+		return selectOnlyIds + whereClause;
 	}
 
 	public Map<String, Object> getParams() {
@@ -150,7 +145,8 @@ public class SearchQueryBuilder<T> {
 		return this;
 	}
 
-	public SearchQueryBuilder<T> appendLikeIDs(String like, String columnName) {
+	// Used to convert non-string fields to string and use a like filter comparison
+	public SearchQueryBuilder<T> appendLikeString(String like, String columnName) {
 		String paramName = paramFilterPattern(columnName);
 
 		if (like != null) {
@@ -290,6 +286,8 @@ public class SearchQueryBuilder<T> {
 			this.selectClause += "JOIN " + entityPrefix(join) + " " + paramFilter(name) + " ";
 			this.selectOnlyIds += "JOIN " + entityPrefix(join) + " " + paramFilter(name) + " ";
 			this.joinedTables.add(join);
+		} else if (joinedFetchedTables.contains(join) && !this.joinedTables.contains(join)) {
+			this.selectOnlyIds += "JOIN " + entityPrefix(join) + " " + paramFilter(name) + " ";
 		}
 		return this;
 	}
@@ -416,6 +414,12 @@ public class SearchQueryBuilder<T> {
 		return this;
 	}
 
+	// Used to continue utilizing the same search query, like in GermplasmService fetching without pagination use case
+	public SearchQueryBuilder<T> resetSortClause() {
+		this.sortClause = "";
+		return this;
+	}
+
 	private void buildSort(SortBy sort) {
 		this.sortClause += entityPrefix(sort.getSortedOn()) + " " + sort.getSortOrder() + " ";
 	}
@@ -446,8 +450,8 @@ public class SearchQueryBuilder<T> {
 
 			if (entityColumnNameAndType.getEntityType() == EntityType.TEXT) {
 				searchQuery = appendLike(filter.getValue().toLowerCase(), entityColumnNameAndType.getEntityColumnName());
-			} else if (entityColumnNameAndType.getEntityType() == EntityType.UUID) {
-				searchQuery = appendLikeIDs(filter.getValue(), entityColumnNameAndType.getEntityColumnName());
+			} else if (entityColumnNameAndType.getEntityType() == EntityType.UUID || entityColumnNameAndType.getEntityType() == EntityType.NUMBER) {
+				searchQuery = appendLikeString(filter.getValue(), entityColumnNameAndType.getEntityColumnName());
 			}
 		}
 
