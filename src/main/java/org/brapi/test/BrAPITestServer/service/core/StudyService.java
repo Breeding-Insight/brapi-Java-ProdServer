@@ -159,7 +159,8 @@ public class StudyService {
 				.appendList(request.getStudyDbIds(), "id").appendList(request.getStudyNames(), "studyName")
 				.appendList(request.getStudyPUIs(), "studyPUI").appendList(request.getStudyTypes(), "studyType")
 				.appendList(request.getTrialDbIds(), "trial.id").appendList(request.getTrialNames(), "trial.trialName")
-				.sortBy(request.getSortByElements(), request.getEntityColAndTypeBySubmittedNameMap());
+				.sortBy(request.getSortByElements(), request.getEntityColAndTypeBySubmittedNameMap())
+				.filterBy(request.getFilterBy(), request.getEntityColAndTypeBySubmittedNameMap());
 
 		Page<StudyEntity> studiesPage = studyRepository.findAllBySearchAndPaginate(searchQuery, pageReq);
 		PagingUtility.calculateMetaData(metaData, studiesPage);
