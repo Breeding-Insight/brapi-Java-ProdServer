@@ -18,6 +18,7 @@ public class SearchQueryBuilder<T> {
 
 	private String selectClause;
 	private String selectOnlyIds;
+	private String selectOnlyIdsJoinsAndFilters;
 	private String whereClause;
 	private String defaultSort;
 	private String sortClause;
@@ -28,7 +29,8 @@ public class SearchQueryBuilder<T> {
 
 	public SearchQueryBuilder(Class<T> clazz) {
 		this.selectClause = "SELECT distinct entity FROM " + clazz.getSimpleName() + " entity ";
-		this.selectOnlyIds = "SELECT distinct entity.id FROM " + clazz.getSimpleName() + " entity ";
+		this.selectOnlyIds = "SELECT entity.id FROM " + clazz.getSimpleName() + " entity ";
+		this.selectOnlyIdsJoinsAndFilters = "SELECT distinct entity.id FROM " + clazz.getSimpleName() + " entity2 ";
 		this.whereClause = "WHERE 1=1 ";
 		this.defaultSort = " ORDER BY entity.id ASC ";
 		this.sortClause = "";
@@ -45,8 +47,34 @@ public class SearchQueryBuilder<T> {
 		return selectClause + whereClause + sortClause;
 	}
 
+	/**
+	 * The goal of this query is to return a query that will return only the BrAPI dbIds of the source entity, applying
+	 * sorting, filtering, and pagination to the query.
+	 *
+	 * This has to be done in a very deliberate way because of both HQL and postgres constraints, so this query should
+	 * end up looking something like this:
+	 *
+	 * SELECT entity.id
+	 * FROM GermplasmEntity entity
+	 * WHERE entity.id IN (
+	 *     SELECT DISTINCT entity2.id
+	 *     FROM GermplasmEntity entity2
+	 *     JOIN ...
+	 *     WHERE ...
+	 * )
+	 * ORDER BY entity.germplasmName
+	 *
+	 * By containing the filtering and the joining in a subquery with a DISTINCT, we can control potential duplicates from breaking through the cracks.
+	 * Then we can apply sorting outside of this query without a distinct to avoid postgres's requirement to include every order by column in the select clause.
+	 * Distinct is not an issue here, since we are selecting only on id, which is always unique.
+	 */
 	public String getIdQuery() {
-		return selectOnlyIds + whereClause;
+		if (sortClause.isEmpty()) {
+			// By default, sort on entity id to have query result remain idempotent
+			sortClause = defaultSort;
+		}
+
+		return selectOnlyIds + " WHERE entity.id IN (" + selectOnlyIdsJoinsAndFilters + whereClause + ") " + sortClause;
 	}
 
 	public Map<String, Object> getParams() {
@@ -284,10 +312,10 @@ public class SearchQueryBuilder<T> {
 
 		if (!this.joinedTables.contains(join) && !this.joinedFetchedTables.contains(join)) {
 			this.selectClause += "JOIN " + entityPrefix(join) + " " + paramFilter(name) + " ";
-			this.selectOnlyIds += "JOIN " + entityPrefix(join) + " " + paramFilter(name) + " ";
+			this.selectOnlyIdsJoinsAndFilters += "JOIN " + entityPrefix(join) + " " + paramFilter(name) + " ";
 			this.joinedTables.add(join);
 		} else if (joinedFetchedTables.contains(join) && !this.joinedTables.contains(join)) {
-			this.selectOnlyIds += "JOIN " + entityPrefix(join) + " " + paramFilter(name) + " ";
+			this.selectOnlyIdsJoinsAndFilters += "JOIN " + entityPrefix(join) + " " + paramFilter(name) + " ";
 		}
 		return this;
 	}
