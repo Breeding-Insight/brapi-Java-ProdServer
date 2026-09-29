@@ -596,6 +596,8 @@ public class GermplasmSearchRequest extends SearchRequest {
 
 	@Override
 	@JsonIgnore
+	// TODO: NOTE - External Reference IDs, exref sources, germplasmNames and germplasmDbIds have been removed from the parameter count to speed up lookups and prevent async search requests.
+	// TODO: We would need to reconsider this if we decide to use parameter count as the way to trigger async requests when complete [BI-3021]
 	public Integer getTotalParameterCount() {
 		Integer count = 0;
 		if (this.accessionNumbers != null)
@@ -606,16 +608,10 @@ public class GermplasmSearchRequest extends SearchRequest {
 			count += this.collections.size();
 		if (this.commonCropNames != null)
 			count += this.commonCropNames.size();
-		if (this.externalReferenceIds != null)
-			count += this.externalReferenceIds.size();
-		if (this.externalReferenceSources != null)
-			count += this.externalReferenceSources.size();
 		if (this.familyCodes != null)
 			count += this.familyCodes.size();
 		if (this.genus != null)
 			count += this.genus.size();
-		if (this.germplasmNames != null)
-			count += this.germplasmNames.size();
 		if (this.germplasmPUIs != null)
 			count += this.germplasmPUIs.size();
 		if (this.instituteCodes != null)
