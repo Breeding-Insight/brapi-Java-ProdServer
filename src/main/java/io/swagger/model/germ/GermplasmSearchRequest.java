@@ -18,14 +18,14 @@ public class GermplasmSearchRequest extends SearchRequest {
 	private static final Map<String, EntityColumnNameAndType> ALLOWED_SORT_AND_FILTER_FIELDS =
 			Map.ofEntries(
 					// accessionNumber = GID for DeltaBreed
-					Map.entry("accessionNumber", new EntityColumnNameAndType("accessionNumber", EntityType.NUMBER)),
+					Map.entry("accessionNumber", new EntityColumnNameAndType("accessionNumber", EntityType.TEXT)),
 					Map.entry("defaultDisplayName", new EntityColumnNameAndType("defaultDisplayName", EntityType.TEXT)),
 					Map.entry("breedingMethod", new EntityColumnNameAndType("methodName", EntityType.TEXT)),
 					Map.entry("seedSource", new EntityColumnNameAndType("seedSource", EntityType.TEXT)),
 					Map.entry("pedigree",new EntityColumnNameAndType("pedigree.pedigreeString", EntityType.TEXT)),
-					Map.entry("femaleParentGID", new EntityColumnNameAndType("femaleParentGid", EntityType.NUMBER)),
-					Map.entry("maleParentGID", new EntityColumnNameAndType("maleParentGid", EntityType.NUMBER)),
-					Map.entry("createdDate", new EntityColumnNameAndType("createdDate",  EntityType.TEXT)),
+					Map.entry("femaleParentGID", new EntityColumnNameAndType("femaleParentGid", EntityType.TEXT)),
+					Map.entry("maleParentGID", new EntityColumnNameAndType("maleParentGid", EntityType.TEXT)),
+					Map.entry("createdDate", new EntityColumnNameAndType("createdDate",  EntityType.DATE)),
 					Map.entry("createdBy", new EntityColumnNameAndType("createdBy", EntityType.TEXT)),
 					Map.entry("importEntryNumber", new EntityColumnNameAndType("importEntryNumber", EntityType.NUMBER)),
 					Map.entry("synonyms", new EntityColumnNameAndType("*synonyms.synonym", EntityType.TEXT))
