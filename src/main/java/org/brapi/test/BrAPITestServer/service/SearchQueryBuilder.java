@@ -18,7 +18,7 @@ public class SearchQueryBuilder<T> {
 
 	private String selectClause;
 	private String selectOnlyIds;
-	private String selectOnlyIdsJoinsAndFilters;
+	private String selectOnlyIdsSubquery;
 	private String whereClause;
 	private String defaultSort;
 	private String sortClause;
@@ -29,8 +29,10 @@ public class SearchQueryBuilder<T> {
 
 	public SearchQueryBuilder(Class<T> clazz) {
 		this.selectClause = "SELECT distinct entity FROM " + clazz.getSimpleName() + " entity ";
+		// This is the top level query for selectOnlyIds.  It is used to construct the full id query in getIdQuery()
 		this.selectOnlyIds = "SELECT entity.id FROM " + clazz.getSimpleName() + " entity ";
-		this.selectOnlyIdsJoinsAndFilters = "SELECT distinct entity.id FROM " + clazz.getSimpleName() + " entity2 ";
+		// This subquery will contain all the joins and filters necessary for the selectOnlyIds query and protects against duplicates using distinct
+		this.selectOnlyIdsSubquery = "SELECT distinct entity.id FROM " + clazz.getSimpleName() + " entity ";
 		this.whereClause = "WHERE 1=1 ";
 		this.defaultSort = " ORDER BY entity.id ASC ";
 		this.sortClause = "";
@@ -57,12 +59,14 @@ public class SearchQueryBuilder<T> {
 	 * SELECT entity.id
 	 * FROM GermplasmEntity entity
 	 * WHERE entity.id IN (
-	 *     SELECT DISTINCT entity2.id
+	 *     SELECT distinct entity2.id
 	 *     FROM GermplasmEntity entity2
-	 *     JOIN ...
-	 *     WHERE ...
-	 * )
-	 * ORDER BY entity.germplasmName
+	 *     JOIN entity2.externalReferences externalReference
+	 *     WHERE 1=1 AND externalReference.externalReferenceId in :externalReferenceId
+	 *     AND externalReference.externalReferenceSource in :externalReferenceSource
+	 *     AND entity2.program.id in :program_id
+	 *     )
+	 * ORDER BY entity.id ASC
 	 *
 	 * By containing the filtering and the joining in a subquery with a DISTINCT, we can control potential duplicates from breaking through the cracks.
 	 * Then we can apply sorting outside of this query without a distinct to avoid postgres's requirement to include every order by column in the select clause.
@@ -74,7 +78,10 @@ public class SearchQueryBuilder<T> {
 			sortClause = defaultSort;
 		}
 
-		return selectOnlyIds + " WHERE entity.id IN (" + selectOnlyIdsJoinsAndFilters + whereClause + ") " + sortClause;
+		// This allows us to apply all the same filters/joins built up on the original entity with the inner entity.
+		String fullIdsSubquery = (selectOnlyIdsSubquery + whereClause).replace("entity", "entity2");
+
+		return selectOnlyIds + " WHERE entity.id IN (" + fullIdsSubquery + ") " + sortClause;
 	}
 
 	public Map<String, Object> getParams() {
@@ -312,10 +319,10 @@ public class SearchQueryBuilder<T> {
 
 		if (!this.joinedTables.contains(join) && !this.joinedFetchedTables.contains(join)) {
 			this.selectClause += "JOIN " + entityPrefix(join) + " " + paramFilter(name) + " ";
-			this.selectOnlyIdsJoinsAndFilters += "JOIN " + entityPrefix(join) + " " + paramFilter(name) + " ";
+			this.selectOnlyIdsSubquery += "JOIN " + entityPrefix(join) + " " + paramFilter(name) + " ";
 			this.joinedTables.add(join);
 		} else if (joinedFetchedTables.contains(join) && !this.joinedTables.contains(join)) {
-			this.selectOnlyIdsJoinsAndFilters += "JOIN " + entityPrefix(join) + " " + paramFilter(name) + " ";
+			this.selectOnlyIdsSubquery += "JOIN " + entityPrefix(join) + " " + paramFilter(name) + " ";
 		}
 		return this;
 	}
