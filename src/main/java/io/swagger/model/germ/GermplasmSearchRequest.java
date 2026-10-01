@@ -18,7 +18,7 @@ public class GermplasmSearchRequest extends SearchRequest {
 	private static final Map<String, EntityColumnNameAndType> ALLOWED_SORT_AND_FILTER_FIELDS =
 			Map.ofEntries(
 					// accessionNumber = GID for DeltaBreed
-					Map.entry("accessionNumber", new EntityColumnNameAndType("accessionNumber", EntityType.TEXT)),
+					Map.entry("accessionNumber", new EntityColumnNameAndType("accessionNumber", EntityType.NUMBER)),
 					Map.entry("defaultDisplayName", new EntityColumnNameAndType("defaultDisplayName", EntityType.TEXT)),
 					Map.entry("breedingMethod", new EntityColumnNameAndType("methodName", EntityType.TEXT)),
 					Map.entry("seedSource", new EntityColumnNameAndType("seedSource", EntityType.TEXT)),

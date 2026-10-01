@@ -495,8 +495,11 @@ public class SearchQueryBuilder<T> {
 
 			if (entityColumnNameAndType.getEntityType() == EntityType.TEXT) {
 				searchQuery = appendLike(filter.getValue().toLowerCase(), entityColumnNameAndType.getEntityColumnName());
-			} else if (entityColumnNameAndType.getEntityType() == EntityType.UUID || entityColumnNameAndType.getEntityType() == EntityType.NUMBER) {
+			} else if (entityColumnNameAndType.getEntityType() == EntityType.UUID) {
 				searchQuery = appendLikeString(filter.getValue(), entityColumnNameAndType.getEntityColumnName());
+			} else if (entityColumnNameAndType.getEntityType() == EntityType.NUMBER) {
+				// Compare as String exact match for numbers, in case users send non-numeric characters.
+				searchQuery = appendSingle(filter.getValue(), entityColumnNameAndType.getEntityColumnName());
 			} else if (entityColumnNameAndType.getEntityType() == EntityType.DATE) {
 				searchQuery = appendLikeDate(filter.getValue(), entityColumnNameAndType.getEntityColumnName());
 			}
