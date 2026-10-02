@@ -18,16 +18,21 @@ public class StudySearchRequest extends SearchRequest {
 	// Value = entity field name and type that represents the submitted field. Used later on in query building.
 	private static final Map<String, EntityColumnNameAndType> ALLOWED_SORT_AND_FILTER_FIELDS =
 			Map.ofEntries(
+					Map.entry("commonCropName", new EntityColumnNameAndType("crop.cropName", EntityType.TEXT)),
+					Map.entry("externalReferenceId", new EntityColumnNameAndType("*externalReferences.externalReferenceId", EntityType.TEXT)),
+					Map.entry("externalReferenceSource", new EntityColumnNameAndType("*externalReferences.externalReferenceSource", EntityType.TEXT)),
 					Map.entry("germplasmDbId", new EntityColumnNameAndType("*obsunit.germplasm.id", EntityType.UUID)),
 					Map.entry("locationDbId", new EntityColumnNameAndType("location.id", EntityType.UUID)),
 					Map.entry("observationVariableDbId", new EntityColumnNameAndType("*observation.observationVariable.id", EntityType.UUID)),
 					Map.entry("programDbId", new EntityColumnNameAndType("trial.program.id", EntityType.UUID)),
 					Map.entry("programName", new EntityColumnNameAndType("trial.program.name", EntityType.TEXT)),
 					Map.entry("seasonDbId", new EntityColumnNameAndType("*season.id", EntityType.UUID)),
+					Map.entry("studyCode", new EntityColumnNameAndType("studyCode", EntityType.TEXT)),
 					Map.entry("studyDbId", new EntityColumnNameAndType("id", EntityType.UUID)),
 					Map.entry("studyLocation", new EntityColumnNameAndType("location.id", EntityType.UUID)),
+					Map.entry("studyPUI", new EntityColumnNameAndType("studyPUI", EntityType.TEXT)),
 					Map.entry("trialDbId", new EntityColumnNameAndType("trial.id", EntityType.UUID)),
-					Map.entry("studyType", new EntityColumnNameAndType("studyName", EntityType.TEXT)),
+					Map.entry("studyType", new EntityColumnNameAndType("studyType", EntityType.TEXT)),
 					Map.entry("studyName", new EntityColumnNameAndType("studyName", EntityType.TEXT))
 			);
 
