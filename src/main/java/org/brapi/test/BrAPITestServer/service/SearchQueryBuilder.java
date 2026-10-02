@@ -6,8 +6,13 @@ import java.util.*;
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
 
+import io.swagger.model.FilterBy;
 import io.swagger.model.GeoJSONSearchArea;
-import io.swagger.model.core.SortOrder;
+import io.swagger.model.sort.SortBy;
+import org.brapi.test.BrAPITestServer.exceptions.BrAPIServerException;
+import org.brapi.test.BrAPITestServer.model.dto.EntityColumnNameAndType;
+import org.brapi.test.BrAPITestServer.model.dto.EntityType;
+import org.springframework.http.HttpStatus;
 
 public class SearchQueryBuilder<T> {
 
@@ -17,6 +22,8 @@ public class SearchQueryBuilder<T> {
 	private String defaultSort;
 	private String sortClause;
 	private Map<String, Object> params;
+	private List<String> joinedTables = new ArrayList<>();
+	private List<String> joinedFetchedTables = new ArrayList<>();
 	private Class<T> clazz;
 
 	public SearchQueryBuilder(Class<T> clazz) {
@@ -129,6 +136,26 @@ public class SearchQueryBuilder<T> {
 		if (single != null) {
 			this.whereClause += "AND " + entityPrefix(columnName) + " = :" + paramName + " ";
 			this.params.put(paramName, single);
+		}
+		return this;
+	}
+
+	public SearchQueryBuilder<T> appendLike(String like, String columnName) {
+		String paramName = paramFilterPattern(columnName);
+
+		if (like != null) {
+			this.whereClause += "AND  lower(" + entityPrefix(columnName) + ") LIKE :" + paramName + " ";
+			this.params.put(paramName, "%" + like + "%");
+		}
+		return this;
+	}
+
+	public SearchQueryBuilder<T> appendLikeIDs(String like, String columnName) {
+		String paramName = paramFilterPattern(columnName);
+
+		if (like != null) {
+			this.whereClause += "AND cast(" + entityPrefix(columnName) + " as String) LIKE :" + paramName + " ";
+			this.params.put(paramName, "%" + like + "%");
 		}
 		return this;
 	}
@@ -258,13 +285,31 @@ public class SearchQueryBuilder<T> {
 	}
 
 	public SearchQueryBuilder<T> join(String join, String name) {
-		this.selectClause += "JOIN " + entityPrefix(join) + " " + paramFilter(name) + " ";
-		this.selectOnlyIds += "JOIN " + entityPrefix(join) + " " + paramFilter(name) + " ";
+
+		if (!this.joinedTables.contains(join) && !this.joinedFetchedTables.contains(join)) {
+			this.selectClause += "JOIN " + entityPrefix(join) + " " + paramFilter(name) + " ";
+			this.selectOnlyIds += "JOIN " + entityPrefix(join) + " " + paramFilter(name) + " ";
+			this.joinedTables.add(join);
+		}
 		return this;
 	}
 
 	public SearchQueryBuilder<T> leftJoinFetch(String join, String name) {
-		this.selectClause += generateLeftJoinFetch(join, name);
+		return leftJoinFetch(join, name, false);
+	}
+
+	public SearchQueryBuilder<T> leftJoinFetch(String join, String name, boolean overrideExistingJoin) {
+
+		if (this.joinedTables.contains(join) && overrideExistingJoin) {
+			// Override existing normal join with join fetch if it already exists in a query
+			// This override does not change the alias to the name provided, and assumes further usages will use the same alias.
+			this.selectClause = this.selectClause.replace("JOIN " + entityPrefix(join), "LEFT JOIN FETCH " + entityPrefix(join));
+			this.joinedFetchedTables.add(join);
+			this.joinedTables.remove(join);
+		} else if (!this.joinedFetchedTables.contains(join)) {
+			this.selectClause += generateLeftJoinFetch(join, name);
+			this.joinedFetchedTables.add(join);
+		}
 		return this;
 	}
 
@@ -280,6 +325,9 @@ public class SearchQueryBuilder<T> {
 		this.selectClause =
 				this.selectClause.replace(generateLeftJoinFetch(existingJoin, existingName), generateLeftJoinFetch(join, name));
 
+		this.joinedFetchedTables.remove(existingJoin);
+		this.joinedFetchedTables.add(join);
+
 		return this;
 	}
 
@@ -290,6 +338,7 @@ public class SearchQueryBuilder<T> {
 	public SearchQueryBuilder<T> removeLeftJoinFetch(String join, String name) {
 		this.selectClause =
 				this.selectClause.replace(generateLeftJoinFetch(join, name), "");
+		this.joinedFetchedTables.remove(join);
 		return this;
 	}
 
@@ -311,14 +360,108 @@ public class SearchQueryBuilder<T> {
 		return param.replace('.', '_').replace('*', '_');
 	}
 
-	public SearchQueryBuilder<T> withSort(String sortByStr, SortOrder sortOrder) {
-		String sortOrderStr = "ASC";
-		if (sortOrder != null) {
-			sortOrderStr = sortOrder.toString();
+	private String paramFilterPattern(String param) {
+		if (param == null)
+			return "";
+		return param.replace('.', '_').replace('*', '_') + "Pattern";
+	}
+
+	/**
+	 * Takes a list of SortBy options that should typically come in a searchRequest, along with a map of the validated
+	 * columns names.
+	 * Applies the entries in the list to sort the SearchQuery.
+	 *
+	 * A SortBy has
+	 *  - A column name
+	 *  - An order (DESC, ASC)
+	 */
+	public SearchQueryBuilder<T> sortBy(List<SortBy> sortBy, Map<String, EntityColumnNameAndType> entityColAndTypeBySubmittedName) throws BrAPIServerException {
+
+		if (sortBy == null || sortBy.isEmpty()) {
+			return this;
 		}
 
-		this.sortClause += " ORDER BY " + entityPrefix(sortByStr) + " " + sortOrderStr;
+		for (SortBy sort : sortBy) {
+			// At this point, the submitted sortBy name has been verified to be in entityColAndTypeBySubmittedName
+			EntityColumnNameAndType entityColumnNameAndType = entityColAndTypeBySubmittedName.get(sort.getSortedOn());
+
+			String entityColName = entityColumnNameAndType.getEntityColumnName();
+
+			if (entityColName.startsWith("*")) {
+				throw new BrAPIServerException(HttpStatus.BAD_REQUEST, "Sorting on one to many relationships not supported");
+			}
+
+			String[] split = entityColName.split("\\.");
+
+			if (split.length > 2) {
+				// TODO: Implement this if it becomes a requirement
+				throw new BrAPIServerException(HttpStatus.BAD_REQUEST, "Sorting on a table greater than one level from primary entity not allowed");
+			}
+
+			if (split.length == 2 && !split[1].equals("id")) {
+				leftJoinFetch(split[0], split[0], true);
+			}
+
+			sort.setSortedOn(entityColName);
+
+			if (sortBy.getFirst().equals(sort)) {
+				this.sortClause += " ORDER BY ";
+				buildSort(sort);
+			} else {
+				this.sortClause += ", ";
+				buildSort(sort);
+			}
+		}
 
 		return this;
+	}
+
+	private void buildSort(SortBy sort) {
+		this.sortClause += entityPrefix(sort.getSortedOn()) + " " + sort.getSortOrder() + " ";
+	}
+
+	/**
+	 * Takes a list of FilterBy options that should typically come in a searchRequest, along with a map of the validated
+	 * columns names and the data type they represent for accurate filtering on different data types.
+	 * Applies the entries in the list to filter the SearchQuery.
+	 *
+	 * A FilterBy has
+	 *  - A column name
+	 *  - A value which the column name should be filtered on
+	 */
+	public SearchQueryBuilder<T> filterBy(List<FilterBy> filterBy, Map<String, EntityColumnNameAndType> entityColAndTypeBySubmittedName) throws BrAPIServerException {
+		SearchQueryBuilder<T> searchQuery = this;
+
+		if (filterBy == null || filterBy.isEmpty()) {
+			return searchQuery;
+		}
+
+		for (FilterBy filter : filterBy) {
+			// At this point, the submitted filterBy column name has been verified to be in entityColAndTypeBySubmittedName
+			EntityColumnNameAndType entityColumnNameAndType = entityColAndTypeBySubmittedName.get(filter.getFilterOn());
+
+			if (entityColumnNameAndType.getEntityColumnName().startsWith("*")) {
+				joinCollectionColumn(entityColumnNameAndType.getEntityColumnName());
+			}
+
+			if (entityColumnNameAndType.getEntityType() == EntityType.TEXT) {
+				searchQuery = appendLike(filter.getValue().toLowerCase(), entityColumnNameAndType.getEntityColumnName());
+			} else if (entityColumnNameAndType.getEntityType() == EntityType.UUID) {
+				searchQuery = appendLikeIDs(filter.getValue(), entityColumnNameAndType.getEntityColumnName());
+			}
+		}
+
+		return searchQuery;
+	}
+
+	/**
+	 * This helper method joins the table that a collection column name is related to if it doesn't exist already.
+	 * This is particularly important for filter search requests because if the join doesn't exist, and it is referenced
+	 * the query will not execute.
+	 */
+	private void joinCollectionColumn(String submittedSortFilterColumnName) {
+		String joinTableName = submittedSortFilterColumnName.substring(1, submittedSortFilterColumnName.indexOf("."));
+
+		this.join(joinTableName, joinTableName);
 	}
 }

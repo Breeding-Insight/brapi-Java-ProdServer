@@ -592,8 +592,6 @@ public class GermplasmSearchRequest extends SearchRequest {
 			count += this.familyCodes.size();
 		if (this.genus != null)
 			count += this.genus.size();
-		if (this.germplasmDbIds != null)
-			count += this.germplasmDbIds.size();
 		if (this.germplasmNames != null)
 			count += this.germplasmNames.size();
 		if (this.germplasmPUIs != null)

@@ -2,9 +2,15 @@ package io.swagger.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import io.swagger.model.sort.SortBy;
+import org.brapi.test.BrAPITestServer.exceptions.BrAPIServerException;
+import org.brapi.test.BrAPITestServer.model.dto.EntityColumnNameAndType;
+import org.brapi.test.BrAPITestServer.model.dto.EntityType;
+import org.springframework.http.HttpStatus;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public abstract class SearchRequest {
 	@JsonIgnore
@@ -24,6 +30,20 @@ public abstract class SearchRequest {
 
 	@JsonProperty("externalReferenceSources")
 	protected List<String> externalReferenceSources = null;
+
+	@JsonProperty("filterBy")
+	protected List<FilterBy> filterBy = null;
+
+	@JsonProperty("sortBy")
+	protected List<SortBy> sortBy = null;
+
+	@JsonIgnore
+	protected Map<String, String> sortFilterEntityColumnNamesByRequestName = null;
+
+	@JsonIgnore
+	public List<String> getExternalReferenceIds() {
+		return externalReferenceIds;
+	}
 
 	final public SearchRequest page(Integer page) {
 		this.page = page;
@@ -118,5 +138,77 @@ public abstract class SearchRequest {
 			this.addExternalReferenceSourcesItem(externalReferenceSource);
 		}
 
+	}
+
+	public List<FilterBy> getFilterBy() {
+		return filterBy;
+	}
+
+	public void setFilterBy(List<FilterBy> filterBy) throws BrAPIServerException {
+
+		if (filterBy == null || filterBy.isEmpty()) {
+			return;
+		}
+
+		Map<String, EntityColumnNameAndType> allowedSortFilterNames = getEntityColAndTypeBySubmittedNameMap();
+
+		for (FilterBy filterByItem : filterBy) {
+
+			if (filterByItem.getFilterOn() == null || filterByItem.getFilterOn().isEmpty()) {
+				throw new BrAPIServerException(HttpStatus.BAD_REQUEST, "filterOn attribute not provided in element of filterBy list.");
+			}
+
+			if (filterByItem.getValue() == null || filterByItem.getValue().isEmpty()) {
+				throw new BrAPIServerException(HttpStatus.BAD_REQUEST, "value attribute not provided in element of filterBy list.");
+			}
+
+			EntityColumnNameAndType entityColumnNameAndType = allowedSortFilterNames.get(filterByItem.getFilterOn());
+
+			if (entityColumnNameAndType == null) {
+				throw new BrAPIServerException(HttpStatus.BAD_REQUEST,
+						String.format("Supplied filterColumn [%s] not available in allowed names [%s]", filterByItem.getFilterOn(), allowedSortFilterNames.keySet())
+				);
+			}
+
+			if (entityColumnNameAndType.getEntityType() == EntityType.BOOLEAN) {
+				// TODO: Add support for this when it becomes relevant for BI or when there is time.
+				throw new BrAPIServerException(HttpStatus.BAD_REQUEST, String.format("Filtering not implemented for column name [%s] with associated data type [%s]", entityColumnNameAndType.getEntityColumnName(), EntityType.BOOLEAN));
+			}
+		}
+		this.filterBy = filterBy;
+	}
+
+	public List<SortBy> getSortByElements() {
+		return sortBy;
+	}
+
+	public void setSortBy(List<SortBy> sortBy) throws BrAPIServerException {
+
+		if (sortBy == null || sortBy.isEmpty()) {
+			return;
+		}
+
+		Map<String, EntityColumnNameAndType> allowedSortFilterNames = getEntityColAndTypeBySubmittedNameMap();
+
+		for (SortBy sortByItem : sortBy) {
+			if (sortByItem.getSortedOn() == null || sortByItem.getSortedOn().isEmpty()) {
+				throw new BrAPIServerException(HttpStatus.BAD_REQUEST, "sortedOn attribute not provided in element of sortBy list");
+			}
+
+			EntityColumnNameAndType sortColumnEntityNameAndType = getEntityColAndTypeBySubmittedNameMap().get(sortByItem.getSortedOn());
+
+			if (sortColumnEntityNameAndType == null) {
+				throw new BrAPIServerException(HttpStatus.BAD_REQUEST,
+						String.format("Supplied sortColumn [%s] not available in allowed names [%s]", sortByItem.getSortedOn(), allowedSortFilterNames.keySet())
+				);
+			}
+		}
+
+		this.sortBy = sortBy;
+	}
+
+	@JsonIgnore
+	public Map<String, EntityColumnNameAndType> getEntityColAndTypeBySubmittedNameMap() throws BrAPIServerException {
+		throw new BrAPIServerException(HttpStatus.BAD_REQUEST, String.format("Sort/Filtering not implemented for %s", this.getClass().getSimpleName()));
 	}
 }
