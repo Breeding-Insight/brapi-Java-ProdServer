@@ -32,7 +32,7 @@ public class SearchQueryBuilder<T> {
 		// This is the top level query for selectOnlyIds.  It is used to construct the full id query in getIdQuery()
 		this.selectOnlyIds = "SELECT entity.id FROM " + clazz.getSimpleName() + " entity ";
 		// This subquery will contain all the joins and filters necessary for the selectOnlyIds query and protects against duplicates using distinct
-		this.selectOnlyIdsSubquery = "SELECT distinct entity.id FROM " + clazz.getSimpleName() + " entity ";
+		this.selectOnlyIdsSubquery = "SELECT distinct entity2.id FROM " + clazz.getSimpleName() + " entity2 ";
 		this.whereClause = "WHERE 1=1 ";
 		this.defaultSort = " ORDER BY entity.id ASC ";
 		this.sortClause = "";
@@ -78,9 +78,16 @@ public class SearchQueryBuilder<T> {
 			sortClause = defaultSort;
 		}
 
-		// This allows us to apply all the same filters/joins built up on the original entity with the inner entity.
-		String fullIdsSubquery = (selectOnlyIdsSubquery + whereClause).replace("entity", "entity2");
+		// Now build the subquery to apply all the same filters/joins built up on the original entity with the inner entity.
 
+		// To do this, create a regex expression which can be used to identity all instances of an "entity" without any proceeding
+		// words, dots, underscores, or colons, and ignore any existing instances of entity2, which exists already in selectOnlyIdsSubquery
+		String entityRegex = "(?<![\\\\w.:])entity(?!2)";
+
+		// Now put the subquery together with the where clause and apply the regex expression
+		String fullIdsSubquery = (selectOnlyIdsSubquery + whereClause).replaceAll(entityRegex, "entity2");
+
+		// Finally, apply outer expression and final where clause
 		return selectOnlyIds + " WHERE entity.id IN (" + fullIdsSubquery + ") " + sortClause;
 	}
 
