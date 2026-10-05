@@ -28,8 +28,8 @@ import java.util.List;
 @Where(clause = "soft_deleted = false")
 public class GermplasmEntity extends BrAPIPrimaryEntity {
     @Collate(value = "natural_sort")
-    @Column
-	private String accessionNumber;
+    @Column(name = "accession_number", nullable = false)
+	private String accessionNumber = "";
 	@Column
 	private Date acquisitionDate;
 	@Column
@@ -48,8 +48,8 @@ public class GermplasmEntity extends BrAPIPrimaryEntity {
 	@ManyToOne(cascade = CascadeType.DETACH, fetch = FetchType.LAZY)
 	private CropEntity crop;
     @Collate(value = "natural_sort")
-    @Column
-	private String defaultDisplayName;
+    @Column(name = "default_display_name", nullable = false)
+	private String defaultDisplayName = "";
 	@Column
 	private String documentationURL;
 	@OneToMany(mappedBy = "germplasm", cascade = CascadeType.ALL)
@@ -77,8 +77,8 @@ public class GermplasmEntity extends BrAPIPrimaryEntity {
 	@JoinTable
 	private List<SearchRequestEntity> searchResults;
     @Collate(value = "natural_sort")
-    @Column
-	private String seedSource;
+    @Column(name = "seed_source", nullable = false)
+	private String seedSource = "";
 	@Column
 	private String seedSourceDescription;
 	@Column
