@@ -5,6 +5,7 @@ public enum EntityType {
     UUID,
     BOOLEAN,
     // Sorting is done at the database schema/formula level for numbers.  See GermplasmEntity.maleParentGid.  No changes to filtering required for this datatype.
-    NUMBER
+    NUMBER,
+    DATE
     // Add any other entity data types we should filter different in SearchQueryBuilder here
 }
