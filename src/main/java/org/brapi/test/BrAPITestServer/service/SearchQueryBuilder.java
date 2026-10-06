@@ -26,6 +26,7 @@ public class SearchQueryBuilder<T> {
 	private List<String> joinedTables = new ArrayList<>();
 	private List<String> joinedFetchedTables = new ArrayList<>();
 	private Class<T> clazz;
+	private final String default_date = "1970-01-01";
 
 	public SearchQueryBuilder(Class<T> clazz) {
 		this.selectClause = "SELECT distinct entity FROM " + clazz.getSimpleName() + " entity ";
@@ -202,7 +203,9 @@ public class SearchQueryBuilder<T> {
 		String paramName = paramFilterPattern(columnName);
 
 		if (like != null) {
-			this.whereClause += " AND to_char(" + entityPrefix(columnName) + ", 'YYYY-MM-DD') LIKE :" + paramName + " ";
+			this.whereClause += " AND to_char(" + entityPrefix(columnName) + ", 'YYYY-MM-DD') LIKE :" + paramName + " " +
+					// Ensure we do not filter against the default date, which is effectively a NULL value for DeltaBreed's system.
+				" AND to_char(" + entityPrefix(columnName) + ", 'YYYY-MM-DD') <> '" + default_date + "' ";
 			this.params.put(paramName, "%" + like + "%");
 		}
 		return this;
