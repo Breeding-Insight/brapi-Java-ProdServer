@@ -18,6 +18,7 @@ public class SearchQueryBuilder<T> {
 
 	private String selectClause;
 	private String selectOnlyIds;
+	private String selectOnlyIdsSubquery;
 	private String whereClause;
 	private String defaultSort;
 	private String sortClause;
@@ -28,7 +29,10 @@ public class SearchQueryBuilder<T> {
 
 	public SearchQueryBuilder(Class<T> clazz) {
 		this.selectClause = "SELECT distinct entity FROM " + clazz.getSimpleName() + " entity ";
-		this.selectOnlyIds = "SELECT distinct entity.id FROM " + clazz.getSimpleName() + " entity ";
+		// This is the top level query for selectOnlyIds.  It is used to construct the full id query in getIdQuery()
+		this.selectOnlyIds = "SELECT entity.id FROM " + clazz.getSimpleName() + " entity ";
+		// This subquery will contain all the joins and filters necessary for the selectOnlyIds query and protects against duplicates using distinct
+		this.selectOnlyIdsSubquery = "SELECT distinct entity2.id FROM " + clazz.getSimpleName() + " entity2 ";
 		this.whereClause = "WHERE 1=1 ";
 		this.defaultSort = " ORDER BY entity.id ASC ";
 		this.sortClause = "";
@@ -45,13 +49,46 @@ public class SearchQueryBuilder<T> {
 		return selectClause + whereClause + sortClause;
 	}
 
+	/**
+	 * The goal of this query is to return a query that will return only the BrAPI dbIds of the source entity, applying
+	 * sorting, filtering, and pagination to the query.
+	 *
+	 * This has to be done in a very deliberate way because of both HQL and postgres constraints, so this query should
+	 * end up looking something like this:
+	 *
+	 * SELECT entity.id
+	 * FROM GermplasmEntity entity
+	 * WHERE entity.id IN (
+	 *     SELECT distinct entity2.id
+	 *     FROM GermplasmEntity entity2
+	 *     JOIN entity2.externalReferences externalReference
+	 *     WHERE 1=1 AND externalReference.externalReferenceId in :externalReferenceId
+	 *     AND externalReference.externalReferenceSource in :externalReferenceSource
+	 *     AND entity2.program.id in :program_id
+	 *     )
+	 * ORDER BY entity.id ASC
+	 *
+	 * By containing the filtering and the joining in a subquery with a DISTINCT, we can control potential duplicates from breaking through the cracks.
+	 * Then we can apply sorting outside of this query without a distinct to avoid postgres's requirement to include every order by column in the select clause.
+	 * Distinct is not an issue here, since we are selecting only on id, which is always unique.
+	 */
 	public String getIdQuery() {
 		if (sortClause.isEmpty()) {
 			// By default, sort on entity id to have query result remain idempotent
 			sortClause = defaultSort;
 		}
 
-		return selectOnlyIds + whereClause + sortClause;
+		// Now build the subquery to apply all the same filters/joins built up on the original entity with the inner entity.
+
+		// To do this, create a regex expression which can be used to identity all instances of an "entity" without any proceeding
+		// words, dots, underscores, or colons, and ignore any existing instances of entity2, which exists already in selectOnlyIdsSubquery
+		String entityRegex = "(?<![\\\\w.:])entity(?!2)";
+
+		// Now put the subquery together with the where clause and apply the regex expression
+		String fullIdsSubquery = (selectOnlyIdsSubquery + whereClause).replaceAll(entityRegex, "entity2");
+
+		// Finally, apply outer expression and final where clause
+		return selectOnlyIds + " WHERE entity.id IN (" + fullIdsSubquery + ") " + sortClause;
 	}
 
 	public Map<String, Object> getParams() {
@@ -150,7 +187,8 @@ public class SearchQueryBuilder<T> {
 		return this;
 	}
 
-	public SearchQueryBuilder<T> appendLikeIDs(String like, String columnName) {
+	// Used to convert non-string fields to string and use a like filter comparison
+	public SearchQueryBuilder<T> appendLikeString(String like, String columnName) {
 		String paramName = paramFilterPattern(columnName);
 
 		if (like != null) {
@@ -288,8 +326,10 @@ public class SearchQueryBuilder<T> {
 
 		if (!this.joinedTables.contains(join) && !this.joinedFetchedTables.contains(join)) {
 			this.selectClause += "JOIN " + entityPrefix(join) + " " + paramFilter(name) + " ";
-			this.selectOnlyIds += "JOIN " + entityPrefix(join) + " " + paramFilter(name) + " ";
+			this.selectOnlyIdsSubquery += "JOIN " + entityPrefix(join) + " " + paramFilter(name) + " ";
 			this.joinedTables.add(join);
+		} else if (joinedFetchedTables.contains(join) && !this.joinedTables.contains(join)) {
+			this.selectOnlyIdsSubquery += "JOIN " + entityPrefix(join) + " " + paramFilter(name) + " ";
 		}
 		return this;
 	}
@@ -416,6 +456,12 @@ public class SearchQueryBuilder<T> {
 		return this;
 	}
 
+	// Used to continue utilizing the same search query, like in GermplasmService fetching without pagination use case
+	public SearchQueryBuilder<T> resetSortClause() {
+		this.sortClause = "";
+		return this;
+	}
+
 	private void buildSort(SortBy sort) {
 		this.sortClause += entityPrefix(sort.getSortedOn()) + " " + sort.getSortOrder() + " ";
 	}
@@ -446,8 +492,8 @@ public class SearchQueryBuilder<T> {
 
 			if (entityColumnNameAndType.getEntityType() == EntityType.TEXT) {
 				searchQuery = appendLike(filter.getValue().toLowerCase(), entityColumnNameAndType.getEntityColumnName());
-			} else if (entityColumnNameAndType.getEntityType() == EntityType.UUID) {
-				searchQuery = appendLikeIDs(filter.getValue(), entityColumnNameAndType.getEntityColumnName());
+			} else if (entityColumnNameAndType.getEntityType() == EntityType.UUID || entityColumnNameAndType.getEntityType() == EntityType.NUMBER) {
+				searchQuery = appendLikeString(filter.getValue(), entityColumnNameAndType.getEntityColumnName());
 			}
 		}
 

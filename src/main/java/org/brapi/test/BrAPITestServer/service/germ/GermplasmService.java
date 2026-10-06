@@ -117,7 +117,7 @@ public class GermplasmService {
 		return germplasms;
 	}
 
-	public List<Germplasm> findGermplasmWithoutPaging(@Valid GermplasmSearchRequest request) {
+	public List<Germplasm> findGermplasmWithoutPaging(@Valid GermplasmSearchRequest request) throws BrAPIServerException {
 		List<GermplasmEntity> entities = findGermplasmEntitiesWithoutPaging(request);
 		return entities.stream().map(this::convertFromEntity).collect(Collectors.toList());
 	}
@@ -159,7 +159,7 @@ public class GermplasmService {
 	}
 
 	// TODO: Investigate/consider removing this code.  It is largely unused by DeltaBreed now, as paginating is the least memory exhaustive option. [BI-3020]
-	public List<GermplasmEntity> findGermplasmEntitiesWithoutPaging(@Valid GermplasmSearchRequest request) {
+	public List<GermplasmEntity> findGermplasmEntitiesWithoutPaging(@Valid GermplasmSearchRequest request) throws BrAPIServerException {
 		SearchQueryBuilder<GermplasmEntity> searchQuery = buildGermplasmSearchQuery(request);
 
 		List<GermplasmEntity>  germs = germplasmRepository.findAllBySearch(searchQuery);
@@ -170,7 +170,7 @@ public class GermplasmService {
 		return germs;
 	}
 
-	private SearchQueryBuilder<GermplasmEntity> buildGermplasmSearchQuery(GermplasmSearchRequest request) {
+	private SearchQueryBuilder<GermplasmEntity> buildGermplasmSearchQuery(GermplasmSearchRequest request) throws BrAPIServerException {
 		SearchQueryBuilder<GermplasmEntity> searchQuery = new SearchQueryBuilder<GermplasmEntity>(
 				GermplasmEntity.class);
 		searchQuery.leftJoinFetch("synonyms", "synonyms")
@@ -207,7 +207,9 @@ public class GermplasmService {
 				// .appendList(request.getProgenyDbIds(), "*progeny.germplasmDbId")
 				.appendList(request.getGenus(), "genus").appendList(request.getSpecies(), "species")
 				.appendNamesList(request.getBinomialNames(), "genus", "genus", "species")
-				.appendList(request.getFamilyCodes(), "familyCode");
+				.appendList(request.getFamilyCodes(), "familyCode")
+				.filterBy(request.getFilterBy(), request.getEntityColAndTypeBySubmittedNameMap())
+				.sortBy(request.getSortByElements(), request.getEntityColAndTypeBySubmittedNameMap());
 		return searchQuery;
 	}
 
@@ -339,7 +341,8 @@ public class GermplasmService {
 				.removeLeftJoinFetch("breedingMethod", "breedingMethod")
 				.removeLeftJoinFetch("crop", "crop")
 				.removeLeftJoinFetch("pedigree", "pedigree")
-				.removeLeftJoinFetch("*pedigree.crossingProject", "crossingProject");
+				.removeLeftJoinFetch("*pedigree.crossingProject", "crossingProject")
+				.resetSortClause();
 		// Fetch xrefs
 		log.debug("Fetching xrefs");
 		searchQuery.leftJoinFetch("externalReferences",

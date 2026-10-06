@@ -15,6 +15,7 @@ import org.brapi.test.BrAPITestServer.model.entity.pheno.ObservationUnitEntity;
 import org.brapi.test.BrAPITestServer.model.entity.pheno.TaxonEntity;
 
 import org.hibernate.annotations.BatchSize;
+import org.hibernate.annotations.Formula;
 import org.hibernate.annotations.Where;
 
 import java.util.ArrayList;
@@ -99,6 +100,24 @@ public class GermplasmEntity extends BrAPIPrimaryEntity {
 	private boolean softDeleted;
     @ManyToOne(cascade = CascadeType.DETACH, fetch = FetchType.LAZY)
     private ProgramEntity program;
+
+    @Formula("(additional_info #>> '{createdDate}')")
+    private String createdDate;
+
+    @Formula("(additional_info #>> '{createdBy,userName}')")
+    private String createdBy;
+
+    @Formula("(additional_info #>> '{breedingMethod}')")
+    private String methodName;
+
+    @Formula("cast(additional_info #>> '{femaleParentGid}' AS INTEGER)")
+    private Integer femaleParentGid;
+
+    @Formula("cast(additional_info #>> '{maleParentGid}' AS INTEGER)")
+    private Integer maleParentGid;
+
+    @Formula("cast(additional_info #>> '{importEntryNumber}' AS INTEGER)")
+    private Integer importEntryNumber;
 
     public GermplasmInstituteEntity getHostInstitute() {
         if (getInstitutes() != null) {
