@@ -36,15 +36,20 @@ ALTER TABLE germplasm
 ALTER TABLE germplasm
     ADD COLUMN created_date TIMESTAMP NOT NULL
         GENERATED ALWAYS AS (
-            make_timestamp(
-                    substring(additional_info #>> '{createdDate}' from 7 for 4)::int,  -- year
-                    substring(additional_info #>> '{createdDate}' from 4 for 2)::int,  -- month
-                    substring(additional_info #>> '{createdDate}' from 1 for 2)::int,  -- day
-                    substring(additional_info #>> '{createdDate}' from 12 for 2)::int, -- hour
-                    substring(additional_info #>> '{createdDate}' from 15 for 2)::int, -- minute
-                    substring(additional_info #>> '{createdDate}' from 18 for 2)::int  -- second
-            )
-            ) STORED;
+            CASE
+                WHEN additional_info #>> '{createdDate}' IS NULL
+                    THEN TIMESTAMP '1970-01-01 00:00:00'
+                ELSE
+                    make_timestamp(
+                            substring(additional_info #>> '{createdDate}' from 7 for 4)::int,  -- year
+                            substring(additional_info #>> '{createdDate}' from 4 for 2)::int,  -- month
+                            substring(additional_info #>> '{createdDate}' from 1 for 2)::int,  -- day
+                            substring(additional_info #>> '{createdDate}' from 12 for 2)::int, -- hour
+                            substring(additional_info #>> '{createdDate}' from 15 for 2)::int, -- minute
+                            substring(additional_info #>> '{createdDate}' from 18 for 2)::int  -- second
+                    )
+                END
+        ) STORED;
 
 ALTER TABLE germplasm
     ADD COLUMN
