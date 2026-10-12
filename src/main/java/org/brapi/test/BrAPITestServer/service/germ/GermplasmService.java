@@ -4,6 +4,9 @@ import java.math.BigDecimal;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import io.swagger.model.core.GermplasmListSearchRequest;
+import io.swagger.model.core.ListDetails;
+import io.swagger.model.core.ListItemWithFullItem;
 import io.swagger.model.core.ProgramSearchRequest;
 import io.swagger.model.germ.*;
 import jakarta.validation.Valid;
@@ -454,6 +457,10 @@ public class GermplasmService {
 			germ.setPedigree(pedigreeByGerm.get(germ.getId().toString()));
 		});
 	};
+
+	public List<ListItemWithFullItem<?>> searchGermplasmByList(ListDetails list, GermplasmListSearchRequest request) {
+		return new ArrayList<>();
+	}
 
 	public Germplasm getGermplasm(String germplasmDbId) throws BrAPIServerException {
 		return convertFromEntity(getGermplasmEntity(germplasmDbId, HttpStatus.NOT_FOUND));

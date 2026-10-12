@@ -6,10 +6,7 @@ import io.swagger.model.SearchRequest;
 import org.brapi.test.BrAPITestServer.model.dto.EntityColumnNameAndType;
 import org.brapi.test.BrAPITestServer.model.dto.EntityType;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 public class GermplasmSearchRequest extends SearchRequest {
 
@@ -30,6 +27,10 @@ public class GermplasmSearchRequest extends SearchRequest {
 					Map.entry("importEntryNumber", new EntityColumnNameAndType("importEntryNumber", EntityType.NUMBER)),
 					Map.entry("synonyms", new EntityColumnNameAndType("*synonyms.synonym", EntityType.TEXT))
 			);
+
+	protected static Map<String, EntityColumnNameAndType> copyAllowedSortAndFilterFields() {
+		return new HashMap<>(ALLOWED_SORT_AND_FILTER_FIELDS);
+	}
 
 	@JsonProperty("accessionNumbers")
 	private List<String> accessionNumbers = null;

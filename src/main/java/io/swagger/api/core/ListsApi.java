@@ -7,11 +7,7 @@ package io.swagger.api.core;
 
 import io.swagger.model.BrAPIResponse;
 import io.swagger.model.Model202AcceptedSearchResponse;
-import io.swagger.model.core.ListNewRequest;
-import io.swagger.model.core.ListResponse;
-import io.swagger.model.core.ListSearchRequest;
-import io.swagger.model.core.ListsListResponse;
-import io.swagger.model.core.ListsSingleResponse;
+import io.swagger.model.core.*;
 import io.swagger.annotations.*;
 
 import org.brapi.test.BrAPITestServer.exceptions.BrAPIServerException;
@@ -166,4 +162,16 @@ public interface ListsApi {
 			@ApiParam(value = "pageSize") @Valid @RequestParam(value = "pageSize", required = false) Integer pageSize,
 			@ApiParam(value = "HTTP HEADER - Token used for Authorization   <strong> Bearer {token_string} </strong>") @RequestHeader(value = "Authorization", required = false) String authorization) throws BrAPIServerException;
 
+	@ApiOperation(value = "Submit a search request for List Items", nickname = "searchListByItemRequest", notes = "Advanced searching for the list item resource. See Search Services for additional implementation details.", response = ListItemsListResponse.class, authorizations = {
+			@Authorization(value = "AuthorizationToken") }, tags = { "Lists", })
+	@ApiResponses(value = { @ApiResponse(code = 200, message = "OK", response = ListItemsListResponse.class),
+			@ApiResponse(code = 202, message = "Accepted", response = Model202AcceptedSearchResponse.class),
+			@ApiResponse(code = 400, message = "Bad Request", response = String.class),
+			@ApiResponse(code = 401, message = "Unauthorized", response = String.class),
+			@ApiResponse(code = 403, message = "Forbidden", response = String.class) })
+	@RequestMapping(value = "/search/lists/{listDbId}/items", produces = { "application/json" }, consumes = {
+			"application/json" }, method = RequestMethod.POST)
+	ResponseEntity<? extends BrAPIResponse> searchListByItemRequest(@ApiParam(value = "") @Valid @RequestBody ListItemSearchRequest body,
+															@ApiParam(value = "Permanent unique identifier of list to perform search on", required = true) @PathVariable("listDbId") String listDbId,
+	                                                        @ApiParam(value = "HTTP HEADER - Token used for Authorization   <strong> Bearer {token_string} </strong>") @RequestHeader(value = "Authorization", required = false) String authorization) throws BrAPIServerException;
 }
