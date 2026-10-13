@@ -7,8 +7,8 @@ import java.util.stream.Collectors;
 import io.swagger.model.core.GermplasmListSearchRequest;
 import io.swagger.model.core.ListDetails;
 import io.swagger.model.core.ListItemWithFullItem;
-import io.swagger.model.core.ProgramSearchRequest;
 import io.swagger.model.germ.*;
+import jakarta.persistence.Tuple;
 import jakarta.validation.Valid;
 
 import org.brapi.test.BrAPITestServer.exceptions.BrAPIServerDbIdNotFoundException;
@@ -33,7 +33,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -458,7 +457,7 @@ public class GermplasmService {
 		});
 	};
 
-	public List<ListItemWithFullItem<?>> searchGermplasmByList(ListDetails list, GermplasmListSearchRequest request) {
+	public List<ListItemWithFullItem<?>> searchGermplasmByList(ListDetails list, GermplasmListSearchRequest request, Metadata metadata) {
 		return new ArrayList<>();
 	}
 
@@ -1121,11 +1120,23 @@ public class GermplasmService {
 		return dupInstitutes;
 	}
 
-	public List<Object[]> getGermplasmInList() {
-
-		SearchQueryBuilder<GermplasmEntity> searchQuery = new SearchQueryBuilder<>(
-				GermplasmEntity.class);
-		return germplasmRepository.testMappedEntityHql(searchQuery);
-	}
+//	public List<Tuple> searchGermplasmByList(GermplasmListSearchRequest searchRequest, Metadata metadata) throws BrAPIServerException {
+//
+//		Pageable pageReq = PagingUtility.getPageRequest(metadata);
+//
+//		SearchQueryBuilder<GermplasmEntity> searchQuery = buildGermplasmSearchQuery(searchRequest);
+//
+//		Page<Tuple> listItemAndGerm = germplasmRepository.findAllBySearchAndPaginateMultipleEntitySelect(searchQuery, pageReq);
+//
+//		if (!listItemAndGerm.isEmpty()) {
+//			// Extract germs from page object, pass here
+//			// Ensure search query searches on germplasm and joins on list by id and type to get same results as above
+//			fetchRemainingGermCollectionsUsingQuery(searchQuery, listItemAndGerm);
+//		}
+//
+//		SearchQueryBuilder<GermplasmEntity> searchQuery = new SearchQueryBuilder<>(
+//				GermplasmEntity.class);
+//		return germplasmRepository.testMappedEntityHql(searchQuery);
+//	}
 
 }

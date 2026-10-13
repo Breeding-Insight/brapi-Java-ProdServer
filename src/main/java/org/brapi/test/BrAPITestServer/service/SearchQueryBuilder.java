@@ -8,7 +8,6 @@ import java.time.OffsetDateTime;
 
 import io.swagger.model.FilterBy;
 import io.swagger.model.GeoJSONSearchArea;
-import io.swagger.model.core.ListTypes;
 import io.swagger.model.sort.SortBy;
 import org.brapi.test.BrAPITestServer.exceptions.BrAPIServerException;
 import org.brapi.test.BrAPITestServer.model.dto.EntityColumnNameAndType;
@@ -18,8 +17,11 @@ import org.springframework.http.HttpStatus;
 public class SearchQueryBuilder<T> {
 
 	private String selectClause;
+	private String selectMultipleEntities;
 	private String selectOnlyIds;
 	private String selectOnlyIdsSubquery;
+	private String joinClause;
+	private String joinClauseIdSubquery;
 	private String whereClause;
 	private String defaultSort;
 	private String sortClause;
@@ -30,17 +32,19 @@ public class SearchQueryBuilder<T> {
 	private final String default_date = "1970-01-01";
 	public String testHql;
 
-	public SearchQueryBuilder(Class<T> clazz) {
-		this.selectClause = "SELECT distinct entity FROM " + clazz.getSimpleName() + " entity ";
+	public SearchQueryBuilder(Class<T> baseEntity) {
+		this.selectClause = "SELECT distinct entity FROM " + baseEntity.getSimpleName() + " entity ";
 		// This is the top level query for selectOnlyIds.  It is used to construct the full id query in getIdQuery()
-		this.selectOnlyIds = "SELECT entity.id FROM " + clazz.getSimpleName() + " entity ";
+		this.selectOnlyIds = "SELECT entity.id FROM " + baseEntity.getSimpleName() + " entity ";
 		// This subquery will contain all the joins and filters necessary for the selectOnlyIds query and protects against duplicates using distinct
-		this.selectOnlyIdsSubquery = "SELECT distinct entity2.id FROM " + clazz.getSimpleName() + " entity2 ";
+		this.selectOnlyIdsSubquery = "SELECT distinct entity2.id FROM " + baseEntity.getSimpleName() + " entity2 ";
+		this.joinClause = "";
+		this.joinClauseIdSubquery = "";
 		this.whereClause = "WHERE 1=1 ";
 		this.defaultSort = " ORDER BY entity.id ASC ";
 		this.sortClause = "";
 		this.params = new HashMap<>();
-		this.clazz = clazz;
+		this.clazz = baseEntity;
 	}
 
 	public String getQuery() {
@@ -49,7 +53,7 @@ public class SearchQueryBuilder<T> {
 			sortClause = defaultSort;
 		}
 
-		return selectClause + whereClause + sortClause;
+		return selectClause + joinClause + whereClause + sortClause;
 	}
 
 	/**
@@ -88,7 +92,7 @@ public class SearchQueryBuilder<T> {
 		String entityRegex = "(?<![\\\\w.:])entity(?!2)";
 
 		// Now put the subquery together with the where clause and apply the regex expression
-		String fullIdsSubquery = (selectOnlyIdsSubquery + whereClause).replaceAll(entityRegex, "entity2");
+		String fullIdsSubquery = (selectOnlyIdsSubquery + joinClauseIdSubquery + whereClause).replaceAll(entityRegex, "entity2");
 
 		// Finally, apply outer expression and final where clause
 		return selectOnlyIds + " WHERE entity.id IN (" + fullIdsSubquery + ") " + sortClause;
@@ -340,11 +344,11 @@ public class SearchQueryBuilder<T> {
 	public SearchQueryBuilder<T> join(String join, String name) {
 
 		if (!this.joinedTables.contains(join) && !this.joinedFetchedTables.contains(join)) {
-			this.selectClause += "JOIN " + entityPrefix(join) + " " + paramFilter(name) + " ";
-			this.selectOnlyIdsSubquery += "JOIN " + entityPrefix(join) + " " + paramFilter(name) + " ";
+			this.joinClause += "JOIN " + entityPrefix(join) + " " + paramFilter(name) + " ";
+			this.joinClauseIdSubquery += "JOIN " + entityPrefix(join) + " " + paramFilter(name) + " ";
 			this.joinedTables.add(join);
 		} else if (joinedFetchedTables.contains(join) && !this.joinedTables.contains(join)) {
-			this.selectOnlyIdsSubquery += "JOIN " + entityPrefix(join) + " " + paramFilter(name) + " ";
+			this.joinClauseIdSubquery += "JOIN " + entityPrefix(join) + " " + paramFilter(name) + " ";
 		}
 		return this;
 	}
@@ -358,11 +362,11 @@ public class SearchQueryBuilder<T> {
 		if (this.joinedTables.contains(join) && overrideExistingJoin) {
 			// Override existing normal join with join fetch if it already exists in a query
 			// This override does not change the alias to the name provided, and assumes further usages will use the same alias.
-			this.selectClause = this.selectClause.replace("JOIN " + entityPrefix(join), "LEFT JOIN FETCH " + entityPrefix(join));
+			this.joinClause = this.joinClause.replace("JOIN " + entityPrefix(join), "LEFT JOIN FETCH " + entityPrefix(join));
 			this.joinedFetchedTables.add(join);
 			this.joinedTables.remove(join);
 		} else if (!this.joinedFetchedTables.contains(join)) {
-			this.selectClause += generateLeftJoinFetch(join, name);
+			this.joinClause += generateLeftJoinFetch(join, name);
 			this.joinedFetchedTables.add(join);
 		}
 		return this;
@@ -377,8 +381,8 @@ public class SearchQueryBuilder<T> {
 															   String existingJoin,
 															   String existingName) {
 
-		this.selectClause =
-				this.selectClause.replace(generateLeftJoinFetch(existingJoin, existingName), generateLeftJoinFetch(join, name));
+		this.joinClause =
+				this.joinClause.replace(generateLeftJoinFetch(existingJoin, existingName), generateLeftJoinFetch(join, name));
 
 		this.joinedFetchedTables.remove(existingJoin);
 		this.joinedFetchedTables.add(join);
@@ -391,8 +395,8 @@ public class SearchQueryBuilder<T> {
 	 * base query criteria to add another join fetch with leftJoinFetch()
 	 */
 	public SearchQueryBuilder<T> removeLeftJoinFetch(String join, String name) {
-		this.selectClause =
-				this.selectClause.replace(generateLeftJoinFetch(join, name), "");
+		this.joinClause =
+				this.joinClause.replace(generateLeftJoinFetch(join, name), "");
 		this.joinedFetchedTables.remove(join);
 		return this;
 	}
@@ -529,29 +533,5 @@ public class SearchQueryBuilder<T> {
 		String joinTableName = submittedSortFilterColumnName.substring(1, submittedSortFilterColumnName.indexOf("."));
 
 		this.join(joinTableName, joinTableName);
-	}
-
-	public SearchQueryBuilder<T> findGermplasmListItems() {
-
-		testHql = """
-        SELECT listItem, germplasm
-        FROM ListItemEntity listItem
-        JOIN listItem.list list
-        JOIN GermplasmEntity germplasm
-            ON germplasm.germplasmName = listItem.item
-		JOIN germplasm.pedigree pedigree
-        WHERE list.id = :listDbId
-          AND list.listType = :listType
-          AND germplasm.defaultDisplayName LIKE :defaultDisplayName
-          AND to_char(germplasm.createdDate, 'YYYY-MM-DD') LIKE :createdDate
-        ORDER BY germplasm.accessionNumber ASC, listItem.id ASC
-        """;
-
-		params.put("listDbId", UUID.fromString("d200d581-1136-41e0-820d-806bf9cb63a8"));
-		params.put("listType", ListTypes.GERMPLASM);
-		params.put("defaultDisplayName", "%" + "86-MO-1-1.1" + "%");
-		params.put("createdDate", "%20%");
-
-		return this;
 	}
 }

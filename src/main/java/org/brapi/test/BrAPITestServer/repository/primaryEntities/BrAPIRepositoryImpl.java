@@ -9,6 +9,7 @@ import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
 import jakarta.persistence.EntityManager;
+import jakarta.persistence.Tuple;
 import jakarta.persistence.TypedQuery;
 
 import org.brapi.test.BrAPITestServer.exceptions.InvalidPagingException;
@@ -57,6 +58,23 @@ public class BrAPIRepositoryImpl<T extends BrAPIPrimaryEntity, ID extends Serial
 		List<T> content = getPagedContent(searchQuery, pageReq);
 
         return new PageImpl<>(content, pageReq, totalCount);
+	}
+
+	public Page<Tuple> findAllBySearchAndPaginateMultipleEntitySelect(SearchQueryBuilder<T> searchQuery, Pageable pageReq) throws InvalidPagingException {
+		applyUserId(searchQuery);
+
+		Long totalCount = getTotalCount(searchQuery);
+
+		validatePageNumber(pageReq, totalCount);
+
+		if (totalCount == 0) {
+			// Short-circuit to avoid running possible long-running query
+			return new PageImpl<>(Collections.emptyList(), pageReq, totalCount);
+		}
+
+		List<Tuple> content = getPagedContentMultipleEntitySelect(searchQuery, pageReq);
+
+		return new PageImpl<>(content, pageReq, totalCount);
 	}
 
 	/**
@@ -181,6 +199,17 @@ public class BrAPIRepositoryImpl<T extends BrAPIPrimaryEntity, ID extends Serial
         return query.getResultList();
 	}
 
+	private List<Tuple> getPagedContentMultipleEntitySelect(SearchQueryBuilder<T> searchQuery, Pageable pageReq) {
+		TypedQuery<Tuple> query = entityManager.createQuery(searchQuery.getQuery(), Tuple.class);
+
+		setQueryParamsMultipleEntitySelect(query, searchQuery);
+
+		query.setFirstResult((int) pageReq.getOffset());
+		query.setMaxResults(pageReq.getPageSize());
+
+		return query.getResultList();
+	}
+
 	private List<T> searchEntitiesWithIds(SearchQueryBuilder<T> searchQuery, List<UUID> ids) {
 		searchQuery.appendList(ids.stream().map(Object::toString).collect(Collectors.toList()), "id");
 
@@ -200,6 +229,12 @@ public class BrAPIRepositoryImpl<T extends BrAPIPrimaryEntity, ID extends Serial
 	}
 
 	private void setQueryParams(TypedQuery<T> query, SearchQueryBuilder<T> searchQuery) {
+		for (Entry<String, Object> entry : searchQuery.getParams().entrySet()) {
+			query.setParameter(entry.getKey(), entry.getValue());
+		}
+	}
+
+	private void setQueryParamsMultipleEntitySelect(TypedQuery<Tuple> query, SearchQueryBuilder<T> searchQuery) {
 		for (Entry<String, Object> entry : searchQuery.getParams().entrySet()) {
 			query.setParameter(entry.getKey(), entry.getValue());
 		}
@@ -247,18 +282,5 @@ public class BrAPIRepositoryImpl<T extends BrAPIPrimaryEntity, ID extends Serial
 			// Instruct requester to send the correct request.
 			throw new InvalidPagingException();
 		}
-	}
-
-	public List<Object[]> testMappedEntityHql(SearchQueryBuilder<T> searchQuery) {
-		searchQuery.findGermplasmListItems();
-		TypedQuery<Object[]> query = entityManager.createQuery(searchQuery.testHql, Object[].class);
-
-		for (Entry<String, Object> entry : searchQuery.getParams().entrySet()) {
-			query.setParameter(entry.getKey(), entry.getValue());
-		}
-
-		query.setFirstResult((int) 0);
-		query.setMaxResults(10);
-	return query.getResultList();
 	}
 }

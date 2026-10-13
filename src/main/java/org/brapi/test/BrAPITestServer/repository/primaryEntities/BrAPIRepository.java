@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import jakarta.persistence.Tuple;
 import org.brapi.test.BrAPITestServer.exceptions.InvalidPagingException;
 import org.brapi.test.BrAPITestServer.model.entity.BrAPIPrimaryEntity;
 import org.brapi.test.BrAPITestServer.service.SearchQueryBuilder;
@@ -34,5 +35,5 @@ public interface BrAPIRepository<T extends BrAPIPrimaryEntity, ID extends Serial
 
 	List<T> findByIdIn(List<ID> ids);
 
-	List<Object[]> testMappedEntityHql(SearchQueryBuilder<T> searchQuery);
+	public Page<Tuple> findAllBySearchAndPaginateMultipleEntitySelect(SearchQueryBuilder<T> searchQuery, Pageable pageReq) throws InvalidPagingException;
 }
