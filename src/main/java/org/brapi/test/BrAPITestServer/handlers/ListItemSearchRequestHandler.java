@@ -1,10 +1,10 @@
 package org.brapi.test.BrAPITestServer.handlers;
 
+import io.swagger.model.Metadata;
 import io.swagger.model.core.ListDetails;
 import io.swagger.model.core.ListItemWithFullItem;
-import io.swagger.model.core.ListItemsListResponseResult;
 import io.swagger.model.core.ListTypes;
-import org.brapi.test.BrAPITestServer.model.entity.core.ListEntity;
+import org.brapi.test.BrAPITestServer.exceptions.BrAPIServerException;
 
 import java.util.List;
 
@@ -15,6 +15,7 @@ public interface ListItemSearchRequestHandler<T> {
 
     List<ListItemWithFullItem<?>> search(
             ListDetails list,
-            T searchRequest
-    );
+            T searchRequest,
+            Metadata metadata
+    ) throws BrAPIServerException;
 }

@@ -527,7 +527,7 @@ public class GermplasmService {
 				.collect(Collectors.toList());
 	}
 
-	private Germplasm convertFromEntity(GermplasmEntity entity) {
+	public Germplasm convertFromEntity(GermplasmEntity entity) {
 		Germplasm germ = new Germplasm();
 		UpdateUtility.convertFromEntity(entity, germ);
 
@@ -1119,6 +1119,13 @@ public class GermplasmService {
 			}
 		}
 		return dupInstitutes;
+	}
+
+	public List<Object[]> getGermplasmInList() {
+
+		SearchQueryBuilder<GermplasmEntity> searchQuery = new SearchQueryBuilder<>(
+				GermplasmEntity.class);
+		return germplasmRepository.testMappedEntityHql(searchQuery);
 	}
 
 }

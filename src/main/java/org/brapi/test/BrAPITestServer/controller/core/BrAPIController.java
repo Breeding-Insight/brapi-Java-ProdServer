@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import jakarta.servlet.http.HttpServletRequest;
 
 import io.swagger.model.core.BatchDeletesListResponse;
@@ -47,6 +48,25 @@ public class BrAPIController {
 		metaData.getPagination().setCurrentPage(pageToken);
 		metaData.getPagination().setPageSize(pageSize);
 		return metaData;
+	}
+
+	protected Metadata generateMetaDataTemplate(JsonNode node) throws BrAPIServerException {
+
+		Integer page = null;
+		Integer pageSize = null;
+
+		JsonNode pageAsNode = node.get("page");
+		JsonNode pageSizeAsNode = node.get("pageSize");
+
+		if (pageAsNode != null && pageAsNode.canConvertToInt()) {
+			page = pageAsNode.asInt();
+		}
+
+		if (pageSizeAsNode != null && pageSizeAsNode.canConvertToInt()) {
+			pageSize = pageSizeAsNode.asInt();
+		}
+
+		return generateMetaDataTemplate(page, pageSize);
 	}
 
 	protected Metadata generateMetaDataTemplate(Integer page, Integer pageSize) throws BrAPIServerException {

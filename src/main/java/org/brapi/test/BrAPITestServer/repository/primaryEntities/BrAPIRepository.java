@@ -27,10 +27,12 @@ public interface BrAPIRepository<T extends BrAPIPrimaryEntity, ID extends Serial
 	public <S extends T> S save(S entity);
 
 	public <S extends T> List<S> saveAll(Iterable<S> entities);
-	
+
 	public <S extends T> void refresh(S entity);
 
 	public void fetchXrefs(List<UUID> page, Page<T> pagedEntities, Class<T> searchClass) throws InvalidPagingException;
 
 	List<T> findByIdIn(List<ID> ids);
+
+	List<Object[]> testMappedEntityHql(SearchQueryBuilder<T> searchQuery);
 }

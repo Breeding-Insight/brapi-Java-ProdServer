@@ -1,5 +1,6 @@
 package org.brapi.test.BrAPITestServer.controller.core;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import io.swagger.model.BrAPIResponse;
 import io.swagger.model.Metadata;
 import io.swagger.model.core.*;
@@ -211,16 +212,16 @@ public class ListsApiController extends BrAPIController implements ListsApi {
 	@CrossOrigin
 	@Override
 	public ResponseEntity<? extends BrAPIResponse> searchListByItemRequest(
-			@Valid @RequestBody ListItemSearchRequest body,
+			@Valid @RequestBody JsonNode body,
 			@PathVariable("listDbId") String listDbId,
 			@RequestHeader(value = "Authorization", required = false) String authorization) throws BrAPIServerException {
 
 		log.debug("Request: " + request.getRequestURI());
 		validateSecurityContext(request, "ROLE_ANONYMOUS", "ROLE_USER");
 		validateAcceptHeader(request);
-		Metadata metadata = generateEmptyMetadata();
+		Metadata metadata = generateMetaDataTemplate(body);
 
-		List<ListItemWithFullItem<?>> data = listItemService.search(listDbId, body);
+		List<ListItemWithFullItem<?>> data = listItemService.search(listDbId, body, metadata);
 		return responseOK(new ListItemsListResponse(), new ListItemsListResponseResult(), data, metadata);
 	}
 

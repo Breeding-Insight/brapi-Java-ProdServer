@@ -2,7 +2,6 @@ package io.swagger.model.core;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.JsonNode;
-import io.swagger.model.SearchRequest;
 
 public class ListItemSearchRequest {
 

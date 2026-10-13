@@ -8,6 +8,7 @@ import java.time.OffsetDateTime;
 
 import io.swagger.model.FilterBy;
 import io.swagger.model.GeoJSONSearchArea;
+import io.swagger.model.core.ListTypes;
 import io.swagger.model.sort.SortBy;
 import org.brapi.test.BrAPITestServer.exceptions.BrAPIServerException;
 import org.brapi.test.BrAPITestServer.model.dto.EntityColumnNameAndType;
@@ -27,6 +28,7 @@ public class SearchQueryBuilder<T> {
 	private List<String> joinedFetchedTables = new ArrayList<>();
 	private Class<T> clazz;
 	private final String default_date = "1970-01-01";
+	public String testHql;
 
 	public SearchQueryBuilder(Class<T> clazz) {
 		this.selectClause = "SELECT distinct entity FROM " + clazz.getSimpleName() + " entity ";
@@ -527,5 +529,29 @@ public class SearchQueryBuilder<T> {
 		String joinTableName = submittedSortFilterColumnName.substring(1, submittedSortFilterColumnName.indexOf("."));
 
 		this.join(joinTableName, joinTableName);
+	}
+
+	public SearchQueryBuilder<T> findGermplasmListItems() {
+
+		testHql = """
+        SELECT listItem, germplasm
+        FROM ListItemEntity listItem
+        JOIN listItem.list list
+        JOIN GermplasmEntity germplasm
+            ON germplasm.germplasmName = listItem.item
+		JOIN germplasm.pedigree pedigree
+        WHERE list.id = :listDbId
+          AND list.listType = :listType
+          AND germplasm.defaultDisplayName LIKE :defaultDisplayName
+          AND to_char(germplasm.createdDate, 'YYYY-MM-DD') LIKE :createdDate
+        ORDER BY germplasm.accessionNumber ASC, listItem.id ASC
+        """;
+
+		params.put("listDbId", UUID.fromString("d200d581-1136-41e0-820d-806bf9cb63a8"));
+		params.put("listType", ListTypes.GERMPLASM);
+		params.put("defaultDisplayName", "%" + "86-MO-1-1.1" + "%");
+		params.put("createdDate", "%20%");
+
+		return this;
 	}
 }

@@ -5,6 +5,7 @@
  */
 package io.swagger.api.core;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import io.swagger.model.BrAPIResponse;
 import io.swagger.model.Model202AcceptedSearchResponse;
 import io.swagger.model.core.*;
@@ -171,7 +172,7 @@ public interface ListsApi {
 			@ApiResponse(code = 403, message = "Forbidden", response = String.class) })
 	@RequestMapping(value = "/search/lists/{listDbId}/items", produces = { "application/json" }, consumes = {
 			"application/json" }, method = RequestMethod.POST)
-	ResponseEntity<? extends BrAPIResponse> searchListByItemRequest(@ApiParam(value = "") @Valid @RequestBody ListItemSearchRequest body,
+	ResponseEntity<? extends BrAPIResponse> searchListByItemRequest(@ApiParam(value = "") @Valid @RequestBody JsonNode body,
 															@ApiParam(value = "Permanent unique identifier of list to perform search on", required = true) @PathVariable("listDbId") String listDbId,
 	                                                        @ApiParam(value = "HTTP HEADER - Token used for Authorization   <strong> Bearer {token_string} </strong>") @RequestHeader(value = "Authorization", required = false) String authorization) throws BrAPIServerException;
 }

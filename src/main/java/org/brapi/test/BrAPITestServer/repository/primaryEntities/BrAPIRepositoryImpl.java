@@ -248,4 +248,17 @@ public class BrAPIRepositoryImpl<T extends BrAPIPrimaryEntity, ID extends Serial
 			throw new InvalidPagingException();
 		}
 	}
+
+	public List<Object[]> testMappedEntityHql(SearchQueryBuilder<T> searchQuery) {
+		searchQuery.findGermplasmListItems();
+		TypedQuery<Object[]> query = entityManager.createQuery(searchQuery.testHql, Object[].class);
+
+		for (Entry<String, Object> entry : searchQuery.getParams().entrySet()) {
+			query.setParameter(entry.getKey(), entry.getValue());
+		}
+
+		query.setFirstResult((int) 0);
+		query.setMaxResults(10);
+	return query.getResultList();
+	}
 }
