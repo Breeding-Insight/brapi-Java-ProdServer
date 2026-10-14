@@ -495,10 +495,10 @@ public class GermplasmService {
 
 		Page<Tuple> page = searchGermplasmByList(list, request, metadata);
 
-		List<ListItemWithFullItem<?>> listItems = page.map(this::convertFromEntity).getContent();
+		Page<ListItemWithFullItem<?>> listItems = page.map(this::convertFromEntity);
 		PagingUtility.calculateMetaData(metadata, page);
 
-		return listItems;
+		return listItems.getContent();
 	}
 
 	public Germplasm getGermplasm(String germplasmDbId) throws BrAPIServerException {
