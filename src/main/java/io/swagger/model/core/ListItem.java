@@ -21,11 +21,6 @@ public class ListItem  {
     @JsonProperty("item")
     private String item = null;
 
-    public ListItem listDbId(String listDbId) {
-        this.listItemDbId = listDbId;
-        return this;
-    }
-
     /**
      * The unique identifier for a List
      * @return listDbId

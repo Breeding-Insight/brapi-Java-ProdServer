@@ -63,7 +63,7 @@ public class BrAPIRepositoryImpl<T extends BrAPIPrimaryEntity, ID extends Serial
 	public Page<Tuple> findAllBySearchAndPaginateMultipleEntitySelect(SearchQueryBuilder<T> searchQuery, Pageable pageReq) throws InvalidPagingException {
 		applyUserId(searchQuery);
 
-		Long totalCount = getTotalCount(searchQuery);
+		Long totalCount = getMultipleSelectCountQuery(searchQuery);
 
 		validatePageNumber(pageReq, totalCount);
 
@@ -91,6 +91,7 @@ public class BrAPIRepositoryImpl<T extends BrAPIPrimaryEntity, ID extends Serial
 	 * If the need is to fetch according to an entirely different base criteria, feel free to call this method again.
 	 *
 	 * The results will be paged and ordered based on the submitted searchQuery and pageReq.
+	 * TODO: This method and it's confusing use of SearchQueryBuilder.idQuery may not be necessary at all if we keep left join fetches out of initial queries and fetch after.
     */
 	public Page<T> findAllBySearchPaginatingWithFetches(SearchQueryBuilder<T> searchQuery, Pageable pageReq)
 		throws InvalidPagingException {
@@ -255,6 +256,19 @@ public class BrAPIRepositoryImpl<T extends BrAPIPrimaryEntity, ID extends Serial
 	}
 
 
+	private Long getMultipleSelectCountQuery(SearchQueryBuilder<T> searchQuery)
+	{
+		TypedQuery<Long> query = entityManager.createQuery(searchQuery.getCountQueryMultipleSelect(), Long.class);
+		for (Entry<String, Object> entry : searchQuery.getParams().entrySet()) {
+			query.setParameter(entry.getKey(), entry.getValue());
+		}
+
+		List<Long> content = query.getResultList();
+		if (!content.isEmpty()) {
+			return content.getFirst();
+		}
+		return 0L;
+	}
 
 
 	private Long getTotalCount(SearchQueryBuilder<T> searchQuery) {

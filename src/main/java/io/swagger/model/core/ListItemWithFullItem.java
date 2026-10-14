@@ -24,11 +24,11 @@ public class ListItemWithFullItem<T>  {
     @ApiModelProperty(example = "6f621cfa", required = true, value = "The unique identifier for a List")
 
 
-    public ListItem getlistItem() {
+    public ListItem getListItem() {
         return listItem;
     }
 
-    public void setlistItem(ListItem listItem) {
+    public void setListItem(ListItem listItem) {
         this.listItem = listItem;
     }
 

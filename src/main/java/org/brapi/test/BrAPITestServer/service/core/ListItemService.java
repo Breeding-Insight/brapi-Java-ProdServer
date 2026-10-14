@@ -6,6 +6,7 @@ import io.swagger.model.Metadata;
 import io.swagger.model.core.*;
 import org.brapi.test.BrAPITestServer.exceptions.BrAPIServerException;
 import org.brapi.test.BrAPITestServer.handlers.ListItemSearchRequestHandler;
+import org.brapi.test.BrAPITestServer.model.entity.core.ListItemEntity;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.stereotype.Service;

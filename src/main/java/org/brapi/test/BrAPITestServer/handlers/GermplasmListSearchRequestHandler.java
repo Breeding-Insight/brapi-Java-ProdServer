@@ -2,14 +2,10 @@ package org.brapi.test.BrAPITestServer.handlers;
 
 import io.swagger.model.Metadata;
 import io.swagger.model.core.*;
-import io.swagger.model.germ.Germplasm;
 import org.brapi.test.BrAPITestServer.exceptions.BrAPIServerException;
-import org.brapi.test.BrAPITestServer.model.entity.core.ListItemEntity;
-import org.brapi.test.BrAPITestServer.model.entity.germ.GermplasmEntity;
 import org.brapi.test.BrAPITestServer.service.germ.GermplasmService;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Component
@@ -36,6 +32,6 @@ public class GermplasmListSearchRequestHandler implements ListItemSearchRequestH
             GermplasmListSearchRequest searchRequest,
             Metadata metadata) throws BrAPIServerException {
 
-        return germplasmService.searchGermplasmByList(list, searchRequest, metadata);
+        return germplasmService.findGermplasmByList(list, searchRequest, metadata);
     }
 }

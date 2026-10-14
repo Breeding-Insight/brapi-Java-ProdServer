@@ -6,8 +6,11 @@ import java.util.stream.Collectors;
 
 import io.swagger.model.core.GermplasmListSearchRequest;
 import io.swagger.model.core.ListDetails;
+import io.swagger.model.core.ListItem;
 import io.swagger.model.core.ListItemWithFullItem;
 import io.swagger.model.germ.*;
+import io.swagger.model.sort.SortBy;
+import io.swagger.model.sort.SortOrder;
 import jakarta.persistence.Tuple;
 import jakarta.validation.Valid;
 
@@ -16,6 +19,7 @@ import org.brapi.test.BrAPITestServer.exceptions.BrAPIServerException;
 import org.brapi.test.BrAPITestServer.model.entity.BrAPIBaseEntity;
 import org.brapi.test.BrAPITestServer.model.entity.ExternalReferenceEntity;
 import org.brapi.test.BrAPITestServer.model.entity.core.CropEntity;
+import org.brapi.test.BrAPITestServer.model.entity.core.ListItemEntity;
 import org.brapi.test.BrAPITestServer.model.entity.core.ProgramEntity;
 import org.brapi.test.BrAPITestServer.model.entity.germ.*;
 import org.brapi.test.BrAPITestServer.model.entity.germ.GermplasmInstituteEntity.InstituteTypeEnum;
@@ -140,6 +144,8 @@ public class GermplasmService {
 		if (!germs.isEmpty()) {
 			// If records were found, iterate through the rest of the lazily loaded collections of the GermplasmEntity
 			// and LEFT JOIN FETCH all of them.
+			log.debug("Fetching synonyms");
+			fetchSynonyms(ids, germs);
 			log.debug("Fetching xrefs");
 			fetchXrefs(ids, germs);
 			log.debug("fetching attributes");
@@ -175,8 +181,7 @@ public class GermplasmService {
 	private SearchQueryBuilder<GermplasmEntity> buildGermplasmSearchQuery(GermplasmSearchRequest request) throws BrAPIServerException {
 		SearchQueryBuilder<GermplasmEntity> searchQuery = new SearchQueryBuilder<GermplasmEntity>(
 				GermplasmEntity.class);
-		searchQuery.leftJoinFetch("synonyms", "synonyms")
-				.leftJoinFetch("breedingMethod", "breedingMethod")
+		searchQuery.leftJoinFetch("breedingMethod", "breedingMethod")
 				.leftJoinFetch("crop", "crop")
 				.leftJoinFetch("pedigree", "pedigree")
 				.leftJoinFetch("*pedigree.crossingProject", "crossingProject");
@@ -210,8 +215,8 @@ public class GermplasmService {
 				.appendList(request.getGenus(), "genus").appendList(request.getSpecies(), "species")
 				.appendNamesList(request.getBinomialNames(), "genus", "genus", "species")
 				.appendList(request.getFamilyCodes(), "familyCode")
-				.filterBy(request.getFilterBy(), request.getEntityColAndTypeBySubmittedNameMap())
-				.sortBy(request.getSortByElements(), request.getEntityColAndTypeBySubmittedNameMap());
+				.filterBy(request.getFilterBy(), request.getEntityColInfoBySubmittedNameMap())
+				.sortBy(request.getSortByElements(), request.getEntityColInfoBySubmittedNameMap());
 		return searchQuery;
 	}
 
@@ -220,6 +225,21 @@ public class GermplasmService {
 	// TODO: Therefore no need to store a map and can just iterate through both at the same time O(n).
 
 	// TODO: Revisit when sortBy is added to GermplasmSearchRequest and we can pass through a sortBy value.
+
+	private void fetchSynonyms(List<UUID> ids, Page<GermplasmEntity> germEntities) {
+		SearchQueryBuilder<GermplasmEntity> searchQuery = new SearchQueryBuilder<>(GermplasmEntity.class);
+
+		searchQuery.leftJoinFetch("synonyms", "synonyms")
+				.appendIds(ids);
+
+		List<GermplasmEntity> germsWithSynonyms = germplasmRepository.findAllBySearch(searchQuery);
+
+		Map<String, List<GermplasmSynonymEntity>> synonymsByEntity = new HashMap<>();
+		germsWithSynonyms.forEach(entity -> synonymsByEntity.put(entity.getId().toString(), entity.getSynonyms()));
+
+		germEntities.forEach(entity -> entity.setSynonyms(synonymsByEntity.get(entity.getId().toString())));
+	}
+
 	private void fetchXrefs(List<UUID> ids, Page<GermplasmEntity> germEntities) {
 		SearchQueryBuilder<GermplasmEntity> searchQuery = new SearchQueryBuilder<>(GermplasmEntity.class);
 
@@ -339,16 +359,30 @@ public class GermplasmService {
 
 	private void fetchRemainingGermCollectionsUsingQuery(SearchQueryBuilder<GermplasmEntity> searchQuery, List<GermplasmEntity> germEntities) {
 		// Remove unused left join fetches from the base query
-		searchQuery.removeLeftJoinFetch("synonyms", "synonyms")
-				.removeLeftJoinFetch("breedingMethod", "breedingMethod")
+		searchQuery.removeLeftJoinFetch("breedingMethod", "breedingMethod")
 				.removeLeftJoinFetch("crop", "crop")
 				.removeLeftJoinFetch("pedigree", "pedigree")
 				.removeLeftJoinFetch("*pedigree.crossingProject", "crossingProject")
 				.resetSortClause();
+
+		// Fetch synonyms
+		log.debug("fetching synonyms");
+		searchQuery.leftJoinFetch("synonyms",
+				"synonyms");
+
+		List<GermplasmEntity> synonyms = germplasmRepository.findAllBySearch(searchQuery);
+
+		Map<String, List<ExternalReferenceEntity>> synonymsByEntity = new HashMap<>();
+		synonyms.forEach(entity -> synonymsByEntity.put(entity.getId().toString(), entity.getExternalReferences()));
+
+		germEntities.forEach(entity -> entity.setExternalReferences(synonymsByEntity.get(entity.getId().toString())));
+
 		// Fetch xrefs
 		log.debug("Fetching xrefs");
-		searchQuery.leftJoinFetch("externalReferences",
-				"externalReferences");
+		searchQuery.removeAndReplaceLeftJoinFetch("externalReferences",
+				"externalReferences",
+				"synonyms",
+				"synonyms");
 
 		List<GermplasmEntity> xrefs = germplasmRepository.findAllBySearch(searchQuery);
 
@@ -457,8 +491,14 @@ public class GermplasmService {
 		});
 	};
 
-	public List<ListItemWithFullItem<?>> searchGermplasmByList(ListDetails list, GermplasmListSearchRequest request, Metadata metadata) {
-		return new ArrayList<>();
+	public List<ListItemWithFullItem<?>> findGermplasmByList(ListDetails list, GermplasmListSearchRequest request, Metadata metadata) throws BrAPIServerException{
+
+		Page<Tuple> page = searchGermplasmByList(list, request, metadata);
+
+		List<ListItemWithFullItem<?>> listItems = page.map(this::convertFromEntity).getContent();
+		PagingUtility.calculateMetaData(metadata, page);
+
+		return listItems;
 	}
 
 	public Germplasm getGermplasm(String germplasmDbId) throws BrAPIServerException {
@@ -524,6 +564,23 @@ public class GermplasmService {
 				.stream()
 				.map(this::convertFromEntity)
 				.collect(Collectors.toList());
+	}
+
+	private ListItemWithFullItem<?> convertFromEntity(Tuple listItemAndGermplasmEntity) {
+		ListItemWithFullItem<Germplasm> listItemWithFullItem = new ListItemWithFullItem<>();
+
+		ListItem listItem = new ListItem();
+
+		ListItemEntity listItemEntity = listItemAndGermplasmEntity.get(0, ListItemEntity.class);
+
+		listItem.setListItemDbId(listItemEntity.getId().toString());
+		listItem.setPosition(listItemEntity.getPosition());
+		listItem.setItem(listItemEntity.getItem());
+
+		listItemWithFullItem.setListItem(listItem);
+		listItemWithFullItem.setItem(convertFromEntity(listItemAndGermplasmEntity.get(1, GermplasmEntity.class)));
+
+		return listItemWithFullItem;
 	}
 
 	public Germplasm convertFromEntity(GermplasmEntity entity) {
@@ -1120,23 +1177,60 @@ public class GermplasmService {
 		return dupInstitutes;
 	}
 
-//	public List<Tuple> searchGermplasmByList(GermplasmListSearchRequest searchRequest, Metadata metadata) throws BrAPIServerException {
-//
-//		Pageable pageReq = PagingUtility.getPageRequest(metadata);
-//
-//		SearchQueryBuilder<GermplasmEntity> searchQuery = buildGermplasmSearchQuery(searchRequest);
-//
-//		Page<Tuple> listItemAndGerm = germplasmRepository.findAllBySearchAndPaginateMultipleEntitySelect(searchQuery, pageReq);
-//
-//		if (!listItemAndGerm.isEmpty()) {
-//			// Extract germs from page object, pass here
-//			// Ensure search query searches on germplasm and joins on list by id and type to get same results as above
-//			fetchRemainingGermCollectionsUsingQuery(searchQuery, listItemAndGerm);
-//		}
-//
-//		SearchQueryBuilder<GermplasmEntity> searchQuery = new SearchQueryBuilder<>(
-//				GermplasmEntity.class);
-//		return germplasmRepository.testMappedEntityHql(searchQuery);
-//	}
+	public Page<Tuple> searchGermplasmByList(ListDetails list, GermplasmListSearchRequest searchRequest, Metadata metadata) throws BrAPIServerException {
+
+		Pageable pageReq = PagingUtility.getPageRequest(metadata);
+
+		List<SortBy> sortByElements = searchRequest.getSortByElements();
+
+		if (sortByElements == null || sortByElements.isEmpty()) {
+			// If there is no specified sort, sort by the position of the list.
+			SortBy defaultListItemSort = new SortBy("importEntryNumber", SortOrder.ASC);
+			searchRequest.setSortBy(List.of(defaultListItemSort));
+		}
+
+		SearchQueryBuilder<GermplasmEntity> searchQuery = buildGermplasmSearchQuery(searchRequest);
+
+		searchQuery.modifySelect(List.of("listItem", "entity"));
+
+		searchQuery.joinEntity(ListItemEntity.class, "listItem", " entity.germplasmName = listItem.item ")
+				.join("*listItem.list", "list")
+				.appendSingle(UUID.fromString(list.getListDbId()), "*list.id")
+				.appendEnum(list.getListType(), "*list.listType");
+
+		Page<Tuple> listItemAndGerm = germplasmRepository.findAllBySearchAndPaginateMultipleEntitySelect(searchQuery, pageReq);
+
+		Page<GermplasmEntity> germs = listItemAndGerm.map(
+				// Germplasm is the second column of the Tuple
+				row -> (GermplasmEntity) row.get(1)
+		);
+
+		List<UUID> ids = germs.get().map(GermplasmEntity::getId).toList();
+
+		if (!germs.isEmpty()) {
+			// If records were found, iterate through the rest of the lazily loaded collections of the GermplasmEntity
+			// and LEFT JOIN FETCH all of them.
+			log.debug("Fetching synonyms");
+			fetchSynonyms(ids, germs);
+			log.debug("Fetching xrefs");
+			fetchXrefs(ids, germs);
+			log.debug("fetching attributes");
+			fetchAttributes(ids, germs);
+			log.debug("fetching donors");
+			fetchDonors(ids, germs);
+			log.debug("fetching origins");
+			fetchOrigin(ids, germs);
+			log.debug("fetching institutes");
+			fetchInstitutes(ids, germs);
+			log.debug("fetching taxons");
+			fetchTaxons(ids, germs);
+			log.debug("fetching storage codes");
+			fetchStorageCodes(ids, germs);
+			log.debug("fetching pedigree edges");
+			fetchPedigreeEdges(ids, germs);
+		}
+
+		return listItemAndGerm;
+	}
 
 }

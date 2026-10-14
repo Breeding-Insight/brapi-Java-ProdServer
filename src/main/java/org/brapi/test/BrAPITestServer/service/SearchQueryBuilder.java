@@ -10,14 +10,13 @@ import io.swagger.model.FilterBy;
 import io.swagger.model.GeoJSONSearchArea;
 import io.swagger.model.sort.SortBy;
 import org.brapi.test.BrAPITestServer.exceptions.BrAPIServerException;
-import org.brapi.test.BrAPITestServer.model.dto.EntityColumnNameAndType;
+import org.brapi.test.BrAPITestServer.model.dto.SortAndFilterEntityColumnInfo;
 import org.brapi.test.BrAPITestServer.model.dto.EntityType;
 import org.springframework.http.HttpStatus;
 
 public class SearchQueryBuilder<T> {
 
 	private String selectClause;
-	private String selectMultipleEntities;
 	private String selectOnlyIds;
 	private String selectOnlyIdsSubquery;
 	private String joinClause;
@@ -30,7 +29,6 @@ public class SearchQueryBuilder<T> {
 	private List<String> joinedFetchedTables = new ArrayList<>();
 	private Class<T> clazz;
 	private final String default_date = "1970-01-01";
-	public String testHql;
 
 	public SearchQueryBuilder(Class<T> baseEntity) {
 		this.selectClause = "SELECT distinct entity FROM " + baseEntity.getSimpleName() + " entity ";
@@ -54,6 +52,22 @@ public class SearchQueryBuilder<T> {
 		}
 
 		return selectClause + joinClause + whereClause + sortClause;
+	}
+
+	public String getCountQueryMultipleSelect() {
+		String firstSelection = selectClause
+				.replaceFirst("(?i)^SELECT\\s+(?:DISTINCT\\s+)?", "")
+				.split(",")[0]
+				.trim();
+
+		int fromIndex = selectClause.toUpperCase(Locale.ROOT).indexOf(" FROM ");
+
+		String fromClause = selectClause.substring(fromIndex);
+
+		return "SELECT COUNT(DISTINCT " + firstSelection + ".id) "
+				+ fromClause
+				+ joinClause.replaceAll("(?i)LEFT JOIN FETCH", "LEFT JOIN")
+				+ whereClause;
 	}
 
 	/**
@@ -104,6 +118,13 @@ public class SearchQueryBuilder<T> {
 
 	public Class<T> getClazz() {
 		return clazz;
+	}
+
+	public SearchQueryBuilder<T> modifySelect(List<String> entityAliases) {
+
+		this.selectClause = "SELECT distinct " + String.join(", ", entityAliases) + " FROM " + clazz.getSimpleName() + " entity ";
+
+		return this;
 	}
 
 	public SearchQueryBuilder<T> appendList(List<String> list, String columnName) {
@@ -353,6 +374,15 @@ public class SearchQueryBuilder<T> {
 		return this;
 	}
 
+	public SearchQueryBuilder<T> joinEntity(Class<?> joinedEntity,
+											String alias,
+											String onClause) {
+		this.joinClause += " JOIN " + joinedEntity.getSimpleName()
+				+ " " + alias
+				+ " ON " + onClause;
+		return this;
+	}
+
 	public SearchQueryBuilder<T> leftJoinFetch(String join, String name) {
 		return leftJoinFetch(join, name, false);
 	}
@@ -434,19 +464,19 @@ public class SearchQueryBuilder<T> {
 	 *  - A column name
 	 *  - An order (DESC, ASC)
 	 */
-	public SearchQueryBuilder<T> sortBy(List<SortBy> sortBy, Map<String, EntityColumnNameAndType> entityColAndTypeBySubmittedName) throws BrAPIServerException {
+	public SearchQueryBuilder<T> sortBy(List<SortBy> sortBy, Map<String, SortAndFilterEntityColumnInfo> entityColInfoBySubmittedName) throws BrAPIServerException {
 
 		if (sortBy == null || sortBy.isEmpty()) {
 			return this;
 		}
 
 		for (SortBy sort : sortBy) {
-			// At this point, the submitted sortBy name has been verified to be in entityColAndTypeBySubmittedName
-			EntityColumnNameAndType entityColumnNameAndType = entityColAndTypeBySubmittedName.get(sort.getSortedOn());
+			// At this point, the submitted sortBy name has been verified to be in entityColInfoBySubmittedName
+			SortAndFilterEntityColumnInfo sortAndFilterEntityColumnInfo = entityColInfoBySubmittedName.get(sort.getSortedOn());
 
-			String entityColName = entityColumnNameAndType.getEntityColumnName();
+			String entityColName = sortAndFilterEntityColumnInfo.getEntityColumnName();
 
-			if (entityColName.startsWith("*")) {
+			if (sortAndFilterEntityColumnInfo.isCollectionOnEntity()) {
 				throw new BrAPIServerException(HttpStatus.BAD_REQUEST, "Sorting on one to many relationships not supported");
 			}
 
@@ -457,7 +487,8 @@ public class SearchQueryBuilder<T> {
 				throw new BrAPIServerException(HttpStatus.BAD_REQUEST, "Sorting on a table greater than one level from primary entity not allowed");
 			}
 
-			if (split.length == 2 && !split[1].equals("id")) {
+			if (split.length == 2 && !split[1].equals("id") && !sortAndFilterEntityColumnInfo.isJoinOnUnrelatedEntity()) {
+				// Avoid extra/overriding joins in the case where an unrelated entity has been joined, like the ListItemEntity use case in GermplasmService.searchGermplasmByList()
 				leftJoinFetch(split[0], split[0], true);
 			}
 
@@ -494,7 +525,7 @@ public class SearchQueryBuilder<T> {
 	 *  - A column name
 	 *  - A value which the column name should be filtered on
 	 */
-	public SearchQueryBuilder<T> filterBy(List<FilterBy> filterBy, Map<String, EntityColumnNameAndType> entityColAndTypeBySubmittedName) throws BrAPIServerException {
+	public SearchQueryBuilder<T> filterBy(List<FilterBy> filterBy, Map<String, SortAndFilterEntityColumnInfo> entityColAndTypeBySubmittedName) throws BrAPIServerException {
 		SearchQueryBuilder<T> searchQuery = this;
 
 		if (filterBy == null || filterBy.isEmpty()) {
@@ -503,21 +534,22 @@ public class SearchQueryBuilder<T> {
 
 		for (FilterBy filter : filterBy) {
 			// At this point, the submitted filterBy column name has been verified to be in entityColAndTypeBySubmittedName
-			EntityColumnNameAndType entityColumnNameAndType = entityColAndTypeBySubmittedName.get(filter.getFilterOn());
+			SortAndFilterEntityColumnInfo sortAndFilterEntityColumnInfo = entityColAndTypeBySubmittedName.get(filter.getFilterOn());
 
-			if (entityColumnNameAndType.getEntityColumnName().startsWith("*")) {
-				joinCollectionColumn(entityColumnNameAndType.getEntityColumnName());
+			if (sortAndFilterEntityColumnInfo.getEntityColumnName().startsWith("*") && !sortAndFilterEntityColumnInfo.isJoinOnUnrelatedEntity()) {
+				// Avoid extra/overriding joins in the case where an unrelated entity has been joined, like the ListItemEntity use case in GermplasmService.searchGermplasmByList()
+				joinCollectionColumn(sortAndFilterEntityColumnInfo.getEntityColumnName());
 			}
 
-			if (entityColumnNameAndType.getEntityType() == EntityType.TEXT) {
-				searchQuery = appendLike(filter.getValue().toLowerCase(), entityColumnNameAndType.getEntityColumnName());
-			} else if (entityColumnNameAndType.getEntityType() == EntityType.UUID) {
-				searchQuery = appendLikeString(filter.getValue(), entityColumnNameAndType.getEntityColumnName());
-			} else if (entityColumnNameAndType.getEntityType() == EntityType.NUMBER) {
+			if (sortAndFilterEntityColumnInfo.getEntityType() == EntityType.TEXT) {
+				searchQuery = appendLike(filter.getValue().toLowerCase(), sortAndFilterEntityColumnInfo.getEntityColumnName());
+			} else if (sortAndFilterEntityColumnInfo.getEntityType() == EntityType.UUID) {
+				searchQuery = appendLikeString(filter.getValue(), sortAndFilterEntityColumnInfo.getEntityColumnName());
+			} else if (sortAndFilterEntityColumnInfo.getEntityType() == EntityType.NUMBER) {
 				// Compare as String exact match for numbers, in case users send non-numeric characters.
-				searchQuery = appendSingle(filter.getValue(), entityColumnNameAndType.getEntityColumnName());
-			} else if (entityColumnNameAndType.getEntityType() == EntityType.DATE) {
-				searchQuery = appendLikeDate(filter.getValue(), entityColumnNameAndType.getEntityColumnName());
+				searchQuery = appendSingle(filter.getValue(), sortAndFilterEntityColumnInfo.getEntityColumnName());
+			} else if (sortAndFilterEntityColumnInfo.getEntityType() == EntityType.DATE) {
+				searchQuery = appendLikeDate(filter.getValue(), sortAndFilterEntityColumnInfo.getEntityColumnName());
 			}
 		}
 

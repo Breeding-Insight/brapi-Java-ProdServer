@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.model.sort.SortBy;
 import org.brapi.test.BrAPITestServer.exceptions.BrAPIServerException;
-import org.brapi.test.BrAPITestServer.model.dto.EntityColumnNameAndType;
+import org.brapi.test.BrAPITestServer.model.dto.SortAndFilterEntityColumnInfo;
 import org.brapi.test.BrAPITestServer.model.dto.EntityType;
 import org.springframework.http.HttpStatus;
 
@@ -150,7 +150,7 @@ public abstract class SearchRequest {
 			return;
 		}
 
-		Map<String, EntityColumnNameAndType> allowedSortFilterNames = getEntityColAndTypeBySubmittedNameMap();
+		Map<String, SortAndFilterEntityColumnInfo> allowedSortFilterNames = getEntityColInfoBySubmittedNameMap();
 
 		for (FilterBy filterByItem : filterBy) {
 
@@ -162,17 +162,17 @@ public abstract class SearchRequest {
 				throw new BrAPIServerException(HttpStatus.BAD_REQUEST, "value attribute not provided in element of filterBy list.");
 			}
 
-			EntityColumnNameAndType entityColumnNameAndType = allowedSortFilterNames.get(filterByItem.getFilterOn());
+			SortAndFilterEntityColumnInfo sortAndFilterEntityColumnInfo = allowedSortFilterNames.get(filterByItem.getFilterOn());
 
-			if (entityColumnNameAndType == null) {
+			if (sortAndFilterEntityColumnInfo == null) {
 				throw new BrAPIServerException(HttpStatus.BAD_REQUEST,
 						String.format("Supplied filterColumn [%s] not available in allowed names [%s]", filterByItem.getFilterOn(), allowedSortFilterNames.keySet())
 				);
 			}
 
-			if (entityColumnNameAndType.getEntityType() == EntityType.BOOLEAN) {
+			if (sortAndFilterEntityColumnInfo.getEntityType() == EntityType.BOOLEAN) {
 				// TODO: Add support for this when it becomes relevant for BI or when there is time.
-				throw new BrAPIServerException(HttpStatus.BAD_REQUEST, String.format("Filtering not implemented for column name [%s] with associated data type [%s]", entityColumnNameAndType.getEntityColumnName(), EntityType.BOOLEAN));
+				throw new BrAPIServerException(HttpStatus.BAD_REQUEST, String.format("Filtering not implemented for column name [%s] with associated data type [%s]", sortAndFilterEntityColumnInfo.getEntityColumnName(), EntityType.BOOLEAN));
 			}
 		}
 		this.filterBy = filterBy;
@@ -188,14 +188,14 @@ public abstract class SearchRequest {
 			return;
 		}
 
-		Map<String, EntityColumnNameAndType> allowedSortFilterNames = getEntityColAndTypeBySubmittedNameMap();
+		Map<String, SortAndFilterEntityColumnInfo> allowedSortFilterNames = getEntityColInfoBySubmittedNameMap();
 
 		for (SortBy sortByItem : sortBy) {
 			if (sortByItem.getSortedOn() == null || sortByItem.getSortedOn().isEmpty()) {
 				throw new BrAPIServerException(HttpStatus.BAD_REQUEST, "sortedOn attribute not provided in element of sortBy list");
 			}
 
-			EntityColumnNameAndType sortColumnEntityNameAndType = getEntityColAndTypeBySubmittedNameMap().get(sortByItem.getSortedOn());
+			SortAndFilterEntityColumnInfo sortColumnEntityNameAndType = getEntityColInfoBySubmittedNameMap().get(sortByItem.getSortedOn());
 
 			if (sortColumnEntityNameAndType == null) {
 				throw new BrAPIServerException(HttpStatus.BAD_REQUEST,
@@ -208,7 +208,7 @@ public abstract class SearchRequest {
 	}
 
 	@JsonIgnore
-	public Map<String, EntityColumnNameAndType> getEntityColAndTypeBySubmittedNameMap() throws BrAPIServerException {
+	public Map<String, SortAndFilterEntityColumnInfo> getEntityColInfoBySubmittedNameMap() throws BrAPIServerException {
 		throw new BrAPIServerException(HttpStatus.BAD_REQUEST, String.format("Sort/Filtering not implemented for %s", this.getClass().getSimpleName()));
 	}
 }

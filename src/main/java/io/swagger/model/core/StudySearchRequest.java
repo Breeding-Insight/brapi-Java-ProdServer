@@ -6,7 +6,7 @@ import java.util.Objects;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import io.swagger.model.SearchRequest;
-import org.brapi.test.BrAPITestServer.model.dto.EntityColumnNameAndType;
+import org.brapi.test.BrAPITestServer.model.dto.SortAndFilterEntityColumnInfo;
 import org.brapi.test.BrAPITestServer.model.dto.EntityType;
 
 import java.util.ArrayList;
@@ -16,24 +16,24 @@ public class StudySearchRequest extends SearchRequest {
 
 	// Key - allowed sort or field filter name for this entity
 	// Value = entity field name and type that represents the submitted field. Used later on in query building.
-	private static final Map<String, EntityColumnNameAndType> ALLOWED_SORT_AND_FILTER_FIELDS =
+	private static final Map<String, SortAndFilterEntityColumnInfo> ALLOWED_SORT_AND_FILTER_FIELDS =
 			Map.ofEntries(
-					Map.entry("commonCropName", new EntityColumnNameAndType("crop.cropName", EntityType.TEXT)),
-					Map.entry("externalReferenceId", new EntityColumnNameAndType("*externalReferences.externalReferenceId", EntityType.TEXT)),
-					Map.entry("externalReferenceSource", new EntityColumnNameAndType("*externalReferences.externalReferenceSource", EntityType.TEXT)),
-					Map.entry("germplasmDbId", new EntityColumnNameAndType("*obsunit.germplasm.id", EntityType.UUID)),
-					Map.entry("locationDbId", new EntityColumnNameAndType("location.id", EntityType.UUID)),
-					Map.entry("observationVariableDbId", new EntityColumnNameAndType("*observation.observationVariable.id", EntityType.UUID)),
-					Map.entry("programDbId", new EntityColumnNameAndType("trial.program.id", EntityType.UUID)),
-					Map.entry("programName", new EntityColumnNameAndType("trial.program.name", EntityType.TEXT)),
-					Map.entry("seasonDbId", new EntityColumnNameAndType("*season.id", EntityType.UUID)),
-					Map.entry("studyCode", new EntityColumnNameAndType("studyCode", EntityType.TEXT)),
-					Map.entry("studyDbId", new EntityColumnNameAndType("id", EntityType.UUID)),
-					Map.entry("studyLocation", new EntityColumnNameAndType("location.id", EntityType.UUID)),
-					Map.entry("studyPUI", new EntityColumnNameAndType("studyPUI", EntityType.TEXT)),
-					Map.entry("trialDbId", new EntityColumnNameAndType("trial.id", EntityType.UUID)),
-					Map.entry("studyType", new EntityColumnNameAndType("studyType", EntityType.TEXT)),
-					Map.entry("studyName", new EntityColumnNameAndType("studyName", EntityType.TEXT))
+					Map.entry("commonCropName", new SortAndFilterEntityColumnInfo("crop.cropName", EntityType.TEXT)),
+					Map.entry("externalReferenceId", new SortAndFilterEntityColumnInfo("*externalReferences.externalReferenceId", EntityType.TEXT)),
+					Map.entry("externalReferenceSource", new SortAndFilterEntityColumnInfo("*externalReferences.externalReferenceSource", EntityType.TEXT)),
+					Map.entry("germplasmDbId", new SortAndFilterEntityColumnInfo("*obsunit.germplasm.id", EntityType.UUID)),
+					Map.entry("locationDbId", new SortAndFilterEntityColumnInfo("location.id", EntityType.UUID)),
+					Map.entry("observationVariableDbId", new SortAndFilterEntityColumnInfo("*observation.observationVariable.id", EntityType.UUID)),
+					Map.entry("programDbId", new SortAndFilterEntityColumnInfo("trial.program.id", EntityType.UUID)),
+					Map.entry("programName", new SortAndFilterEntityColumnInfo("trial.program.name", EntityType.TEXT)),
+					Map.entry("seasonDbId", new SortAndFilterEntityColumnInfo("*season.id", EntityType.UUID)),
+					Map.entry("studyCode", new SortAndFilterEntityColumnInfo("studyCode", EntityType.TEXT)),
+					Map.entry("studyDbId", new SortAndFilterEntityColumnInfo("id", EntityType.UUID)),
+					Map.entry("studyLocation", new SortAndFilterEntityColumnInfo("location.id", EntityType.UUID)),
+					Map.entry("studyPUI", new SortAndFilterEntityColumnInfo("studyPUI", EntityType.TEXT)),
+					Map.entry("trialDbId", new SortAndFilterEntityColumnInfo("trial.id", EntityType.UUID)),
+					Map.entry("studyType", new SortAndFilterEntityColumnInfo("studyType", EntityType.TEXT)),
+					Map.entry("studyName", new SortAndFilterEntityColumnInfo("studyName", EntityType.TEXT))
 			);
 
 	@JsonProperty("commonCropNames")
@@ -586,7 +586,7 @@ public class StudySearchRequest extends SearchRequest {
 	}
 
 	@Override
-	public Map<String, EntityColumnNameAndType> getEntityColAndTypeBySubmittedNameMap() {
+	public Map<String, SortAndFilterEntityColumnInfo> getEntityColInfoBySubmittedNameMap() {
 		return ALLOWED_SORT_AND_FILTER_FIELDS;
 	}
 }
