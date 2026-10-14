@@ -20,7 +20,7 @@ public class GermplasmListSearchRequest extends GermplasmSearchRequest {
 
         fields.put(
                 "listItemPosition",
-                new SortAndFilterEntityColumnInfo("listItem.position", EntityType.NUMBER)
+                new SortAndFilterEntityColumnInfo("*listItem.positionIndexedBy1", EntityType.NUMBER, false, true)
         );
 
         LIST_ALLOWED_FIELDS = Collections.unmodifiableMap(fields);
