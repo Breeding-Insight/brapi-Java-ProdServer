@@ -289,10 +289,12 @@ public class BrAPIRepositoryImpl<T extends BrAPIPrimaryEntity, ID extends Serial
 		return 0L;
 	}
 
-	private void validatePageNumber(Pageable pageReq, Long totalCount) throws InvalidPagingException {
-		int reqPageNum = pageReq.getPageNumber();
-		if (reqPageNum != 0 && reqPageNum > Math.floor(((double) totalCount) / pageReq.getPageSize())) {
-			// Condition indicates a request was sent where the page requested exceeds the total number of pages.
+	static void validatePageNumber(Pageable pageReq, Long totalCount) throws InvalidPagingException {
+		int requestedPage = pageReq.getPageNumber();
+		long totalPages = (long) Math.ceil(totalCount / (double) pageReq.getPageSize());
+
+		// Condition indicates a request was sent where the page requested exceeds the total number of pages.
+		if (requestedPage > 0 && requestedPage >= totalPages) {
 			// Instruct requester to send the correct request.
 			throw new InvalidPagingException();
 		}
