@@ -15,7 +15,7 @@ import jakarta.validation.Valid;
  */
 @Validated
 @javax.annotation.processing.Generated(value = "io.swagger.codegen.v3.generators.java.SpringCodegen", date = "2020-03-20T16:31:52.030Z[GMT]")
-public class ListItemsListResponse implements BrAPIResponse<ListItemsListResponseResult> {
+public class ListItemsListResponse<T> implements BrAPIResponse<ListItemsListResponseResult<T>> {
     @JsonProperty("@context")
     private Context _atContext = null;
 
@@ -23,7 +23,7 @@ public class ListItemsListResponse implements BrAPIResponse<ListItemsListRespons
     private Metadata metadata = null;
 
     @JsonProperty("result")
-    private ListItemsListResponseResult result = null;
+    private ListItemsListResponseResult<T> result = null;
 
     public ListItemsListResponse() {
         this._atContext = new Context();
@@ -56,7 +56,7 @@ public class ListItemsListResponse implements BrAPIResponse<ListItemsListRespons
         this.metadata = metadata;
     }
 
-    public ListItemsListResponse result(ListItemsListResponseResult result) {
+    public ListItemsListResponse<T> result(ListItemsListResponseResult<T> result) {
         this.result = result;
         return this;
     }
@@ -70,11 +70,11 @@ public class ListItemsListResponse implements BrAPIResponse<ListItemsListRespons
 
 
     @Valid
-    public ListItemsListResponseResult getResult() {
+    public ListItemsListResponseResult<T> getResult() {
         return result;
     }
 
-    public void setResult(ListItemsListResponseResult result) {
+    public void setResult(ListItemsListResponseResult<T> result) {
         this.result = result;
     }
 
@@ -86,7 +86,7 @@ public class ListItemsListResponse implements BrAPIResponse<ListItemsListRespons
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        ListItemsListResponse listItemsListResponse = (ListItemsListResponse) o;
+        ListItemsListResponse<T> listItemsListResponse = (ListItemsListResponse<T>) o;
         return Objects.equals(this._atContext, listItemsListResponse._atContext)
                 && Objects.equals(this.metadata, listItemsListResponse.metadata)
                 && Objects.equals(this.result, listItemsListResponse.result);

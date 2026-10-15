@@ -48,7 +48,7 @@ public class ListItemWithFullItem<T>  {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        ListItemWithFullItem listItemWithFullItem = (ListItemWithFullItem) o;
+        ListItemWithFullItem<T> listItemWithFullItem = (ListItemWithFullItem<T>) o;
         return Objects.equals(this.listItem, listItemWithFullItem.listItem) &&
                 super.equals(o);
     }

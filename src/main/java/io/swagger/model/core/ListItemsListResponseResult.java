@@ -20,12 +20,12 @@ public class ListItemsListResponseResult<T> implements BrAPIResponseResult<ListI
     @Valid
     private List<ListItemWithFullItem<T>> data = new ArrayList<ListItemWithFullItem<T>>();
 
-    public ListItemsListResponseResult data(List<ListItemWithFullItem<T>> data) {
+    public ListItemsListResponseResult<T> data(List<ListItemWithFullItem<T>> data) {
         this.data = data;
         return this;
     }
 
-    public ListItemsListResponseResult addDataItem(ListItemWithFullItem<T> dataItem) {
+    public ListItemsListResponseResult<T> addDataItem(ListItemWithFullItem<T> dataItem) {
         this.data.add(dataItem);
         return this;
     }
@@ -54,7 +54,7 @@ public class ListItemsListResponseResult<T> implements BrAPIResponseResult<ListI
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        ListItemsListResponseResult listItemsListResponseResult = (ListItemsListResponseResult) o;
+        ListItemsListResponseResult<T> listItemsListResponseResult = (ListItemsListResponseResult<T>) o;
         return Objects.equals(this.data, listItemsListResponseResult.data);
     }
 

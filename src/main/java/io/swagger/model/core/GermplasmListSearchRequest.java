@@ -30,6 +30,4 @@ public class GermplasmListSearchRequest extends GermplasmSearchRequest {
     public Map<String, SortAndFilterEntityColumnInfo> getEntityColInfoBySubmittedNameMap() {
         return LIST_ALLOWED_FIELDS;
     }
-
-
 }
