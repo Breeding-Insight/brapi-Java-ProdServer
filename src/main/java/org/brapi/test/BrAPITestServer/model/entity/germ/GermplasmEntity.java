@@ -9,11 +9,14 @@ import jakarta.persistence.*;
 import org.brapi.test.BrAPITestServer.model.entity.BrAPIPrimaryEntity;
 import org.brapi.test.BrAPITestServer.model.entity.SearchRequestEntity;
 import org.brapi.test.BrAPITestServer.model.entity.core.CropEntity;
+import org.brapi.test.BrAPITestServer.model.entity.core.ProgramEntity;
 import org.brapi.test.BrAPITestServer.model.entity.germ.GermplasmInstituteEntity.InstituteTypeEnum;
 import org.brapi.test.BrAPITestServer.model.entity.pheno.ObservationUnitEntity;
 import org.brapi.test.BrAPITestServer.model.entity.pheno.TaxonEntity;
 
 import org.hibernate.annotations.BatchSize;
+import org.hibernate.annotations.Collate;
+import org.hibernate.annotations.Formula;
 import org.hibernate.annotations.Where;
 
 import java.util.ArrayList;
@@ -24,8 +27,9 @@ import java.util.List;
 @Table(name = "germplasm")
 @Where(clause = "soft_deleted = false")
 public class GermplasmEntity extends BrAPIPrimaryEntity {
-	@Column
-	private String accessionNumber;
+    @Collate(value = "natural_sort")
+    @Column(name = "accession_number", nullable = false)
+	private String accessionNumber = "";
 	@Column
 	private Date acquisitionDate;
 	@Column
@@ -43,8 +47,9 @@ public class GermplasmEntity extends BrAPIPrimaryEntity {
 	private String countryOfOriginCode;
 	@ManyToOne(cascade = CascadeType.DETACH, fetch = FetchType.LAZY)
 	private CropEntity crop;
-	@Column
-	private String defaultDisplayName;
+    @Collate(value = "natural_sort")
+    @Column(name = "default_display_name", nullable = false)
+	private String defaultDisplayName = "";
 	@Column
 	private String documentationURL;
 	@OneToMany(mappedBy = "germplasm", cascade = CascadeType.ALL)
@@ -71,8 +76,9 @@ public class GermplasmEntity extends BrAPIPrimaryEntity {
 	@ManyToMany
 	@JoinTable
 	private List<SearchRequestEntity> searchResults;
-	@Column
-	private String seedSource;
+    @Collate(value = "natural_sort")
+    @Column(name = "seed_source", nullable = false)
+	private String seedSource = "";
 	@Column
 	private String seedSourceDescription;
 	@Column
@@ -96,6 +102,32 @@ public class GermplasmEntity extends BrAPIPrimaryEntity {
 	private List<GermplasmStorageTypesEnum> typeOfGermplasmStorageCode;
 	@Column(name = "soft_deleted")
 	private boolean softDeleted;
+    @ManyToOne(cascade = CascadeType.DETACH, fetch = FetchType.LAZY)
+    private ProgramEntity program;
+
+    @Column(name = "created_date", insertable = false, updatable = false)
+    private Date createdDate;
+
+    @Collate(value = "natural_sort")
+    @Column(name = "created_by", insertable = false, updatable = false)
+    private String createdBy;
+
+    // BI is currently not using BrAPI's breeding_method table, and is storing the data in additional_info.
+    // This column is being used for sorting/filtering in the meantime to get the collate/not null required for front end sorting
+    @Collate(value = "natural_sort")
+    @Column(name = "breeding_method_sort", insertable = false, updatable = false)
+    private String methodName;
+
+    @Collate(value = "natural_sort")
+    @Column(name = "female_parent_gid", insertable = false, updatable = false)
+    private String femaleParentGid;
+
+    @Collate(value = "natural_sort")
+    @Column(name = "male_parent_gid", insertable = false, updatable = false)
+    private String maleParentGid;
+
+    @Formula("cast(additional_info #>> '{importEntryNumber}' AS INTEGER)")
+    private Integer importEntryNumber;
 
     public GermplasmInstituteEntity getHostInstitute() {
         if (getInstitutes() != null) {
@@ -367,5 +399,13 @@ public class GermplasmEntity extends BrAPIPrimaryEntity {
 	public boolean getSoftDeleted() { return softDeleted; }
 
 	public void setSoftDeleted(boolean sofDeleted) { this.softDeleted = sofDeleted; }
+
+    public ProgramEntity getProgram() {
+        return program;
+    }
+
+    public void setProgram(ProgramEntity program) {
+        this.program = program;
+    }
 
 }

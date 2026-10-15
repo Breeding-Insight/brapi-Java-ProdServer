@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import io.swagger.model.core.ProgramSearchRequest;
 import io.swagger.model.germ.*;
 import jakarta.validation.Valid;
 
@@ -12,6 +13,7 @@ import org.brapi.test.BrAPITestServer.exceptions.BrAPIServerException;
 import org.brapi.test.BrAPITestServer.model.entity.BrAPIBaseEntity;
 import org.brapi.test.BrAPITestServer.model.entity.ExternalReferenceEntity;
 import org.brapi.test.BrAPITestServer.model.entity.core.CropEntity;
+import org.brapi.test.BrAPITestServer.model.entity.core.ProgramEntity;
 import org.brapi.test.BrAPITestServer.model.entity.germ.*;
 import org.brapi.test.BrAPITestServer.model.entity.germ.GermplasmInstituteEntity.InstituteTypeEnum;
 import org.brapi.test.BrAPITestServer.model.entity.pheno.TaxonEntity;
@@ -23,6 +25,7 @@ import org.brapi.test.BrAPITestServer.service.PagingUtility;
 import org.brapi.test.BrAPITestServer.service.SearchQueryBuilder;
 import org.brapi.test.BrAPITestServer.service.UpdateUtility;
 import org.brapi.test.BrAPITestServer.service.core.CropService;
+import org.brapi.test.BrAPITestServer.service.core.ProgramService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,21 +47,23 @@ public class GermplasmService {
 	private final GermplasmDonorRepository donorRepository;
 	private final BreedingMethodService breedingMethodService;
 	private final CropService cropService;
+	private final ProgramService programService;
 
 	@Autowired
 	public GermplasmService(GermplasmRepository germplasmRepository, GermplasmDonorRepository donorRepository,
-			BreedingMethodService breedingMethodService, CropService cropService) {
+	                        BreedingMethodService breedingMethodService, CropService cropService, ProgramService programService) {
 		this.germplasmRepository = germplasmRepository;
 		this.donorRepository = donorRepository;
 
 		this.breedingMethodService = breedingMethodService;
 		this.cropService = cropService;
+		this.programService = programService;
 	}
 
 	public List<Germplasm> findGermplasm(String germplasmPUI, String germplasmDbId, String germplasmName,
 			String accessionNumber, String collection, String binomialName, String genus, String species,
 			String trialDbId, String studyDbId, String synonym, String parentDbId, String progenyDbId,
-			String commonCropName, String programDbId, String externalReferenceId, String externalReferenceID,
+			String commonCropName, String programDbId, String programName, String externalReferenceId, String externalReferenceID,
 			String externalReferenceSource, Metadata metadata)
 		throws BrAPIServerException {
 
@@ -93,6 +98,8 @@ public class GermplasmService {
 			request.addCommonCropNamesItem(commonCropName);
 		if (programDbId != null)
 			request.addProgramDbIdsItem(programDbId);
+		if (programName != null)
+			request.addProgramNamesItem(programName);
 
 		request.addExternalReferenceItem(externalReferenceId, externalReferenceID, externalReferenceSource);
 
@@ -110,7 +117,7 @@ public class GermplasmService {
 		return germplasms;
 	}
 
-	public List<Germplasm> findGermplasmWithoutPaging(@Valid GermplasmSearchRequest request) {
+	public List<Germplasm> findGermplasmWithoutPaging(@Valid GermplasmSearchRequest request) throws BrAPIServerException {
 		List<GermplasmEntity> entities = findGermplasmEntitiesWithoutPaging(request);
 		return entities.stream().map(this::convertFromEntity).collect(Collectors.toList());
 	}
@@ -151,7 +158,8 @@ public class GermplasmService {
 		return germs;
 	}
 
-	public List<GermplasmEntity> findGermplasmEntitiesWithoutPaging(@Valid GermplasmSearchRequest request) {
+	// TODO: Investigate/consider removing this code.  It is largely unused by DeltaBreed now, as paginating is the least memory exhaustive option. [BI-3020]
+	public List<GermplasmEntity> findGermplasmEntitiesWithoutPaging(@Valid GermplasmSearchRequest request) throws BrAPIServerException {
 		SearchQueryBuilder<GermplasmEntity> searchQuery = buildGermplasmSearchQuery(request);
 
 		List<GermplasmEntity>  germs = germplasmRepository.findAllBySearch(searchQuery);
@@ -162,7 +170,7 @@ public class GermplasmService {
 		return germs;
 	}
 
-	private SearchQueryBuilder<GermplasmEntity> buildGermplasmSearchQuery(GermplasmSearchRequest request) {
+	private SearchQueryBuilder<GermplasmEntity> buildGermplasmSearchQuery(GermplasmSearchRequest request) throws BrAPIServerException {
 		SearchQueryBuilder<GermplasmEntity> searchQuery = new SearchQueryBuilder<GermplasmEntity>(
 				GermplasmEntity.class);
 		searchQuery.leftJoinFetch("synonyms", "synonyms")
@@ -171,12 +179,10 @@ public class GermplasmService {
 				.leftJoinFetch("pedigree", "pedigree")
 				.leftJoinFetch("*pedigree.crossingProject", "crossingProject");
 
-		if (request.getProgramDbIds() != null || request.getProgramNames() != null || request.getTrialDbIds() != null
+		if (request.getTrialDbIds() != null
 				|| request.getTrialNames() != null || request.getStudyDbIds() != null
 				|| request.getStudyNames() != null) {
 			searchQuery = searchQuery.join("observationUnits", "obsunit")
-					.appendList(request.getProgramDbIds(), "*obsunit.program.id")
-					.appendList(request.getProgramNames(), "*obsunit.program.name")
 					.appendList(request.getTrialDbIds(), "*obsunit.trial.id")
 					.appendList(request.getTrialNames(), "*obsunit.trial.name")
 					.appendList(request.getStudyDbIds(), "*obsunit.study.id")
@@ -197,10 +203,13 @@ public class GermplasmService {
 				.appendList(request.getGermplasmNames(), "germplasmName")
 				.appendList(request.getGermplasmPUIs(), "germplasmPUI")
 				.appendList(request.getParentDbIds(), "pedigree.parent1.germplasm.id")
+				.appendList(request.getProgramDbIds(), "program.id").appendList(request.getProgramNames(), "program.name")
 				// .appendList(request.getProgenyDbIds(), "*progeny.germplasmDbId")
 				.appendList(request.getGenus(), "genus").appendList(request.getSpecies(), "species")
 				.appendNamesList(request.getBinomialNames(), "genus", "genus", "species")
-				.appendList(request.getFamilyCodes(), "familyCode");
+				.appendList(request.getFamilyCodes(), "familyCode")
+				.filterBy(request.getFilterBy(), request.getEntityColAndTypeBySubmittedNameMap())
+				.sortBy(request.getSortByElements(), request.getEntityColAndTypeBySubmittedNameMap());
 		return searchQuery;
 	}
 
@@ -332,7 +341,8 @@ public class GermplasmService {
 				.removeLeftJoinFetch("breedingMethod", "breedingMethod")
 				.removeLeftJoinFetch("crop", "crop")
 				.removeLeftJoinFetch("pedigree", "pedigree")
-				.removeLeftJoinFetch("*pedigree.crossingProject", "crossingProject");
+				.removeLeftJoinFetch("*pedigree.crossingProject", "crossingProject")
+				.resetSortClause();
 		// Fetch xrefs
 		log.debug("Fetching xrefs");
 		searchQuery.leftJoinFetch("externalReferences",
@@ -528,6 +538,12 @@ public class GermplasmService {
 		germ.setCollection(entity.getCollection());
 		if (entity.getCrop() != null)
 			germ.setCommonCropName(entity.getCrop().getCropName());
+
+		if (entity.getProgram() != null) {
+			germ.setProgramDbId(entity.getProgram().getId().toString());
+			germ.setProgramName(entity.getProgram().getName());
+		}
+
 		germ.setCountryOfOriginCode(entity.getCountryOfOriginCode());
 		germ.setDefaultDisplayName(entity.getDefaultDisplayName());
 		germ.setDocumentationURL(entity.getDocumentationURL());
@@ -581,6 +597,11 @@ public class GermplasmService {
 				.filter(Objects::nonNull)
 				.collect(Collectors.toSet());
 
+		Set<String> programDbIds = body.stream()
+				.map(GermplasmNewRequest::getProgramDbId)
+				.filter(Objects::nonNull)
+				.collect(Collectors.toSet());
+
 		Map<UUID, BreedingMethodEntity> foundBreedingMethodsById
 				= breedingMethodService.findBreedingMethodsByIds(breedingMethodIds)
 				.stream()
@@ -589,6 +610,11 @@ public class GermplasmService {
 				= cropService.findCropsByNames(new ArrayList<>(cropNames))
 				.stream()
 				.collect(Collectors.toMap(CropEntity::getCropName, e -> e));
+
+		Map<UUID, ProgramEntity> foundProgramsByDbId
+				= programService.findByIds(new ArrayList<>(programDbIds))
+				.stream()
+				.collect(Collectors.toMap(ProgramEntity::getId, e -> e));
 
 		for (GermplasmNewRequest request : body) {
 			GermplasmEntity entity = new GermplasmEntity();
@@ -604,7 +630,7 @@ public class GermplasmService {
 			if (request.getBiologicalStatusOfAccessionCode() != null)
 				entity.setBiologicalStatusOfAccessionCode(request.getBiologicalStatusOfAccessionCode());
 			if (request.getBreedingMethodDbId() != null) {
-				entity.setBreedingMethod(foundBreedingMethodsById.get(request.getBreedingMethodDbId()));
+				entity.setBreedingMethod(foundBreedingMethodsById.get(UUID.fromString(request.getBreedingMethodDbId())));
 			}
 			if (request.getCollection() != null)
 				entity.setCollection(request.getCollection());
@@ -661,6 +687,10 @@ public class GermplasmService {
 				updateSynonymEntities(request.getSynonyms(), entity);
 			if (request.getTaxonIds() != null)
 				updateTaxonEntities(request.getTaxonIds(), entity);
+			if (request.getProgramDbId() != null) {
+				ProgramEntity program = foundProgramsByDbId.get(UUID.fromString(request.getProgramDbId()));
+				entity.setProgram(program);
+			}
 
 			toSave.add(entity);
 		}
@@ -738,6 +768,10 @@ public class GermplasmService {
 			updateSynonymEntities(request.getSynonyms(), entity);
 		if (request.getTaxonIds() != null)
 			updateTaxonEntities(request.getTaxonIds(), entity);
+		if (request.getProgramDbId() != null) {
+			ProgramEntity program = programService.getProgramEntity(request.getProgramDbId());
+			entity.setProgram(program);
+		}
 	}
 
 	private void updateTaxonEntities(List<TaxonID> taxonIds, GermplasmEntity entity) {
