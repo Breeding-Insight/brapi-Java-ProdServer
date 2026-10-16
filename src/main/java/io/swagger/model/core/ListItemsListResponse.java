@@ -22,6 +22,9 @@ public class ListItemsListResponse<T> implements BrAPIResponse<ListItemsListResp
     @JsonProperty("metadata")
     private Metadata metadata = null;
 
+    @JsonProperty("resultListType")
+    private ListTypes resultListType = null;
+
     @JsonProperty("result")
     private ListItemsListResponseResult<T> result = null;
 
@@ -76,6 +79,14 @@ public class ListItemsListResponse<T> implements BrAPIResponse<ListItemsListResp
 
     public void setResult(ListItemsListResponseResult<T> result) {
         this.result = result;
+    }
+
+    public ListTypes getResultListType() {
+        return resultListType;
+    }
+
+    public void setResultListType(ListTypes resultListType) {
+        this.resultListType = resultListType;
     }
 
     @Override

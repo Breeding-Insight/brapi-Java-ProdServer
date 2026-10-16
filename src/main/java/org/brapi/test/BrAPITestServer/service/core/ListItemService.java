@@ -34,11 +34,9 @@ public class ListItemService {
                 ));
     }
 
-    public List<ListItemWithFullItem<?>> search(String listDbId,
+    public List<ListItemWithFullItem<?>> search(ListDetails list,
                                                 JsonNode searchRequest,
                                                 Metadata metadata) throws BrAPIServerException {
-        ListDetails list = listService.getList(listDbId);
-
         ListItemSearchRequestHandler<?> handler = handlers.get(list.getListType());
 
         if (handler == null) {

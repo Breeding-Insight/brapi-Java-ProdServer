@@ -221,8 +221,13 @@ public class ListsApiController extends BrAPIController implements ListsApi {
 		validateAcceptHeader(request);
 		Metadata metadata = generateMetaDataTemplate(body);
 
-		List<ListItemWithFullItem<?>> data = listItemService.search(listDbId, body, metadata);
-		return responseOK(new ListItemsListResponse(), new ListItemsListResponseResult(), data, metadata);
+		ListDetails list = listService.getList(listDbId);
+		List<ListItemWithFullItem<?>> data = listItemService.search(list, body, metadata);
+
+		ListItemsListResponse listItemsListResponse = new ListItemsListResponse();
+		listItemsListResponse.setResultListType(list.getListType());
+
+		return responseOK(listItemsListResponse, new ListItemsListResponseResult(), data, metadata);
 	}
 
 }
