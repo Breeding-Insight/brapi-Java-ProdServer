@@ -385,6 +385,8 @@ public class GermplasmService {
 				"externalReferences",
 				"synonyms",
 				"synonyms");
+		// Because the join was overwritten above, the original synonym join was removed with the replace.  This extra join restores it so
+		// queries with join in the where clause can continue to work.
 		searchQuery.join("synonyms", "synonyms");
 
 		List<GermplasmEntity> xrefs = germplasmRepository.findAllBySearch(searchQuery);
