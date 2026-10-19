@@ -435,6 +435,8 @@ public class SearchQueryBuilder<T> {
 		return "LEFT JOIN FETCH " + entityPrefix(join) + " " + paramFilter(paramName) + " ";
 	}
 
+	// Here * is used as a trigger to use the subsequent field string after it directly on a hibernate query instead of
+	// entity.field.  This is important in many query builds, including filter/sort queries
 	private String entityPrefix(String field) {
 		if (field.startsWith("*")) {
 			return field.substring(1);
