@@ -1,9 +1,8 @@
 package org.brapi.test.BrAPITestServer.service.core;
 
-import com.fasterxml.jackson.databind.BeanDescription;
-import com.fasterxml.jackson.databind.JavaType;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException;
 import com.fasterxml.jackson.databind.introspect.BeanPropertyDefinition;
 import io.swagger.model.Metadata;
 import io.swagger.model.core.*;
@@ -14,6 +13,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -78,23 +78,15 @@ public class ListItemService {
     }
 
     private <T> void validateSearchRequest(ListDetails list, JsonNode request, ListItemSearchRequestHandler<T> handler) throws BrAPIServerException {
-        JavaType javaType = objectMapper.getTypeFactory()
-                .constructType(handler.getSearchRequestClass());
 
-        BeanDescription beanDescription = objectMapper.getDeserializationConfig()
-                .introspect(javaType);
+        ObjectReader reader = objectMapper
+                .readerFor(handler.getSearchRequestClass())
+                .with(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
 
-        Set<String> allowedProperties = beanDescription.findProperties()
-                .stream()
-                .map(BeanPropertyDefinition::getName)
-                .collect(Collectors.toSet());
 
-        Iterator<String> fields = request.fieldNames();
-
-        while (fields.hasNext()) {
-            String field = fields.next();
-
-            if (!allowedProperties.contains(field)) {
+        try (JsonParser parser = request.traverse(objectMapper)) {
+            reader.readValue(parser);
+        } catch (UnrecognizedPropertyException e) {
                 throw new BrAPIServerException(HttpStatus.BAD_REQUEST,
                         String.format("List with dbId [%s] is of type [%s].  The expected search request to be submitted to this endpoint is a " +
                                         "[%s], but a search request property [%s] was found that does not exist in the allowed search request for this list type. " +
@@ -102,10 +94,19 @@ public class ListItemService {
                                 list.getListDbId(),
                                 list.getListType(),
                                 handler.getSearchRequestClass().getSuperclass().getSimpleName(),
-                                field,
+                                e.getPropertyName(),
                                 handler.getSearchRequestClass().getSuperclass().getSimpleName())
                 );
-            }
+        } catch (IOException e) {
+            throw new BrAPIServerException(HttpStatus.BAD_REQUEST,
+                    String.format("List with dbId [%s] is of type [%s].  The expected search request to be submitted to this endpoint is a " +
+                                    "[%s], but a part of the request is malformed so that it is incompatible with the targeted request type." +
+                                    "Please ensure any fields being searched match the schema of a [%s] exactly before submitting to ensure correct data is retrieved.",
+                            list.getListDbId(),
+                            list.getListType(),
+                            handler.getSearchRequestClass().getSuperclass().getSimpleName(),
+                            handler.getSearchRequestClass().getSuperclass().getSimpleName())
+            );
         }
     }
 }
