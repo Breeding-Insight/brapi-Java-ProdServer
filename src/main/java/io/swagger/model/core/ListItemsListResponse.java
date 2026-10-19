@@ -22,6 +22,7 @@ public class ListItemsListResponse<T> implements BrAPIResponse<ListItemsListResp
     @JsonProperty("metadata")
     private Metadata metadata = null;
 
+    // This piece of data is used by the brapi client to determine and populate the exact data model return type of ListItemWithFullItem.item
     @JsonProperty("resultListType")
     private ListTypes resultListType = null;
 

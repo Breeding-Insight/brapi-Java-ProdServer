@@ -14,6 +14,7 @@ public class ListItemWithFullItem<T>  {
     @JsonProperty("listItem")
     private ListItem listItem = null;
 
+    // The full actual BrAPI model object of the list item is supplied/written into here
     @JsonProperty("item")
     private T item = null;
 

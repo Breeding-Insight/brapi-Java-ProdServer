@@ -3,21 +3,17 @@ package org.brapi.test.BrAPITestServer.service.core;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException;
-import com.fasterxml.jackson.databind.introspect.BeanPropertyDefinition;
 import io.swagger.model.Metadata;
 import io.swagger.model.core.*;
 import org.brapi.test.BrAPITestServer.exceptions.BrAPIServerException;
 import org.brapi.test.BrAPITestServer.handlers.ListItemSearchRequestHandler;
-import org.brapi.test.BrAPITestServer.model.entity.core.ListItemEntity;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -32,6 +28,8 @@ public class ListItemService {
                            ObjectMapper objectMapper) {
         this.listService = listService;
         this.objectMapper = objectMapper;
+        // Initializes all ListItemSearchRequestHandlers by enumerating through the available BrAPI ListTypes.
+        // Right now, GermplasmListSearchRequestHandler is the only implementation available.
         this.handlers = handlerList.stream()
                 .collect(Collectors.toMap(
                         ListItemSearchRequestHandler::getListType,
@@ -45,6 +43,7 @@ public class ListItemService {
         ListItemSearchRequestHandler<?> handler = handlers.get(list.getListType());
 
         if (handler == null) {
+            // List Type does not have a handler yet.  Implement ListItemSearchRequestHandler for the BrAPI ListType, using GermplasmListSearchRequestHandler as an example.
             throw new BrAPIServerException(HttpStatus.BAD_REQUEST, "Unsupported list type: " + list.getListType());
         }
 
@@ -77,6 +76,9 @@ public class ListItemService {
         return handler.search(list, typedSearchRequest, metadata);
     }
 
+    /**
+     * Ensures submitted request contains fields/properties only relevant to the BrAPI search request for the list type.
+     */
     private <T> void validateSearchRequest(ListDetails list, JsonNode request, ListItemSearchRequestHandler<T> handler) throws BrAPIServerException {
 
         ObjectReader reader = objectMapper

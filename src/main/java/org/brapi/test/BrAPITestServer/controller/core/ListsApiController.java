@@ -224,6 +224,7 @@ public class ListsApiController extends BrAPIController implements ListsApi {
 		ListDetails list = listService.getList(listDbId);
 		List<ListItemWithFullItem<?>> data = listItemService.search(list, body, metadata);
 
+		// Setting the resultListType here allows the BrAPI client to know how to initialize the parameterized ListItemWithFullItem.item class
 		ListItemsListResponse listItemsListResponse = new ListItemsListResponse();
 		listItemsListResponse.setResultListType(list.getListType());
 

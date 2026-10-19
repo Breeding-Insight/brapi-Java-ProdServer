@@ -60,6 +60,21 @@ public class BrAPIRepositoryImpl<T extends BrAPIPrimaryEntity, ID extends Serial
         return new PageImpl<>(content, pageReq, totalCount);
 	}
 
+	/**
+	 * Supports paginated queries that select on multiple entities, like this:
+	 *
+	 * SELECT listItem, entity FROM GermplasmEntity entity
+	 * JOIN ListItemEntity listItem ON listItem.item = entity.germplasmName
+	 *
+	 * The resulting Page<Tuple> represents each entity as an element in the tuple from the select, so in the example above,
+	 * tuple.get(0) = ListItemEntity
+	 * tuple.get(1) = GermplasmEntity
+	 *
+	 * This is helpful when there are requirements to sort/filter/paginate an entity in relation to another object, which is the exact
+	 * use case for ListsApiController.searchListByItemRequest().
+	 *
+	 * For example usages of this method, see GermplasmService.findGermplasmByList()
+	 */
 	public Page<Tuple> findAllBySearchAndPaginateMultipleEntitySelect(SearchQueryBuilder<T> searchQuery, Pageable pageReq) throws InvalidPagingException {
 		applyUserId(searchQuery);
 

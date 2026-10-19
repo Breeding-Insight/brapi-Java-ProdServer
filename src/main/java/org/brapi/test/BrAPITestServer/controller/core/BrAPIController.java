@@ -50,6 +50,7 @@ public class BrAPIController {
 		return metaData;
 	}
 
+	// Used when endpoints require generic, untyped search bodies. (See ListsApiController.searchListByItemRequest)
 	protected Metadata generateMetaDataTemplate(JsonNode node) throws BrAPIServerException {
 
 		Integer page = null;

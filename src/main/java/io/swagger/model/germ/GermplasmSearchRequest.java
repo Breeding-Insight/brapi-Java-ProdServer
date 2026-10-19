@@ -24,7 +24,7 @@ public class GermplasmSearchRequest extends SearchRequest {
 					Map.entry("maleParentGID", new SortAndFilterEntityColumnInfo("maleParentGid", EntityType.TEXT)),
 					Map.entry("createdDate", new SortAndFilterEntityColumnInfo("createdDate",  EntityType.DATE)),
 					Map.entry("createdBy", new SortAndFilterEntityColumnInfo("createdBy", EntityType.TEXT)),
-					Map.entry("importEntryNumber", new SortAndFilterEntityColumnInfo("*listItem.position", EntityType.NUMBER, false, true)),
+					Map.entry("importEntryNumber", new SortAndFilterEntityColumnInfo("importEntryNumber", EntityType.NUMBER, false, true)),
 					Map.entry("synonyms", new SortAndFilterEntityColumnInfo("*synonyms.synonym", EntityType.TEXT, true, false))
 			);
 
