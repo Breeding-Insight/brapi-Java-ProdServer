@@ -536,7 +536,7 @@ public class SearchQueryBuilder<T> {
 			// At this point, the submitted filterBy column name has been verified to be in entityColAndTypeBySubmittedName
 			SortAndFilterEntityColumnInfo sortAndFilterEntityColumnInfo = entityColAndTypeBySubmittedName.get(filter.getFilterOn());
 
-			if (sortAndFilterEntityColumnInfo.getEntityColumnName().startsWith("*") && !sortAndFilterEntityColumnInfo.isJoinOnUnrelatedEntity()) {
+			if (sortAndFilterEntityColumnInfo.isCollectionOnEntity() && !sortAndFilterEntityColumnInfo.isJoinOnUnrelatedEntity()) {
 				// Avoid extra/overriding joins in the case where an unrelated entity has been joined, like the ListItemEntity use case in GermplasmService.searchGermplasmByList()
 				joinCollectionColumn(sortAndFilterEntityColumnInfo.getEntityColumnName());
 			}

@@ -136,6 +136,8 @@ public class GermplasmService {
 
 		// Since the built searchQuery contains a lazily loaded collection retrieved with a LEFT JOIN FETCH,
 		// use findAllBySearchPaginatingWithFetches()
+		// TODO: As of BI-3082, the lazily loaded collection synonyms has been removed the initial search query.
+		// TODO: Because of this, we should be able to change this call to findAllBySearchAndPaginate, but this should be tracked as a separate effort. [BI-3084]
 		Page<GermplasmEntity> germs = germplasmRepository.findAllBySearchPaginatingWithFetches(searchQuery, pageReq);
 
 		// Hopefully this retains insertion order in the page?
@@ -196,7 +198,7 @@ public class GermplasmService {
 					.appendList(request.getStudyNames(), "*obsunit.study.studyName");
 		}
 		if (request.getSynonyms() != null) {
-			searchQuery = searchQuery.join("synonyms", "synonym").appendList(request.getSynonyms(), "*synonym.synonym");
+			searchQuery = searchQuery.join("synonyms", "synonyms").appendList(request.getSynonyms(), "*synonyms.synonym");
 		}
 		if (request.getInstituteCodes() != null) {
 			searchQuery = searchQuery.join("institutes", "institute").appendList(request.getSynonyms(),
@@ -368,7 +370,7 @@ public class GermplasmService {
 		// Fetch synonyms
 		log.debug("fetching synonyms");
 		searchQuery.leftJoinFetch("synonyms",
-				"synonyms");
+				"synonyms", true);
 
 		List<GermplasmEntity> synonyms = germplasmRepository.findAllBySearch(searchQuery);
 
@@ -383,6 +385,7 @@ public class GermplasmService {
 				"externalReferences",
 				"synonyms",
 				"synonyms");
+		searchQuery.join("synonyms", "synonyms");
 
 		List<GermplasmEntity> xrefs = germplasmRepository.findAllBySearch(searchQuery);
 
