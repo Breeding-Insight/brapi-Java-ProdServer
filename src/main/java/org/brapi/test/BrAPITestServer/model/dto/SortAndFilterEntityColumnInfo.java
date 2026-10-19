@@ -7,7 +7,12 @@ package org.brapi.test.BrAPITestServer.model.dto;
 public class SortAndFilterEntityColumnInfo {
     private final String entityColumnName;
     private final EntityType entityType;
+    // This boolean tells us effectively if the column is sortable.  Hibernate does not support sorting on collections, as it is confusing.
+    // If this feature is desired, a new subquery would likely have to be created to achieve this on the collection.
+    // See SearchQueryBuilder.sortBy() for usage.
     private final boolean isCollectionOnEntity;
+    // This boolean tells us if the column has been joined on a table that does not exist in the target entity.
+    // In this case it's likely we want different join logic, see SearchQueryBuilder.sortBy or .filterBy for usages
     private final boolean isJoinOnUnrelatedEntity;
 
 
