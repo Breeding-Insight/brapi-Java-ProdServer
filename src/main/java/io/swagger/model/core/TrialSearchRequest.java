@@ -24,7 +24,7 @@ public class TrialSearchRequest extends SearchRequest {
 				"endDate", new SortAndFilterEntityColumnInfo("endDate", EntityType.TEXT),
 				"active", new SortAndFilterEntityColumnInfo("active",  EntityType.BOOLEAN),
 				"programName", new SortAndFilterEntityColumnInfo("program.name", EntityType.TEXT),
-				"locationDbId", new SortAndFilterEntityColumnInfo("*studies.location.id", EntityType.UUID)
+				"locationDbId", new SortAndFilterEntityColumnInfo("*studies.location.id", EntityType.UUID, true, false)
 			);
 
 	@JsonProperty("commonCropNames")

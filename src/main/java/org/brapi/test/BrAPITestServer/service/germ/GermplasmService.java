@@ -374,10 +374,10 @@ public class GermplasmService {
 
 		List<GermplasmEntity> synonyms = germplasmRepository.findAllBySearch(searchQuery);
 
-		Map<String, List<ExternalReferenceEntity>> synonymsByEntity = new HashMap<>();
-		synonyms.forEach(entity -> synonymsByEntity.put(entity.getId().toString(), entity.getExternalReferences()));
+		Map<String, List<GermplasmSynonymEntity>> synonymsByEntity = new HashMap<>();
+		synonyms.forEach(entity -> synonymsByEntity.put(entity.getId().toString(), entity.getSynonyms()));
 
-		germEntities.forEach(entity -> entity.setExternalReferences(synonymsByEntity.get(entity.getId().toString())));
+		germEntities.forEach(entity -> entity.setSynonyms(synonymsByEntity.get(entity.getId().toString())));
 
 		// Fetch xrefs
 		log.debug("Fetching xrefs");
