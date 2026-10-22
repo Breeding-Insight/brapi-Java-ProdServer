@@ -175,7 +175,7 @@ public class GermplasmService {
 		List<GermplasmEntity>  germs = germplasmRepository.findAllBySearch(searchQuery);
 
 		if (!germs.isEmpty()) {
-			fetchRemainingGermCollectionsUsingQuery(searchQuery, germs);
+			fetchRemainingGermCollectionsUsingQuery(searchQuery, germs, request);
 		}
 		return germs;
 	}
@@ -201,7 +201,7 @@ public class GermplasmService {
 			searchQuery = searchQuery.join("synonyms", "synonyms").appendList(request.getSynonyms(), "*synonyms.synonym");
 		}
 		if (request.getInstituteCodes() != null) {
-			searchQuery = searchQuery.join("institutes", "institute").appendList(request.getSynonyms(),
+			searchQuery = searchQuery.join("institutes", "institute").appendList(request.getInstituteCodes(),
 					"*institute.instituteCode");
 		}
 
@@ -359,7 +359,7 @@ public class GermplasmService {
 		});
 	}
 
-	private void fetchRemainingGermCollectionsUsingQuery(SearchQueryBuilder<GermplasmEntity> searchQuery, List<GermplasmEntity> germEntities) {
+	private void fetchRemainingGermCollectionsUsingQuery(SearchQueryBuilder<GermplasmEntity> searchQuery, List<GermplasmEntity> germEntities, GermplasmSearchRequest request) {
 		// Remove unused left join fetches from the base query
 		searchQuery.removeLeftJoinFetch("breedingMethod", "breedingMethod")
 				.removeLeftJoinFetch("crop", "crop")
@@ -385,9 +385,11 @@ public class GermplasmService {
 				"externalReferences",
 				"synonyms",
 				"synonyms");
-		// Because the join was overwritten above, the original synonym join was removed with the replace.  This extra join restores it so
-		// queries with join in the where clause can continue to work.
-		searchQuery.join("synonyms", "synonyms");
+		// Because the join was overwritten above, the original synonym join could have been removed with the replace.
+		// This extra join restores it so queries with join in the where clause can continue to work.
+		if (request.getSynonyms() != null) {
+			searchQuery.join("synonyms", "synonyms");
+		}
 
 		List<GermplasmEntity> xrefs = germplasmRepository.findAllBySearch(searchQuery);
 
