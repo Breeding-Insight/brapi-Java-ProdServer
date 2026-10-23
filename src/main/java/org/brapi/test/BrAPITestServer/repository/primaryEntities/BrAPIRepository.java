@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import jakarta.persistence.Tuple;
 import org.brapi.test.BrAPITestServer.exceptions.InvalidPagingException;
 import org.brapi.test.BrAPITestServer.model.entity.BrAPIPrimaryEntity;
 import org.brapi.test.BrAPITestServer.service.SearchQueryBuilder;
@@ -27,10 +28,12 @@ public interface BrAPIRepository<T extends BrAPIPrimaryEntity, ID extends Serial
 	public <S extends T> S save(S entity);
 
 	public <S extends T> List<S> saveAll(Iterable<S> entities);
-	
+
 	public <S extends T> void refresh(S entity);
 
 	public void fetchXrefs(List<UUID> page, Page<T> pagedEntities, Class<T> searchClass) throws InvalidPagingException;
 
 	List<T> findByIdIn(List<ID> ids);
+
+	public Page<Tuple> findAllBySearchAndPaginateMultipleEntitySelect(SearchQueryBuilder<T> searchQuery, Pageable pageReq) throws InvalidPagingException;
 }

@@ -1,5 +1,6 @@
 package org.brapi.test.BrAPITestServer.controller.core;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import io.swagger.model.BrAPIResponse;
 import io.swagger.model.Metadata;
 import io.swagger.model.core.*;
@@ -12,6 +13,7 @@ import org.brapi.test.BrAPITestServer.factory.BrAPIComponent;
 import org.brapi.test.BrAPITestServer.model.entity.SearchRequestEntity;
 import org.brapi.test.BrAPITestServer.model.entity.SearchRequestEntity.SearchRequestTypes;
 import org.brapi.test.BrAPITestServer.service.SearchService;
+import org.brapi.test.BrAPITestServer.service.core.ListItemService;
 import org.brapi.test.BrAPITestServer.service.core.ListService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,12 +41,14 @@ public class ListsApiController extends BrAPIController implements ListsApi {
 	private final HttpServletRequest request;
 	private final ListService listService;
 	private final SearchService searchService;
+	private final ListItemService listItemService;
 
 	@Autowired
-	public ListsApiController(ListService listService, SearchService searchService, HttpServletRequest request) {
+	public ListsApiController(ListService listService, SearchService searchService, HttpServletRequest request, ListItemService listItemService) {
 		this.listService = listService;
 		this.searchService = searchService;
 		this.request = request;
+		this.listItemService = listItemService;
 	}
 
 	@CrossOrigin
@@ -203,6 +207,28 @@ public class ListsApiController extends BrAPIController implements ListsApi {
 		}else {
 			return responseAccepted(searchResultsDbId);
 		}
+	}
+
+	@CrossOrigin
+	@Override
+	public ResponseEntity<? extends BrAPIResponse> searchListByItemRequest(
+			@Valid @RequestBody JsonNode body,
+			@PathVariable("listDbId") String listDbId,
+			@RequestHeader(value = "Authorization", required = false) String authorization) throws BrAPIServerException {
+
+		log.debug("Request: " + request.getRequestURI());
+		validateSecurityContext(request, "ROLE_ANONYMOUS", "ROLE_USER");
+		validateAcceptHeader(request);
+		Metadata metadata = generateMetaDataTemplate(body);
+
+		ListDetails list = listService.getList(listDbId);
+		List<ListItemWithFullItem<?>> data = listItemService.search(list, body, metadata);
+
+		// Setting the resultListType here allows the BrAPI client to know how to initialize the parameterized ListItemWithFullItem.item class
+		ListItemsListResponse listItemsListResponse = new ListItemsListResponse();
+		listItemsListResponse.setResultListType(list.getListType());
+
+		return responseOK(listItemsListResponse, new ListItemsListResponseResult(), data, metadata);
 	}
 
 }

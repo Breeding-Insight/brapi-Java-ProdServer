@@ -4,7 +4,7 @@ import java.util.*;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.model.SearchRequest;
-import org.brapi.test.BrAPITestServer.model.dto.EntityColumnNameAndType;
+import org.brapi.test.BrAPITestServer.model.dto.SortAndFilterEntityColumnInfo;
 import org.brapi.test.BrAPITestServer.model.dto.EntityType;
 
 import java.time.LocalDate;
@@ -13,18 +13,18 @@ public class TrialSearchRequest extends SearchRequest {
 
 	// Key - allowed sort or field filter name for this entity
 	// Value = entity field name and type that represents the submitted field. Used later on in query building.
-	private static final Map<String, EntityColumnNameAndType> ALLOWED_SORT_AND_FILTER_FIELDS =
+	private static final Map<String, SortAndFilterEntityColumnInfo> ALLOWED_SORT_AND_FILTER_FIELDS =
 			Map.of(
-				"trialName", new EntityColumnNameAndType("trialName", EntityType.TEXT),
-				"createdDate", new EntityColumnNameAndType("createdDate", EntityType.TEXT),
-				"createdBy", new EntityColumnNameAndType("createdBy", EntityType.TEXT),
-				"trialDbId", new EntityColumnNameAndType("id", EntityType.UUID),
-				"programDbId",new EntityColumnNameAndType("program.id", EntityType.UUID),
-				"startDate", new EntityColumnNameAndType("startDate", EntityType.TEXT),
-				"endDate", new EntityColumnNameAndType("endDate", EntityType.TEXT),
-				"active", new EntityColumnNameAndType("active",  EntityType.BOOLEAN),
-				"programName", new EntityColumnNameAndType("program.name", EntityType.TEXT),
-				"locationDbId", new EntityColumnNameAndType("*studies.location.id", EntityType.UUID)
+				"trialName", new SortAndFilterEntityColumnInfo("trialName", EntityType.TEXT),
+				"createdDate", new SortAndFilterEntityColumnInfo("createdDate", EntityType.TEXT),
+				"createdBy", new SortAndFilterEntityColumnInfo("createdBy", EntityType.TEXT),
+				"trialDbId", new SortAndFilterEntityColumnInfo("id", EntityType.UUID),
+				"programDbId",new SortAndFilterEntityColumnInfo("program.id", EntityType.UUID),
+				"startDate", new SortAndFilterEntityColumnInfo("startDate", EntityType.TEXT),
+				"endDate", new SortAndFilterEntityColumnInfo("endDate", EntityType.TEXT),
+				"active", new SortAndFilterEntityColumnInfo("active",  EntityType.BOOLEAN),
+				"programName", new SortAndFilterEntityColumnInfo("program.name", EntityType.TEXT),
+				"locationDbId", new SortAndFilterEntityColumnInfo("*studies.location.id", EntityType.UUID, true, false)
 			);
 
 	@JsonProperty("commonCropNames")
@@ -444,7 +444,7 @@ public class TrialSearchRequest extends SearchRequest {
 	}
 
 	@Override
-	public Map<String, EntityColumnNameAndType> getEntityColAndTypeBySubmittedNameMap() {
+	public Map<String, SortAndFilterEntityColumnInfo> getEntityColInfoBySubmittedNameMap() {
 		return ALLOWED_SORT_AND_FILTER_FIELDS;
 	}
 }

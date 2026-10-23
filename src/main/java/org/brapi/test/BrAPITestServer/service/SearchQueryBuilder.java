@@ -10,7 +10,7 @@ import io.swagger.model.FilterBy;
 import io.swagger.model.GeoJSONSearchArea;
 import io.swagger.model.sort.SortBy;
 import org.brapi.test.BrAPITestServer.exceptions.BrAPIServerException;
-import org.brapi.test.BrAPITestServer.model.dto.EntityColumnNameAndType;
+import org.brapi.test.BrAPITestServer.model.dto.SortAndFilterEntityColumnInfo;
 import org.brapi.test.BrAPITestServer.model.dto.EntityType;
 import org.springframework.http.HttpStatus;
 
@@ -19,6 +19,8 @@ public class SearchQueryBuilder<T> {
 	private String selectClause;
 	private String selectOnlyIds;
 	private String selectOnlyIdsSubquery;
+	private String joinClause;
+	private String joinClauseIdSubquery;
 	private String whereClause;
 	private String defaultSort;
 	private String sortClause;
@@ -28,17 +30,19 @@ public class SearchQueryBuilder<T> {
 	private Class<T> clazz;
 	private final String default_date = "1970-01-01";
 
-	public SearchQueryBuilder(Class<T> clazz) {
-		this.selectClause = "SELECT distinct entity FROM " + clazz.getSimpleName() + " entity ";
+	public SearchQueryBuilder(Class<T> baseEntity) {
+		this.selectClause = "SELECT distinct entity FROM " + baseEntity.getSimpleName() + " entity ";
 		// This is the top level query for selectOnlyIds.  It is used to construct the full id query in getIdQuery()
-		this.selectOnlyIds = "SELECT entity.id FROM " + clazz.getSimpleName() + " entity ";
+		this.selectOnlyIds = "SELECT entity.id FROM " + baseEntity.getSimpleName() + " entity ";
 		// This subquery will contain all the joins and filters necessary for the selectOnlyIds query and protects against duplicates using distinct
-		this.selectOnlyIdsSubquery = "SELECT distinct entity2.id FROM " + clazz.getSimpleName() + " entity2 ";
+		this.selectOnlyIdsSubquery = "SELECT distinct entity2.id FROM " + baseEntity.getSimpleName() + " entity2 ";
+		this.joinClause = "";
+		this.joinClauseIdSubquery = "";
 		this.whereClause = "WHERE 1=1 ";
 		this.defaultSort = " ORDER BY entity.id ASC ";
 		this.sortClause = "";
 		this.params = new HashMap<>();
-		this.clazz = clazz;
+		this.clazz = baseEntity;
 	}
 
 	public String getQuery() {
@@ -47,7 +51,23 @@ public class SearchQueryBuilder<T> {
 			sortClause = defaultSort;
 		}
 
-		return selectClause + whereClause + sortClause;
+		return selectClause + joinClause + whereClause + sortClause;
+	}
+
+	public String getCountQueryMultipleSelect() {
+		String firstSelection = selectClause
+				.replaceFirst("(?i)^SELECT\\s+(?:DISTINCT\\s+)?", "")
+				.split(",")[0]
+				.trim();
+
+		int fromIndex = selectClause.toUpperCase(Locale.ROOT).indexOf(" FROM ");
+
+		String fromClause = selectClause.substring(fromIndex);
+
+		return "SELECT COUNT(DISTINCT " + firstSelection + ".id) "
+				+ fromClause
+				+ joinClause.replaceAll("(?i)LEFT JOIN FETCH", "LEFT JOIN")
+				+ whereClause;
 	}
 
 	/**
@@ -86,7 +106,7 @@ public class SearchQueryBuilder<T> {
 		String entityRegex = "(?<![\\\\w.:])entity(?!2)";
 
 		// Now put the subquery together with the where clause and apply the regex expression
-		String fullIdsSubquery = (selectOnlyIdsSubquery + whereClause).replaceAll(entityRegex, "entity2");
+		String fullIdsSubquery = (selectOnlyIdsSubquery + joinClauseIdSubquery + whereClause).replaceAll(entityRegex, "entity2");
 
 		// Finally, apply outer expression and final where clause
 		return selectOnlyIds + " WHERE entity.id IN (" + fullIdsSubquery + ") " + sortClause;
@@ -98,6 +118,13 @@ public class SearchQueryBuilder<T> {
 
 	public Class<T> getClazz() {
 		return clazz;
+	}
+
+	public SearchQueryBuilder<T> modifySelect(List<String> entityAliases) {
+
+		this.selectClause = "SELECT distinct " + String.join(", ", entityAliases) + " FROM " + clazz.getSimpleName() + " entity ";
+
+		return this;
 	}
 
 	public SearchQueryBuilder<T> appendList(List<String> list, String columnName) {
@@ -338,12 +365,21 @@ public class SearchQueryBuilder<T> {
 	public SearchQueryBuilder<T> join(String join, String name) {
 
 		if (!this.joinedTables.contains(join) && !this.joinedFetchedTables.contains(join)) {
-			this.selectClause += "JOIN " + entityPrefix(join) + " " + paramFilter(name) + " ";
-			this.selectOnlyIdsSubquery += "JOIN " + entityPrefix(join) + " " + paramFilter(name) + " ";
+			this.joinClause += "JOIN " + entityPrefix(join) + " " + paramFilter(name) + " ";
+			this.joinClauseIdSubquery += "JOIN " + entityPrefix(join) + " " + paramFilter(name) + " ";
 			this.joinedTables.add(join);
 		} else if (joinedFetchedTables.contains(join) && !this.joinedTables.contains(join)) {
-			this.selectOnlyIdsSubquery += "JOIN " + entityPrefix(join) + " " + paramFilter(name) + " ";
+			this.joinClauseIdSubquery += "JOIN " + entityPrefix(join) + " " + paramFilter(name) + " ";
 		}
+		return this;
+	}
+
+	public SearchQueryBuilder<T> joinEntity(Class<?> joinedEntity,
+											String alias,
+											String onClause) {
+		this.joinClause += " JOIN " + joinedEntity.getSimpleName()
+				+ " " + alias
+				+ " ON " + onClause;
 		return this;
 	}
 
@@ -356,11 +392,11 @@ public class SearchQueryBuilder<T> {
 		if (this.joinedTables.contains(join) && overrideExistingJoin) {
 			// Override existing normal join with join fetch if it already exists in a query
 			// This override does not change the alias to the name provided, and assumes further usages will use the same alias.
-			this.selectClause = this.selectClause.replace("JOIN " + entityPrefix(join), "LEFT JOIN FETCH " + entityPrefix(join));
+			this.joinClause = this.joinClause.replace("JOIN " + entityPrefix(join), "LEFT JOIN FETCH " + entityPrefix(join));
 			this.joinedFetchedTables.add(join);
 			this.joinedTables.remove(join);
 		} else if (!this.joinedFetchedTables.contains(join)) {
-			this.selectClause += generateLeftJoinFetch(join, name);
+			this.joinClause += generateLeftJoinFetch(join, name);
 			this.joinedFetchedTables.add(join);
 		}
 		return this;
@@ -375,8 +411,8 @@ public class SearchQueryBuilder<T> {
 															   String existingJoin,
 															   String existingName) {
 
-		this.selectClause =
-				this.selectClause.replace(generateLeftJoinFetch(existingJoin, existingName), generateLeftJoinFetch(join, name));
+		this.joinClause =
+				this.joinClause.replace(generateLeftJoinFetch(existingJoin, existingName), generateLeftJoinFetch(join, name));
 
 		this.joinedFetchedTables.remove(existingJoin);
 		this.joinedFetchedTables.add(join);
@@ -389,8 +425,8 @@ public class SearchQueryBuilder<T> {
 	 * base query criteria to add another join fetch with leftJoinFetch()
 	 */
 	public SearchQueryBuilder<T> removeLeftJoinFetch(String join, String name) {
-		this.selectClause =
-				this.selectClause.replace(generateLeftJoinFetch(join, name), "");
+		this.joinClause =
+				this.joinClause.replace(generateLeftJoinFetch(join, name), "");
 		this.joinedFetchedTables.remove(join);
 		return this;
 	}
@@ -399,6 +435,8 @@ public class SearchQueryBuilder<T> {
 		return "LEFT JOIN FETCH " + entityPrefix(join) + " " + paramFilter(paramName) + " ";
 	}
 
+	// Here * is used as a trigger to use the subsequent field string after it directly on a hibernate query instead of
+	// entity.field.  This is important in many query builds, including filter/sort queries
 	private String entityPrefix(String field) {
 		if (field.startsWith("*")) {
 			return field.substring(1);
@@ -428,19 +466,19 @@ public class SearchQueryBuilder<T> {
 	 *  - A column name
 	 *  - An order (DESC, ASC)
 	 */
-	public SearchQueryBuilder<T> sortBy(List<SortBy> sortBy, Map<String, EntityColumnNameAndType> entityColAndTypeBySubmittedName) throws BrAPIServerException {
+	public SearchQueryBuilder<T> sortBy(List<SortBy> sortBy, Map<String, SortAndFilterEntityColumnInfo> entityColInfoBySubmittedName) throws BrAPIServerException {
 
 		if (sortBy == null || sortBy.isEmpty()) {
 			return this;
 		}
 
 		for (SortBy sort : sortBy) {
-			// At this point, the submitted sortBy name has been verified to be in entityColAndTypeBySubmittedName
-			EntityColumnNameAndType entityColumnNameAndType = entityColAndTypeBySubmittedName.get(sort.getSortedOn());
+			// At this point, the submitted sortBy name has been verified to be in entityColInfoBySubmittedName
+			SortAndFilterEntityColumnInfo sortAndFilterEntityColumnInfo = entityColInfoBySubmittedName.get(sort.getSortedOn());
 
-			String entityColName = entityColumnNameAndType.getEntityColumnName();
+			String entityColName = sortAndFilterEntityColumnInfo.getEntityColumnName();
 
-			if (entityColName.startsWith("*")) {
+			if (sortAndFilterEntityColumnInfo.isCollectionOnEntity()) {
 				throw new BrAPIServerException(HttpStatus.BAD_REQUEST, "Sorting on one to many relationships not supported");
 			}
 
@@ -451,7 +489,8 @@ public class SearchQueryBuilder<T> {
 				throw new BrAPIServerException(HttpStatus.BAD_REQUEST, "Sorting on a table greater than one level from primary entity not allowed");
 			}
 
-			if (split.length == 2 && !split[1].equals("id")) {
+			if (split.length == 2 && !split[1].equals("id") && !sortAndFilterEntityColumnInfo.isJoinOnUnrelatedEntity()) {
+				// Avoid extra/overriding joins in the case where an unrelated entity has been joined, like the ListItemEntity use case in GermplasmService.searchGermplasmByList()
 				leftJoinFetch(split[0], split[0], true);
 			}
 
@@ -488,7 +527,7 @@ public class SearchQueryBuilder<T> {
 	 *  - A column name
 	 *  - A value which the column name should be filtered on
 	 */
-	public SearchQueryBuilder<T> filterBy(List<FilterBy> filterBy, Map<String, EntityColumnNameAndType> entityColAndTypeBySubmittedName) throws BrAPIServerException {
+	public SearchQueryBuilder<T> filterBy(List<FilterBy> filterBy, Map<String, SortAndFilterEntityColumnInfo> entityColAndTypeBySubmittedName) throws BrAPIServerException {
 		SearchQueryBuilder<T> searchQuery = this;
 
 		if (filterBy == null || filterBy.isEmpty()) {
@@ -497,21 +536,22 @@ public class SearchQueryBuilder<T> {
 
 		for (FilterBy filter : filterBy) {
 			// At this point, the submitted filterBy column name has been verified to be in entityColAndTypeBySubmittedName
-			EntityColumnNameAndType entityColumnNameAndType = entityColAndTypeBySubmittedName.get(filter.getFilterOn());
+			SortAndFilterEntityColumnInfo sortAndFilterEntityColumnInfo = entityColAndTypeBySubmittedName.get(filter.getFilterOn());
 
-			if (entityColumnNameAndType.getEntityColumnName().startsWith("*")) {
-				joinCollectionColumn(entityColumnNameAndType.getEntityColumnName());
+			if (sortAndFilterEntityColumnInfo.isCollectionOnEntity() && !sortAndFilterEntityColumnInfo.isJoinOnUnrelatedEntity()) {
+				// Avoid extra/overriding joins in the case where an unrelated entity has been joined, like the ListItemEntity use case in GermplasmService.searchGermplasmByList()
+				joinCollectionColumn(sortAndFilterEntityColumnInfo.getEntityColumnName());
 			}
 
-			if (entityColumnNameAndType.getEntityType() == EntityType.TEXT) {
-				searchQuery = appendLike(filter.getValue().toLowerCase(), entityColumnNameAndType.getEntityColumnName());
-			} else if (entityColumnNameAndType.getEntityType() == EntityType.UUID) {
-				searchQuery = appendLikeString(filter.getValue(), entityColumnNameAndType.getEntityColumnName());
-			} else if (entityColumnNameAndType.getEntityType() == EntityType.NUMBER) {
+			if (sortAndFilterEntityColumnInfo.getEntityType() == EntityType.TEXT) {
+				searchQuery = appendLike(filter.getValue().toLowerCase(), sortAndFilterEntityColumnInfo.getEntityColumnName());
+			} else if (sortAndFilterEntityColumnInfo.getEntityType() == EntityType.UUID) {
+				searchQuery = appendLikeString(filter.getValue(), sortAndFilterEntityColumnInfo.getEntityColumnName());
+			} else if (sortAndFilterEntityColumnInfo.getEntityType() == EntityType.NUMBER) {
 				// Compare as String exact match for numbers, in case users send non-numeric characters.
-				searchQuery = appendSingle(filter.getValue(), entityColumnNameAndType.getEntityColumnName());
-			} else if (entityColumnNameAndType.getEntityType() == EntityType.DATE) {
-				searchQuery = appendLikeDate(filter.getValue(), entityColumnNameAndType.getEntityColumnName());
+				searchQuery = appendSingle(filter.getValue(), sortAndFilterEntityColumnInfo.getEntityColumnName());
+			} else if (sortAndFilterEntityColumnInfo.getEntityType() == EntityType.DATE) {
+				searchQuery = appendLikeDate(filter.getValue(), sortAndFilterEntityColumnInfo.getEntityColumnName());
 			}
 		}
 
