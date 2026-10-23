@@ -166,7 +166,6 @@ public interface ListsApi {
 	@ApiOperation(value = "Submit a search request for List Items", nickname = "searchListByItemRequest", notes = "Advanced searching for the list item resource. See Search Services for additional implementation details.", response = ListItemsListResponse.class, authorizations = {
 			@Authorization(value = "AuthorizationToken") }, tags = { "Lists", })
 	@ApiResponses(value = { @ApiResponse(code = 200, message = "OK", response = ListItemsListResponse.class),
-			@ApiResponse(code = 202, message = "Accepted", response = Model202AcceptedSearchResponse.class),
 			@ApiResponse(code = 400, message = "Bad Request", response = String.class),
 			@ApiResponse(code = 401, message = "Unauthorized", response = String.class),
 			@ApiResponse(code = 403, message = "Forbidden", response = String.class) })
