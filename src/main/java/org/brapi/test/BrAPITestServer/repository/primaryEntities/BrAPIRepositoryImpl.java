@@ -9,6 +9,7 @@ import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
 import jakarta.persistence.EntityManager;
+import jakarta.persistence.Tuple;
 import jakarta.persistence.TypedQuery;
 
 import org.brapi.test.BrAPITestServer.exceptions.InvalidPagingException;
@@ -60,6 +61,38 @@ public class BrAPIRepositoryImpl<T extends BrAPIPrimaryEntity, ID extends Serial
 	}
 
 	/**
+	 * Supports paginated queries that select on multiple entities, like this:
+	 *
+	 * SELECT listItem, entity FROM GermplasmEntity entity
+	 * JOIN ListItemEntity listItem ON listItem.item = entity.germplasmName
+	 *
+	 * The resulting Page<Tuple> represents each entity as an element in the tuple from the select, so in the example above,
+	 * tuple.get(0) = ListItemEntity
+	 * tuple.get(1) = GermplasmEntity
+	 *
+	 * This is helpful when there are requirements to sort/filter/paginate an entity in relation to another object, which is the exact
+	 * use case for ListsApiController.searchListByItemRequest().
+	 *
+	 * For example usages of this method, see GermplasmService.findGermplasmByList()
+	 */
+	public Page<Tuple> findAllBySearchAndPaginateMultipleEntitySelect(SearchQueryBuilder<T> searchQuery, Pageable pageReq) throws InvalidPagingException {
+		applyUserId(searchQuery);
+
+		Long totalCount = getMultipleSelectCountQuery(searchQuery);
+
+		validatePageNumber(pageReq, totalCount);
+
+		if (totalCount == 0) {
+			// Short-circuit to avoid running possible long-running query
+			return new PageImpl<>(Collections.emptyList(), pageReq, totalCount);
+		}
+
+		List<Tuple> content = getPagedContentMultipleEntitySelect(searchQuery, pageReq);
+
+		return new PageImpl<>(content, pageReq, totalCount);
+	}
+
+	/**
 	 * This method should be used when there is a need to page entities that are complex and have lots of lazily loaded,
 	 * one-to-many collection attributes. Call this method with the query you've built.
 	 * WARN: To avoid multiple bag fetch hibernate errors, only one collection that is one-many can be fetched at a time.
@@ -73,6 +106,7 @@ public class BrAPIRepositoryImpl<T extends BrAPIPrimaryEntity, ID extends Serial
 	 * If the need is to fetch according to an entirely different base criteria, feel free to call this method again.
 	 *
 	 * The results will be paged and ordered based on the submitted searchQuery and pageReq.
+	 * TODO: This method and it's confusing use of SearchQueryBuilder.idQuery may not be necessary at all if we keep left join fetches out of initial queries and fetch after.
     */
 	public Page<T> findAllBySearchPaginatingWithFetches(SearchQueryBuilder<T> searchQuery, Pageable pageReq)
 		throws InvalidPagingException {
@@ -181,6 +215,17 @@ public class BrAPIRepositoryImpl<T extends BrAPIPrimaryEntity, ID extends Serial
         return query.getResultList();
 	}
 
+	private List<Tuple> getPagedContentMultipleEntitySelect(SearchQueryBuilder<T> searchQuery, Pageable pageReq) {
+		TypedQuery<Tuple> query = entityManager.createQuery(searchQuery.getQuery(), Tuple.class);
+
+		setQueryParamsMultipleEntitySelect(query, searchQuery);
+
+		query.setFirstResult((int) pageReq.getOffset());
+		query.setMaxResults(pageReq.getPageSize());
+
+		return query.getResultList();
+	}
+
 	private List<T> searchEntitiesWithIds(SearchQueryBuilder<T> searchQuery, List<UUID> ids) {
 		searchQuery.appendList(ids.stream().map(Object::toString).collect(Collectors.toList()), "id");
 
@@ -205,6 +250,12 @@ public class BrAPIRepositoryImpl<T extends BrAPIPrimaryEntity, ID extends Serial
 		}
 	}
 
+	private void setQueryParamsMultipleEntitySelect(TypedQuery<Tuple> query, SearchQueryBuilder<T> searchQuery) {
+		for (Entry<String, Object> entry : searchQuery.getParams().entrySet()) {
+			query.setParameter(entry.getKey(), entry.getValue());
+		}
+	}
+
 	private List<UUID> getPagedContentIdsOnly(SearchQueryBuilder<T> searchQuery, Pageable pageReq) {
 
 		TypedQuery<UUID> query = entityManager.createQuery(searchQuery.getIdQuery(), UUID.class);
@@ -220,6 +271,19 @@ public class BrAPIRepositoryImpl<T extends BrAPIPrimaryEntity, ID extends Serial
 	}
 
 
+	private Long getMultipleSelectCountQuery(SearchQueryBuilder<T> searchQuery)
+	{
+		TypedQuery<Long> query = entityManager.createQuery(searchQuery.getCountQueryMultipleSelect(), Long.class);
+		for (Entry<String, Object> entry : searchQuery.getParams().entrySet()) {
+			query.setParameter(entry.getKey(), entry.getValue());
+		}
+
+		List<Long> content = query.getResultList();
+		if (!content.isEmpty()) {
+			return content.getFirst();
+		}
+		return 0L;
+	}
 
 
 	private Long getTotalCount(SearchQueryBuilder<T> searchQuery) {
@@ -240,10 +304,12 @@ public class BrAPIRepositoryImpl<T extends BrAPIPrimaryEntity, ID extends Serial
 		return 0L;
 	}
 
-	private void validatePageNumber(Pageable pageReq, Long totalCount) throws InvalidPagingException {
-		int reqPageNum = pageReq.getPageNumber();
-		if (reqPageNum != 0 && reqPageNum > Math.floor(((double) totalCount) / pageReq.getPageSize())) {
-			// Condition indicates a request was sent where the page requested exceeds the total number of pages.
+	static void validatePageNumber(Pageable pageReq, Long totalCount) throws InvalidPagingException {
+		int requestedPage = pageReq.getPageNumber();
+		long totalPages = (long) Math.ceil(totalCount / (double) pageReq.getPageSize());
+
+		// Condition indicates a request was sent where the page requested exceeds the total number of pages.
+		if (requestedPage > 0 && requestedPage >= totalPages) {
 			// Instruct requester to send the correct request.
 			throw new InvalidPagingException();
 		}

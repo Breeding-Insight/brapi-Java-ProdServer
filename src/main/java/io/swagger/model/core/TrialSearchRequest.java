@@ -1,13 +1,32 @@
 package io.swagger.model.core;
 
-import java.util.Objects;
+import java.util.*;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.model.SearchRequest;
-import java.util.ArrayList;
-import java.util.List;
+import org.brapi.test.BrAPITestServer.model.dto.SortAndFilterEntityColumnInfo;
+import org.brapi.test.BrAPITestServer.model.dto.EntityType;
+
 import java.time.LocalDate;
 
 public class TrialSearchRequest extends SearchRequest {
+
+	// Key - allowed sort or field filter name for this entity
+	// Value = entity field name and type that represents the submitted field. Used later on in query building.
+	private static final Map<String, SortAndFilterEntityColumnInfo> ALLOWED_SORT_AND_FILTER_FIELDS =
+			Map.of(
+				"trialName", new SortAndFilterEntityColumnInfo("trialName", EntityType.TEXT),
+				"createdDate", new SortAndFilterEntityColumnInfo("createdDate", EntityType.TEXT),
+				"createdBy", new SortAndFilterEntityColumnInfo("createdBy", EntityType.TEXT),
+				"trialDbId", new SortAndFilterEntityColumnInfo("id", EntityType.UUID),
+				"programDbId",new SortAndFilterEntityColumnInfo("program.id", EntityType.UUID),
+				"startDate", new SortAndFilterEntityColumnInfo("startDate", EntityType.TEXT),
+				"endDate", new SortAndFilterEntityColumnInfo("endDate", EntityType.TEXT),
+				"active", new SortAndFilterEntityColumnInfo("active",  EntityType.BOOLEAN),
+				"programName", new SortAndFilterEntityColumnInfo("program.name", EntityType.TEXT),
+				"locationDbId", new SortAndFilterEntityColumnInfo("*studies.location.id", EntityType.UUID, true, false)
+			);
+
 	@JsonProperty("commonCropNames")
 	private List<String> commonCropNames = null;
 
@@ -49,28 +68,6 @@ public class TrialSearchRequest extends SearchRequest {
 
 	@JsonProperty("trialPUIs")
 	private List<String> trialPUIs = null;
-
-	@JsonProperty("sortBy")
-	private SortBy sortBy = null;
-
-	@JsonProperty("sortOrder")
-	private SortOrder sortOrder = null;
-
-	public SortBy getSortBy() {
-		return sortBy;
-	}
-
-	public void setSortBy(SortBy sortBy) {
-		this.sortBy = sortBy;
-	}
-
-	public SortOrder getSortOrder() {
-		return sortOrder;
-	}
-
-	public void setSortOrder(SortOrder sortOrder) {
-		this.sortOrder = sortOrder;
-	}
 
 	public TrialSearchRequest commonCropNames(List<String> commonCropNames) {
 		this.commonCropNames = commonCropNames;
@@ -444,5 +441,10 @@ public class TrialSearchRequest extends SearchRequest {
 		if (this.trialPUIs != null)
 			count += this.trialPUIs.size();
 		return count;
+	}
+
+	@Override
+	public Map<String, SortAndFilterEntityColumnInfo> getEntityColInfoBySubmittedNameMap() {
+		return ALLOWED_SORT_AND_FILTER_FIELDS;
 	}
 }
