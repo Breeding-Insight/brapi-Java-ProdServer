@@ -4,7 +4,7 @@ import jakarta.persistence.*;
 import org.brapi.test.BrAPITestServer.model.entity.BrAPIPrimaryEntity;
 import org.brapi.test.BrAPITestServer.model.entity.pheno.ObservationEntity;
 import org.brapi.test.BrAPITestServer.model.entity.pheno.ObservationUnitEntity;
-import org.hibernate.annotations.Formula;
+import org.hibernate.annotations.Collate;
 import org.hibernate.annotations.Where;
 
 import java.time.OffsetDateTime;
@@ -33,6 +33,7 @@ public class TrialEntity extends BrAPIPrimaryEntity {
 	private Date startDate;
 	@Column
 	private String trialDescription;
+	@Collate(value = "natural_sort")
 	@Column
 	private String trialName;
 	@Column
@@ -40,10 +41,11 @@ public class TrialEntity extends BrAPIPrimaryEntity {
 	@Column(name = "soft_deleted")
 	private boolean softDeleted;
 
-	@Formula("(additional_info #>> '{createdDate}')")
-	private String createdDate;
+	@Column(name = "created_date", insertable = false, updatable = false)
+	private Date createdDate;
 
-	@Formula("(additional_info #>> '{createdBy,userName}')")
+	@Collate(value = "natural_sort")
+	@Column(name = "created_by", insertable = false, updatable = false)
 	private String createdBy;
 
 	@ManyToOne(fetch = FetchType.LAZY)
