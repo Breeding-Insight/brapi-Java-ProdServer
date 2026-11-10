@@ -17,6 +17,9 @@ public class ObservationVariableNewRequest extends VariableBaseClass {
 	@JsonProperty("observationVariableName")
 	private Optional<String> observationVariableName = null;
 
+	@JsonProperty("programDbId")
+	private String programDbId = null;
+
 	public ObservationVariableNewRequest observationVariableName(String observationVariableName) {
 		this.observationVariableName = UpdateUtility.setField(observationVariableName);
 		return this;
@@ -28,6 +31,14 @@ public class ObservationVariableNewRequest extends VariableBaseClass {
 
 	public void setObservationVariableName(String observationVariableName) {
 		this.observationVariableName = UpdateUtility.setField(observationVariableName);
+	}
+
+	public String getProgramDbId() {
+		return programDbId;
+	}
+
+	public void setProgramDbId(String programDbId) {
+		this.programDbId = programDbId;
 	}
 
 	@Override
@@ -54,6 +65,7 @@ public class ObservationVariableNewRequest extends VariableBaseClass {
 		sb.append("class ObservationVariableNewRequest {\n");
 		sb.append("    ").append(toIndentedString(super.toString())).append("\n");
 		sb.append("    observationVariableName: ").append(toIndentedString(observationVariableName)).append("\n");
+		sb.append("    programDbId: ").append(toIndentedString(programDbId)).append("\n");
 		sb.append("}");
 		return sb.toString();
 	}

@@ -7,6 +7,7 @@ import jakarta.validation.Valid;
 import org.brapi.test.BrAPITestServer.exceptions.BrAPIServerDbIdNotFoundException;
 import org.brapi.test.BrAPITestServer.exceptions.BrAPIServerException;
 import org.brapi.test.BrAPITestServer.model.entity.core.CropEntity;
+import org.brapi.test.BrAPITestServer.model.entity.core.ProgramEntity;
 import org.brapi.test.BrAPITestServer.model.entity.pheno.*;
 import org.brapi.test.BrAPITestServer.repository.primaryEntities.core.TraitRepository;
 import org.brapi.test.BrAPITestServer.repository.primaryEntities.pheno.MethodRepository;
@@ -17,6 +18,7 @@ import org.brapi.test.BrAPITestServer.service.PagingUtility;
 import org.brapi.test.BrAPITestServer.service.SearchQueryBuilder;
 import org.brapi.test.BrAPITestServer.service.UpdateUtility;
 import org.brapi.test.BrAPITestServer.service.core.CropService;
+import org.brapi.test.BrAPITestServer.service.core.ProgramService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,11 +49,12 @@ public class ObservationVariableService {
 	private final MethodService methodService;
 	private final ScaleService scaleService;
 	private final TraitService traitService;
+	private final ProgramService programService;
 
 	@Autowired
 	public ObservationVariableService(ObservationVariableRepository observationVariableRepository,
-									  OntologyService ontologyService, CropService cropService, MethodService methodService,
-									  ScaleService scaleService, TraitService traitService, MethodRepository methodRepository, ScaleRepository scaleRepository, TraitRepository traitRepository) {
+	                                  OntologyService ontologyService, CropService cropService, MethodService methodService,
+	                                  ScaleService scaleService, TraitService traitService, MethodRepository methodRepository, ScaleRepository scaleRepository, TraitRepository traitRepository, ProgramService programService) {
 		this.observationVariableRepository = observationVariableRepository;
 		this.methodRepository = methodRepository;
 		this.scaleRepository = scaleRepository;
@@ -61,6 +64,7 @@ public class ObservationVariableService {
 		this.methodService = methodService;
 		this.scaleService = scaleService;
 		this.traitService = traitService;
+		this.programService = programService;
 	}
 
 	public List<ObservationVariable> findObservationVariables(String observationVariableDbId,
@@ -124,7 +128,8 @@ public class ObservationVariableService {
 				   .leftJoinFetch("method", "varMethod")
 				   .leftJoinFetch("ontology", "varOntology")
 				   .leftJoinFetch("scale", "varScale")
-				   .leftJoinFetch("trait", "varTrait");
+				   .leftJoinFetch("trait", "varTrait")
+				   .leftJoinFetch("program", "varProgram");
 		if (request.getStudyDbId() != null) {
 			searchQuery = searchQuery.join("observations", "observation").appendList(request.getStudyDbId(),
 					"*observation.observationUnit.study.id");
@@ -136,7 +141,10 @@ public class ObservationVariableService {
 				.appendList(request.getOntologyDbIds(), "ontology.id").appendList(request.getScaleDbIds(), "scale.id")
 				.appendList(request.getTraitClasses(), "trait.traitClass")
 				.appendList(request.getTraitDbIds(), "trait.id")
-				.appendEnumList(request.getDataTypes(), "scale.dataType");
+				.appendList(request.getTraitNames(), "trait.name")
+				.appendEnumList(request.getDataTypes(), "scale.dataType")
+				.appendList(request.getProgramDbIds(), "program.id")
+				.appendList(request.getProgramNames(), "program.name");
 
 		log.debug("Starting variable search");
 		Page<ObservationVariableEntity> page = observationVariableRepository.findAllBySearchAndPaginate(searchQuery, pageReq);
@@ -201,6 +209,11 @@ public class ObservationVariableService {
 		var.setObservationVariableName(entity.getName());
 		var.setObservationVariableDbId(entity.getId().toString());
 
+		if (entity.getProgram() != null) {
+			var.setProgramDbId(entity.getProgram().getId().toString());
+			var.setProgramName(entity.getProgram().getName());
+		}
+
 		return var;
 	}
 
@@ -240,6 +253,11 @@ public class ObservationVariableService {
 			throws BrAPIServerException {
 		updateBaseEntity(entity, request);
 		entity.setName(UpdateUtility.replaceField(request.getObservationVariableName(), entity.getName()));
+
+		if (request.getProgramDbId() != null) {
+			ProgramEntity programEntity = programService.getProgramEntity(request.getProgramDbId());
+			entity.setProgram(programEntity);
+		}
 	}
 
 	public void updateBaseEntity(VariableBaseEntity entity, VariableBaseClass request) throws BrAPIServerException {
