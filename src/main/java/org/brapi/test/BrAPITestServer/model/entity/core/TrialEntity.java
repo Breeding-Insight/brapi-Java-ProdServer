@@ -48,6 +48,10 @@ public class TrialEntity extends BrAPIPrimaryEntity {
 	@Column(name = "created_by", insertable = false, updatable = false)
 	private String createdBy;
 
+	@Collate(value = "natural_sort")
+	@Column(name = "trial_name_no_key", insertable = false, updatable = false)
+	private String trialNameNoKey;
+
 	@ManyToOne(fetch = FetchType.LAZY)
 	private CropEntity crop;
 	@ManyToOne(fetch = FetchType.LAZY)
