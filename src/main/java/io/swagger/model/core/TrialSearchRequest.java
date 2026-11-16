@@ -15,7 +15,7 @@ public class TrialSearchRequest extends SearchRequest {
 	// Value = entity field name and type that represents the submitted field. Used later on in query building.
 	private static final Map<String, SortAndFilterEntityColumnInfo> ALLOWED_SORT_AND_FILTER_FIELDS =
 			Map.of(
-				"trialName", new SortAndFilterEntityColumnInfo("trialName", EntityType.TEXT),
+				"trialName", new SortAndFilterEntityColumnInfo("trialNameNoKey", EntityType.TEXT),
 				"createdDate", new SortAndFilterEntityColumnInfo("createdDate", EntityType.DATE),
 				"createdBy", new SortAndFilterEntityColumnInfo("createdBy", EntityType.TEXT),
 				"trialDbId", new SortAndFilterEntityColumnInfo("id", EntityType.UUID),
