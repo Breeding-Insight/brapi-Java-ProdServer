@@ -1,9 +1,7 @@
 package org.brapi.test.BrAPITestServer.service.core;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import org.brapi.test.BrAPITestServer.exceptions.BrAPIServerDbIdNotFoundException;
 import org.brapi.test.BrAPITestServer.exceptions.BrAPIServerException;
@@ -76,14 +74,33 @@ public class ProgramService {
 		return programs;
 	}
 
-	public List<ProgramEntity> findByIds(List<String> programDbIds) {
-		var result = new ArrayList<ProgramEntity>();
+	public List<ProgramEntity> findByIds(List<String> programDbIds) throws BrAPIServerException {
+		List<ProgramEntity> result = new ArrayList<>();
 
 		if (programDbIds.isEmpty()) {
 			return result;
 		}
 
-		return programRepository.findByIdIn(programDbIds.stream().map(UUID::fromString).toList());
+		// Dedup programIds by loading into set
+		Set<String> programDbIdSet = new HashSet<>(programDbIds);
+
+		result = programRepository.findByIdIn(programDbIds.stream().map(UUID::fromString).toList());
+
+		if (programDbIdSet.size() != result.size()) {
+			List<String> dbIdsNotFound = new ArrayList<>();
+
+			Set<String> foundDbIds = result.stream().map(pe -> pe.getId().toString()).collect(Collectors.toSet());
+
+			programDbIdSet.forEach(dbId -> {
+				if (!foundDbIds.contains(dbId)) {
+					dbIdsNotFound.add(dbId);
+				}
+			});
+
+			throw new BrAPIServerException(HttpStatus.NOT_FOUND, String.format("The following submitted programDbIds were not found in the db: [%s]", dbIdsNotFound));
+		}
+
+		return result;
 	}
 
 	public Program getProgram(String programDbId) throws BrAPIServerException {

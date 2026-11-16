@@ -3,6 +3,7 @@ package org.brapi.test.BrAPITestServer.model.entity.core;
 
 import jakarta.persistence.*;
 import org.brapi.test.BrAPITestServer.model.entity.BrAPIBaseEntity;
+import org.hibernate.annotations.Formula;
 import org.hibernate.annotations.Where;
 
 @Entity
@@ -17,6 +18,8 @@ public class ListItemEntity extends BrAPIBaseEntity {
 	private Integer position;
 	@Column(name = "soft_deleted")
 	private boolean softDeleted;
+	@Formula("position + 1")
+	private Integer positionIndexedBy1;
 	
 	public ListEntity getList() {
 		return list;
@@ -38,4 +41,16 @@ public class ListItemEntity extends BrAPIBaseEntity {
 	}
 	public boolean getSoftDeleted() { return softDeleted; }
 	public void setSoftDeleted(boolean softDeleted) { this.softDeleted = softDeleted; }
+
+	public boolean isSoftDeleted() {
+		return softDeleted;
+	}
+
+	public Integer getPositionIndexedBy1() {
+		return positionIndexedBy1;
+	}
+
+	public void setPositionIndexedBy1(Integer positionIndexedBy1) {
+		this.positionIndexedBy1 = positionIndexedBy1;
+	}
 }
