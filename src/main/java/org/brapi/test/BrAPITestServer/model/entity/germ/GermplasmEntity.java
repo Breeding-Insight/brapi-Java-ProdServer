@@ -129,6 +129,10 @@ public class GermplasmEntity extends BrAPIPrimaryEntity {
     @Formula("cast(additional_info #>> '{importEntryNumber}' AS INTEGER)")
     private Integer importEntryNumber;
 
+    @Collate(value = "natural_sort")
+    @Column(name = "external_uid", nullable = false)
+    private String externalUid = "";
+
     public GermplasmInstituteEntity getHostInstitute() {
         if (getInstitutes() != null) {
             for (GermplasmInstituteEntity institute : getInstitutes()) {
@@ -406,6 +410,13 @@ public class GermplasmEntity extends BrAPIPrimaryEntity {
 
     public void setProgram(ProgramEntity program) {
         this.program = program;
+    }
+
+    public String getExternalUid() {
+        return externalUid;
+    }
+    public void setExternalUid(String externalUid) {
+        this.externalUid = externalUid != null ? externalUid : "";
     }
 
 }

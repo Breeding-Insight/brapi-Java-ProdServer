@@ -25,7 +25,8 @@ public class GermplasmSearchRequest extends SearchRequest {
 					Map.entry("createdDate", new SortAndFilterEntityColumnInfo("createdDate",  EntityType.DATE)),
 					Map.entry("createdBy", new SortAndFilterEntityColumnInfo("createdBy", EntityType.TEXT)),
 					Map.entry("importEntryNumber", new SortAndFilterEntityColumnInfo("importEntryNumber", EntityType.NUMBER, false, true)),
-					Map.entry("synonyms", new SortAndFilterEntityColumnInfo("*synonyms.synonym", EntityType.TEXT, true, false))
+					Map.entry("synonyms", new SortAndFilterEntityColumnInfo("*synonyms.synonym", EntityType.TEXT, true, false)),
+					Map.entry("externalUID", new SortAndFilterEntityColumnInfo("externalUid", EntityType.TEXT))
 			);
 
 	protected static Map<String, SortAndFilterEntityColumnInfo> copyAllowedSortAndFilterFields() {
