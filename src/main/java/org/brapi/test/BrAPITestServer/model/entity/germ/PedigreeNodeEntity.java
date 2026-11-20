@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import org.brapi.test.BrAPITestServer.model.entity.BrAPIPrimaryEntity;
 import org.brapi.test.BrAPITestServer.model.entity.germ.PedigreeEdgeEntity.EdgeType;
 import org.hibernate.annotations.BatchSize;
+import org.hibernate.annotations.Collate;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,6 +25,9 @@ public class PedigreeNodeEntity extends BrAPIPrimaryEntity {
 	private GermplasmEntity germplasm;
 	@Column
 	private String pedigreeString;
+	@Collate(value = "natural_sort")
+	@Column(name = "pedigree_string_no_key", insertable = false, updatable = false)
+	private String pedigreeStringNoKey;
     @BatchSize(size = 50)
 	@OneToMany(mappedBy = "thisNode", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
 	private List<PedigreeEdgeEntity> edges = new ArrayList<>();
