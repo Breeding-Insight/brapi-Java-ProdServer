@@ -699,8 +699,9 @@ public class GermplasmService {
 			if (request.getExternalReferences() != null) {
 				String submittedExternalUID = request.getExternalReferences()
 						.stream()
-						.filter(ex -> ex.getReferenceSource().equals(EXTERNAL_UID))
+						.filter(ex -> EXTERNAL_UID.equals(ex.getReferenceSource()))
 						.map(ExternalReferencesInner::getReferenceId)
+						.filter(Objects::nonNull)
 						.findFirst()
 						.orElse("");
 				entity.setExternalUid(submittedExternalUID);
@@ -793,8 +794,9 @@ public class GermplasmService {
 		if (request.getExternalReferences() != null) {
 			String submittedExternalUID = request.getExternalReferences()
 					.stream()
-					.filter(ex -> ex.getReferenceSource().equals(EXTERNAL_UID))
+					.filter(ex -> EXTERNAL_UID.equals(ex.getReferenceSource()))
 					.map(ExternalReferencesInner::getReferenceId)
+					.filter(Objects::nonNull)
 					.findFirst()
 					.orElse("");
 			entity.setExternalUid(submittedExternalUID);
