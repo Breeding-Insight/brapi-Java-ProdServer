@@ -3,12 +3,35 @@ package io.swagger.model.germ;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.model.SearchRequest;
+import org.brapi.test.BrAPITestServer.model.dto.SortAndFilterEntityColumnInfo;
+import org.brapi.test.BrAPITestServer.model.dto.EntityType;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 public class GermplasmSearchRequest extends SearchRequest {
+
+	// Key - allowed sort or field filter name for this entity
+	// Value = entity field name and type that represents the submitted field. Used later on in query building.
+	private static final Map<String, SortAndFilterEntityColumnInfo> ALLOWED_SORT_AND_FILTER_FIELDS =
+			Map.ofEntries(
+					// accessionNumber = GID for DeltaBreed
+					Map.entry("accessionNumber", new SortAndFilterEntityColumnInfo("accessionNumber", EntityType.NUMBER)),
+					Map.entry("defaultDisplayName", new SortAndFilterEntityColumnInfo("defaultDisplayName", EntityType.TEXT)),
+					Map.entry("breedingMethod", new SortAndFilterEntityColumnInfo("methodName", EntityType.TEXT)),
+					Map.entry("seedSource", new SortAndFilterEntityColumnInfo("seedSource", EntityType.TEXT)),
+					Map.entry("pedigree",new SortAndFilterEntityColumnInfo("pedigree.pedigreeString", EntityType.TEXT)),
+					Map.entry("femaleParentGID", new SortAndFilterEntityColumnInfo("femaleParentGid", EntityType.TEXT)),
+					Map.entry("maleParentGID", new SortAndFilterEntityColumnInfo("maleParentGid", EntityType.TEXT)),
+					Map.entry("createdDate", new SortAndFilterEntityColumnInfo("createdDate",  EntityType.DATE)),
+					Map.entry("createdBy", new SortAndFilterEntityColumnInfo("createdBy", EntityType.TEXT)),
+					Map.entry("importEntryNumber", new SortAndFilterEntityColumnInfo("importEntryNumber", EntityType.NUMBER, false, true)),
+					Map.entry("synonyms", new SortAndFilterEntityColumnInfo("*synonyms.synonym", EntityType.TEXT, true, false))
+			);
+
+	protected static Map<String, SortAndFilterEntityColumnInfo> copyAllowedSortAndFilterFields() {
+		return new HashMap<>(ALLOWED_SORT_AND_FILTER_FIELDS);
+	}
+
 	@JsonProperty("accessionNumbers")
 	private List<String> accessionNumbers = null;
 
@@ -574,6 +597,8 @@ public class GermplasmSearchRequest extends SearchRequest {
 
 	@Override
 	@JsonIgnore
+	// TODO: NOTE - External Reference IDs, exref sources, germplasmNames and germplasmDbIds have been removed from the parameter count to speed up lookups and prevent async search requests.
+	// TODO: We would need to reconsider this if we decide to use parameter count as the way to trigger async requests when complete [BI-3021]
 	public Integer getTotalParameterCount() {
 		Integer count = 0;
 		if (this.accessionNumbers != null)
@@ -584,18 +609,10 @@ public class GermplasmSearchRequest extends SearchRequest {
 			count += this.collections.size();
 		if (this.commonCropNames != null)
 			count += this.commonCropNames.size();
-		if (this.externalReferenceIds != null)
-			count += this.externalReferenceIds.size();
-		if (this.externalReferenceSources != null)
-			count += this.externalReferenceSources.size();
 		if (this.familyCodes != null)
 			count += this.familyCodes.size();
 		if (this.genus != null)
 			count += this.genus.size();
-		if (this.germplasmDbIds != null)
-			count += this.germplasmDbIds.size();
-		if (this.germplasmNames != null)
-			count += this.germplasmNames.size();
 		if (this.germplasmPUIs != null)
 			count += this.germplasmPUIs.size();
 		if (this.instituteCodes != null)
@@ -622,5 +639,10 @@ public class GermplasmSearchRequest extends SearchRequest {
 			count += this.trialNames.size();
 
 		return count;
+	}
+
+	@Override
+	public Map<String, SortAndFilterEntityColumnInfo> getEntityColInfoBySubmittedNameMap() {
+		return ALLOWED_SORT_AND_FILTER_FIELDS;
 	}
 }

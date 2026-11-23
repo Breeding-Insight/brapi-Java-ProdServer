@@ -21,6 +21,12 @@ public class ObservationVariable extends VariableBaseClass  {
   @JsonProperty("observationVariableName")
   private String observationVariableName = null;
 
+  @JsonProperty("programDbId")
+  private String programDbId = null;
+
+  @JsonProperty("programName")
+  private String programName = null;
+
   public ObservationVariable observationVariableDbId(String observationVariableDbId) {
     this.observationVariableDbId = observationVariableDbId;
     return this;
@@ -61,6 +67,21 @@ public class ObservationVariable extends VariableBaseClass  {
     this.observationVariableName = observationVariableName;
   }
 
+  public String getProgramDbId() {
+    return programDbId;
+  }
+
+  public void setProgramDbId(String programDbId) {
+    this.programDbId = programDbId;
+  }
+
+  public String getProgramName() {
+    return programName;
+  }
+
+  public void setProgramName(String programName) {
+    this.programName = programName;
+  }
 
   @Override
   public boolean equals(java.lang.Object o) {

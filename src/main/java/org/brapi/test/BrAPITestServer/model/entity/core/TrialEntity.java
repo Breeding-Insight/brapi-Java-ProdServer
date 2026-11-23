@@ -4,8 +4,10 @@ import jakarta.persistence.*;
 import org.brapi.test.BrAPITestServer.model.entity.BrAPIPrimaryEntity;
 import org.brapi.test.BrAPITestServer.model.entity.pheno.ObservationEntity;
 import org.brapi.test.BrAPITestServer.model.entity.pheno.ObservationUnitEntity;
+import org.hibernate.annotations.Collate;
 import org.hibernate.annotations.Where;
 
+import java.time.OffsetDateTime;
 import java.util.Date;
 import java.util.List;
 @Entity
@@ -31,12 +33,24 @@ public class TrialEntity extends BrAPIPrimaryEntity {
 	private Date startDate;
 	@Column
 	private String trialDescription;
+	@Collate(value = "natural_sort")
 	@Column
 	private String trialName;
 	@Column
 	private String trialPUI;
 	@Column(name = "soft_deleted")
 	private boolean softDeleted;
+
+	@Column(name = "created_date", insertable = false, updatable = false)
+	private Date createdDate;
+
+	@Collate(value = "natural_sort")
+	@Column(name = "created_by", insertable = false, updatable = false)
+	private String createdBy;
+
+	@Collate(value = "natural_sort")
+	@Column(name = "trial_name_no_key", insertable = false, updatable = false)
+	private String trialNameNoKey;
 
 	@ManyToOne(fetch = FetchType.LAZY)
 	private CropEntity crop;
