@@ -19,7 +19,7 @@ public class GermplasmSearchRequest extends SearchRequest {
 					Map.entry("defaultDisplayName", new SortAndFilterEntityColumnInfo("defaultDisplayName", EntityType.TEXT)),
 					Map.entry("breedingMethod", new SortAndFilterEntityColumnInfo("methodName", EntityType.TEXT)),
 					Map.entry("seedSource", new SortAndFilterEntityColumnInfo("seedSource", EntityType.TEXT)),
-					Map.entry("pedigree",new SortAndFilterEntityColumnInfo("pedigree.pedigreeString", EntityType.TEXT)),
+					Map.entry("pedigree",new SortAndFilterEntityColumnInfo("pedigree.pedigreeStringNoKey", EntityType.TEXT)),
 					Map.entry("femaleParentGID", new SortAndFilterEntityColumnInfo("femaleParentGid", EntityType.TEXT)),
 					Map.entry("maleParentGID", new SortAndFilterEntityColumnInfo("maleParentGid", EntityType.TEXT)),
 					Map.entry("createdDate", new SortAndFilterEntityColumnInfo("createdDate",  EntityType.DATE)),
