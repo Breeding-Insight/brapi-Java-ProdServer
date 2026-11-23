@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import io.swagger.model.ExternalReferencesInner;
 import io.swagger.model.core.GermplasmListSearchRequest;
 import io.swagger.model.core.ListDetails;
 import io.swagger.model.core.ListItem;
@@ -54,6 +55,7 @@ public class GermplasmService {
 	private final BreedingMethodService breedingMethodService;
 	private final CropService cropService;
 	private final ProgramService programService;
+	private final static String EXTERNAL_UID = "External UID";
 
 	@Autowired
 	public GermplasmService(GermplasmRepository germplasmRepository, GermplasmDonorRepository donorRepository,
@@ -694,6 +696,22 @@ public class GermplasmService {
 
 			UpdateUtility.updateEntity(request, entity);
 
+			if (request.getExternalReferences() != null) {
+				String submittedExternalUID = request.getExternalReferences()
+						.stream()
+						.filter(ex -> EXTERNAL_UID.equals(ex.getReferenceSource()))
+						.map(ExternalReferencesInner::getReferenceId)
+						.filter(Objects::nonNull)
+						.findFirst()
+						.orElse("");
+				entity.setExternalUid(submittedExternalUID);
+			}
+
+			if (entity.getExternalUid() == null) {
+				// This property by definition cannot be null, this is some extra protection against that
+				entity.setExternalUid("");
+			}
+
 			if (request.getAccessionNumber() != null)
 				entity.setAccessionNumber(request.getAccessionNumber());
 			if (request.getAcquisitionDate() != null) {
@@ -772,6 +790,17 @@ public class GermplasmService {
 
 	private void updateEntity(GermplasmEntity entity, GermplasmNewRequest request) throws BrAPIServerException {
 		UpdateUtility.updateEntity(request, entity);
+
+		if (request.getExternalReferences() != null) {
+			String submittedExternalUID = request.getExternalReferences()
+					.stream()
+					.filter(ex -> EXTERNAL_UID.equals(ex.getReferenceSource()))
+					.map(ExternalReferencesInner::getReferenceId)
+					.filter(Objects::nonNull)
+					.findFirst()
+					.orElse("");
+			entity.setExternalUid(submittedExternalUID);
+		}
 
 		if (request.getAccessionNumber() != null)
 			entity.setAccessionNumber(request.getAccessionNumber());
