@@ -140,10 +140,12 @@ public abstract class SearchRequest {
 
 	}
 
+	@JsonProperty("filterBy")
 	public List<FilterBy> getFilterBy() {
 		return filterBy;
 	}
 
+	@JsonProperty("filterBy")
 	public void setFilterBy(List<FilterBy> filterBy) throws BrAPIServerException {
 
 		if (filterBy == null || filterBy.isEmpty()) {
@@ -178,10 +180,12 @@ public abstract class SearchRequest {
 		this.filterBy = filterBy;
 	}
 
+	@JsonProperty("sortBy")
 	public List<SortBy> getSortByElements() {
 		return sortBy;
 	}
 
+	@JsonProperty("sortBy")
 	public void setSortBy(List<SortBy> sortBy) throws BrAPIServerException {
 
 		if (sortBy == null || sortBy.isEmpty()) {
